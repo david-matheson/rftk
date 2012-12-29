@@ -1,0 +1,14 @@
+*.so
+*.pyc
+*.DS_Store
+*.exr
+*.pkl
+*.plk
+*.png
+*.swp
+*.o
+*_wrap.c
+*backup
+*.swn
+*.swo
+*.html
