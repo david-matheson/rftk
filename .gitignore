@@ -8,6 +8,7 @@
 *.swp
 *.o
 *_wrap.c
+*_wrap.cpp
 *backup
 *.swn
 *.swo
