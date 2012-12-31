@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tr1/memory>
 #include <vector>
 
 class MatrixBufferFloat {
@@ -15,12 +16,14 @@ public:
 
     void Set(int m, int n, float value);
     float Get(int m, int n);
-    void SetUnsafe(int m, int n, float value) { mData[m*mN + n] = value; }
-    float GetUnsafe(int m, int n) { return mData[ m*mN + n]; }
+    void SetUnsafe(int m, int n, float value) { (*mData)[m*mN + n] = value; }
+    float GetUnsafe(int m, int n) { return (*mData)[ m*mN + n]; }
 
+    MatrixBufferFloat SharedMemoryCopy() { return *this; }
     void AsNumpy(float* outfloat2d, int m, int n);
 
-    std::vector< float > mData;
+private:
+    std::tr1::shared_ptr< std::vector< float > > mData;
     int mM;
     int mN;
 };
@@ -39,12 +42,14 @@ public:
 
     void Set(int m, int n, int value);
     int Get(int m, int n);
-    void SetUnsafe(int m, int n, int value) { mData[m*mN + n] = value; }
-    int GetUnsafe(int m, int n) { return mData[ m*mN + n]; }
+    void SetUnsafe(int m, int n, int value) { (*mData)[m*mN + n] = value; }
+    int GetUnsafe(int m, int n) { return (*mData)[ m*mN + n]; }
 
+    MatrixBufferInt SharedMemoryCopy() { return *this; }
     void AsNumpy(int* outint2d, int m, int n);
 
-    std::vector< int > mData;
+private:
+    std::tr1::shared_ptr< std::vector< int > > mData;
     int mM;
     int mN;
 };

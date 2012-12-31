@@ -3,7 +3,7 @@
 
 
 ImgBufferFloat::ImgBufferFloat(int numberOfImgs, int m, int n)
-: mData(numberOfImgs*m*n)
+: mData( new std::vector< float >(numberOfImgs*m*n) )
 , mNumberOfImgs(numberOfImgs)
 , mM(m)
 , mN(n)
@@ -11,7 +11,7 @@ ImgBufferFloat::ImgBufferFloat(int numberOfImgs, int m, int n)
 }
 
 ImgBufferFloat::ImgBufferFloat(float* data, int numberOfImgs, int m, int n)
-: mData(data, data + numberOfImgs*m*n)
+: mData( new std::vector< float >(data, data + numberOfImgs*m*n) )
 , mNumberOfImgs(numberOfImgs)
 , mM(m)
 , mN(n)
@@ -19,14 +19,15 @@ ImgBufferFloat::ImgBufferFloat(float* data, int numberOfImgs, int m, int n)
 }
 
 ImgBufferFloat::ImgBufferFloat(double* data, int numberOfImgs, int m, int n)
-: mData(numberOfImgs*m*n)
+: mData( new std::vector< float >(numberOfImgs*m*n) )
 , mNumberOfImgs(numberOfImgs)
 , mM(m)
 , mN(n)
 {
+    std::tr1::shared_ptr<int> p(new int(42));  
     for(int i=0; i<numberOfImgs*m*n; i++)
     {
-        mData[i] = static_cast<float>(data[i]);
+        (*mData)[i] = static_cast<float>(data[i]);
     }
 }
 
@@ -35,7 +36,7 @@ void ImgBufferFloat::Set(int img, int m, int n, float value)
     ASSERT_VALID_RANGE(img, 0, mNumberOfImgs)
     ASSERT_VALID_RANGE(m, 0, mM)
     ASSERT_VALID_RANGE(n, 0, mN)
-    mData[img*mM*mN + m*mN + n] = value;
+    (*mData)[img*mM*mN + m*mN + n] = value;
 }
 
 float ImgBufferFloat::Get(int img, int m, int n)
@@ -43,7 +44,7 @@ float ImgBufferFloat::Get(int img, int m, int n)
     ASSERT_VALID_RANGE(img, 0, mNumberOfImgs)
     ASSERT_VALID_RANGE(m, 0, mM)
     ASSERT_VALID_RANGE(n, 0, mN)
-    return mData[img*mM*mN + m*mN + n];
+    return (*mData)[img*mM*mN + m*mN + n];
 }
 
 void ImgBufferFloat::AsNumpy(float* outfloat3d, int l, int m, int n)
@@ -51,14 +52,14 @@ void ImgBufferFloat::AsNumpy(float* outfloat3d, int l, int m, int n)
     ASSERT_ARG_DIM_3D(l, m, n, mNumberOfImgs, mM, mN)
     for(int i=0; i<l*m*n; i++)
     {
-        outfloat3d[i] = mData[i];
-    }    
+        outfloat3d[i] = (*mData)[i];
+    }  
 }
 
 
 
 ImgBufferInt::ImgBufferInt(int numberOfImgs, int m, int n)
-: mData(numberOfImgs*m*n)
+: mData( new std::vector< int >(numberOfImgs*m*n) )
 , mNumberOfImgs(numberOfImgs)
 , mM(m)
 , mN(n)
@@ -66,7 +67,7 @@ ImgBufferInt::ImgBufferInt(int numberOfImgs, int m, int n)
 }
 
 ImgBufferInt::ImgBufferInt(int* data, int numberOfImgs, int m, int n)
-: mData(data, data + numberOfImgs*m*n)
+: mData( new std::vector< int >(data, data + numberOfImgs*m*n) )
 , mNumberOfImgs(numberOfImgs)
 , mM(m)
 , mN(n)
@@ -74,14 +75,14 @@ ImgBufferInt::ImgBufferInt(int* data, int numberOfImgs, int m, int n)
 }
 
 ImgBufferInt::ImgBufferInt(long long* data, int numberOfImgs, int m, int n)
-: mData(numberOfImgs*m*n)
+: mData( new std::vector< int >(numberOfImgs*m*n) )
 , mNumberOfImgs(numberOfImgs)
 , mM(m)
 , mN(n)
 {
     for(int i=0; i<numberOfImgs*m*n; i++)
     {
-        mData[i] = static_cast<int>(data[i]);
+        (*mData)[i] = static_cast<int>(data[i]);
     }
 }
 
@@ -90,7 +91,7 @@ void ImgBufferInt::Set(int img, int m, int n, int value)
     ASSERT_VALID_RANGE(img, 0, mNumberOfImgs)
     ASSERT_VALID_RANGE(m, 0, mM)
     ASSERT_VALID_RANGE(n, 0, mN)
-    mData[img*mM*mN + m*mN + n] = value;
+    (*mData)[img*mM*mN + m*mN + n] = value;
 }
 
 int ImgBufferInt::Get(int img, int m, int n)
@@ -98,7 +99,7 @@ int ImgBufferInt::Get(int img, int m, int n)
     ASSERT_VALID_RANGE(img, 0, mNumberOfImgs)
     ASSERT_VALID_RANGE(m, 0, mM)
     ASSERT_VALID_RANGE(n, 0, mN)
-    return mData[img*mM*mN + m*mN + n];
+    return (*mData)[img*mM*mN + m*mN + n];
 }
 
 void ImgBufferInt::AsNumpy(int* outint3d, int l, int m, int n)
@@ -106,7 +107,7 @@ void ImgBufferInt::AsNumpy(int* outint3d, int l, int m, int n)
     ASSERT_ARG_DIM_3D(l, m, n, mNumberOfImgs, mM, mN)
     for(int i=0; i<l*m*n; i++)
     {
-        outint3d[i] = mData[i];
+        outint3d[i] = (*mData)[i];
     }    
 }
 

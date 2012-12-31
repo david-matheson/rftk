@@ -2,27 +2,27 @@
 #include "MatrixBuffer.h"
 
 MatrixBufferFloat::MatrixBufferFloat(int m, int n)
-: mData(m*n)
+: mData( new std::vector< float >(m*n) )
 , mM(m)
 , mN(n)
 {
 }
 
 MatrixBufferFloat::MatrixBufferFloat(float* data, int m, int n)
-: mData(data, data + m*n)
+: mData( new std::vector< float >(data, data + m*n) )
 , mM(m)
 , mN(n)
 {
 }
 
 MatrixBufferFloat::MatrixBufferFloat(double* data, int m, int n)
-: mData(m*n)
+: mData( new std::vector< float >(m*n) )
 , mM(m)
 , mN(n)
 {
     for(int i=0; i<m*n; i++)
     {
-        mData[i] = static_cast<float>(data[i]);
+        (*mData)[i] = static_cast<float>(data[i]);
     }
 }
 
@@ -30,14 +30,14 @@ void MatrixBufferFloat::Set(int m, int n, float value)
 {
     ASSERT_VALID_RANGE(m, 0, mM)
     ASSERT_VALID_RANGE(n, 0, mN)
-    mData[m*mN + n] = value;
+    (*mData)[m*mN + n] = value;
 }
 
 float MatrixBufferFloat::Get(int m, int n)
 {
     ASSERT_VALID_RANGE(m, 0, mM)
     ASSERT_VALID_RANGE(n, 0, mN)
-    return mData[m*mN + n];
+    return (*mData)[m*mN + n];
 }
 
 void MatrixBufferFloat::AsNumpy(float* outfloat2d, int m, int n)
@@ -45,33 +45,33 @@ void MatrixBufferFloat::AsNumpy(float* outfloat2d, int m, int n)
     ASSERT_ARG_DIM_2D(m, n, mM, mN)
     for(int i=0; i<m*n; i++)
     {
-        outfloat2d[i] = mData[i];
+        outfloat2d[i] = (*mData)[i];
     }    
 }
 
 
 MatrixBufferInt::MatrixBufferInt(int m, int n)
-: mData(m*n)
+: mData( new std::vector< int >(m*n) )
 , mM(m)
 , mN(n)
 {
 }
 
 MatrixBufferInt::MatrixBufferInt(int* data, int m, int n)
-: mData(data, data + m*n)
+: mData( new std::vector< int >(data, data + m*n) )
 , mM(m)
 , mN(n)
 {
 }
 
 MatrixBufferInt::MatrixBufferInt(long long* data, int m, int n)
-: mData(m*n)
+: mData( new std::vector< int >(m*n) )
 , mM(m)
 , mN(n)
 {
     for(int i=0; i<m*n; i++)
     {
-        mData[i] = static_cast<int>(data[i]);
+        (*mData)[i] = static_cast<int>(data[i]);
     }
 }
 
@@ -79,14 +79,14 @@ void MatrixBufferInt::Set(int m, int n, int value)
 {
     ASSERT_VALID_RANGE(m, 0, mM)
     ASSERT_VALID_RANGE(n, 0, mN)
-    mData[m*mN + n] = value;
+    (*mData)[m*mN + n] = value;
 }
 
 int MatrixBufferInt::Get(int m, int n)
 {
     ASSERT_VALID_RANGE(m, 0, mM)
     ASSERT_VALID_RANGE(n, 0, mN)
-    return mData[m*mN + n];
+    return (*mData)[m*mN + n];
 }
 
 void MatrixBufferInt::AsNumpy(int* outint2d, int m, int n)
@@ -94,7 +94,7 @@ void MatrixBufferInt::AsNumpy(int* outint2d, int m, int n)
     ASSERT_ARG_DIM_2D(m, n, mM, mN)
     for(int i=0; i<m*n; i++)
     {
-        outint2d[i] = mData[i];
+        outint2d[i] = (*mData)[i];
     }    
 }
 
