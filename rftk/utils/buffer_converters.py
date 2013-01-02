@@ -1,6 +1,6 @@
 import numpy as np
-import rftk.assert_util
-import rftk.buffers as buffers
+import rftk.native.assert_util
+import rftk.native.buffers as buffers
 
 def as_img_buffer( np_array ):
     if np_array.dtype == np.int32 and np_array.ndim == 2:
@@ -47,7 +47,7 @@ def as_numpy_array( buffer, flatten=False ):
     isImgBufferInt = isinstance(buffer, buffers.ImgBufferInt)
     isMatrixBufferFloat = isinstance(buffer, buffers.MatrixBufferFloat)
     isMatrixBufferInt = isinstance(buffer, buffers.MatrixBufferInt)
-    
+
     assert(isImgBufferFloat or isImgBufferInt or isMatrixBufferFloat or isMatrixBufferInt)
 
     if isImgBufferFloat or isMatrixBufferFloat:

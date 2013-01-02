@@ -1,8 +1,8 @@
 import unittest as unittest
 import numpy as np
-import rftk.assert_util
-import rftk.buffers as buffers
-import rftk.features as features
+import rftk.native.assert_util
+import rftk.native.buffers as buffers
+import rftk.native.features as features
 import rftk.utils.buffer_converters as buffer_converters
 
 class TestAxisAlignedFeature(unittest.TestCase):
@@ -15,13 +15,13 @@ class TestAxisAlignedFeature(unittest.TestCase):
         int_feature_params = buffer_converters.as_matrix_buffer(np.array([1,0,2,0], dtype=np.int32))
         float_feature_params = buffer_converters.as_matrix_buffer(np.array([0,0,0,0], dtype=np.float32))
         results_buffer = buffers.MatrixBufferFloat()
-        axis_aligned_feature_extractor.Extract(sample_indices, 
-                                                int_feature_params, 
-                                                float_feature_params, 
+        axis_aligned_feature_extractor.Extract(sample_indices,
+                                                int_feature_params,
+                                                float_feature_params,
                                                 results_buffer)
         results = buffer_converters.as_numpy_array(results_buffer)
         expected_results = np.array([[21,22],[2,3],[1,5],[2,3]], dtype=np.float32)
-        
+
         self.assertTrue((results == expected_results).all())
 
 

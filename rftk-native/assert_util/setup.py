@@ -3,8 +3,16 @@
 # System imports
 from distutils.core import *
 from distutils      import sysconfig
+from distutils      import file_util
+from distutils.command.install import install
 
-# sysconfig._config_vars['LDSHARED'] = 'g++ -shared'
+import os
+import sys
+
+class my_install(install):
+    def run(self):
+      file_util.move_file("_assert_util.so", os.path.expandvars('$PYTHONPATH/rftk/native'))
+      file_util.move_file("assert_util.py", os.path.expandvars('$PYTHONPATH/rftk/native'))
 
 # extension module
 _assert_util = Extension("_assert_util",
@@ -20,5 +28,6 @@ setup(  name        = "assert_util",
         version     = "1.0",
         ext_modules = [_assert_util],
         py_modules = ["assert_util"],
+        cmdclass={'rftkinstall': my_install}
         )
 
