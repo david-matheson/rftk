@@ -1,4 +1,4 @@
-#include "../assert/assert.h"
+#include "assert_util.h"
 #include "ImgBuffer.h"
 
 
@@ -39,7 +39,7 @@ void ImgBufferFloat::Set(int img, int m, int n, float value)
     (*mData)[img*mM*mN + m*mN + n] = value;
 }
 
-float ImgBufferFloat::Get(int img, int m, int n)
+float ImgBufferFloat::Get(int img, int m, int n) const
 {
     ASSERT_VALID_RANGE(img, 0, mNumberOfImgs)
     ASSERT_VALID_RANGE(m, 0, mM)
@@ -94,7 +94,7 @@ void ImgBufferInt::Set(int img, int m, int n, int value)
     (*mData)[img*mM*mN + m*mN + n] = value;
 }
 
-int ImgBufferInt::Get(int img, int m, int n)
+int ImgBufferInt::Get(int img, int m, int n) const
 {
     ASSERT_VALID_RANGE(img, 0, mNumberOfImgs)
     ASSERT_VALID_RANGE(m, 0, mM)

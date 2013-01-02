@@ -15,9 +15,9 @@ public:
     int GetN() const { return mN; }
 
     void Set(int m, int n, float value);
-    float Get(int m, int n);
+    float Get(int m, int n) const;
     void SetUnsafe(int m, int n, float value) { (*mData)[m*mN + n] = value; }
-    float GetUnsafe(int m, int n) { return (*mData)[ m*mN + n]; }
+    float GetUnsafe(int m, int n) const { return (*mData)[ m*mN + n]; }
 
     MatrixBufferFloat SharedMemoryCopy() { return *this; }
     void AsNumpy(float* outfloat2d, int m, int n);
@@ -41,9 +41,9 @@ public:
     int GetN() const { return mN; }
 
     void Set(int m, int n, int value);
-    int Get(int m, int n);
+    int Get(int m, int n) const;
     void SetUnsafe(int m, int n, int value) { (*mData)[m*mN + n] = value; }
-    int GetUnsafe(int m, int n) { return (*mData)[ m*mN + n]; }
+    int GetUnsafe(int m, int n) const { return (*mData)[ m*mN + n]; }
 
     MatrixBufferInt SharedMemoryCopy() { return *this; }
     void AsNumpy(int* outint2d, int m, int n);

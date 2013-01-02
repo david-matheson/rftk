@@ -1,20 +1,17 @@
-%module "buffers"
+%module buffers  
 %{
     #define SWIG_FILE_WITH_INIT
     #include "ImgBuffer.h"
     #include "MatrixBuffer.h"
 %}
 
+%include <exception.i> 
 %include "numpy.i"
-%include "../assert/assert.i"
-%include "std_vector.i"
-
-%include exception.i
+%import "assert_util.i"
 
 %init %{
     import_array();
 %}
-
 
 %apply (float* IN_ARRAY1, int DIM1) {(float* float1d, int m)}
 %apply (double* IN_ARRAY1, int DIM1) {(double* double1d, int m)}

@@ -16,9 +16,9 @@ public:
     int GetN() const { return mN; }
 
     void Set(int img, int m, int n, float value);
-    float Get(int img, int m, int n);
+    float Get(int img, int m, int n) const;
     void SetUnsafe(int img, int m, int n, float value) { (*mData)[img*mM*mN + m*mN + n] = value; }
-    float GetUnsafe(int img, int m, int n) { return (*mData)[img*mM*mN + m*mN + n]; }
+    float GetUnsafe(int img, int m, int n) const { return (*mData)[img*mM*mN + m*mN + n]; }
     // const float* GetDataRaw() const { return &mData[0]; }
     // const float* GetImgDataRaw(int img) const { return &mData[img*mM*mN]; }
     // void SetData(const float* data) { mData.assign(data, data + mNumberOfImgs*mM*mN); }
@@ -46,9 +46,9 @@ public:
     int GetN() const { return mN; }
 
     void Set(int img, int m, int n, int value);
-    int Get(int img, int m, int n);
+    int Get(int img, int m, int n) const;
     void SetUnsafe(int img, int m, int n, int value) { (*mData)[img*mM*mN + m*mN + n] = value; }
-    int GetUnsafe(int img, int m, int n) { return (*mData)[img*mM*mN + m*mN + n]; }    
+    int GetUnsafe(int img, int m, int n) const { return (*mData)[img*mM*mN + m*mN + n]; }    
     // const int* GetDataRaw() const { return &mData[0]; }
     // const int* GetImgDataRaw(int img) const { return &mData[img*mM*mN]; }
     // void SetData(const int* data) { mData.assign(data, data + mNumberOfImgs*mM*mN); }

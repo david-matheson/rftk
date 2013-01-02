@@ -1,4 +1,4 @@
-#include "../assert/assert.h"
+#include "assert_util.h"
 #include "MatrixBuffer.h"
 
 MatrixBufferFloat::MatrixBufferFloat(int m, int n)
@@ -33,7 +33,7 @@ void MatrixBufferFloat::Set(int m, int n, float value)
     (*mData)[m*mN + n] = value;
 }
 
-float MatrixBufferFloat::Get(int m, int n)
+float MatrixBufferFloat::Get(int m, int n) const
 {
     ASSERT_VALID_RANGE(m, 0, mM)
     ASSERT_VALID_RANGE(n, 0, mN)
@@ -82,7 +82,7 @@ void MatrixBufferInt::Set(int m, int n, int value)
     (*mData)[m*mN + n] = value;
 }
 
-int MatrixBufferInt::Get(int m, int n)
+int MatrixBufferInt::Get(int m, int n) const
 {
     ASSERT_VALID_RANGE(m, 0, mM)
     ASSERT_VALID_RANGE(n, 0, mN)

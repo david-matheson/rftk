@@ -17,10 +17,9 @@ except AttributeError:
 _buffers = Extension("_buffers",
                    ["buffers.i",
                    "ImgBuffer.cpp",
-                   "MatrixBuffer.cpp",
-                   "../assert/assert.cpp"], #Link in assert logic
-                   swig_opts=["-c++"],
-                   include_dirs = [numpy_include],
+                   "MatrixBuffer.cpp"], #Link in assert logic
+                   swig_opts=["-c++", "-I../assert_util"],
+                   include_dirs = [numpy_include, "../assert_util"],
                    )
 
 # NumyTypemapTests setup
