@@ -1,9 +1,11 @@
 import unittest as unittest
 import numpy as np
+import rftk.assert_util
 import rftk.buffers as buffers
 import rftk.utils.buffer_converters as buffer_converters
 
-class TestBuffers(unittest.TestCase):
+
+class TestBufferConverters(unittest.TestCase):
 
     def convert_img_buffer_both_directions_helper(self, X, buffer_type):
         buf = buffer_converters.as_img_buffer(X)

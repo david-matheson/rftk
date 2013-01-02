@@ -1,4 +1,5 @@
 import numpy as np
+import rftk.assert_util
 import rftk.buffers as buffers
 
 def as_img_buffer( np_array ):
