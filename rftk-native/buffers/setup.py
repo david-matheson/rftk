@@ -14,15 +14,25 @@ except AttributeError:
     numpy_include = numpy.get_numpy_include()
 
 # extension module
-_buffers = Extension("_buffers",
-                   ["buffers.i",
-                   "ImgBuffer.cpp",
-                   "MatrixBuffer.cpp"], #Link in assert logic
-                   swig_opts=["-c++", "-I../assert_util"],
-                   include_dirs = [numpy_include, "../assert_util"],
-                   runtime_library_dirs = [os.path.expandvars('$PYTHONPATH/rftk/')],
-                   extra_objects = [os.path.expandvars('$PYTHONPATH/rftk/_assert_util.so')],
-                   )
+# extension module
+if sys.platform == 'linux2':
+    _buffers = Extension("_buffers",
+                       ["buffers.i",
+                       "ImgBuffer.cpp",
+                       "MatrixBuffer.cpp"], #Link in assert logic
+                       swig_opts=["-c++", "-I../assert_util"],
+                       include_dirs = [numpy_include, "../assert_util"],
+                       runtime_library_dirs = [os.path.expandvars('$PYTHONPATH/rftk/')],
+                       extra_objects = [os.path.expandvars('$PYTHONPATH/rftk/_assert_util.so')],
+                       )
+elif sys.platform == 'darwin':
+    _buffers = Extension("_buffers",
+                       ["buffers.i",
+                       "ImgBuffer.cpp",
+                       "MatrixBuffer.cpp"], #Link in assert logic
+                       swig_opts=["-c++", "-I../assert_util"],
+                       include_dirs = [numpy_include, "../assert_util"],
+                       )
 
 # NumyTypemapTests setup
 setup(  name        = "buffers",
