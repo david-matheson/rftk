@@ -1,4 +1,4 @@
-%module "assert_util"
+%module assert_util 
 %{
     #define SWIG_FILE_WITH_INIT
     #include "assert_util.h"
