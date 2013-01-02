@@ -4,6 +4,8 @@
 from distutils.core import *
 from distutils      import sysconfig
 
+import os
+
 # extension module
 _features = Extension("_features",
                    ["features.i",
@@ -12,7 +14,10 @@ _features = Extension("_features",
                    "DepthScaledDepthDeltaFeatureExtractor.cpp",
                    "DepthScaledEntangledYsFeatureExtractor.cpp",],
                    swig_opts=["-c++", "-I../assert_util", "-I../buffers"],
-                    include_dirs = ["../assert_util", "../buffers"],
+                   include_dirs = ["../assert_util", "../buffers"],
+                   runtime_library_dirs = [os.path.expandvars('$PYTHONPATH/rftk/')],
+                   extra_objects = [os.path.expandvars('$PYTHONPATH/rftk/_assert_util.so'),
+                                    os.path.expandvars('$PYTHONPATH/rftk/_buffers.so')],
                    )
 
 # NumyTypemapTests setup

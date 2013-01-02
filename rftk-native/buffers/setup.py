@@ -20,6 +20,8 @@ _buffers = Extension("_buffers",
                    "MatrixBuffer.cpp"], #Link in assert logic
                    swig_opts=["-c++", "-I../assert_util"],
                    include_dirs = [numpy_include, "../assert_util"],
+                   runtime_library_dirs = [os.path.expandvars('$PYTHONPATH/rftk/')],
+                   extra_objects = [os.path.expandvars('$PYTHONPATH/rftk/_assert_util.so')],
                    )
 
 # NumyTypemapTests setup
