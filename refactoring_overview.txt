@@ -49,24 +49,31 @@ Structure
             |- img_1_channel (#imgs x m x n floats)
             |- img_indices (n x 3 ints)
 
+    |- bestsplit
+        |- Sorted.h/.cpp
+        |- ClassInfoGainAllThresholdsBestSplit.h/.cpp
+        |- ClassInfoGainRandomThresholdsBestSplit.h/.cpp
+        |- SumOfVarianceBestSplit.h/.cpp
+
     |- features
         |- FeatureTypes.h
+        |- ImgFeatures.h/.cpp
+        |- VecFeatures.h/.cpp
+
+    |- predict
+        |- Tree.h/.cpp
+        |- Forest.h/.cpp <- should the tree be here?
+        |- VecClassPredict.h/.cpp
+        |- ImgClassPredict.h/.cpp
+        |- ImgMultiHoughPredict.h/.cpp
+
+    |- feature_extractors
         |- FeatureExtractorI.h
         |- VecAxisAlignedFeatureExtractor.h/.cpp
         |- VecProjectedSubspaceFeatureExtractor.h/.cpp
         |- ImgDepthScaledDepthDeltaFeatureExtractor.h/.cpp
         |- ImgDepthScaledEntangledClassFeatureExtractor.h/.cpp
 
-    |- bestsplits
-        |- Sorted.h/.cpp
-        |- InfoGainBestSplit.h/.cpp
-        |- SumOfVarianceBestSplit.h/.cpp
-
-    |- predict
-        |- Forest.h/.cpp <- should the tree be here?
-        |- VecClassPredict.h/.cpp
-        |- ImgClassPredict.h/.cpp
-        |- ImgMultiHoughPredict.h/.cpp
 
 |-tests
     |- test_vec_buffers.py
@@ -122,6 +129,6 @@ Structure
         ]-online_synthetic_mog_classification.py
         |-offline_svmdataset_classification.py
         |-online_svmdataset_classification.py
-        
+
     |-utils
 
