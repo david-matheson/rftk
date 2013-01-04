@@ -195,6 +195,26 @@ class TestBuffers(unittest.TestCase):
         self.assertEqual( a_int.GetMax(), 33)
         self.assertEqual( a_int.GetMin(), -5)
 
+    def test_matrix_buffer_zero(self):
+        A_nonzero = np.array([[3,21,1],[22,33,5]], dtype=np.float32 )
+        a = buffers.matrixBufferFloat( A_nonzero )
+        result = np.zeros((2,3), dtype=np.float32)
+        a.AsNumpy(result)
+        self.assertTrue((A_nonzero == result).all())
+        a.Zero()
+        a.AsNumpy(result)
+        zeros = np.zeros((2,3), dtype=np.float32)
+        self.assertTrue((zeros == result).all())
+
+        A_nonzero = np.array([[3,21,1],[22,33,5]], dtype=np.int32 )
+        a = buffers.matrixBufferInt( A_nonzero )
+        result = np.zeros((2,3), dtype=np.int32)
+        a.AsNumpy(result)
+        self.assertTrue((A_nonzero == result).all())
+        a.Zero()
+        a.AsNumpy(result)
+        zeros = np.zeros((2,3), dtype=np.int32)
+        self.assertTrue((zeros == result).all())
 
 
 

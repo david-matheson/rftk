@@ -54,6 +54,9 @@ void VecPredictYs(const Forest& forest, const MatrixBufferFloat& x, MatrixBuffer
     {
         ysOut = MatrixBufferFloat(numberOfSamples, yDim);
     }
+    // Reset predictions if the buffer is being reused
+    ysOut.Zero();
+
 
     // Create a temp buffer for leaf node id (this requires all leaf node ids to be stored in memory)
     // If the number of samples (ie number of rows in x) is to large this might be an issue
@@ -64,12 +67,6 @@ void VecPredictYs(const Forest& forest, const MatrixBufferFloat& x, MatrixBuffer
 
     for(int i=0; i<numberOfSamples; i++)
     {
-        // Reset predictions
-        for(int c=0; c<yDim; c++)
-        {
-            ysOut.Set(i, c, 0.0f);
-        }
-
         for(int treeId=0; treeId<numberOfTreesInForest; treeId++)
         {
             int leafNodeId = leafNodeIds.Get(i, treeId);

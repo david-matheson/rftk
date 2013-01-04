@@ -11,6 +11,8 @@ public:
     MatrixBufferFloat(double* data, int m, int n);
     ~MatrixBufferFloat() {}
 
+    void Zero();
+
     int GetM() const { return mM; }
     int GetN() const { return mN; }
 
@@ -41,6 +43,8 @@ public:
     MatrixBufferInt(int* data, int m, int n);
     MatrixBufferInt(long long* data, int m, int n);
     ~MatrixBufferInt() {}
+
+    void Zero();
 
     int GetM() const { return mM; }
     int GetN() const { return mN; }

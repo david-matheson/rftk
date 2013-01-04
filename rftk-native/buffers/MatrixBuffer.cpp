@@ -36,6 +36,11 @@ MatrixBufferFloat::MatrixBufferFloat(double* data, int m, int n)
     }
 }
 
+void MatrixBufferFloat::Zero()
+{
+    std::fill((*mData).begin(), (*mData).end(), 0.0f);
+}
+
 void MatrixBufferFloat::Set(int m, int n, float value)
 {
     ASSERT_VALID_RANGE(m, 0, mM)
@@ -109,6 +114,11 @@ MatrixBufferInt::MatrixBufferInt(long long* data, int m, int n)
     {
         (*mData)[i] = static_cast<int>(data[i]);
     }
+}
+
+void MatrixBufferInt::Zero()
+{
+    std::fill((*mData).begin(), (*mData).end(), 0);
 }
 
 void MatrixBufferInt::Set(int m, int n, int value)
