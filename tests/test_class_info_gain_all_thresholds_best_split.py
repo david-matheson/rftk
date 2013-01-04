@@ -1,5 +1,6 @@
 import unittest as unittest
 import numpy as np
+import rftk.native.bootstrap
 import rftk.native.assert_util
 import rftk.native.buffers as buffers
 import rftk.utils.buffer_converters as buffer_converters
