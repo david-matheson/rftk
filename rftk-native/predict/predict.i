@@ -1,15 +1,19 @@
 %module predict
 %{
     #define SWIG_FILE_WITH_INIT
-    #include
+    #include "Forest.h"
+    #include "VecPredict.h"
 %}
+
+%include "std_vector.i"
 
 %include <exception.i>
 %import "assert_util.i"
 %import "buffers.i"
 
-%include "FeatureExtractorI.h"
-%include "AxisAlignedFeatureExtractor.h"
-%include "ProjectionFeatureExtractor.h"
-%include "DepthScaledDepthDeltaFeatureExtractor.h"
-%include "DepthScaledEntangledYsFeatureExtractor.h"
+namespace std {
+    %template(TreesVector) std::vector<Tree>;
+}
+
+%include "Forest.h"
+%include "VecPredict.h"
