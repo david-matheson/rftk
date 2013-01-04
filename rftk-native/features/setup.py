@@ -19,10 +19,7 @@ class my_install(install):
 if sys.platform == 'linux2':
     _features = Extension("_features",
                        ["features.i",
-                       "AxisAlignedFeatureExtractor.cpp",
-                       "ProjectionFeatureExtractor.cpp",
-                       "DepthScaledDepthDeltaFeatureExtractor.cpp",
-                       "DepthScaledEntangledYsFeatureExtractor.cpp",],
+                       "ImgFeatures.cpp",],
                        swig_opts=["-c++", "-I../assert_util", "-I../buffers"],
                        include_dirs = ["../assert_util", "../buffers"],
                        runtime_library_dirs = [os.path.expandvars('$PYTHONPATH/rftk/')],
@@ -32,18 +29,14 @@ if sys.platform == 'linux2':
 elif sys.platform == 'darwin':
     _features = Extension("_features",
                        ["features.i",
-                       "AxisAlignedFeatureExtractor.cpp",
-                       "ProjectionFeatureExtractor.cpp",
-                       "DepthScaledDepthDeltaFeatureExtractor.cpp",
-                       "DepthScaledEntangledYsFeatureExtractor.cpp",],
+                       "ImgFeatures.cpp"],
                        swig_opts=["-c++", "-I../assert_util", "-I../buffers"],
                        include_dirs = ["../assert_util", "../buffers"],
                        )
 
 # NumyTypemapTests setup
 setup(  name        = "features",
-        description = "Extract 1d features from the dataset.  \
-                        In standard random forests these would be axis algined.",
+        description = "Vec and img features",
         author      = "David Matheson",
         version     = "1.0",
         ext_modules = [_features],

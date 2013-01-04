@@ -1,4 +1,4 @@
-#include "PixelFeatures.h"
+#include "ImgFeatures.h"
 #include <stdio.h>
 
 int clampPixel(const int maxM, const int maxN, int* m, int *n)

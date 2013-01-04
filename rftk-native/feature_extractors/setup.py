@@ -27,7 +27,8 @@ if sys.platform == 'linux2':
                        include_dirs = ["../assert_util", "../buffers", "../features"],
                        runtime_library_dirs = [os.path.expandvars('$PYTHONPATH/rftk/')],
                        extra_objects = [os.path.expandvars('$PYTHONPATH/rftk/native/_assert_util.so'),
-                                        os.path.expandvars('$PYTHONPATH/rftk/native/_buffers.so')],
+                                        os.path.expandvars('$PYTHONPATH/rftk/native/_buffers.so'),
+                                        os.path.expandvars('$PYTHONPATH/rftk/native/_features.so')],
                        )
 elif sys.platform == 'darwin':
     _feature_extractors = Extension("_feature_extractors",
