@@ -19,7 +19,7 @@ void AxisAlignedFeatureExtractor::Extract( const MatrixBufferInt& sampleIndices,
     const int numberOfDataPoints = mXs.GetM();
 
     // Create new results buffer if it's not the right dimensions
-    if( featureValuesOUT.GetM() != numberOfFeatures && featureValuesOUT.GetN() != numberOfSamples )
+    if( featureValuesOUT.GetM() != numberOfFeatures || featureValuesOUT.GetN() != numberOfSamples )
     {
         featureValuesOUT = MatrixBufferFloat(numberOfFeatures, numberOfSamples);
     }

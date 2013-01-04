@@ -64,11 +64,11 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   const MatrixBufferInt& s
     ASSERT_ARG_DIM_1D(featureValues.GetN(), numberSampleIndices)
 
     // Create new results buffer if they're not the right dimensions
-    if( impurityOut.GetM() != numberOfFeatures && impurityOut.GetN() != 1 )
+    if( impurityOut.GetM() != numberOfFeatures || impurityOut.GetN() != 1 )
     {
         impurityOut = MatrixBufferFloat(numberOfFeatures, 1);
     }
-    if( thresholdOut.GetM() != numberOfFeatures && thresholdOut.GetN() != 1 )
+    if( thresholdOut.GetM() != numberOfFeatures || thresholdOut.GetN() != 1 )
     {
         thresholdOut = MatrixBufferFloat(numberOfFeatures, 1);
     }
