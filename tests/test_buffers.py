@@ -184,6 +184,18 @@ class TestBuffers(unittest.TestCase):
             list_of_ref.append( img_buffer_float.SharedMemoryCopy() )
             list_of_ref.append( img_buffer_int.SharedMemoryCopy() )
 
+    def test_matrix_buffer_minmax(self):
+        A_float = np.array([[3,21,-1],[22,33,5]], dtype=np.float32 )
+        a_float = buffers.matrixBufferFloat( A_float )
+        self.assertEqual( a_float.GetMax(), 33)
+        self.assertEqual( a_float.GetMin(), -1)
+
+        A_int = np.array([[3,21,-5],[22,33,5]], dtype=np.int32 )
+        a_int = buffers.matrixBufferInt( A_int )
+        self.assertEqual( a_int.GetMax(), 33)
+        self.assertEqual( a_int.GetMin(), -5)
+
+
 
 
 if __name__ == '__main__':

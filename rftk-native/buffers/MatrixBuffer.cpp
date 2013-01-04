@@ -1,3 +1,6 @@
+#include "float.h"
+#include "limits.h"
+
 #include "assert_util.h"
 #include "MatrixBuffer.h"
 
@@ -40,13 +43,33 @@ float MatrixBufferFloat::Get(int m, int n) const
     return (*mData)[m*mN + n];
 }
 
+float MatrixBufferFloat::GetMax() const
+{
+    float max = FLT_MIN;
+    for(int i=0; i<mM*mN; i++)
+    {
+        max = (max > (*mData)[i]) ? max : (*mData)[i];
+    }
+    return max;
+}
+
+float MatrixBufferFloat::GetMin() const
+{
+    float min = FLT_MAX;
+    for(int i=0; i<mM*mN; i++)
+    {
+        min = (min < (*mData)[i]) ? min : (*mData)[i];
+    }
+    return min;
+}
+
 void MatrixBufferFloat::AsNumpy(float* outfloat2d, int m, int n)
 {
     ASSERT_ARG_DIM_2D(m, n, mM, mN)
     for(int i=0; i<m*n; i++)
     {
         outfloat2d[i] = (*mData)[i];
-    }    
+    }
 }
 
 
@@ -89,13 +112,33 @@ int MatrixBufferInt::Get(int m, int n) const
     return (*mData)[m*mN + n];
 }
 
+int MatrixBufferInt::GetMax() const
+{
+    int max = INT_MIN;
+    for(int i=0; i<mM*mN; i++)
+    {
+        max = (max > (*mData)[i]) ? max : (*mData)[i];
+    }
+    return max;
+}
+
+int MatrixBufferInt::GetMin() const
+{
+    int min = INT_MAX;
+    for(int i=0; i<mM*mN; i++)
+    {
+        min = (min < (*mData)[i]) ? min : (*mData)[i];
+    }
+    return min;
+}
+
 void MatrixBufferInt::AsNumpy(int* outint2d, int m, int n)
 {
     ASSERT_ARG_DIM_2D(m, n, mM, mN)
     for(int i=0; i<m*n; i++)
     {
         outint2d[i] = (*mData)[i];
-    }    
+    }
 }
 
 MatrixBufferFloat vecBufferFloat(float* float1d, int m)

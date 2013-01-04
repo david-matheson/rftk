@@ -19,6 +19,9 @@ public:
     void SetUnsafe(int m, int n, float value) { (*mData)[m*mN + n] = value; }
     float GetUnsafe(int m, int n) const { return (*mData)[ m*mN + n]; }
 
+    float GetMax() const;
+    float GetMin() const;
+
     MatrixBufferFloat SharedMemoryCopy() { return *this; }
     void AsNumpy(float* outfloat2d, int m, int n);
 
@@ -44,6 +47,9 @@ public:
     int Get(int m, int n) const;
     void SetUnsafe(int m, int n, int value) { (*mData)[m*mN + n] = value; }
     int GetUnsafe(int m, int n) const { return (*mData)[ m*mN + n]; }
+
+    int GetMax() const;
+    int GetMin() const;
 
     MatrixBufferInt SharedMemoryCopy() { return *this; }
     void AsNumpy(int* outint2d, int m, int n);
