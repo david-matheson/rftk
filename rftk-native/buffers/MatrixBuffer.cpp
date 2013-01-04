@@ -4,6 +4,13 @@
 #include "assert_util.h"
 #include "MatrixBuffer.h"
 
+MatrixBufferFloat::MatrixBufferFloat()
+: mData( new std::vector< float >() )
+, mM(0)
+, mN(0)
+{
+}
+
 MatrixBufferFloat::MatrixBufferFloat(int m, int n)
 : mData( new std::vector< float >(m*n) )
 , mM(m)
@@ -72,6 +79,12 @@ void MatrixBufferFloat::AsNumpy(float* outfloat2d, int m, int n)
     }
 }
 
+MatrixBufferInt::MatrixBufferInt()
+: mData( new std::vector< int >() )
+, mM(0)
+, mN(0)
+{
+}
 
 MatrixBufferInt::MatrixBufferInt(int m, int n)
 : mData( new std::vector< int >(m*n) )

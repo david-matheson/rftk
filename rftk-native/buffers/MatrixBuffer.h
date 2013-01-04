@@ -5,7 +5,7 @@
 
 class MatrixBufferFloat {
 public:
-    MatrixBufferFloat() {}
+    MatrixBufferFloat();
     MatrixBufferFloat(int m, int n);
     MatrixBufferFloat(float* data, int m, int n);
     MatrixBufferFloat(double* data, int m, int n);
@@ -18,6 +18,8 @@ public:
     float Get(int m, int n) const;
     void SetUnsafe(int m, int n, float value) { (*mData)[m*mN + n] = value; }
     float GetUnsafe(int m, int n) const { return (*mData)[ m*mN + n]; }
+
+    const float* GetRowPtrUnsafe(int m) const { return &(*mData)[m*mN]; }
 
     float GetMax() const;
     float GetMin() const;
@@ -34,7 +36,7 @@ private:
 
 class MatrixBufferInt {
 public:
-    MatrixBufferInt() {}
+    MatrixBufferInt();
     MatrixBufferInt(int m, int n);
     MatrixBufferInt(int* data, int m, int n);
     MatrixBufferInt(long long* data, int m, int n);
@@ -47,6 +49,8 @@ public:
     int Get(int m, int n) const;
     void SetUnsafe(int m, int n, int value) { (*mData)[m*mN + n] = value; }
     int GetUnsafe(int m, int n) const { return (*mData)[ m*mN + n]; }
+
+    const int* GetRowPtrUnsafe(int m) const { return &(*mData)[m*mN]; }
 
     int GetMax() const;
     int GetMin() const;
