@@ -7,7 +7,7 @@
 class Tree
 {
 public:
-    Tree(); //default for stl vector
+    Tree() {} //default for stl vector
     Tree(   const MatrixBufferInt& path,
             const MatrixBufferInt& intFeatureParams,
             const MatrixBufferFloat& floatFeatureParams,

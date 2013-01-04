@@ -1,6 +1,6 @@
 #include "assert_util.h"
 
-#include "forest.h"
+#include "Forest.h"
 
 Tree::Tree( const MatrixBufferInt& path,
             const MatrixBufferInt& intFeatureParams,
