@@ -20,10 +20,28 @@ class TestVecPredictWithAxisAligned(unittest.TestCase):
         #           (1) X[0] > 2.5     (2) [0.8 0.1 0.1]
         #           /            \
         # (3) [0.2 0.2 0.6]   (4) [0.2 0.7 0.1]
-        path_1 = buffer_converters.as_matrix_buffer(np.array([[]], dtype=np.int32))
+        path_1 = buffer_converters.as_matrix_buffer(np.array([[1,2],[3,4],[-1,-1],[-1,-1],[-1,-1]], dtype=np.int32))
+        int_params_1 = buffer_converters.as_matrix_buffer(np.array([[1,0],[1,1],[1,0],[1,0],[1,0]], dtype=np.int32))
+        float_params_1 = buffer_converters.as_matrix_buffer(np.array([[2.2],[-5],[0],[0],[0]], dtype=np.float32))
+        ys_1 = buffer_converters.as_matrix_buffer(np.array([[0,0,0],[0,0,0],[0.7,0.1,0.2],[0.3,0.3,0.4],[0.3,0.6,0.1]], dtype=np.float32))
+        tree_1 = predict.Tree(path_1, int_params_1, float_params_1, ys_1)
 
-        data = buffer_converters.as_matrix_buffer(np.array([[2.0,21,1],[3.0,22,5]], dtype=np.float32))
-        axis_aligned_feature_extractor = feature_extractors.AxisAlignedFeatureExtractor(data)
+        path_2 = buffer_converters.as_matrix_buffer(np.array([[1,2],[3,4],[-1,-1],[-1,-1],[-1,-1]], dtype=np.int32))
+        int_params_2 = buffer_converters.as_matrix_buffer(np.array([[1,0],[1,0],[1,0],[1,0],[1,0]], dtype=np.int32))
+        float_params_2 = buffer_converters.as_matrix_buffer(np.array([[5.0],[2.5],[0],[0],[0]], dtype=np.float32))
+        ys_1 = buffer_converters.as_matrix_buffer(np.array([[0,0,0],[0,0,0],[0.8,0.1,0.1],[0.2,0.2,0.6],[0.2,0.7,0.1]], dtype=np.float32))
+        tree_2 = predict.Tree(path_2, int_params_2, float_params_2, ys_2)
+
+        forest = predict.Forest([tree_1, tree_2])
+        vec_forest_predict = predict.VecForestPredictor(forest)
+
+        x = buffer_converters.as_matrix_buffer(np.array([[8.0,0.0], dtype=np.float32))
+        leaf_node_ids = buffers.MatrixBufferInt()
+        vec_forest_predict.PredictLeafs(x, leaf_node_ids)
+
+
+
+
 
         sample_indices = buffer_converters.as_matrix_buffer(np.array(range(2), dtype=np.int32))
         int_feature_params = buffer_converters.as_matrix_buffer(np.array([1,0,2,0], dtype=np.int32))
