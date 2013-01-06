@@ -33,7 +33,7 @@ void VecPredictLeafs(const Forest& forest, const MatrixBufferFloat& x, MatrixBuf
         leafsOut = MatrixBufferInt(numberOfSamples, numberOfTreesInForest);
     }
 
-    for(int i=0; i<numberOfTreesInForest; i++)
+    for(int i=0; i<numberOfSamples; i++)
     {
         const float* x_ptr = x.GetRowPtrUnsafe(i);
         for(int treeId=0; treeId<numberOfTreesInForest; treeId++)

@@ -29,32 +29,19 @@ class TestVecPredictWithAxisAligned(unittest.TestCase):
         path_2 = buffer_converters.as_matrix_buffer(np.array([[1,2],[3,4],[-1,-1],[-1,-1],[-1,-1]], dtype=np.int32))
         int_params_2 = buffer_converters.as_matrix_buffer(np.array([[1,0],[1,0],[1,0],[1,0],[1,0]], dtype=np.int32))
         float_params_2 = buffer_converters.as_matrix_buffer(np.array([[5.0],[2.5],[0],[0],[0]], dtype=np.float32))
-        ys_1 = buffer_converters.as_matrix_buffer(np.array([[0,0,0],[0,0,0],[0.8,0.1,0.1],[0.2,0.2,0.6],[0.2,0.7,0.1]], dtype=np.float32))
+        ys_2 = buffer_converters.as_matrix_buffer(np.array([[0,0,0],[0,0,0],[0.8,0.1,0.1],[0.2,0.2,0.6],[0.2,0.7,0.1]], dtype=np.float32))
         tree_2 = predict.Tree(path_2, int_params_2, float_params_2, ys_2)
 
         forest = predict.Forest([tree_1, tree_2])
         vec_forest_predict = predict.VecForestPredictor(forest)
 
-        x = buffer_converters.as_matrix_buffer(np.array([[8.0,0.0], dtype=np.float32))
+        x = buffer_converters.as_matrix_buffer(np.array([[4.0,0.0]], dtype=np.float32))
         leaf_node_ids = buffers.MatrixBufferInt()
         vec_forest_predict.PredictLeafs(x, leaf_node_ids)
 
+        self.assertEqual(leaf_node_ids.Get(0,0), 3)
+        self.assertEqual(leaf_node_ids.Get(0,1), 2)
 
-
-
-
-        sample_indices = buffer_converters.as_matrix_buffer(np.array(range(2), dtype=np.int32))
-        int_feature_params = buffer_converters.as_matrix_buffer(np.array([1,0,2,0], dtype=np.int32))
-        float_feature_params = buffer_converters.as_matrix_buffer(np.array([0,0,0,0], dtype=np.float32))
-        results_buffer = buffers.MatrixBufferFloat()
-        axis_aligned_feature_extractor.Extract(sample_indices,
-                                                int_feature_params,
-                                                float_feature_params,
-                                                results_buffer)
-        results = buffer_converters.as_numpy_array(results_buffer)
-        expected_results = np.array([[21,22],[2,3],[1,5],[2,3]], dtype=np.float32)
-
-        self.assertTrue((results == expected_results).all())
 
 
 
