@@ -8,7 +8,7 @@ import rftk.utils.buffer_converters as buffer_converters
 
 class TestVecPredictWithAxisAligned(unittest.TestCase):
 
-    def test_vec_predict_with_axis_aligned(self):
+    def construct_axis_aligned_forest(self):
         #                   (0) X[0] > 2.2
         #                   /           \
         #           (1) X[1] > -5     (2) [0.7 0.1 0.2]
@@ -33,6 +33,11 @@ class TestVecPredictWithAxisAligned(unittest.TestCase):
         tree_2 = predict.Tree(path_2, int_params_2, float_params_2, ys_2)
 
         forest = predict.Forest([tree_1, tree_2])
+        return forest
+
+
+    def test_vec_predict_leafnodes_with_axis_aligned(self):
+        forest = self.construct_axis_aligned_forest()
         vec_forest_predict = predict.VecForestPredictor(forest)
 
         x = buffer_converters.as_matrix_buffer(np.array([[4.0,0.0]], dtype=np.float32))
@@ -42,7 +47,18 @@ class TestVecPredictWithAxisAligned(unittest.TestCase):
         self.assertEqual(leaf_node_ids.Get(0,0), 3)
         self.assertEqual(leaf_node_ids.Get(0,1), 2)
 
+    def test_vec_predict_ys_with_axis_aligned(self):
+        forest = self.construct_axis_aligned_forest()
+        vec_forest_predict = predict.VecForestPredictor(forest)
 
+        x = buffer_converters.as_matrix_buffer(np.array([[4.0,0.0]], dtype=np.float32))
+        ys = buffers.MatrixBufferFloat()
+        vec_forest_predict.PredictYs(x, ys)
+
+
+        self.assertAlmostEqual(ys.Get(0,0), 0.55)
+        self.assertAlmostEqual(ys.Get(0,1), 0.2)
+        self.assertAlmostEqual(ys.Get(0,2), 0.25)
 
 
 if __name__ == '__main__':
