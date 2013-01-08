@@ -1,5 +1,8 @@
 import numpy as np
 
+import rftk.native.features as features
+import rftk.native.feature_extractors as feature_extractors
+
 class AxisAlignedFeatureCandidates:
 
     def __init__(self, number_of_candidates, x_dim):
@@ -19,10 +22,12 @@ class AxisAlignedFeatureCandidates:
         np.random.seed(seed_value)
 
     def sample_params(self):
-        print "sample params"
-        # returns int_params and float_params
+        axis = np.array( np.random.randint(self.x_dim, size=(self.number_of_candidates, self.get_int_params_dim())), dtype=np.int32)
+        zeros = np.zeros((self.number_of_candidates, self.get_int_params_dim()), dtype=np.float32)
+        return axis,zeros
 
-    def construct_feature_extractor(data, indices):
-        print "constructing feature extractor"
+    def construct_feature_extractor(self, data, indices):
+        axis_aligned_feature_extractor = feature_extractors.AxisAlignedFeatureExtractor(data)
+        return axis_aligned_feature_extractor
 
 

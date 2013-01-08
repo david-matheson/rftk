@@ -1,3 +1,4 @@
+import numpy as np
 
 class FeatureParamsRange:
     def __init__(self, start, end):
@@ -14,15 +15,16 @@ class FeatureCandidateCollection:
             feature_candidate.seed( seed_value )
 
     def max_int_params_dim(self):
-        max_dim = max(fc.get_int_params_dim() for fc in self.list_of_feature_candidates)
+        max_dim = max([fc.get_int_params_dim() for fc in self.list_of_feature_candidates])
         return max_dim
 
     def max_float_params_dim(self):
-        max_dim = max(fc.get_int_params_dim() for fc in self.list_of_feature_candidates)
+        max_dim = max([fc.get_float_params_dim() for fc in self.list_of_feature_candidates])
         return max_dim
 
     def number_of_candidates(self):
-        number_of_candidates = sum(fc.get_number_of_candidates() for fc in self.list_of_feature_candidates)
+        number_of_candidates = sum([fc.get_number_of_candidates() for fc in self.list_of_feature_candidates])
+        return number_of_candidates
 
     def sample_params(self):
         number_of_candidates = self.number_of_candidates()
@@ -38,8 +40,8 @@ class FeatureCandidateCollection:
         for fc in self.list_of_feature_candidates:
             end = start + fc.get_number_of_candidates()
             fc_int_params, fc_float_params = fc.sample_params()
-            int_params[start:end,1:fc.get_int_params_dim()+1] = fc_int_params[:,0:fc.get_int_params_dim()]
-            float_params[start:end,1:fc.get_float_params_dim()+1] = fc_float_params[:,0:fc.get_float_params_dim()]
+            int_params[start:end,0:fc.get_int_params_dim()] = fc_int_params[:,0:fc.get_int_params_dim()]
+            float_params[start:end,0:fc.get_float_params_dim()] = fc_float_params[:,0:fc.get_float_params_dim()]
             feature_params_range_list.append(FeatureParamsRange(start=start, end=end))
 
             # set start for next feature candidates
@@ -47,5 +49,5 @@ class FeatureCandidateCollection:
 
         return int_params, float_params, feature_params_range_list
 
-    def construct_feature_extractor_list(data, indices):
+    def construct_feature_extractor_list(self, data, indices):
         return [fc.construct_feature_extractor(data, indices) for fc in self.list_of_feature_candidates]

@@ -1,4 +1,4 @@
-import rftk.native.bootstrap
+import rftk.native.bootstrap as bootstrap
 
 class BootstapSampler:
     def __init__(self, number_of_samples, with_replacement=True):
