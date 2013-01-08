@@ -13,6 +13,8 @@ gYs = None
 gTreeBuilder_Module = None
 
 def _build_tree(weight_sampler, leaf_stats_factory, node_splitter_init_params, tree_id, random_seed):
+    print "tree %d" % tree_id
+    node_splitter_init_params.set_seed(random_seed)
     tree_builder = gTreeBuilder_Module.TreeBuilder(weight_sampler=weight_sampler,
                                                         leaf_stats_factory=leaf_stats_factory,
                                                         node_splitter_init_params=node_splitter_init_params)

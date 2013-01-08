@@ -7,7 +7,7 @@ import rftk.utils.sklearnimposter as sklearnimposter
 import utils
 
 if __name__ == "__main__":
-    n_per = 2000
+    n_per = 20000
 
     X_1 = np.random.standard_normal(size=(n_per, 2)) + np.array([2, 1])
     X_2 = np.random.standard_normal(size=(n_per, 2)) + np.array([0.5, -2])
@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     print datetime.now()
 
-    forest = sklearnimposter.RandomForestClassifier(max_features=1, n_estimators=50, max_depth=15, min_samples_split=5)
+    forest = sklearnimposter.RandomForestClassifier(max_features=1, n_estimators=10, max_depth=15, min_samples_split=5)
     forest.fit(Xfloat32, y)
     print datetime.now()
     y_probs = forest.predict(Xfloat32)
@@ -50,5 +50,5 @@ if __name__ == "__main__":
     colors = np.array([[1,0,0], [0,1,0], [0,0,1]])
     img = utils.image_from_predictions(Y_hat, utils.max_prob_of_n_prediction(Y_probs), colors, Ux.shape)
     plt.imshow(img, extent=grid_extend, origin='lower')
-    plt.scatter(X[:,0], X[:,1], c=utils.colors_from_predictions(y, colors))
+    # plt.scatter(X[:,0], X[:,1], c=utils.colors_from_predictions(y, colors))
     plt.savefig("synthetic_classification.png")

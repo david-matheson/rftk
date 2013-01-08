@@ -10,7 +10,7 @@ class FeatureCandidateCollection:
         self.list_of_feature_candidates = list_of_feature_candidates
         print "init"
 
-    def seed(self, seed_value):
+    def set_seed(self, seed_value):
         for feature_candidate in self.list_of_feature_candidates:
             feature_candidate.seed( seed_value )
 

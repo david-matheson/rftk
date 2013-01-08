@@ -13,6 +13,9 @@ class NodeSplitterInitParams:
         self.best_splitter_factory = best_splitter_factory
         self.stop_criteria_list = stop_criteria_list
 
+    def set_seed(self, value):
+        self.feature_candidate_collection.set_seed(value)
+
 class NodeSplitter:
     def __init__(  self, init_params, data, indices, sample_weights, ys):
         self.feature_extractors = init_params.feature_candidate_collection.construct_feature_extractor_list(data, indices)
