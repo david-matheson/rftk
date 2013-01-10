@@ -13,3 +13,5 @@ cd $PYTHONPATH/rftk-native/best_split
 python setup.py build_ext --inplace -f rftkinstall
 cd $PYTHONPATH/rftk-native/predict
 python setup.py build_ext --inplace -f rftkinstall
+cd $PYTHONPATH/rftk-native/online
+python setup.py build_ext --inplace -f rftkinstall
