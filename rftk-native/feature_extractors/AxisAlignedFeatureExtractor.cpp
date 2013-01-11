@@ -5,7 +5,7 @@
 AxisAlignedFeatureExtractor::AxisAlignedFeatureExtractor()
 {}
 
-void AxisAlignedFeatureExtractor::Extract(  BufferCollection& bufferCollection,
+void AxisAlignedFeatureExtractor::Extract(  BufferCollection& data,
                                             const MatrixBufferInt& sampleIndices,
                                             const MatrixBufferInt& intFeatureParams,
                                             const MatrixBufferFloat& floatFeatureParams,
@@ -13,9 +13,9 @@ void AxisAlignedFeatureExtractor::Extract(  BufferCollection& bufferCollection,
 {
     ASSERT_ARG_DIM_1D(sampleIndices.GetN(), 1)
     ASSERT_ARG_DIM_1D(intFeatureParams.GetM(), floatFeatureParams.GetM())
-    ASSERT( bufferCollection.HasMatrixBufferFloat("X") )
+    ASSERT( data.HasMatrixBufferFloat("X") )
 
-    const MatrixBufferFloat Xs = bufferCollection.GetMatrixBufferFloat("X");
+    const MatrixBufferFloat Xs = data.GetMatrixBufferFloat("X");
 
     const int numberOfSamples = sampleIndices.GetM();
     const int numberOfFeatures = intFeatureParams.GetM();

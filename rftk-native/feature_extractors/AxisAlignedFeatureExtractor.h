@@ -15,7 +15,7 @@ public:
 
   virtual int GetUID() { return VEC_FEATURE_AXIS_ALIGNED; }
 
-  virtual void Extract( BufferCollection& bufferCollection,
+  virtual void Extract( BufferCollection& data,
                         const MatrixBufferInt& sampleIndices,
                         const MatrixBufferInt& intFeatureParams,
                         const MatrixBufferFloat& floatFeatureParams,

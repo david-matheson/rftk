@@ -6,7 +6,7 @@ class BufferCollection;
 
 class FeatureExtractorI {
 public:
-    virtual void Extract(const BufferCollection& bufferCollection,
+    virtual void Extract(const BufferCollection& data,
                         const MatrixBufferInt& sampleIndices,
                         const MatrixBufferInt& intFeatureParams,
                         const MatrixBufferFloat& floatFeatureParams,
