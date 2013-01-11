@@ -5,8 +5,8 @@ import rftk.stop_criteria.criteria as criteria
 import rftk.utils.buffer_converters as buffer_converters
 
 class NodeSplitterInitParams:
-    def __init__(   self, 
-                    feature_candidate_collection, 
+    def __init__(   self,
+                    feature_candidate_collection,
                     best_splitter_factory,
                     stop_criteria_list ):
         self.feature_candidate_collection = feature_candidate_collection
@@ -18,9 +18,15 @@ class NodeSplitterInitParams:
 
 class NodeSplitter:
     def __init__(  self, init_params, data, indices, sample_weights, ys):
+
+        self.data = buffers.BufferCollection()
+        self.data.AddMatrixBufferFloat("X", data)
+        self.data.AddMatrixBufferFloat("SampleWeights", buffer_converters.as_matrix_buffer(sample_weights))
+        self.data.AddMatrixBufferInt("ClassLabels", ys)
+
         self.feature_extractors = init_params.feature_candidate_collection.construct_feature_extractor_list(data, indices)
         self.feature_candidate_collection = init_params.feature_candidate_collection
-        self.best_splitter = init_params.best_splitter_factory.construct(sample_weights, ys)
+        self.best_splitter = init_params.best_splitter_factory.construct()
         self.stop_criteria_list = init_params.stop_criteria_list
 
     def split(self, sample_indices, tree_depth):
@@ -53,20 +59,22 @@ class NodeSplitter:
             feature_int_params_buffer = buffer_converters.as_matrix_buffer(int_params[r.start:r.end, :])
             feature_float_params_buffer = buffer_converters.as_matrix_buffer(float_params[r.start:r.end, :])
             feature_values_buffer = buffers.MatrixBufferFloat()
-            extractor.Extract(sample_indices_buffer,
+            extractor.Extract(self.data,
+                            sample_indices_buffer,
                             feature_int_params_buffer,
                             feature_float_params_buffer,
                             feature_values_buffer)
 
             impurity_buffer = buffers.MatrixBufferFloat()
             threshold_buffer = buffers.MatrixBufferFloat()
-            self.best_splitter.BestSplits(sample_indices_buffer,
+            self.best_splitter.BestSplits(self.data,
+                                          sample_indices_buffer,
                                           feature_values_buffer,
                                           impurity_buffer,
                                           threshold_buffer)
             impurity[r.start:r.end] = buffer_converters.as_numpy_array(impurity_buffer)
             threshold[r.start:r.end] = buffer_converters.as_numpy_array(threshold_buffer)
-        
+
         assert(number_of_candidates == len(impurity))
         assert(number_of_candidates == len(threshold))
         assert(number_of_candidates == len(per_param_feature_extractors))
@@ -76,7 +84,7 @@ class NodeSplitter:
         best_impurity_value = impurity[best_impurity_index]
         best_threshold_value = threshold[best_impurity_index]
         best_extractor = per_param_feature_extractors[best_impurity_index]
-        
+
         best_int_params_with_feature_id = np.zeros((1,int_params_dim+1), dtype=np.int32)
         best_int_params_with_feature_id[0,0] = best_extractor.GetUID()
         best_int_params_with_feature_id[0,1:int_params_dim+1] = int_params[best_impurity_index, :]
@@ -88,7 +96,8 @@ class NodeSplitter:
         feature_int_params_buffer = buffer_converters.as_matrix_buffer(int_params[best_impurity_index, :].reshape(1,int_params_dim))
         feature_float_params_buffer = buffer_converters.as_matrix_buffer(float_params[best_impurity_index, :].reshape(1,float_params_dim))
         feature_values_buffer = buffers.MatrixBufferFloat()
-        extractor.Extract(sample_indices_buffer,
+        extractor.Extract(self.data,
+                        sample_indices_buffer,
                         feature_int_params_buffer,
                         feature_float_params_buffer,
                         feature_values_buffer)
@@ -97,7 +106,7 @@ class NodeSplitter:
         sample_indices_right = sample_indices[ feature_values <= best_threshold_value ]
 
         # Do post split checks
-        post_split_params = criteria.CriteriaPostSplitParams(   impurity_gain=best_impurity_value, 
+        post_split_params = criteria.CriteriaPostSplitParams(   impurity_gain=best_impurity_value,
                                                                 left_number_samples=len(sample_indices_left),
                                                                 right_number_samples=len(sample_indices_right))
         for stop_criteria in self.stop_criteria_list:

@@ -27,7 +27,7 @@ class AxisAlignedFeatureCandidates:
         return axis,zeros
 
     def construct_feature_extractor(self, data, indices):
-        axis_aligned_feature_extractor = feature_extractors.AxisAlignedFeatureExtractor(data)
+        axis_aligned_feature_extractor = feature_extractors.AxisAlignedFeatureExtractor()
         return axis_aligned_feature_extractor
 
 

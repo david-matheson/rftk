@@ -35,7 +35,7 @@ class RandomForestClassifier:
 
         axis_aligned_feature_candidates = feature_candidates_axisaligned.AxisAlignedFeatureCandidates(number_of_candidates=self.max_features, x_dim=x_n)
         fc_collection = feature_candidates_collection.FeatureCandidateCollection([axis_aligned_feature_candidates])
-        split_factory = class_entropy_best_split_factory.ClassEntropyBestSplitFactory(ratio_of_thresholds_to_test=1.0, min_thresholds_to_test=1)
+        split_factory = class_entropy_best_split_factory.ClassEntropyBestSplitFactory(ratio_of_thresholds_to_test=1.0, min_thresholds_to_test=1, max_class=int(np.max(y)))
         stop_criteria_list = [  stop_criteria.DepthCriteria(max_depth=self.max_depth),
                                 stop_criteria.MinSamples(min_samples=self.min_samples_split),
                                 stop_criteria.ImpurityGain(min_impurity_gain=0.001)]
@@ -44,7 +44,7 @@ class RandomForestClassifier:
                                                                                 best_splitter_factory=split_factory,
                                                                                 stop_criteria_list=stop_criteria_list)
 
-        builder = self.forest_builder.ForestBuilder(tree_builder_module=self.tree_builder, 
+        builder = self.forest_builder.ForestBuilder(tree_builder_module=self.tree_builder,
                                                 weight_sampler=bootstrap_utils.BootstapSampler(x_m),
                                                 leaf_stats_factory=leaf_stats.HistogramLeafStatsFactory(np.amax(y) + 1),
                                                 node_splitter_init_params=node_splitter_init_params,
