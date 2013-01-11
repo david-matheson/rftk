@@ -2,10 +2,12 @@
 
 class MatrixBufferInt;
 class MatrixBufferFloat;
+class BufferCollection;
 
 class FeatureExtractorI {
 public:
-    virtual void Extract(const MatrixBufferInt& sampleIndices, 
+    virtual void Extract(const BufferCollection& bufferCollection,
+                        const MatrixBufferInt& sampleIndices,
                         const MatrixBufferInt& intFeatureParams,
                         const MatrixBufferFloat& floatFeatureParams,
                         MatrixBufferFloat& featureValuesOUT ) // #tests X #samples
