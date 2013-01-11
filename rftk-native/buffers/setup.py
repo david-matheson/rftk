@@ -29,7 +29,8 @@ if sys.platform == 'linux2':
     _buffers = Extension("_buffers",
                        ["buffers.i",
                        "ImgBuffer.cpp",
-                       "MatrixBuffer.cpp"], #Link in assert logic
+                       "MatrixBuffer.cpp",
+                       "BufferCollection.cpp"],
                        swig_opts=["-c++", "-I../assert_util"],
                        include_dirs = [numpy_include, "../assert_util"],
                        runtime_library_dirs = [os.path.expandvars('$PYTHONPATH/rftk/')],
@@ -39,7 +40,8 @@ elif sys.platform == 'darwin':
     _buffers = Extension("_buffers",
                        ["buffers.i",
                        "ImgBuffer.cpp",
-                       "MatrixBuffer.cpp"], #Link in assert logic
+                       "MatrixBuffer.cpp",
+                       "BufferCollection.cpp"],
                        swig_opts=["-c++", "-I../assert_util"],
                        include_dirs = [numpy_include, "../assert_util"],
                        )

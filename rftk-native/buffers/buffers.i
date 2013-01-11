@@ -1,13 +1,16 @@
-%module buffers  
+%module buffers
 %{
     #define SWIG_FILE_WITH_INIT
     #include "ImgBuffer.h"
     #include "MatrixBuffer.h"
+    #include "BufferCollection.h"
 %}
 
-%include <exception.i> 
+%include <exception.i>
 %include "numpy.i"
 %import "assert_util.i"
+
+%include "std_string.i"
 
 %init %{
     import_array();
@@ -37,3 +40,4 @@
 
 %include "ImgBuffer.h"
 %include "MatrixBuffer.h"
+%include "BufferCollection.h"
