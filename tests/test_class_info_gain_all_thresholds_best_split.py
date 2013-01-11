@@ -9,7 +9,7 @@ import rftk.native.best_split as best_split
 
 class TestClassInfoGainAllThresholdsBestSplit(unittest.TestCase):
 
-    def test_class_info_gain_all_thresholds_best_split_2_class(self):
+    def test_class_info_gain_all_thresholds_best_split_1_class(self):
         #feature matrix is (#features X #samples)
         features = buffer_converters.as_matrix_buffer(np.array([[4,3,2,1],[0,1,0,1]], dtype=np.float32))
 
@@ -17,7 +17,7 @@ class TestClassInfoGainAllThresholdsBestSplit(unittest.TestCase):
         data.AddMatrixBufferInt("ClassLabels",  buffer_converters.as_matrix_buffer(np.array([0,0,1,1], dtype=np.int32)))
         data.AddMatrixBufferFloat("SampleWeights", buffer_converters.as_matrix_buffer(np.array([1,1,1,1], dtype=np.float32)))
 
-        splitter = best_split.ClassInfoGainAllThresholdsBestSplit(1.0, 1, data.AddMatrixBufferInt("ClassLabels").GetMax() )
+        splitter = best_split.ClassInfoGainAllThresholdsBestSplit(1.0, 1, data.GetMatrixBufferInt("ClassLabels").GetMax() )
 
         sample_indices = buffer_converters.as_matrix_buffer(np.array(range(4), dtype=np.int32))
         impurity_buffer = buffers.MatrixBufferFloat()
