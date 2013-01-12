@@ -13,6 +13,7 @@ import rftk.stop_criteria.criteria as stop_criteria
 
 import rftk.native.predict as predict
 
+
 class RandomForestClassifier:
     def __init__(self, max_features, n_estimators, max_depth, min_samples_split,
                         number_of_jobs=1,
