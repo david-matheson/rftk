@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-
 #include "MatrixBuffer.h"
 
 class Tree
@@ -17,12 +15,4 @@ public:
     MatrixBufferInt mIntFeatureParams;
     MatrixBufferFloat mFloatFeatureParams;
     MatrixBufferFloat mYs;
-};
-
-class Forest
-{
-public:
-    Forest( const std::vector<Tree>& trees );
-
-    std::vector<Tree> mTrees;
 };

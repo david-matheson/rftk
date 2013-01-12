@@ -1,6 +1,6 @@
 #include "assert_util.h"
 
-#include "Forest.h"
+#include "Tree.h"
 
 Tree::Tree( const MatrixBufferInt& path,
             const MatrixBufferInt& intFeatureParams,
@@ -16,7 +16,3 @@ Tree::Tree( const MatrixBufferInt& path,
     ASSERT_ARG_DIM_1D(mPath.GetM(), mYs.GetM())
 }
 
-Forest::Forest( const std::vector<Tree>& trees )
-: mTrees(trees)
-{
-}

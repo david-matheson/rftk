@@ -19,22 +19,21 @@ class my_install(install):
 if sys.platform == 'linux2':
     _predict = Extension("_predict",
                        ["predict.i",
-                       "Forest.cpp",
                        "VecPredict.cpp",],
-                       swig_opts=["-c++", "-I../assert_util", "-I../buffers"],
-                       include_dirs = ["../assert_util", "../buffers", "../features"],
+                       swig_opts=["-c++", "-I../assert_util", "-I../buffers", "-I../forest_data"],
+                       include_dirs = ["../assert_util", "../buffers", "../features", "../forest_data"],
                        runtime_library_dirs = [os.path.expandvars('$PYTHONPATH/rftk/')],
                        extra_objects = [os.path.expandvars('$PYTHONPATH/rftk/native/_assert_util.so'),
                                         os.path.expandvars('$PYTHONPATH/rftk/native/_buffers.so'),
-                                        os.path.expandvars('$PYTHONPATH/rftk/native/_features.so')],
+                                        os.path.expandvars('$PYTHONPATH/rftk/native/_features.so'),
+                                        os.path.expandvars('$PYTHONPATH/rftk/native/_forest_data.so')],
                        )
 elif sys.platform == 'darwin':
     _predict = Extension("_predict",
                        ["predict.i",
-                       "Forest.cpp",
                        "VecPredict.cpp",],
-                       swig_opts=["-c++", "-I../assert_util", "-I../buffers"],
-                       include_dirs = ["../assert_util", "../buffers", "../features"],
+                       swig_opts=["-c++", "-I../assert_util", "-I../buffers", "-I../forest_data"],
+                       include_dirs = ["../assert_util", "../buffers", "../features", "../forest_data"],
                        )
 
 # NumyTypemapTests setup

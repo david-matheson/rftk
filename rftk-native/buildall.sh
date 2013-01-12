@@ -5,6 +5,8 @@ cd $PYTHONPATH/rftk-native/bootstrap
 python setup.py build_ext --inplace -f rftkinstall
 cd $PYTHONPATH/rftk-native/buffers
 python setup.py build_ext --inplace -f rftkinstall
+cd $PYTHONPATH/rftk-native/forest_data
+python setup.py build_ext --inplace -f rftkinstall
 cd $PYTHONPATH/rftk-native/features
 python setup.py build_ext --inplace -f rftkinstall
 cd $PYTHONPATH/rftk-native/feature_extractors
