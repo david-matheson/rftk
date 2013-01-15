@@ -5,190 +5,129 @@
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
 #include "FeatureExtractorI.h"
+#include "NodeDataCollectorI.h"
+#include "BestSplitI.h"
+#include "SplitCriteriaI.h"
 
 
 
-enum ACTIVE_NODE_STATE
-{
-    ACTIVE_NODE_STATE_MORE_DATA_REQUIRED,
-    ACTIVE_NODE_STATE_READY_TO_SPLIT,
-    ACTIVE_NODE_STATE_STOP,
-};
 
-// Subsampling could live in here along with a max cap
-class NodeDataCollectorI
-{
-public:
-    // Also copies/compacts weights, ys, etc
-    virtual void Collect( const BufferCollection& data,
-                          const MatrixBufferInt& sampleIndices,
-                          const MatrixBufferFloat& featureValues ) {}
+// class BestSplitI //Already exists
+// {
+// public:
+//     virtual int Ydim() { return 1; }
 
-    // Includes feature values, weights, ys, etc
-    virtual BufferCollection GetCollectedData() {}
-
-    virtual int GetNumberOfCollectedSamples() { return 0; }
-};
-
-class NodeDataCollectorFactoryI
-{
-public:
-    virtual NodeDataCollectorI* Create() { return NULL; }
-};
+//     virtual void BestSplits( BufferCollection& data,
+//                             // const MatrixBufferInt& sampleIndices,
+//                             // const MatrixBufferFloat& featureValues, // contained in data (if needed)
+//                             MatrixBufferFloat& impurityOut,
+//                             MatrixBufferFloat& thresholdOut,
+//                             MatrixBufferInt& childCountsOut,
+//                             MatrixBufferFloat& leftYsOut,
+//                             MatrixBufferFloat& rightYsOut) {}
+// };
 
 
-class BestSplitI //Already exists
+
+class ActiveSplitNodeFeatureSet
 {
 public:
-    virtual void BestSplits( BufferCollection& data,
-                            // const MatrixBufferInt& sampleIndices,
-                            // const MatrixBufferFloat& featureValues, // contained in data (if needed)
-                            MatrixBufferFloat& impurityOut,
-                            MatrixBufferFloat& thresholdOut,
-                            MatrixBufferInt& childCountsOut) {}
-};
+    ActiveSplitNodeFeatureSet(  const FeatureExtractorI* featureExtractor,
+                                NodeDataCollectorI* nodeDataCollector,
+                                const BestSplitI* bestSplitter );
 
-class SplitCriteriaI
-{
-public:
-    virtual bool ShouldSplit(   int treeDepth,
-                                int numberOfSamples
-                                const MatrixBufferFloat& impurityValues, 
-                                const MatrixBufferInt& childCounts,
-                                int bestFeature ) { return false; }
-};
-
-class ActiveSplitNodeFeatureCandidate
-{
-public: 
-    ActiveSplitNodeFeatureCandidats(    int index,
-                                        FeatureExtractorI* featureExtractor,
-                                        const NodeDataCollectorI* nodeDataCollector,
-                                        const BestSplitI* bestSplitter )
-    : mIndex(index)
-    , mFeatureExtractor(featureExtractor)
-    , mNodeDataCollector(nodeDataCollector)
-    , mBestSplitter(bestSplitter)
-    {
-        //Init mIntParams and mFloatParams
-        //setup mImpurities mThresholds, mChildCounts, mBestFeatureIndex
-    }
+    ~ActiveSplitNodeFeatureSet();
 
     void ProcessData(    const BufferCollection& data,
-                        const MatrixBufferInt& sampleIndices )
-    {
-        // Extract feature values
-        MatrixBufferFloat featureValues;
-        mFeatureExtractor->Extract(mIntParams, mFloatParams, featureValues)
+                        const MatrixBufferInt& sampleIndices );
 
-        // Collect data
-        mNodeDataCollector->Collect(data, sampleIndices, featureValues);
-
-        // Calculate impurity
-        mBestSplitter->BestSplits( mNodeDataCollector->GetCollectedData(),
-                                   mImpurities,
-                                   mThresholds,
-                                   mChildCounts );      
-    }
-
-    void GetImpurity(   int startIndexOut, 
+    void WriteImpurity( int groupId,
+                        int outStartIndex,
                         MatrixBufferFloat& impuritiesOut,
                         MatrixBufferFloat& thresholdsOut,
                         MatrixBufferInt& childCountsOut,
-                        MatrixBufferInt& featureId )
-    {
-        // iteratre all values of mImpurities, mThresholds, mChildCounts
-        // and populate outputs
-    }
+                        MatrixBufferInt& featureIndicesOut );
 
-    int GetNumberFeatureCandidates()
-    {
-        return mIntParams.GetM();
-    }
+    void WriteToTree(   int index,
+                        const int treeNodeIndex,
+                        MatrixBufferFloat& floatParamsOut,
+                        MatrixBufferInt& intParamsOut,
+                        const int leftTreeNodeIndex,
+                        MatrixBufferFloat& leftYsOut,
+                        const int rightTreeNodeIndex,
+                        MatrixBufferFloat& rightYsOut );
+
+    int GetNumberFeatureCandidates() const { return mIntParams.GetM(); }
 
 private:
-    int mIndex;
-    FeatureExtractorI* mFeatureExtractor;
+    // Passed in (not owned)
+    const FeatureExtractorI* mFeatureExtractor;
+    const BestSplitI* mBestSplitter;
+
+    // Passed in but owned by this class
     NodeDataCollectorI* mNodeDataCollector;
-    BestSplitI* mBestSplitter;
+
+    // Created on construction
     MatrixBufferInt mIntParams;
     MatrixBufferFloat mFloatParams;
 
+    // Updated everytime ProcessData is called
     MatrixBufferFloat mImpurities;
     MatrixBufferFloat mThresholds;
-    MatrixBufferInt mChildCounts;    
+    MatrixBufferInt mChildCounts;
+    MatrixBufferFloat mLeftYs;
+    MatrixBufferFloat mRightYs;
 };
 
-class FeatureIndex
-{
-    FeatureIndex()
-    : mFeatureExtractorIndex(0)
-    , mParamIndex(0)
-    {}
-
-    int mFeatureExtractorIndex;
-    int mParamIndex;
-};
 
 class ActiveSplitNode
 {
 public:
-    ActiveSplitNode(const std::vector<FeatureExtractorI> featureExtractors, 
+    ActiveSplitNode(const std::vector<FeatureExtractorI*> featureExtractors,
                     const NodeDataCollectorFactoryI* nodeDataCollectorFactory,
                     const BestSplitI* bestSplit,
-                    const SplitCriteriaI* splitCriteria, 
-                    int treeDepth ) 
-    : mShouldSplit(ACTIVE_NODE_STATE_MORE_DATA_REQUIRED)
-    {
-        for(int i = 0; i < mActiveSplitNodeFeatureCandidates.size(); i++)
-        {
-            //setup mActiveSplitNodeFeatureCandidates
-            ActiveSplitNodeFeatureCandidate* a = ActiveSplitNodeFeatureCandidate(featureExtractors[i], 
-                nodeDataCollectorFactory.Create(), bestSplit);
-            mActiveSplitNodeFeatureCandidates.push_back(a);
-    }
+                    const SplitCriteriaI* splitCriteria,
+                    const int treeDepth );
 
-    //
-    void ProcessData(    const BufferCollection& data,
-                    const MatrixBufferInt& sampleIndices )
-    {
-        for(int i = 0; i < mActiveSplitNodeFeatureCandidates.size(); i++)
-        {
-            mActiveSplitNodeFeatureCandidates[i].ProcessData(data, sampleIndices);
-        }
+    virtual ~ActiveSplitNode();
 
-        int startIndex = 0
-        for(int i = 0; i < mActiveSplitNodeFeatureCandidates.size(); i++)
-        {
-            mActiveSplitNodeFeatureCandidates[i].GetImpurity(startIndex, mImpurities, mThresholds, mChildCounts, mFeatureIds);
-            startIndex += mActiveSplitNodeFeatureCandidates[i].GetNumberFeatureCandidates();
-        }
+    void ProcessData(   const BufferCollection& data,
+                        const MatrixBufferInt& sampleIndices );
 
-        // Find max impurity and save mBestFeatureIndex
-    }
+    SPLT_CRITERIA ShouldSplit() { return mShouldSplit; }
+
+    void WriteToTree(   const int treeNodeIndex,
+                        MatrixBufferInt& paths,
+                        MatrixBufferFloat& floatParams,
+                        MatrixBufferInt& intParams,
+                        MatrixBufferInt& depth,
+                        const int leftTreeNodeIndex,
+                        MatrixBufferFloat& leftYs,
+                        const int rightTreeNodeIndex,
+                        MatrixBufferFloat& rightYs);
 
     // Data has to be passed in because ProcessData may not keep the data
     void SplitIndices(  const BufferCollection& data,
-                        FeatureIndex featureIndex,
                         const MatrixBufferInt& sampleIndices,
-                        MatrixBufferInt& trueSampleIndicesOut,
-                        MatrixBufferInt& falseSampleIndicesOut )
-    {}
-
-    FeatureIndex GetBestFeatureIndex()
-    {
-        return mBestFeatureIndex;
-    }
+                        MatrixBufferInt& leftSampleIndicesOut,
+                        MatrixBufferInt& rightSampleIndicesOut );
 
 private:
-    std::vector<ActiveSplitNodeFeatureCandidate*> mActiveSplitNodeFeatureCandidates;
+    // Passed in (not owned)
+    const SplitCriteriaI* mSplitCriteria;
+    const int mTreeDepth;
+
+    // Created on construction
+    std::vector<ActiveSplitNodeFeatureSet> mActiveSplitNodeFeatureSets;
+
+    // Updated everytime ProcessData is called
+    // Across all mActiveSplitNodeFeatureSets
+    int mBestFeatureIndex;
+    SPLT_CRITERIA mShouldSplit;
 
     MatrixBufferFloat mImpurities;
     MatrixBufferFloat mThresholds;
-    MatrixBufferInt mChildCounts;  
-    MatrixBufferInt mFeatureIds;  
+    MatrixBufferInt mChildCounts;
+    MatrixBufferInt mFeatureIndices;
 
-    // Across all mActiveSplitNodeFeatureCandidates
-    FeatureIndex mBestFeatureIndex;
-    ACTIVE_NODE_STATE mShouldSplit;
 };

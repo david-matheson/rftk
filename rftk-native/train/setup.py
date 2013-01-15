@@ -18,7 +18,10 @@ class my_install(install):
 if sys.platform == 'linux2':
     _train = Extension("_train",
                        ["train.i",
-                       "DepthFirstParallelForestTrain.cpp"],
+                       "ActiveSplitNode.cpp",
+                       "TrainConfigParams.cpp",
+                       "DepthFirstParallelForestLearner.cpp",
+                       "OnlineForestLearner.cpp"],
                        swig_opts=["-c++", "-I../assert_util", "-I../buffers", "-I../forest_data"],
                        include_dirs = ["../assert_util", "../buffers", "../bootstrap",
                                       "../feature_extractors", "../best_split", "../forest_data", "../predict"],
@@ -35,7 +38,10 @@ if sys.platform == 'linux2':
 elif sys.platform == 'darwin':
     _train = Extension("_train",
                        ["train.i",
-                       "DepthFirstParallelForestTrain.cpp"],
+                       "ActiveSplitNode.cpp",
+                       "TrainConfigParams.cpp",
+                       "DepthFirstParallelForestLearner.cpp",
+                       "OnlineForestLearner.cpp"],
                        swig_opts=["-c++", "-I../assert_util", "-I../buffers", "-I../forest_data"],
                        include_dirs = ["../assert_util", "../buffers", "../bootstrap",
                                       "../feature_extractors", "../best_split", "../forest_data", "../predict"],
