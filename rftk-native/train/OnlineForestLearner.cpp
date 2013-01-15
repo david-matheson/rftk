@@ -61,6 +61,10 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices )
                 activeSplit->WriteToTree(nodeIndex, tree.mPath, tree.mFloatFeatureParams, tree.mIntFeatureParams, tree.mDepths,
                                         leftNode, tree.mYs,
                                         rightNode, tree.mYs);
+
+                // Remove split node
+                mActiveNodes.erase(treeNodeKey);
+                delete activeSplit;
             }
         }
     }
