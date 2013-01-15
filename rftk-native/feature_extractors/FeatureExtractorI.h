@@ -12,6 +12,8 @@ public:
                         MatrixBufferFloat& featureValuesOUT )  const// #tests X #samples
                         {}
 
+    virtual int GetUID() const { return 0; }
+
     virtual MatrixBufferFloat CreateFloatParams() const { return MatrixBufferFloat(); }
     virtual MatrixBufferInt CreateIntParams() const { return MatrixBufferInt(); }
 
@@ -19,7 +21,4 @@ public:
     virtual int GetIntParamsDim() const { return 1; }
 
     // virtual void UpdateStateFromForest(const Forest& forest) { }
-
-    virtual int GetUID() const { return 0; }
-
 };

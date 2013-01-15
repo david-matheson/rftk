@@ -6,6 +6,11 @@
 #include "MatrixBuffer.h"
 #include "ImgBuffer.h"
 
+//Using #define for compatibility with swig
+#define X_FLOAT_DATA    "X_Float"
+#define SAMPLE_WEIGHTS  "SampleWeights"
+#define CLASS_LABELS    "ClassLabels"
+
 class BufferCollection
 {
 public:

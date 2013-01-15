@@ -20,9 +20,9 @@ class NodeSplitter:
     def __init__(  self, init_params, data, indices, sample_weights, ys):
 
         self.data = buffers.BufferCollection()
-        self.data.AddMatrixBufferFloat("X", data)
-        self.data.AddMatrixBufferFloat("SampleWeights", buffer_converters.as_matrix_buffer(sample_weights))
-        self.data.AddMatrixBufferInt("ClassLabels", ys)
+        self.data.AddMatrixBufferFloat(buffers.X_FLOAT_DATA, data)
+        self.data.AddMatrixBufferFloat(buffers.SAMPLE_WEIGHTS, buffer_converters.as_matrix_buffer(sample_weights))
+        self.data.AddMatrixBufferInt(buffers.CLASS_LABELS, ys)
 
         self.feature_extractors = init_params.feature_candidate_collection.construct_feature_extractor_list(data, indices)
         self.feature_candidate_collection = init_params.feature_candidate_collection
@@ -85,12 +85,12 @@ class NodeSplitter:
         best_threshold_value = threshold[best_impurity_index]
         best_extractor = per_param_feature_extractors[best_impurity_index]
 
-        best_int_params_with_feature_id = np.zeros((1,int_params_dim+1), dtype=np.int32)
+        best_int_params_with_feature_id = np.zeros((1,int_params_dim), dtype=np.int32)
+        best_int_params_with_feature_id[0,0:int_params_dim] = int_params[best_impurity_index, :]
         best_int_params_with_feature_id[0,0] = best_extractor.GetUID()
-        best_int_params_with_feature_id[0,1:int_params_dim+1] = int_params[best_impurity_index, :]
-        best_float_params_with_threshold = np.zeros((1,float_params_dim+1), dtype=np.float32)
+        best_float_params_with_threshold = np.zeros((1,float_params_dim), dtype=np.float32)
+        best_float_params_with_threshold[0,0:float_params_dim] = float_params[best_impurity_index, :]
         best_float_params_with_threshold[0,0] = best_threshold_value
-        best_float_params_with_threshold[0,1:float_params_dim+1] = float_params[best_impurity_index, :]
 
         # Extract feature values to determine left and right sets
         feature_int_params_buffer = buffer_converters.as_matrix_buffer(int_params[best_impurity_index, :].reshape(1,int_params_dim))

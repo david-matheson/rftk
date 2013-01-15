@@ -17,8 +17,8 @@ class TreeBuilder:
         int_params_dim = node_splitter_init_params.feature_candidate_collection.max_int_params_dim()
         float_params_dim = node_splitter_init_params.feature_candidate_collection.max_float_params_dim()
         y_dim = leaf_stats_factory.get_ydim()
-        self.tree_data = tree_data.TreeData(max_int_params_dim=int_params_dim+1, 
-                                            max_float_params_dim=float_params_dim+1,
+        self.tree_data = tree_data.TreeData(max_int_params_dim=int_params_dim, 
+                                            max_float_params_dim=float_params_dim,
                                             y_dim=y_dim)
  
 

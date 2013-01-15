@@ -1,9 +1,43 @@
+#include <cstdlib>
+#include <time>
+
 #include "assert_util.h"
 
 #include "AxisAlignedFeatureExtractor.h"
 
-AxisAlignedFeatureExtractor::AxisAlignedFeatureExtractor()
+AxisAlignedFeatureExtractor::AxisAlignedFeatureExtractor(int numberOfFeatures, int numberOfComponents)
+: mNumberOfFeatures(numberOfFeatures)
+, mNumberOfComponents(numberOfComponents)
+{
+    /* initialize random seed: */
+    srand ( time(NULL) );
+}
+
+AxisAlignedFeatureExtractor::~AxisAlignedFeatureExtractor() 
 {}
+
+MatrixBufferFloat AxisAlignedFeatureExtractor::CreateFloatParams() const 
+{
+    MatrixBufferFloat floatParams = MatrixBufferFloat(mNumberOfFeatures, GetFloatParamsDim()); 
+    return floatParams;
+}
+
+MatrixBufferInt AxisAlignedFeatureExtractor::CreateIntParams() const 
+{
+    MatrixBufferInt intParams = MatrixBufferInt(mNumberOfFeatures, GetIntParamsDim()); 
+    for(int i=0; i<mNumberOfFeatures; i++)
+    {
+        intParams.Set(i, 0, GetUID());
+        intParams.Set(i, 1, std::rand() % mNumberOfComponents);
+    }
+    return intParams;
+}
+
+//Includes the threshold
+int AxisAlignedFeatureExtractor::GetFloatParamsDim() const { return 1; }
+
+//Includes FeatureExtractor id
+int AxisAlignedFeatureExtractor::GetIntParamsDim() const { return 2; }
 
 void AxisAlignedFeatureExtractor::Extract(  BufferCollection& data,
                                             const MatrixBufferInt& sampleIndices,
@@ -13,9 +47,10 @@ void AxisAlignedFeatureExtractor::Extract(  BufferCollection& data,
 {
     ASSERT_ARG_DIM_1D(sampleIndices.GetN(), 1)
     ASSERT_ARG_DIM_1D(intFeatureParams.GetM(), floatFeatureParams.GetM())
-    ASSERT( data.HasMatrixBufferFloat("X") )
+    ASSERT( data.HasMatrixBufferFloat(X_FLOAT_DATA) )
+    ASSERT_ARG_DIM_1D(data.GetMatrixBufferFloat(X_FLOAT_DATA).GetN(), mNumberOfComponents)
 
-    const MatrixBufferFloat Xs = data.GetMatrixBufferFloat("X");
+    const MatrixBufferFloat Xs = data.GetMatrixBufferFloat(X_FLOAT_DATA);
 
     const int numberOfSamples = sampleIndices.GetM();
     const int numberOfFeatures = intFeatureParams.GetM();
@@ -35,7 +70,7 @@ void AxisAlignedFeatureExtractor::Extract(  BufferCollection& data,
 
         for(int t=0; t<numberOfFeatures; t++)
         {
-            const int componentId = intFeatureParams.Get(t, 0);
+            const int componentId = intFeatureParams.Get(t, 1);
             const float value =  Xs.Get(index, componentId);
             featureValuesOUT.Set(t, s, value);
         }
