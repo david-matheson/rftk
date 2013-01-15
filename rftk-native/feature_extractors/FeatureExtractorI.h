@@ -1,8 +1,7 @@
 #pragma once
 
-class MatrixBufferInt;
-class MatrixBufferFloat;
-class BufferCollection;
+#include "MatrixBuffer.h"
+#include "BufferCollection.h"
 
 class FeatureExtractorI {
 public:

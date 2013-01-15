@@ -56,8 +56,7 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices )
                 const int leftNode = tree.mLastNodeIndex;
                 tree.mLastNodeIndex++;
                 const int rightNode = tree.mLastNodeIndex;
-                // Only updating Ys on split
-                // Should update Ys everytime
+                // Todo: Only updating Ys on split, should update Ys everytime
                 activeSplit->WriteToTree(nodeIndex, tree.mPath, tree.mFloatFeatureParams, tree.mIntFeatureParams, tree.mDepths,
                                         leftNode, tree.mYs,
                                         rightNode, tree.mYs);
