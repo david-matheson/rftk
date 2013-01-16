@@ -46,26 +46,34 @@ ClassInfoGainAllThresholdsBestSplit::~ClassInfoGainAllThresholdsBestSplit()
 
 
 void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
-                                                        const MatrixBufferInt& sampleIndices,
-                                                        const MatrixBufferFloat& featureValues,
+                                                        // const MatrixBufferInt& sampleIndices,
+                                                        // const MatrixBufferFloat& featureValues, // contained in data (if needed)
                                                         MatrixBufferFloat& impurityOut,
-                                                        MatrixBufferFloat& thresholdOut)
+                                                        MatrixBufferFloat& thresholdOut,
+                                                        MatrixBufferFloat& childCountsOut,
+                                                        MatrixBufferFloat& leftYsOut,
+                                                        MatrixBufferFloat& rightYsOut) const
+// void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
+//                                                         const MatrixBufferInt& sampleIndices,
+//                                                         const MatrixBufferFloat& featureValues,
+//                                                         MatrixBufferFloat& impurityOut,
+//                                                         MatrixBufferFloat& thresholdOut)
 {
-    ASSERT( data.HasMatrixBufferInt("ClassLabels") )
-    ASSERT( data.HasMatrixBufferFloat("SampleWeights") )
+    ASSERT( data.HasMatrixBufferInt(CLASS_LABELS) )
+    ASSERT( data.HasMatrixBufferFloat(SAMPLE_WEIGHTS) )
+    ASSERT( data.HasMatrixBufferFloat(FEATURE_VALUES) )
 
-    const MatrixBufferInt classLabels = data.GetMatrixBufferInt("ClassLabels");
-    const MatrixBufferFloat sampleWeights = data.GetMatrixBufferFloat("SampleWeights");
+    const MatrixBufferInt classLabels = data.GetMatrixBufferInt(CLASS_LABELS);
+    const MatrixBufferFloat sampleWeights = data.GetMatrixBufferFloat(SAMPLE_WEIGHTS);
+    const MatrixBufferFloat featureValues = data.GetMatrixBufferFloat(FEATURE_VALUES);
 
     ASSERT_ARG_DIM_1D(classLabels.GetN(), 1)
     ASSERT_ARG_DIM_1D(sampleWeights.GetN(), 1)
     ASSERT_ARG_DIM_1D(classLabels.GetM(), sampleWeights.GetM())
 
-    const int numberSampleIndices = sampleIndices.GetM();
+    const int numberSampleIndices = featureValues.GetN();
     const int numberOfFeatures = featureValues.GetM();
 
-    ASSERT_ARG_DIM_1D(sampleIndices.GetN(), 1)
-    ASSERT_ARG_DIM_1D(featureValues.GetN(), numberSampleIndices)
 
     // Create new results buffer if they're not the right dimensions
     if( impurityOut.GetM() != numberOfFeatures || impurityOut.GetN() != 1 )
@@ -76,6 +84,18 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
     {
         thresholdOut = MatrixBufferFloat(numberOfFeatures, 1);
     }
+    if( childCountsOut.GetM() != numberOfFeatures || childCountsOut.GetN() != 1 )
+    {
+        childCountsOut = MatrixBufferFloat(numberOfFeatures, 2);
+    }
+    if( leftYsOut.GetM() != numberOfFeatures || leftYsOut.GetN() != mMaxClass )
+    {
+        leftYsOut = MatrixBufferFloat(numberOfFeatures, mMaxClass);
+    }
+    if( rightYsOut.GetM() != numberOfFeatures || rightYsOut.GetN() != mMaxClass )
+    {
+        rightYsOut = MatrixBufferFloat(numberOfFeatures, mMaxClass);
+    }
 
     // Initial class histogram and total class weights
     std::vector<float> initialClassLabelCounts(mMaxClass);
@@ -83,9 +103,8 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
     float totalWeight = 0.0f;
     for(int i=0; i<numberSampleIndices; i++)
     {
-        const int sampleIndex = sampleIndices.Get(i, 0);
-        const float weight = sampleWeights.Get(sampleIndex, 0);
-        unsigned short classId = classLabels.Get(sampleIndex, 0);
+        const float weight = sampleWeights.Get(i, 0);
+        unsigned short classId = classLabels.Get(i, 0);
         initialClassLabelCounts[classId] += weight;
         totalWeight += weight;
     }
@@ -106,10 +125,15 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
     const float entropyStart = calculateDiscreteEntropy(&initialClassLabelCounts[0], &initialLogClassLabelCounts[0], mMaxClass, totalWeight);
 
     std::vector<float> leftClassLabelCounts(mMaxClass);
-    std::vector<float> leftLogClassLabelCounts(mMaxClass);
     std::vector<float> rightClassLabelCounts(mMaxClass);
+
+    std::vector<float> leftLogClassLabelCounts(mMaxClass);
     std::vector<float> rightLogClassLabelCounts(mMaxClass);
+
     std::vector<bool> recomputeClassLog(mMaxClass);
+
+    std::vector<float> bestLeftClassLabelCounts(mMaxClass);
+    std::vector<float> bestRightClassLabelCounts(mMaxClass);
 
     for(int testIndex=0; testIndex<numberOfFeatures; testIndex++)
     {
@@ -118,13 +142,21 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
         float leftWeight = totalWeight;
         float rightWeight = 0.0f;
 
+        float bestLeftWeight = 0.0f;
+        float bestRightWeight = 0.0f;
+
         //Reset class counts
         for(int c=0; c<mMaxClass; c++)
         {
             leftClassLabelCounts[c] = initialClassLabelCounts[c];
-            leftLogClassLabelCounts[c] = initialLogClassLabelCounts[c];
             rightClassLabelCounts[c] = 0.0f;
+
+            leftLogClassLabelCounts[c] = initialLogClassLabelCounts[c];
             rightLogClassLabelCounts[c] = 0.0f;
+
+            bestLeftClassLabelCounts[c] = 0.0f;
+            bestRightClassLabelCounts[c] = 0.0f;
+
             recomputeClassLog[c] = false;
         }
 
@@ -137,9 +169,8 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
         for(int sortedIndex=0; sortedIndex<numberSampleIndices-1; sortedIndex++)
         {
             const int i = sorter.GetUnSortedIndex(sortedIndex);
-            const int sampleIndex = sampleIndices.Get(i,0);
-            const float weight = sampleWeights.Get(sampleIndex, 0);
-            const int classId = classLabels.Get(sampleIndex, 0);
+            const float weight = sampleWeights.Get(i, 0);
+            const int classId = classLabels.Get(i, 0);
 
             leftClassLabelCounts[classId] -= weight;
             rightClassLabelCounts[classId] += weight;
@@ -172,6 +203,15 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
                     const int j = sorter.GetUnSortedIndex(sortedIndex+1);
                     bestGainInEntropy = (entropyStart - leftEntropy - rightEntropy);
                     bestThreshold = 0.5f * (featureValuesForTest[i] + featureValuesForTest[j]);
+
+                    for(int c=0; c<mMaxClass; c++)
+                    {
+                        bestLeftClassLabelCounts[c] = leftClassLabelCounts[c];
+                        bestRightClassLabelCounts[c] = rightClassLabelCounts[c];
+                        bestLeftWeight = leftWeight;
+                        bestRightWeight = rightWeight;
+                    }
+
                 }
                 // printf("sortedIndex=%d i=%d entropyStart=%0.2f leftEntropy=%0.2f rightEntropy=%0.2f  bestGainInEntropy=%0.2f bestThreshold=%0.2f\n",
                 //             sortedIndex, i, entropyStart, leftEntropy, rightEntropy, bestGainInEntropy, bestThreshold);
@@ -180,5 +220,13 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
         }
         impurityOut.Set(testIndex, 0, bestGainInEntropy);
         thresholdOut.Set(testIndex, 0, bestThreshold);
+        childCountsOut.Set(testIndex, 0, bestLeftWeight);
+        childCountsOut.Set(testIndex, 1, bestRightWeight);
+
+        for(int c=0; c<mMaxClass; c++)
+        {
+            leftYsOut.Set(testIndex, c, bestLeftClassLabelCounts[c]);
+            rightYsOut.Set(testIndex, c, bestRightClassLabelCounts[c]);
+        }
     }
 }

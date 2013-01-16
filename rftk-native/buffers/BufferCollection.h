@@ -10,6 +10,7 @@
 #define X_FLOAT_DATA    "X_Float"
 #define SAMPLE_WEIGHTS  "SampleWeights"
 #define CLASS_LABELS    "ClassLabels"
+#define FEATURE_VALUES  "Feature_Values"
 
 class BufferCollection
 {

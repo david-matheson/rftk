@@ -22,7 +22,7 @@ ActiveSplitNodeFeatureSet::ActiveSplitNodeFeatureSet(  const FeatureExtractorI* 
     const int numberOfCandidateFeatures = mFloatParams.GetM();
     mImpurities = MatrixBufferFloat(numberOfCandidateFeatures, 1);
     mThresholds = MatrixBufferFloat(numberOfCandidateFeatures, 1);
-    mChildCounts = MatrixBufferInt(numberOfCandidateFeatures, 2);
+    mChildCounts = MatrixBufferFloat(numberOfCandidateFeatures, 2);
     mLeftYs = MatrixBufferFloat(numberOfCandidateFeatures, bestSplitter->GetYDim());
     mRightYs = MatrixBufferFloat(numberOfCandidateFeatures, bestSplitter->GetYDim());
 }
@@ -52,6 +52,57 @@ void ActiveSplitNodeFeatureSet::ProcessData(    const BufferCollection& data,
                                mRightYs );
 }
 
+void ActiveSplitNodeFeatureSet::WriteImpurity(  int groupId,
+                                                int outStartIndex,
+                                                MatrixBufferFloat& impuritiesOut,
+                                                MatrixBufferFloat& thresholdsOut,
+                                                MatrixBufferFloat& childCountsOut,
+                                                MatrixBufferInt& featureIndicesOut  )
+{
+    ASSERT_ARG_DIM_1D(mFloatParams.GetM(), mIntParams.GetM());
+    ASSERT_ARG_DIM_2D(mImpurities.GetM(), mImpurities.GetN(), mThresholds.GetM(), mThresholds.GetN());
+    ASSERT_ARG_DIM_1D(mImpurities.GetM(), mChildCounts.GetM());
+    ASSERT_ARG_DIM_1D(mImpurities.GetN(), 2);
+
+
+
+    for(int i=0; i<mFloatParams.GetM(); i++)
+    {
+        impuritiesOut.Set(outStartIndex+i,0, mImpurities.Get(i,0));
+        thresholdsOut.Set(outStartIndex+i,0, mThresholds.Get(i,0));
+        childCountsOut.Set(outStartIndex+i,0, mChildCounts.Get(i,0));
+        childCountsOut.Set(outStartIndex+i,1, mChildCounts.Get(i,1));
+        featureIndicesOut.Set(outStartIndex+i,0, groupId);
+        featureIndicesOut.Set(outStartIndex+i,0, i);
+    }
+}
+
+void ActiveSplitNodeFeatureSet::SplitIndices(   const int featureIndex,
+                                                const BufferCollection& data,
+                                                const MatrixBufferInt& sampleIndices,
+                                                MatrixBufferInt& leftSampleIndicesOut,
+                                                MatrixBufferInt& rightSampleIndicesOut )
+{
+    // Extract feature values
+    MatrixBufferFloat featureValues;
+    mFeatureExtractor->Extract(data, sampleIndices, mIntParams, mFloatParams, featureValues);
+
+    std::vector<int> leftIndices;
+    std::vector<int> rightIndices;
+
+    const float threshold = mThresholds.Get(featureIndex,0);
+    for(int i=0; i<sampleIndices.GetM(); i++)
+    {
+        const int sampleIndex = sampleIndices.Get(i, 0);
+        const float featureValue = featureValues.Get(featureIndex, sampleIndex);
+        std::vector<int>& leftOrRightIndices = 
+                    (featureValue >= threshold) ? leftIndices : rightIndices;
+        leftOrRightIndices.push_back(sampleIndex);
+    }   
+
+    leftSampleIndicesOut = MatrixBufferInt(&leftIndices[0], leftIndices.size(), 1);
+    rightSampleIndicesOut = MatrixBufferInt(&rightIndices[0], rightIndices.size(), 1);
+}
 
 void ActiveSplitNodeFeatureSet::WriteToTree(int index,
                                             const int treeNodeIndex,
@@ -88,30 +139,6 @@ void ActiveSplitNodeFeatureSet::WriteToTree(int index,
         rightYsOut.Set(leftTreeNodeIndex, c, mRightYs.Get(index, c));
     }
 }
-
-void ActiveSplitNodeFeatureSet::WriteImpurity(  int groupId,
-                                                int outStartIndex,
-                                                MatrixBufferFloat& impuritiesOut,
-                                                MatrixBufferFloat& thresholdsOut,
-                                                MatrixBufferInt& childCountsOut,
-                                                MatrixBufferInt& featureIndicesOut  )
-{
-    ASSERT_ARG_DIM_1D(mFloatParams.GetM(), mIntParams.GetM());
-    ASSERT_ARG_DIM_2D(mImpurities.GetM(), mImpurities.GetN(), mThresholds.GetM(), mThresholds.GetN());
-    ASSERT_ARG_DIM_1D(mImpurities.GetM(), mChildCounts.GetM());
-    ASSERT_ARG_DIM_1D(mImpurities.GetN(), 2);
-
-    for(int i=0; i<mFloatParams.GetM(); i++)
-    {
-        impuritiesOut.Set(outStartIndex+i,0, mImpurities.Get(i,0));
-        thresholdsOut.Set(outStartIndex+i,0, mThresholds.Get(i,0));
-        childCountsOut.Set(outStartIndex+i,0, mThresholds.Get(i,0));
-        childCountsOut.Set(outStartIndex+i,1, mThresholds.Get(i,1));
-        featureIndicesOut.Set(outStartIndex+i,0, groupId);
-        featureIndicesOut.Set(outStartIndex+i,0, i);
-    }
-}
-
 
 ActiveSplitNode::ActiveSplitNode(const std::vector<FeatureExtractorI*> featureExtractors,
                 const NodeDataCollectorFactoryI* nodeDataCollectorFactory,
@@ -192,7 +219,7 @@ void ActiveSplitNode::SplitIndices(  const BufferCollection& data,
 {
     const int featureSetIndex = mFeatureIndices.Get(mBestFeatureIndex, 0);
     const int featureSetOffsetIndex = mFeatureIndices.Get(mBestFeatureIndex, 1);
-    // mActiveSplitNodeFeatureSets[featureSetIndex].SplitIndices(featureSetOffsetIndex, data, sampleIndices,
-    //                                                             trueSampleIndicesOut, falseSampleIndicesOut);
+    mActiveSplitNodeFeatureSets[featureSetIndex].SplitIndices(featureSetOffsetIndex, data, sampleIndices,
+                                                                leftSampleIndicesOut, rightSampleIndicesOut);
 }
 

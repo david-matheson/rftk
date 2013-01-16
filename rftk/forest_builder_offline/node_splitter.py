@@ -65,13 +65,29 @@ class NodeSplitter:
                             feature_float_params_buffer,
                             feature_values_buffer)
 
+            sample_weights = buffer_converters.as_numpy_array(self.data.GetMatrixBufferFloat(buffers.SAMPLE_WEIGHTS))
+            classes = buffer_converters.as_numpy_array(self.data.GetMatrixBufferInt(buffers.CLASS_LABELS))
+
+            # This is handled by node collector in the new system
+            node_data = buffers.BufferCollection()
+            node_data.AddMatrixBufferFloat(buffers.FEATURE_VALUES, feature_values_buffer)
+            node_data.AddMatrixBufferFloat(buffers.SAMPLE_WEIGHTS, 
+                buffer_converters.as_matrix_buffer(sample_weights[sample_indices]))       
+            node_data.AddMatrixBufferInt(buffers.CLASS_LABELS, 
+                buffer_converters.as_matrix_buffer(classes[sample_indices]))
+
             impurity_buffer = buffers.MatrixBufferFloat()
             threshold_buffer = buffers.MatrixBufferFloat()
-            self.best_splitter.BestSplits(self.data,
-                                          sample_indices_buffer,
-                                          feature_values_buffer,
+            child_counts = buffers.MatrixBufferFloat()
+            left_ys = buffers.MatrixBufferFloat()
+            right_ys = buffers.MatrixBufferFloat()
+            self.best_splitter.BestSplits(node_data,
+                                          # sample_indices_buffer,
                                           impurity_buffer,
-                                          threshold_buffer)
+                                          threshold_buffer,
+                                          child_counts,
+                                          left_ys,
+                                          right_ys)
             impurity[r.start:r.end] = buffer_converters.as_numpy_array(impurity_buffer)
             threshold[r.start:r.end] = buffer_converters.as_numpy_array(threshold_buffer)
 

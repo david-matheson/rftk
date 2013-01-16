@@ -24,7 +24,8 @@ public:
                             // const MatrixBufferFloat& featureValues, // contained in data (if needed)
                             MatrixBufferFloat& impurityOut,
                             MatrixBufferFloat& thresholdOut,
-                            MatrixBufferInt& childCountsOut,
+                            MatrixBufferFloat& childCountsOut,
                             MatrixBufferFloat& leftYsOut,
                             MatrixBufferFloat& rightYsOut) const {}
 };
+

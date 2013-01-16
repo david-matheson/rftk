@@ -1,5 +1,5 @@
 #include <cstdlib>
-#include <time>
+#include <time.h>
 
 #include "assert_util.h"
 

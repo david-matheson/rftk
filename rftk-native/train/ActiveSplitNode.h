@@ -45,8 +45,14 @@ public:
                         int outStartIndex,
                         MatrixBufferFloat& impuritiesOut,
                         MatrixBufferFloat& thresholdsOut,
-                        MatrixBufferInt& childCountsOut,
+                        MatrixBufferFloat& childCountsOut,
                         MatrixBufferInt& featureIndicesOut );
+
+    void SplitIndices(  const int featureIndex,
+                        const BufferCollection& data,
+                        const MatrixBufferInt& sampleIndices,
+                        MatrixBufferInt& leftSampleIndicesOut,
+                        MatrixBufferInt& rightSampleIndicesOut );
 
     void WriteToTree(   int index,
                         const int treeNodeIndex,
@@ -74,7 +80,7 @@ private:
     // Updated everytime ProcessData is called
     MatrixBufferFloat mImpurities;
     MatrixBufferFloat mThresholds;
-    MatrixBufferInt mChildCounts;
+    MatrixBufferFloat mChildCounts;
     MatrixBufferFloat mLeftYs;
     MatrixBufferFloat mRightYs;
 };
@@ -127,7 +133,7 @@ private:
 
     MatrixBufferFloat mImpurities;
     MatrixBufferFloat mThresholds;
-    MatrixBufferInt mChildCounts;
+    MatrixBufferFloat mChildCounts;
     MatrixBufferInt mFeatureIndices;
 
 };
