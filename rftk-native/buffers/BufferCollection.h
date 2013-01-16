@@ -17,10 +17,12 @@ class BufferCollection
 public:
     bool HasMatrixBufferFloat(std::string name);
     void AddMatrixBufferFloat(std::string name, const MatrixBufferFloat& data );
+    void AppendVerticalMatrixBufferFloat(std::string name, const MatrixBufferFloat& data );
     MatrixBufferFloat GetMatrixBufferFloat(std::string name);
 
     bool HasMatrixBufferInt(std::string name);
     void AddMatrixBufferInt(std::string name, const MatrixBufferInt& data );
+    void AppendVerticalMatrixBufferInt(std::string name, const MatrixBufferInt& data );
     MatrixBufferInt GetMatrixBufferInt(std::string name);
 
     bool HasImgBufferFloat(std::string name);
