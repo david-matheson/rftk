@@ -43,8 +43,9 @@ void AxisAlignedFeatureExtractor::Extract(  BufferCollection& data,
                                             const MatrixBufferInt& sampleIndices,
                                             const MatrixBufferInt& intFeatureParams,
                                             const MatrixBufferFloat& floatFeatureParams,
-                                            MatrixBufferFloat& featureValuesOUT) // #features X #samples
+                                            MatrixBufferFloat& featureValuesOUT) const// #features X #samples
 {
+    // printf("AxisAlignedFeatureExtractor::Extract\n");
     ASSERT_ARG_DIM_1D(sampleIndices.GetN(), 1)
     ASSERT_ARG_DIM_1D(intFeatureParams.GetM(), floatFeatureParams.GetM())
     ASSERT( data.HasMatrixBufferFloat(X_FLOAT_DATA) )
@@ -75,4 +76,5 @@ void AxisAlignedFeatureExtractor::Extract(  BufferCollection& data,
             featureValuesOUT.Set(s, t, value);
         }
     }
+    // printf("AxisAlignedFeatureExtractor::Extract End\n");
 }

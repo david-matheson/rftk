@@ -44,29 +44,49 @@ void MatrixBufferFloat::AppendVertical(const MatrixBufferFloat& buffer)
     {
         for(int c=0; c<mN; c++)
         {
-            SetUnsafe(r+mM, c, buffer.GetUnsafe(r, c));
+            Set(r+mM, c, buffer.Get(r, c));
         }
     }
 
     mM += buffer.GetM();
 }
 
-MatrixBufferFloat MatrixBufferFloat::Transpose()
+MatrixBufferFloat MatrixBufferFloat::Transpose() const
 {
     MatrixBufferFloat transpose(mN, mM);
     for(int r=0; r<mM; r++)
     {
         for(int c=0; c<mN; c++)
         {
-            transpose.SetUnsafe(c, r, GetUnsafe(r, c));
+            transpose.Set(c, r, Get(r, c));
         }
     }
     return transpose;
 }
 
+MatrixBufferFloat MatrixBufferFloat::Slice(const MatrixBufferInt& indices) const
+{
+    MatrixBufferFloat sliced(indices.GetM(), mN);
+    ASSERT_ARG_DIM_1D(indices.GetN(), 1)
+    for(int i=0; i<indices.GetM(); i++)
+    {
+        int r = indices.Get(i,0);
+        for(int c=0; c<mN; c++)
+        {
+            sliced.Set(i, c, Get(r, c));
+        }       
+    }
+    return sliced;
+}
+
 void MatrixBufferFloat::Zero()
 {
-    std::fill((*mData).begin(), (*mData).end(), 0.0f);
+    SetAll(0.0);
+}
+
+void MatrixBufferFloat::SetAll(const float value)
+{
+    std::fill((*mData).begin(), (*mData).end(), value);   
 }
 
 void MatrixBufferFloat::Set(int m, int n, float value)
@@ -152,29 +172,49 @@ void MatrixBufferInt::AppendVertical(const MatrixBufferInt& buffer)
     {
         for(int c=0; c<mN; c++)
         {
-            SetUnsafe(r+buffer.GetM(), c, buffer.GetUnsafe(r, c));
+            Set(r+buffer.GetM(), c, buffer.Get(r, c));
         }
     }
 
     mM += buffer.GetM();
 }
 
-MatrixBufferInt MatrixBufferInt::Transpose()
+MatrixBufferInt MatrixBufferInt::Transpose() const
 {
     MatrixBufferInt transpose(mN, mM);
     for(int r=0; r<mM; r++)
     {
         for(int c=0; c<mN; c++)
         {
-            transpose.SetUnsafe(c, r, GetUnsafe(r, c));
+            transpose.Set(c, r, Get(r, c));
         }
     }
     return transpose;
 }
 
+MatrixBufferInt MatrixBufferInt::Slice(const MatrixBufferInt& indices) const
+{
+    MatrixBufferInt sliced(indices.GetM(), mN);
+    ASSERT_ARG_DIM_1D(indices.GetN(), 1)
+    for(int i=0; i<indices.GetM(); i++)
+    {
+        int r = indices.Get(i,0);
+        for(int c=0; c<mN; c++)
+        {
+            sliced.Set(i, c, Get(r, c));
+        }       
+    }
+    return sliced;
+}
+
 void MatrixBufferInt::Zero()
 {
-    std::fill((*mData).begin(), (*mData).end(), 0);
+    SetAll(0);
+}
+
+void MatrixBufferInt::SetAll(const int value)
+{
+    std::fill((*mData).begin(), (*mData).end(), value);   
 }
 
 void MatrixBufferInt::Set(int m, int n, int value)

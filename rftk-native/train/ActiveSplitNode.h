@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <tr1/memory>
 
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
@@ -8,24 +9,6 @@
 #include "NodeDataCollectorI.h"
 #include "BestSplitI.h"
 #include "SplitCriteriaI.h"
-
-
-
-
-// class BestSplitI //Already exists
-// {
-// public:
-//     virtual int Ydim() { return 1; }
-
-//     virtual void BestSplits( BufferCollection& data,
-//                             // const MatrixBufferInt& sampleIndices,
-//                             // const MatrixBufferFloat& featureValues, // contained in data (if needed)
-//                             MatrixBufferFloat& impurityOut,
-//                             MatrixBufferFloat& thresholdOut,
-//                             MatrixBufferInt& childCountsOut,
-//                             MatrixBufferFloat& leftYsOut,
-//                             MatrixBufferFloat& rightYsOut) {}
-// };
 
 
 
@@ -38,7 +21,7 @@ public:
 
     ~ActiveSplitNodeFeatureSet();
 
-    void ProcessData(    const BufferCollection& data,
+    void ProcessData(   BufferCollection& data,
                         const MatrixBufferInt& sampleIndices );
 
     void WriteImpurity( int groupId,
@@ -49,7 +32,7 @@ public:
                         MatrixBufferInt& featureIndicesOut );
 
     void SplitIndices(  const int featureIndex,
-                        const BufferCollection& data,
+                        BufferCollection& data,
                         const MatrixBufferInt& sampleIndices,
                         MatrixBufferInt& leftSampleIndicesOut,
                         MatrixBufferInt& rightSampleIndicesOut );
@@ -71,7 +54,7 @@ private:
     const BestSplitI* mBestSplitter;
 
     // Passed in but owned by this class
-    NodeDataCollectorI* mNodeDataCollector;
+    std::tr1::shared_ptr<NodeDataCollectorI> mNodeDataCollector;
 
     // Created on construction
     MatrixBufferInt mIntParams;
@@ -97,7 +80,7 @@ public:
 
     virtual ~ActiveSplitNode();
 
-    void ProcessData(   const BufferCollection& data,
+    void ProcessData(   BufferCollection& data,
                         const MatrixBufferInt& sampleIndices );
 
     SPLT_CRITERIA ShouldSplit() { return mShouldSplit; }
@@ -113,7 +96,7 @@ public:
                         MatrixBufferFloat& rightYs);
 
     // Data has to be passed in because ProcessData may not keep the data
-    void SplitIndices(  const BufferCollection& data,
+    void SplitIndices(  BufferCollection& data,
                         const MatrixBufferInt& sampleIndices,
                         MatrixBufferInt& leftSampleIndicesOut,
                         MatrixBufferInt& rightSampleIndicesOut );

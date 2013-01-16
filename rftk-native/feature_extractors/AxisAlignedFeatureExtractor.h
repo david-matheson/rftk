@@ -25,7 +25,7 @@ public:
                             const MatrixBufferInt& sampleIndices,
                             const MatrixBufferInt& intFeatureParams,
                             const MatrixBufferFloat& floatFeatureParams,
-                            MatrixBufferFloat& featureValuesOUT); // #tests X #samples
+                            MatrixBufferFloat& featureValuesOUT) const; // #tests X #samples
 
 private:
     int mNumberOfFeatures;

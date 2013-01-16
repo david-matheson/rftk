@@ -1,6 +1,6 @@
 #include "BufferCollection.h"
 
-bool BufferCollection::HasMatrixBufferFloat(std::string name)
+bool BufferCollection::HasMatrixBufferFloat(std::string name) const
 {
     return (mFloatMatrixBuffers.find(name) != mFloatMatrixBuffers.end());
 }
@@ -27,7 +27,7 @@ MatrixBufferFloat BufferCollection::GetMatrixBufferFloat(std::string name)
     return mFloatMatrixBuffers[name];
 }
 
-bool BufferCollection::HasMatrixBufferInt(std::string name)
+bool BufferCollection::HasMatrixBufferInt(std::string name) const
 {
     return (mIntMatrixBuffers.find(name) != mIntMatrixBuffers.end());
 }
@@ -54,7 +54,7 @@ MatrixBufferInt BufferCollection::GetMatrixBufferInt(std::string name)
     return mIntMatrixBuffers[name];
 }
 
-bool BufferCollection::HasImgBufferFloat(std::string name)
+bool BufferCollection::HasImgBufferFloat(std::string name) const
 {
     return (mFloatImgBuffers.find(name) != mFloatImgBuffers.end());
 }
@@ -69,7 +69,7 @@ ImgBufferFloat BufferCollection::GetImgBufferFloat(std::string name)
     return mFloatImgBuffers[name];
 }
 
-bool BufferCollection::HasImgBufferInt(std::string name)
+bool BufferCollection::HasImgBufferInt(std::string name) const
 {
     return (mIntImgBuffers.find(name) != mIntImgBuffers.end());
 }

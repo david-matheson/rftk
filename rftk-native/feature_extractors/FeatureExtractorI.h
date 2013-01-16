@@ -5,12 +5,14 @@
 
 class FeatureExtractorI {
 public:
-    virtual void Extract(const BufferCollection& data,
+    virtual void Extract(BufferCollection& data,
                         const MatrixBufferInt& sampleIndices,
                         const MatrixBufferInt& intFeatureParams,
                         const MatrixBufferFloat& floatFeatureParams,
-                        MatrixBufferFloat& featureValuesOUT )  const// #tests X #samples
-                        {}
+                        MatrixBufferFloat& featureValuesOUT ) const// #tests X #samples
+    {
+        printf("FeatureExtractorI::Extract\n");
+    }
 
     virtual int GetUID() const { return 0; }
 

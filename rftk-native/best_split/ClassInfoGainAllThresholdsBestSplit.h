@@ -14,6 +14,8 @@ public:
 
     ~ClassInfoGainAllThresholdsBestSplit();
 
+    virtual int GetYDim() const;
+
     virtual void BestSplits( BufferCollection& data,
                             // const MatrixBufferInt& sampleIndices,
                             // const MatrixBufferFloat& featureValues, // contained in data (if needed)

@@ -40,6 +40,12 @@ ClassInfoGainAllThresholdsBestSplit::ClassInfoGainAllThresholdsBestSplit(   floa
 {
 }
 
+
+int ClassInfoGainAllThresholdsBestSplit::GetYDim() const
+{
+    return mMaxClass;
+}
+
 ClassInfoGainAllThresholdsBestSplit::~ClassInfoGainAllThresholdsBestSplit()
 {
 }

@@ -10,6 +10,7 @@ class AllNodeDataCollector : public NodeDataCollectorI
 {
 public:
     AllNodeDataCollector();
+    virtual ~AllNodeDataCollector();
 
     // Also copies/compacts weights, ys, etc
     virtual void Collect( BufferCollection& data,

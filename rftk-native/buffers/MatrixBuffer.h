@@ -3,6 +3,8 @@
 #include <tr1/memory>
 #include <vector>
 
+class MatrixBufferInt;
+
 class MatrixBufferFloat {
 public:
     MatrixBufferFloat();
@@ -12,9 +14,11 @@ public:
     ~MatrixBufferFloat() {}
 
     void AppendVertical(const MatrixBufferFloat& buffer);
-    MatrixBufferFloat Transpose();
+    MatrixBufferFloat Transpose() const;
+    MatrixBufferFloat Slice(const MatrixBufferInt& indices) const;
 
     void Zero();
+    void SetAll(const float value);
 
     int GetM() const { return mM; }
     int GetN() const { return mN; }
@@ -48,8 +52,10 @@ public:
     ~MatrixBufferInt() {}
 
     void AppendVertical(const MatrixBufferInt& buffer);
-    MatrixBufferInt Transpose();
+    MatrixBufferInt Transpose() const;
+    MatrixBufferInt Slice(const MatrixBufferInt& indices) const;
 
+    void SetAll(const int value);
     void Zero();
 
     int GetM() const { return mM; }

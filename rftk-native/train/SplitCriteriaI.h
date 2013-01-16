@@ -12,11 +12,13 @@ enum SPLT_CRITERIA
 class SplitCriteriaI
 {
 public:
+    virtual ~SplitCriteriaI() {}
+
     virtual SPLT_CRITERIA ShouldSplit(   int treeDepth,
                                         const MatrixBufferFloat& impurityValues,
-                                        const MatrixBufferInt& childCounts) { return SPLT_CRITERIA_MORE_DATA_REQUIRED; }
+                                        const MatrixBufferFloat& childCounts) const { return SPLT_CRITERIA_MORE_DATA_REQUIRED; }
 
     virtual int BestSplit(  int treeDepth,
                             const MatrixBufferFloat& impurityValues,
-                            const MatrixBufferInt& childCounts ) { return -1;}
+                            const MatrixBufferFloat& childCounts ) const { return -1;}
 };

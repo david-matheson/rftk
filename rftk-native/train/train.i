@@ -8,11 +8,20 @@
     #include "ActiveSplitNode.h"
     #include "DepthFirstParallelForestLearner.h"
     #include "OnlineForestLearner.h"
+    #include "AllNodeDataCollector.h"
+    #include "OfflineSplitCriteria.h"
 %}
 
 %include <exception.i>
 %import "assert_util.i"
 %import "buffers.i"
+
+
+%include "std_vector.i"
+
+namespace std {
+    %template(FeatureExtractorVector) std::vector<FeatureExtractorI*>;
+}
 
 %include "SplitCriteriaI.h"
 %include "NodeDataCollectorI.h"
@@ -21,3 +30,5 @@
 %include "ActiveSplitNode.h"
 %include "DepthFirstParallelForestLearner.h"
 %include "OnlineForestLearner.h"
+%include "AllNodeDataCollector.h"
+%include "OfflineSplitCriteria.h"

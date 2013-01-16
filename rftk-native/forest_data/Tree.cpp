@@ -33,4 +33,6 @@ Tree::Tree( int maxNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int 
     ASSERT_ARG_DIM_1D(mPath.GetM(), mIntFeatureParams.GetM())
     ASSERT_ARG_DIM_1D(mPath.GetM(), mFloatFeatureParams.GetM())
     ASSERT_ARG_DIM_1D(mPath.GetM(), mYs.GetM())
+
+    mPath.SetAll(-1);
 }

@@ -3,13 +3,11 @@
 class OfflineSamplingParams
 {
 public:
-    OfflineSamplingParams(int numberOfSamples, int numberOfSubsamples, bool bootstrap)
+    OfflineSamplingParams(int numberOfSamples, bool withReplacement)
     : mNumberOfSamples(numberOfSamples)
-    , mNumberOfSubsamples(numberOfSubsamples)
-    , mBootstrap(bootstrap)
+    , mWithReplacement(withReplacement)
     {}
 
     int mNumberOfSamples;
-    int mNumberOfSubsamples;
-    bool mBootstrap;
+    bool mWithReplacement;
 };
