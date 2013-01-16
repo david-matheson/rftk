@@ -40,6 +40,20 @@ class TestClassInfoGainAllThresholdsBestSplit(unittest.TestCase):
         expected_threshold = np.array([2.5,0], dtype=np.float32)
         self.assertTrue((threshold == expected_threshold).all())
 
+        child_counts = buffer_converters.as_numpy_array(child_counts_buffer, flatten=True)
+        expected_child_counts = np.array([[2,2],[3,1]], dtype=np.float32)
+        self.assertTrue((child_counts == expected_child_counts).all())
+
+        self.assertAlmostEqual(left_ys_buffer.Get(0,0), 1)
+        self.assertAlmostEqual(left_ys_buffer.Get(0,1), 0)
+        self.assertAlmostEqual(left_ys_buffer.Get(1,0), 1.0/3.0)
+        self.assertAlmostEqual(left_ys_buffer.Get(1,1), 2.0/3.0)
+
+        self.assertAlmostEqual(right_ys_buffer.Get(0,0), 0)
+        self.assertAlmostEqual(right_ys_buffer.Get(0,1), 1)
+        self.assertAlmostEqual(right_ys_buffer.Get(1,0), 1)
+        self.assertAlmostEqual(right_ys_buffer.Get(1,1), 0)
+
 
     def test_class_info_gain_all_thresholds_best_split_2_class(self):
         data = buffers.BufferCollection()
