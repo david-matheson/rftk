@@ -57,9 +57,9 @@ void AxisAlignedFeatureExtractor::Extract(  BufferCollection& data,
     const int numberOfDataPoints = Xs.GetM();
 
     // Create new results buffer if it's not the right dimensions
-    if( featureValuesOUT.GetM() != numberOfFeatures || featureValuesOUT.GetN() != numberOfSamples )
+    if( featureValuesOUT.GetM() != numberOfSamples || featureValuesOUT.GetN() != numberOfFeatures )
     {
-        featureValuesOUT = MatrixBufferFloat(numberOfFeatures, numberOfSamples);
+        featureValuesOUT = MatrixBufferFloat(numberOfSamples,numberOfFeatures);
     }
 
     // Extract component features
@@ -72,7 +72,7 @@ void AxisAlignedFeatureExtractor::Extract(  BufferCollection& data,
         {
             const int componentId = intFeatureParams.Get(t, 1);
             const float value =  Xs.Get(index, componentId);
-            featureValuesOUT.Set(t, s, value);
+            featureValuesOUT.Set(s, t, value);
         }
     }
 }

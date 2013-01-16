@@ -11,6 +11,9 @@ public:
     MatrixBufferFloat(double* data, int m, int n);
     ~MatrixBufferFloat() {}
 
+    void AppendVertical(const MatrixBufferFloat& buffer);
+    MatrixBufferFloat Transpose();
+
     void Zero();
 
     int GetM() const { return mM; }
@@ -43,6 +46,9 @@ public:
     MatrixBufferInt(int* data, int m, int n);
     MatrixBufferInt(long long* data, int m, int n);
     ~MatrixBufferInt() {}
+
+    void AppendVertical(const MatrixBufferInt& buffer);
+    MatrixBufferInt Transpose();
 
     void Zero();
 

@@ -13,7 +13,7 @@ class TestClassInfoGainAllThresholdsBestSplit(unittest.TestCase):
         data = buffers.BufferCollection()
         #feature matrix is (#features X #samples)
         data.AddMatrixBufferFloat(buffers.FEATURE_VALUES, 
-            buffer_converters.as_matrix_buffer(np.array([[4,3,2,1],[0,1,0,1]], dtype=np.float32)))
+            buffer_converters.as_matrix_buffer(np.array([[4,0],[3,1],[2,0],[1,1]], dtype=np.float32))) #[4,3,2,1],[0,1,0,1]]
         data.AddMatrixBufferInt(buffers.CLASS_LABELS,
             buffer_converters.as_matrix_buffer(np.array([0,0,1,1], dtype=np.int32)))
         data.AddMatrixBufferFloat(buffers.SAMPLE_WEIGHTS, 
@@ -62,7 +62,7 @@ class TestClassInfoGainAllThresholdsBestSplit(unittest.TestCase):
             buffer_converters.as_matrix_buffer(np.array([[1,2,-3,4,5,6],
                                                         [0,0,0,1,1,1],
                                                         [1,10,2,11,3,12]], 
-                                                        dtype=np.float32)))
+                                                        dtype=np.float32)).Transpose())
         data.AddMatrixBufferInt(buffers.CLASS_LABELS,
             buffer_converters.as_matrix_buffer(np.array([1,1,0,1,0,1], dtype=np.int32)))
         data.AddMatrixBufferFloat(buffers.SAMPLE_WEIGHTS,

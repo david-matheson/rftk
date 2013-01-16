@@ -23,7 +23,7 @@ class TestAxisAlignedFeature(unittest.TestCase):
                                                 int_feature_params,
                                                 float_feature_params,
                                                 results_buffer)
-        results = buffer_converters.as_numpy_array(results_buffer)
+        results = buffer_converters.as_numpy_array(results_buffer.Transpose())
         expected_results = np.array([[21,22],[2,3],[1,5],[2,3]], dtype=np.float32)
 
         self.assertTrue((results == expected_results).all())

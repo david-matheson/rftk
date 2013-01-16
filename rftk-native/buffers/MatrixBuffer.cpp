@@ -36,6 +36,34 @@ MatrixBufferFloat::MatrixBufferFloat(double* data, int m, int n)
     }
 }
 
+void MatrixBufferFloat::AppendVertical(const MatrixBufferFloat& buffer)
+{
+    ASSERT_ARG_DIM_1D(mN, buffer.GetN())
+    (*mData).resize((mM + buffer.GetM()) * mN);
+    for(int r=0; r<buffer.GetM(); r++)
+    {
+        for(int c=0; c<mN; c++)
+        {
+            SetUnsafe(r+mM, c, buffer.GetUnsafe(r, c));
+        }
+    }
+
+    mM += buffer.GetM();
+}
+
+MatrixBufferFloat MatrixBufferFloat::Transpose()
+{
+    MatrixBufferFloat transpose(mN, mM);
+    for(int r=0; r<mM; r++)
+    {
+        for(int c=0; c<mN; c++)
+        {
+            transpose.SetUnsafe(c, r, GetUnsafe(r, c));
+        }
+    }
+    return transpose;
+}
+
 void MatrixBufferFloat::Zero()
 {
     std::fill((*mData).begin(), (*mData).end(), 0.0f);
@@ -114,6 +142,34 @@ MatrixBufferInt::MatrixBufferInt(long long* data, int m, int n)
     {
         (*mData)[i] = static_cast<int>(data[i]);
     }
+}
+
+void MatrixBufferInt::AppendVertical(const MatrixBufferInt& buffer)
+{
+    ASSERT_ARG_DIM_1D(mN, buffer.GetN())
+    (*mData).resize((mM + buffer.GetM()) * mN);
+    for(int r=0; r<buffer.GetM(); r++)
+    {
+        for(int c=0; c<mN; c++)
+        {
+            SetUnsafe(r+buffer.GetM(), c, buffer.GetUnsafe(r, c));
+        }
+    }
+
+    mM += buffer.GetM();
+}
+
+MatrixBufferInt MatrixBufferInt::Transpose()
+{
+    MatrixBufferInt transpose(mN, mM);
+    for(int r=0; r<mM; r++)
+    {
+        for(int c=0; c<mN; c++)
+        {
+            transpose.SetUnsafe(c, r, GetUnsafe(r, c));
+        }
+    }
+    return transpose;
 }
 
 void MatrixBufferInt::Zero()

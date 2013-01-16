@@ -65,7 +65,7 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
 
     const MatrixBufferInt classLabels = data.GetMatrixBufferInt(CLASS_LABELS);
     const MatrixBufferFloat sampleWeights = data.GetMatrixBufferFloat(SAMPLE_WEIGHTS);
-    const MatrixBufferFloat featureValues = data.GetMatrixBufferFloat(FEATURE_VALUES);
+    const MatrixBufferFloat featureValues = data.GetMatrixBufferFloat(FEATURE_VALUES).Transpose();
 
     ASSERT_ARG_DIM_1D(classLabels.GetN(), 1)
     ASSERT_ARG_DIM_1D(sampleWeights.GetN(), 1)
@@ -226,7 +226,7 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
         for(int c=0; c<mMaxClass; c++)
         {
             leftYsOut.Set(testIndex, c, bestLeftClassLabelCounts[c] / bestLeftWeight);
-            rightYsOut.Set(testIndex, c, bestRightClassLabelCounts[c] / bestRightWeight );
+            rightYsOut.Set(testIndex, c, bestRightClassLabelCounts[c] / bestRightWeight);
         }
     }
 }
