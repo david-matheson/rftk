@@ -225,8 +225,8 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
 
         for(int c=0; c<mMaxClass; c++)
         {
-            leftYsOut.Set(testIndex, c, bestLeftClassLabelCounts[c]);
-            rightYsOut.Set(testIndex, c, bestRightClassLabelCounts[c]);
+            leftYsOut.Set(testIndex, c, bestLeftClassLabelCounts[c] / bestLeftWeight);
+            rightYsOut.Set(testIndex, c, bestRightClassLabelCounts[c] / bestRightWeight );
         }
     }
 }
