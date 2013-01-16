@@ -11,7 +11,6 @@ public:
                         const MatrixBufferFloat& floatFeatureParams,
                         MatrixBufferFloat& featureValuesOUT ) const// #tests X #samples
     {
-        printf("FeatureExtractorI::Extract\n");
     }
 
     virtual int GetUID() const { return 0; }
