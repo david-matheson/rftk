@@ -23,18 +23,18 @@ def build_data(n_per):
 
 
 if __name__ == "__main__":
-    n_per = 2000000
+    n_per = 400000
 
     X_train,Y_train = build_data(n_per)
     X_test,Y_test = build_data(n_per)
 
     print datetime.now()
 
-    useSklearn = True
+    useSklearn = False
     if useSklearn:
-        forest = sklearn.ensemble.RandomForestClassifier(criterion="entropy", max_features=1, n_estimators=10, max_depth=5, min_samples_split=5)
+        forest = sklearn.ensemble.RandomForestClassifier(criterion="entropy", max_features=1, n_estimators=20, max_depth=10, min_samples_split=5, n_jobs=1)
     else:
-        forest = sklearnimposter.RandomForestClassifier(max_features=1, n_estimators=10, max_depth=5, min_samples_split=5)
+        forest = sklearnimposter.RandomForestClassifier(max_features=1, n_estimators=20, max_depth=10, min_samples_split=5, n_jobs=1)
 
     forest.fit(X_train, Y_train)
     print datetime.now()

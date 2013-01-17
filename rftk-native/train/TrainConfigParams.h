@@ -16,11 +16,11 @@ public:
                         int numberOfTrees,
                         int maxNumberOfNodes);
 
-    int GetIntParamsMaxDim();
+    int GetIntParamsMaxDim() const;
 
-    int GetFloatParamsMaxDim();
+    int GetFloatParamsMaxDim() const;
 
-    int GetYDim();
+    int GetYDim() const;
 
     std::vector<FeatureExtractorI*> mFeatureExtractors;
     NodeDataCollectorFactoryI* mNodeDataCollectorFactory;

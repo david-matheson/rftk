@@ -15,7 +15,7 @@ TrainConfigParams::TrainConfigParams(  std::vector<FeatureExtractorI*> featureEx
 , mMaxNumberOfNodes(maxNumberOfNodes)
 {}
 
-int TrainConfigParams::GetIntParamsMaxDim()
+int TrainConfigParams::GetIntParamsMaxDim() const
 {
     int maxDim = 0;
     for(int i=0; i<mFeatureExtractors.size(); i++)
@@ -25,7 +25,7 @@ int TrainConfigParams::GetIntParamsMaxDim()
     return maxDim;
 }
 
-int TrainConfigParams::GetFloatParamsMaxDim()
+int TrainConfigParams::GetFloatParamsMaxDim() const
 {
     int maxDim = 0;
     for(int i=0; i<mFeatureExtractors.size(); i++)
@@ -35,7 +35,7 @@ int TrainConfigParams::GetFloatParamsMaxDim()
     return maxDim;
 }
 
-int TrainConfigParams::GetYDim()
+int TrainConfigParams::GetYDim() const
 {
     return mBestSplit->GetYDim();
 }

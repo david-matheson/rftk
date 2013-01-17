@@ -18,13 +18,22 @@ public:
                     int numberOfJobs );
 
 private:
-    void TrainTree( BufferCollection data,
-                    MatrixBufferInt indices,
-                    const OfflineSamplingParams& samplingParams,
-                    Tree& treeOut);
 
-    void ProcessNode(   int nodeIndex, int treeDepth,
-                        BufferCollection& data, const MatrixBufferInt& indices, Tree& treeOut);
+    // void TrainTrees(    BufferCollection data,
+    //                     MatrixBufferInt indices,
+    //                     const OfflineSamplingParams& samplingParams,
+    //                     int startIndex,
+    //                     int offset,
+    //                     Forest& forestOut );
+
+
+    // void TrainTree( BufferCollection data,
+    //                 MatrixBufferInt indices,
+    //                 const OfflineSamplingParams& samplingParams,
+    //                 Tree& treeOut);
+
+    // void ProcessNode(   int nodeIndex, int treeDepth,
+    //                     BufferCollection& data, const MatrixBufferInt& indices, Tree& treeOut);
 
     TrainConfigParams mTrainConfigParams;
 };

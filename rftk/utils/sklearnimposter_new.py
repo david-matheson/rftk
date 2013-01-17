@@ -13,12 +13,12 @@ import rftk.utils.buffer_converters as buffer_converters
 import rftk.utils.predict as predict_utils
 
 class RandomForestClassifier:
-    def __init__(self, max_features, n_estimators, max_depth, min_samples_split, number_of_jobs=1):
+    def __init__(self, max_features, n_estimators, max_depth, min_samples_split, n_jobs=1):
         self.max_features = max_features
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
-        self.number_of_jobs = number_of_jobs
+        self.number_of_jobs = n_jobs
 
 
     def fit(self, x, y):
@@ -33,13 +33,13 @@ class RandomForestClassifier:
         feature_extractor = feature_extractors.AxisAlignedFeatureExtractor( self.max_features, x_n)
         node_data_collector = train.AllNodeDataCollectorFactory()
         class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, int(np.max(y)))
-        split_criteria = train.OfflineSplitCriteria( self.max_depth, 
+        split_criteria = train.OfflineSplitCriteria( self.max_depth,
                                                     0.001,
-                                                    self.min_samples_split, 
+                                                    self.min_samples_split,
                                                     1)
         list_test = [feature_extractor]
-        train_config = train.TrainConfigParams(list_test, 
-                                                node_data_collector, 
+        train_config = train.TrainConfigParams(list_test,
+                                                node_data_collector,
                                                 class_infogain_best_split,
                                                 split_criteria,
                                                 self.n_estimators,
@@ -49,7 +49,7 @@ class RandomForestClassifier:
         indices = buffer_converters.as_matrix_buffer( np.arange(x_m) )
 
         depth_first_learner = train.DepthFirstParallelForestLearner(train_config)
-        forest = depth_first_learner.Train(data, indices, sampling_config, 1)
+        forest = depth_first_learner.Train(data, indices, sampling_config, self.number_of_jobs)
         self.vec_predict_forest = predict.VecForestPredictor(forest)
 
     def predict_class(self, x):
