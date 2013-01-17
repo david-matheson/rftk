@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <vector>
 
+#if USE_BOOST_THREAD
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
+#endif
 
 #include "bootstrap.h"
 #include "assert_util.h"
@@ -42,9 +44,9 @@ Forest DepthFirstParallelForestLearner::Train(  BufferCollection data,
                                                 const OfflineSamplingParams& samplingParams,
                                                 int numberOfJobs )
 {
+#if USE_BOOST_THREAD
     // Putting forest on heap because different threads are going to write to it
     Forest* forest = new Forest(mTrainConfigParams.mNumberOfTrees);
-    // TrainTrees(data, indices, mTrainConfigParams, samplingParams, 0, 1, forest);
     std::vector< boost::shared_ptr< boost::thread > > threadVec;
     for(int job=0; job<numberOfJobs; job++)
     {
@@ -56,7 +58,10 @@ Forest DepthFirstParallelForestLearner::Train(  BufferCollection data,
     }
     Forest result = *forest;
     delete forest;
-
+#else
+    Forest result(mTrainConfigParams.mNumberOfTrees);
+    TrainTrees(data, indices, mTrainConfigParams, samplingParams, 0, 1, &result);
+#endif
     return result;
 }
 

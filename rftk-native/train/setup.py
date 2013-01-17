@@ -48,7 +48,7 @@ elif sys.platform == 'darwin':
                        "OnlineForestLearner.cpp",
                        "AllNodeDataCollector.cpp",
                        "OfflineSplitCriteria.cpp"],
-                       libraries = ['boost_thread'],
+                       # libraries = ['boost_thread'],
                        swig_opts=["-c++", "-I../assert_util", "-I../buffers",
                                     "-I../feature_extractors", "-I../forest_data"],
                        include_dirs = ["../assert_util", "../buffers", "../bootstrap",
