@@ -23,7 +23,7 @@ def build_data(n_per):
 
 
 if __name__ == "__main__":
-    n_per = 400000
+    n_per = 2000
 
     X_train,Y_train = build_data(n_per)
     X_test,Y_test = build_data(n_per)

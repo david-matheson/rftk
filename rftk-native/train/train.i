@@ -10,6 +10,7 @@
     #include "OnlineForestLearner.h"
     #include "AllNodeDataCollector.h"
     #include "OfflineSplitCriteria.h"
+    #include "OnlineAlphaBetaSplitCriteria.h"
 %}
 
 %include <exception.i>
@@ -32,3 +33,4 @@ namespace std {
 %include "OnlineForestLearner.h"
 %include "AllNodeDataCollector.h"
 %include "OfflineSplitCriteria.h"
+%include "OnlineAlphaBetaSplitCriteria.h"

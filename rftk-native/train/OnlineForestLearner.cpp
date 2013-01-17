@@ -1,3 +1,4 @@
+#include "BufferCollection.h"
 #include "VecPredict.h"
 #include "OnlineForestLearner.h"
 
@@ -16,16 +17,18 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices )
 {
     VecForestPredictor forestPredictor = VecForestPredictor(mForest);
     MatrixBufferInt leafs;
-    // todo fix to work with BufferCollection
-    // forestPredictor.PredictLeafs(data, indices, leafs);
-
+    forestPredictor.PredictLeafs(data.GetMatrixBufferFloat(X_FLOAT_DATA), leafs);
 
     // Loop over trees could be farmed out to different jobs
     for(int treeIndex=0; treeIndex<mForest.mTrees.size(); treeIndex++)
     {
+        printf("OnlineForestLearner::Train tree=%d\n", treeIndex);
         // Add weights to data
         // MatrixBufferFloat singleWeight(1,0);
         //singleWeight ~ Possion
+        MatrixBufferFloat weights(indices.GetM(),1);
+        weights.SetAll(1.0);
+        data.AddMatrixBufferFloat(SAMPLE_WEIGHTS, weights);
 
         // Iterate over each sample (this cannot be farmed out to different threads)
         for(int sampleIndex=0; sampleIndex<indices.GetM(); sampleIndex++)
@@ -34,7 +37,7 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices )
             int nodeIndex = leafs.Get(sampleIndex, treeIndex);
             int treeDepth = tree.mDepths.Get(nodeIndex,0);
 
-            MatrixBufferInt singleIndex(1,0);
+            MatrixBufferInt singleIndex(1,1);
             singleIndex.Set(0,0, indices.Get(sampleIndex, 0));
 
             std::pair<int,int> treeNodeKey = std::make_pair(treeIndex, nodeIndex);
