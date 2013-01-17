@@ -81,7 +81,7 @@ void ActiveSplitNodeFeatureSet::WriteImpurity(  int groupId,
         childCountsOut.Set(outStartIndex+i,0, mChildCounts.Get(i,0));
         childCountsOut.Set(outStartIndex+i,1, mChildCounts.Get(i,1));
         featureIndicesOut.Set(outStartIndex+i,0, groupId);
-        featureIndicesOut.Set(outStartIndex+i,0, i);
+        featureIndicesOut.Set(outStartIndex+i,1, i);
     }
 }
 
@@ -223,7 +223,7 @@ void ActiveSplitNode::WriteToTree(  const int treeNodeIndex,
                                     const int rightTreeNodeIndex,
                                     MatrixBufferFloat& rightYs )
 {
-    // printf("ActiveSplitNode::WriteToTree\n");
+    ASSERT_VALID_RANGE(mBestFeatureIndex, 0, mImpurities.GetM())
 
     paths.Set(treeNodeIndex, 0, leftTreeNodeIndex);
     paths.Set(treeNodeIndex, 1, rightTreeNodeIndex);
@@ -231,6 +231,7 @@ void ActiveSplitNode::WriteToTree(  const int treeNodeIndex,
 
     const int featureSetIndex = mFeatureIndices.Get(mBestFeatureIndex, 0);
     const int featureSetOffsetIndex = mFeatureIndices.Get(mBestFeatureIndex, 1);
+
     mActiveSplitNodeFeatureSets[featureSetIndex].WriteToTree( featureSetOffsetIndex,
                                                                 treeNodeIndex,
                                                                 floatParams,
@@ -247,7 +248,8 @@ void ActiveSplitNode::SplitIndices(  BufferCollection& data,
                     MatrixBufferInt& leftSampleIndicesOut,
                     MatrixBufferInt& rightSampleIndicesOut )
 {
-    // printf("ActiveSplitNode::SplitIndices\n");
+    ASSERT_VALID_RANGE(mBestFeatureIndex, 0, mImpurities.GetM())
+
     const int featureSetIndex = mFeatureIndices.Get(mBestFeatureIndex, 0);
     const int featureSetOffsetIndex = mFeatureIndices.Get(mBestFeatureIndex, 1);
     mActiveSplitNodeFeatureSets[featureSetIndex].SplitIndices(featureSetOffsetIndex, data, sampleIndices,
