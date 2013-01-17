@@ -40,15 +40,15 @@ void MatrixBufferFloat::AppendVertical(const MatrixBufferFloat& buffer)
 {
     ASSERT_ARG_DIM_1D(mN, buffer.GetN())
     (*mData).resize((mM + buffer.GetM()) * mN);
+    const int oldM = mM;
+    mM += buffer.GetM();
     for(int r=0; r<buffer.GetM(); r++)
     {
         for(int c=0; c<mN; c++)
         {
-            Set(r+mM, c, buffer.Get(r, c));
+            Set(r+oldM, c, buffer.Get(r, c));
         }
     }
-
-    mM += buffer.GetM();
 }
 
 MatrixBufferFloat MatrixBufferFloat::Transpose() const
@@ -168,15 +168,15 @@ void MatrixBufferInt::AppendVertical(const MatrixBufferInt& buffer)
 {
     ASSERT_ARG_DIM_1D(mN, buffer.GetN())
     (*mData).resize((mM + buffer.GetM()) * mN);
+    const int oldM = mM;
+    mM += buffer.GetM();
     for(int r=0; r<buffer.GetM(); r++)
     {
         for(int c=0; c<mN; c++)
         {
-            Set(r+buffer.GetM(), c, buffer.Get(r, c));
+            Set(r+oldM, c, buffer.Get(r, c));
         }
     }
-
-    mM += buffer.GetM();
 }
 
 MatrixBufferInt MatrixBufferInt::Transpose() const
