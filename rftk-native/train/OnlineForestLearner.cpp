@@ -1,3 +1,9 @@
+#include <boost/random.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/poisson_distribution.hpp>
+#include <ctime>
+#include <cfloat>
+
 #include "BufferCollection.h"
 #include "VecPredict.h"
 #include "OnlineForestLearner.h"
@@ -13,21 +19,33 @@ OnlineForestLearner::OnlineForestLearner( const TrainConfigParams& trainConfigPa
 
 Forest OnlineForestLearner::GetForest() const { return mForest; }
 
-void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices )
+void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, OnlineSamplingParams samplingParams )
 {
     VecForestPredictor forestPredictor = VecForestPredictor(mForest);
     MatrixBufferInt leafs;
     forestPredictor.PredictLeafs(data.GetMatrixBufferFloat(X_FLOAT_DATA), leafs);
 
+    boost::random::mt19937 gen( std::time(NULL) );
+    boost::poisson_distribution<> poisson(1.0);
+
     // Loop over trees could be farmed out to different jobs
     for(int treeIndex=0; treeIndex<mForest.mTrees.size(); treeIndex++)
     {
         printf("OnlineForestLearner::Train tree=%d\n", treeIndex);
-        // Add weights to data
-        // MatrixBufferFloat singleWeight(1,0);
-        //singleWeight ~ Possion
+
         MatrixBufferFloat weights(indices.GetM(),1);
-        weights.SetAll(1.0);
+        if( samplingParams.mUsePoisson )
+        {
+            for(int i=0; i<weights.GetM(); i++)
+            {
+                const float possionValue = static_cast<float>(poisson(gen));
+                weights.Set(i,0, possionValue);
+            }
+        }
+        else
+        {
+            weights.SetAll(1.0f);
+        }
         data.AddMatrixBufferFloat(SAMPLE_WEIGHTS, weights);
 
         // Iterate over each sample (this cannot be farmed out to different threads)
@@ -36,6 +54,12 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices )
             Tree& tree = mForest.mTrees[treeIndex];
             int nodeIndex = leafs.Get(sampleIndex, treeIndex);
             int treeDepth = tree.mDepths.Get(nodeIndex,0);
+
+            if( weights.Get(sampleIndex,0) < FLT_EPSILON )
+            {
+                printf("skipping %d", sampleIndex);
+                continue;
+            }
 
             MatrixBufferInt singleIndex(1,1);
             singleIndex.Set(0,0, indices.Get(sampleIndex, 0));

@@ -29,6 +29,7 @@ class OnlineRandomForestClassifier:
                                                 self.split_criteria,
                                                 n_estimators,
                                                 10000)
+        self.sampling_config = train.OnlineSamplingParams(False, 1.0)
         self.online_learner = train.OnlineForestLearner(self.train_config)
 
 
@@ -44,7 +45,7 @@ class OnlineRandomForestClassifier:
         sampling_config = train.OfflineSamplingParams(x_m, True)
         indices = buffer_converters.as_matrix_buffer( np.arange(x_m) )
 
-        self.online_learner.Train(data, indices)
+        self.online_learner.Train(data, indices, self.sampling_config)
         self.vec_predict_forest = predict.VecForestPredictor(self.online_learner.GetForest())
 
     def predict_class(self, x):

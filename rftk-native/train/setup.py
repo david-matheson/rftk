@@ -54,7 +54,8 @@ elif sys.platform == 'darwin':
                        swig_opts=["-c++", "-I../assert_util", "-I../buffers",
                                     "-I../feature_extractors", "-I../forest_data"],
                        include_dirs = ["../assert_util", "../buffers", "../bootstrap",
-                                      "../feature_extractors", "../best_split", "../forest_data", "../predict"],
+                                      "../feature_extractors", "../best_split", "../forest_data", "../predict",
+                                      "/usr/local/Cellar/boost/1.48.0/include"],
                        )
 
 # NumyTypemapTests setup

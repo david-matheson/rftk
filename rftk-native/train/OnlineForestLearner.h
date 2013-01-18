@@ -7,7 +7,7 @@
 
 #include "ActiveSplitNode.h"
 #include "TrainConfigParams.h"
-#include "OfflineSamplingParams.h"
+#include "OnlineSamplingParams.h"
 
 
 class OnlineForestLearner
@@ -18,7 +18,7 @@ public:
 
     Forest GetForest() const;
 
-    void Train(BufferCollection data, MatrixBufferInt indices );
+    void Train(BufferCollection data, MatrixBufferInt indices, OnlineSamplingParams samplingParams );
 
 private:
     TrainConfigParams mTrainConfigParams;
