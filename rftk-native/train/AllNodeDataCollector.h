@@ -22,7 +22,6 @@ public:
 
     virtual int GetNumberOfCollectedSamples();
 private:
-    int mNumberOfCollectedSamples;
     BufferCollection mData;
 };
 

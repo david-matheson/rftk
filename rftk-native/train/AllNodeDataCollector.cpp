@@ -3,7 +3,6 @@
 
 
 AllNodeDataCollector::AllNodeDataCollector()
-: mNumberOfCollectedSamples(0)
 { 
 }
 
@@ -15,19 +14,13 @@ void AllNodeDataCollector::Collect( BufferCollection& data,
                                     const MatrixBufferInt& sampleIndices,
                                     const MatrixBufferFloat& featureValues ) 
 {
-    // printf("AllNodeDataCollector::Collect\n");
-
     ASSERT_ARG_DIM_1D(sampleIndices.GetN(), 1)
     ASSERT_ARG_DIM_1D(sampleIndices.GetM(), featureValues.GetM())
 
-    mNumberOfCollectedSamples += sampleIndices.GetM();
-
-    // printf("AllNodeDataCollector::Collect FEATURE_VALUES\n");
     mData.AppendVerticalMatrixBufferFloat(FEATURE_VALUES, featureValues);
 
     if( data.HasMatrixBufferFloat(SAMPLE_WEIGHTS) )
     {
-        // printf("AllNodeDataCollector::Collect SAMPLE_WEIGHTS\n");
         MatrixBufferFloat sampleWeights = data.GetMatrixBufferFloat(SAMPLE_WEIGHTS).Slice(sampleIndices);
         mData.AppendVerticalMatrixBufferFloat(SAMPLE_WEIGHTS, sampleWeights);
     }

@@ -28,10 +28,10 @@ if __name__ == "__main__":
 
     print datetime.now()
 
-    forest = rf.OnlineRandomForestClassifier(max_features=1, n_estimators=25, max_depth=15, min_impurity=0.001, min_samples_split=20, x_dim=2, y_dim=2)
+    forest = rf.OnlineRandomForestClassifier(max_features=1, n_estimators=25, max_depth=15, min_impurity=0.001, min_samples_split=100, x_dim=2, y_dim=2)
     for epoch_id in range(40):
         print "Fitting epoch %d" % (epoch_id)
-        epoch_per = 2
+        epoch_per = 50
         X_train,Y_train = build_data(epoch_per)
         forest.fit(X_train, Y_train)
 

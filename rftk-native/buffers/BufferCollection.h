@@ -11,6 +11,9 @@
 #define SAMPLE_WEIGHTS  "SampleWeights"
 #define CLASS_LABELS    "ClassLabels"
 #define FEATURE_VALUES  "Feature_Values"
+#define HISTOGRAM_LEFT  "histogram_Left"
+#define HISTOGRAM_RIGHT "histogram_Right"
+
 
 class BufferCollection
 {

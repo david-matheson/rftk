@@ -32,6 +32,7 @@ public:
 
     float GetMax() const;
     float GetMin() const;
+    
 
     MatrixBufferFloat SharedMemoryCopy() { return *this; }
     void AsNumpy(float* outfloat2d, int m, int n);

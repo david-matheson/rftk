@@ -10,6 +10,7 @@
     #include "DepthFirstParallelForestLearner.h"
     #include "OnlineForestLearner.h"
     #include "AllNodeDataCollector.h"
+    #include "RandomThresholdHistogramDataCollector.h"
     #include "OfflineSplitCriteria.h"
     #include "OnlineAlphaBetaSplitCriteria.h"
 %}
@@ -34,5 +35,6 @@ namespace std {
 %include "DepthFirstParallelForestLearner.h"
 %include "OnlineForestLearner.h"
 %include "AllNodeDataCollector.h"
+%include "RandomThresholdHistogramDataCollector.h"
 %include "OfflineSplitCriteria.h"
 %include "OnlineAlphaBetaSplitCriteria.h"
