@@ -31,8 +31,12 @@ class RandomForestClassifier:
         data.AddMatrixBufferInt(buffers.CLASS_LABELS, buffer_converters.as_matrix_buffer(y))
 
         feature_extractor = feature_extractors.AxisAlignedFeatureExtractor( self.max_features, x_n)
-        node_data_collector = train.AllNodeDataCollectorFactory()
-        class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, int(np.max(y)))
+        # node_data_collector = train.AllNodeDataCollectorFactory()
+        # class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, int(np.max(y)) + 1)
+
+        node_data_collector = train.RandomThresholdHistogramDataCollectorFactory(int(np.max(y)) + 1, 10, 20)
+        class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(int(np.max(y)) + 1)
+
         split_criteria = train.OfflineSplitCriteria( self.max_depth,
                                                     0.001,
                                                     self.min_samples_split,

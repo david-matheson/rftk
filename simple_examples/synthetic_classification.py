@@ -32,9 +32,9 @@ if __name__ == "__main__":
 
     useSklearn = False
     if useSklearn:
-        forest = sklearn.ensemble.RandomForestClassifier(criterion="entropy", max_features=1, n_estimators=20, max_depth=10, min_samples_split=5, n_jobs=1)
+        forest = sklearn.ensemble.RandomForestClassifier(criterion="entropy", max_features=1, n_estimators=25, max_depth=10, min_samples_split=5, n_jobs=1)
     else:
-        forest = sklearnimposter.RandomForestClassifier(max_features=1, n_estimators=20, max_depth=10, min_samples_split=5, n_jobs=1)
+        forest = sklearnimposter.RandomForestClassifier(max_features=1, n_estimators=25, max_depth=10, min_samples_split=5, n_jobs=1)
 
     forest.fit(X_train, Y_train)
     print datetime.now()
