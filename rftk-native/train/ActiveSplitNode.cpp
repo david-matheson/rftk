@@ -52,12 +52,16 @@ void ActiveSplitNodeFeatureSet::ProcessData(    BufferCollection& data,
 
     // Calculate impurity and child ys
     BufferCollection nodeBufferCollection = mNodeDataCollector->GetCollectedData();
-    mBestSplitter->BestSplits( nodeBufferCollection,
-                               mImpurities,
-                               mThresholds,
-                               mChildCounts,
-                               mLeftYs,
-                               mRightYs );
+    // Todo: make it clearer that we only calculate best splits when stats have been collected
+    if( mNodeDataCollector->GetNumberOfCollectedSamples() > 0)
+    {
+        mBestSplitter->BestSplits( nodeBufferCollection,
+                           mImpurities,
+                           mThresholds,
+                           mChildCounts,
+                           mLeftYs,
+                           mRightYs );
+    }
 }
 
 void ActiveSplitNodeFeatureSet::WriteImpurity(  int groupId,
@@ -105,10 +109,10 @@ void ActiveSplitNodeFeatureSet::SplitIndices(   const int featureIndex,
     {
         const float featureValue = featureValues.Get(i, featureIndex);
         const int sampleIndex = sampleIndices.Get(i, 0);
-        std::vector<int>& leftOrRightIndices = 
+        std::vector<int>& leftOrRightIndices =
                     (featureValue >= threshold) ? leftIndices : rightIndices;
         leftOrRightIndices.push_back(sampleIndex);
-    }   
+    }
 
     leftSampleIndicesOut = MatrixBufferInt(&leftIndices[0], leftIndices.size(), 1);
     rightSampleIndicesOut = MatrixBufferInt(&rightIndices[0], rightIndices.size(), 1);

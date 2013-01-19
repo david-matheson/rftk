@@ -28,7 +28,6 @@ private:
     int mNumberOfThresholds;
     int mNumberOfSamplesToEstimateThresholds;
     MatrixBufferFloat mFeaturesForThresholds;
-    MatrixBufferFloat mThresholds;
     BufferCollection mData; // #features x #thresholds x #class
 
 };

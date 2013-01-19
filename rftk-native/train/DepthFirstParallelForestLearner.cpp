@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <vector>
 
+#define USE_BOOST_THREAD 1
+
 #if USE_BOOST_THREAD
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>

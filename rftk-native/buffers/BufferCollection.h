@@ -13,6 +13,7 @@
 #define FEATURE_VALUES  "Feature_Values"
 #define HISTOGRAM_LEFT  "histogram_Left"
 #define HISTOGRAM_RIGHT "histogram_Right"
+#define THRESHOLDS      "Thresholds"
 
 
 class BufferCollection

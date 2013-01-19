@@ -8,9 +8,9 @@ import rftk.utils.sklearnimposteronline as rf
 import utils
 
 def build_data(n_per):
-    X_1 = np.random.standard_normal(size=(n_per, 2)) + np.array([2, 1])
-    X_2 = np.random.standard_normal(size=(n_per, 2)) + np.array([0.5, -2])
-    X_3 = np.random.standard_normal(size=(n_per, 2)) + np.array([-2, 0.5])
+    X_1 = np.random.standard_normal(size=(n_per, 2)) + np.array([3, 1])
+    X_2 = np.random.standard_normal(size=(n_per, 2)) + np.array([1.5, -2])
+    X_3 = np.random.standard_normal(size=(n_per, 2)) + np.array([-1, 0.5])
     Y_1 = np.zeros(n_per)
     Y_2 = np.ones(n_per)
     Y_3 = np.ones(n_per) * 2
@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     print datetime.now()
 
-    forest = rf.OnlineRandomForestClassifier(max_features=1, n_estimators=25, max_depth=15, min_impurity=0.001, min_samples_split=100, x_dim=2, y_dim=2)
+    forest = rf.OnlineRandomForestClassifier(max_features=1, n_estimators=25, max_depth=15, min_impurity=0.001, min_samples_split=100, x_dim=2, y_dim=3)
     for epoch_id in range(40):
         print "Fitting epoch %d" % (epoch_id)
         epoch_per = 50

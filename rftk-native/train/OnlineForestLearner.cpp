@@ -3,6 +3,7 @@
 #include <boost/random/poisson_distribution.hpp>
 #include <ctime>
 #include <cfloat>
+#include <cstdio>
 
 #include "BufferCollection.h"
 #include "VecPredict.h"
@@ -25,7 +26,7 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, 
     MatrixBufferInt leafs;
     forestPredictor.PredictLeafs(data.GetMatrixBufferFloat(X_FLOAT_DATA), leafs);
 
-    boost::random::mt19937 gen( std::time(NULL) );
+    boost::mt19937 gen( std::time(NULL) );
     boost::poisson_distribution<> poisson(1.0);
 
     // Loop over trees could be farmed out to different jobs
@@ -57,7 +58,7 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, 
 
             if( weights.Get(sampleIndex,0) < FLT_EPSILON )
             {
-                printf("skipping %d", sampleIndex);
+                printf("skipping %d\n", sampleIndex);
                 continue;
             }
 

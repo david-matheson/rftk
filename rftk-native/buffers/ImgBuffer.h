@@ -23,6 +23,8 @@ public:
     // const float* GetImgDataRaw(int img) const { return &mData[img*mM*mN]; }
     // void SetData(const float* data) { mData.assign(data, data + mNumberOfImgs*mM*mN); }
 
+    const float* GetRowPtrUnsafe(int img, int m) const { return &(*mData)[img*mM*mN + m*mN]; }
+
     ImgBufferFloat SharedMemoryCopy() { return *this; }
     void AsNumpy(float* outfloat3d, int l, int m, int n);
 
@@ -48,10 +50,12 @@ public:
     void Set(int img, int m, int n, int value);
     int Get(int img, int m, int n) const;
     void SetUnsafe(int img, int m, int n, int value) { (*mData)[img*mM*mN + m*mN + n] = value; }
-    int GetUnsafe(int img, int m, int n) const { return (*mData)[img*mM*mN + m*mN + n]; }    
+    int GetUnsafe(int img, int m, int n) const { return (*mData)[img*mM*mN + m*mN + n]; }
     // const int* GetDataRaw() const { return &mData[0]; }
     // const int* GetImgDataRaw(int img) const { return &mData[img*mM*mN]; }
     // void SetData(const int* data) { mData.assign(data, data + mNumberOfImgs*mM*mN); }
+
+    const int* GetRowPtrUnsafe(int img, int m) const { return &(*mData)[img*mM*mN + m*mN]; }
 
     ImgBufferInt SharedMemoryCopy() { return *this; }
     void AsNumpy(int* outint3d, int l, int m, int n);

@@ -8,7 +8,7 @@
 
 class ClassInfoGainHistogramsBestSplit : public BestSplitI {
 public:
-    ClassInfoGainHistogramsBestSplit(int maxClass);
+    ClassInfoGainHistogramsBestSplit(int numberOfClasses);
 
     ~ClassInfoGainHistogramsBestSplit();
 
@@ -22,5 +22,5 @@ public:
                             MatrixBufferFloat& rightYsOut) const;
 
 private:
-  int mMaxClass;
+  int mNumberOfClasses;
 };

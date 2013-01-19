@@ -33,17 +33,17 @@ float calculateDiscreteEntropy(const float* classLabelCounts, const float* logCl
 
 ClassInfoGainAllThresholdsBestSplit::ClassInfoGainAllThresholdsBestSplit(   float ratioOfThresholdsToTest,
                                                                             int minNumberThresholdsToTest,
-                                                                            int maxClass)
+                                                                            int numberOfClasses)
 : mRatioOfThresholdsToTest(ratioOfThresholdsToTest)
 , mMinNumberThresholdsToTest(minNumberThresholdsToTest)
-, mMaxClass(maxClass+1) //+1 is because 0 is also a valid class
+, mNumberOfClasses(numberOfClasses)
 {
 }
 
 
 int ClassInfoGainAllThresholdsBestSplit::GetYDim() const
 {
-    return mMaxClass;
+    return mNumberOfClasses;
 }
 
 ClassInfoGainAllThresholdsBestSplit::~ClassInfoGainAllThresholdsBestSplit()
@@ -94,17 +94,17 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
     {
         childCountsOut = MatrixBufferFloat(numberOfFeatures, 2);
     }
-    if( leftYsOut.GetM() != numberOfFeatures || leftYsOut.GetN() != mMaxClass )
+    if( leftYsOut.GetM() != numberOfFeatures || leftYsOut.GetN() != mNumberOfClasses )
     {
-        leftYsOut = MatrixBufferFloat(numberOfFeatures, mMaxClass);
+        leftYsOut = MatrixBufferFloat(numberOfFeatures, mNumberOfClasses);
     }
-    if( rightYsOut.GetM() != numberOfFeatures || rightYsOut.GetN() != mMaxClass )
+    if( rightYsOut.GetM() != numberOfFeatures || rightYsOut.GetN() != mNumberOfClasses )
     {
-        rightYsOut = MatrixBufferFloat(numberOfFeatures, mMaxClass);
+        rightYsOut = MatrixBufferFloat(numberOfFeatures, mNumberOfClasses);
     }
 
     // Initial class histogram and total class weights
-    std::vector<float> initialClassLabelCounts(mMaxClass);
+    std::vector<float> initialClassLabelCounts(mNumberOfClasses);
 
     float totalWeight = 0.0f;
     for(int i=0; i<numberSampleIndices; i++)
@@ -116,8 +116,8 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
     }
 
     // Work in log space
-    std::vector<float> initialLogClassLabelCounts(mMaxClass);
-    for(int c=0; c<mMaxClass; c++)
+    std::vector<float> initialLogClassLabelCounts(mNumberOfClasses);
+    for(int c=0; c<mNumberOfClasses; c++)
     {
         initialLogClassLabelCounts[c] = initialClassLabelCounts[c] > 0.0f ? log(initialClassLabelCounts[c]) : 0.0f;
     }
@@ -128,18 +128,18 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
     numberOfThresholdsToTest = numberOfThresholdsToTest > mMinNumberThresholdsToTest ? numberOfThresholdsToTest : mMinNumberThresholdsToTest;
     sampleWithOutReplacement(&thresholdsToTest[0], thresholdsToTest.size(), numberOfThresholdsToTest);
 
-    const float entropyStart = calculateDiscreteEntropy(&initialClassLabelCounts[0], &initialLogClassLabelCounts[0], mMaxClass, totalWeight);
+    const float entropyStart = calculateDiscreteEntropy(&initialClassLabelCounts[0], &initialLogClassLabelCounts[0], mNumberOfClasses, totalWeight);
 
-    std::vector<float> leftClassLabelCounts(mMaxClass);
-    std::vector<float> rightClassLabelCounts(mMaxClass);
+    std::vector<float> leftClassLabelCounts(mNumberOfClasses);
+    std::vector<float> rightClassLabelCounts(mNumberOfClasses);
 
-    std::vector<float> leftLogClassLabelCounts(mMaxClass);
-    std::vector<float> rightLogClassLabelCounts(mMaxClass);
+    std::vector<float> leftLogClassLabelCounts(mNumberOfClasses);
+    std::vector<float> rightLogClassLabelCounts(mNumberOfClasses);
 
-    std::vector<bool> recomputeClassLog(mMaxClass);
+    std::vector<bool> recomputeClassLog(mNumberOfClasses);
 
-    std::vector<float> bestLeftClassLabelCounts(mMaxClass);
-    std::vector<float> bestRightClassLabelCounts(mMaxClass);
+    std::vector<float> bestLeftClassLabelCounts(mNumberOfClasses);
+    std::vector<float> bestRightClassLabelCounts(mNumberOfClasses);
 
     for(int testIndex=0; testIndex<numberOfFeatures; testIndex++)
     {
@@ -152,7 +152,7 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
         float bestRightWeight = 0.0f;
 
         //Reset class counts
-        for(int c=0; c<mMaxClass; c++)
+        for(int c=0; c<mNumberOfClasses; c++)
         {
             leftClassLabelCounts[c] = initialClassLabelCounts[c];
             rightClassLabelCounts[c] = 0.0f;
@@ -188,7 +188,7 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
             // Test this threshold
             if( thresholdsToTest[sortedIndex] > 0 )
             {
-                for(int c=0; c<mMaxClass; c++)
+                for(int c=0; c<mNumberOfClasses; c++)
                 {
                     // Recompute the class counts that have changed since the last update
                     if(recomputeClassLog[c])
@@ -200,9 +200,9 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
                 }
 
                 const float leftEntropy = (leftWeight / (leftWeight + rightWeight)) *
-                                                calculateDiscreteEntropy(&leftClassLabelCounts[0], &leftLogClassLabelCounts[0], mMaxClass, leftWeight);
+                                                calculateDiscreteEntropy(&leftClassLabelCounts[0], &leftLogClassLabelCounts[0], mNumberOfClasses, leftWeight);
                 const float rightEntropy = (rightWeight / (leftWeight + rightWeight)) *
-                                                calculateDiscreteEntropy(&rightClassLabelCounts[0], &rightLogClassLabelCounts[0], mMaxClass, rightWeight);
+                                                calculateDiscreteEntropy(&rightClassLabelCounts[0], &rightLogClassLabelCounts[0], mNumberOfClasses, rightWeight);
 
                 if( (entropyStart - leftEntropy - rightEntropy) > bestGainInEntropy)
                 {
@@ -210,7 +210,7 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
                     bestGainInEntropy = (entropyStart - leftEntropy - rightEntropy);
                     bestThreshold = 0.5f * (featureValuesForTest[i] + featureValuesForTest[j]);
 
-                    for(int c=0; c<mMaxClass; c++)
+                    for(int c=0; c<mNumberOfClasses; c++)
                     {
                         bestLeftClassLabelCounts[c] = leftClassLabelCounts[c];
                         bestRightClassLabelCounts[c] = rightClassLabelCounts[c];
@@ -229,7 +229,7 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
         childCountsOut.Set(testIndex, 0, bestLeftWeight);
         childCountsOut.Set(testIndex, 1, bestRightWeight);
 
-        for(int c=0; c<mMaxClass; c++)
+        for(int c=0; c<mNumberOfClasses; c++)
         {
             leftYsOut.Set(testIndex, c, bestLeftClassLabelCounts[c] / bestLeftWeight);
             rightYsOut.Set(testIndex, c, bestRightClassLabelCounts[c] / bestRightWeight);

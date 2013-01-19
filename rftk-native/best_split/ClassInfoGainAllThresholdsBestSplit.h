@@ -10,7 +10,7 @@ class ClassInfoGainAllThresholdsBestSplit : public BestSplitI {
 public:
     ClassInfoGainAllThresholdsBestSplit(  float ratioOfThresholdsToTest,
                                         int minNumberThresholdsToTest,
-                                        int maxClass);
+                                        int numberOfClasses);
 
     ~ClassInfoGainAllThresholdsBestSplit();
 
@@ -34,5 +34,5 @@ public:
 private:
   float mRatioOfThresholdsToTest;
   int mMinNumberThresholdsToTest;
-  int mMaxClass;
+  int mNumberOfClasses;
 };
