@@ -1,9 +1,26 @@
 #include <vector>
 #include <algorithm>
 
+#include "bootstrap.h"
+
 void setSeed(int seed)
 {
     srand(seed);
+}
+
+void sampleIndicesWithOutReplacement(int* vec, int numberOfSamples, int totalNumber)
+{
+    std::vector<int> sampleIndices(totalNumber);
+    for(int i=0; i<totalNumber; i++)
+    {
+        sampleIndices[i] = i;
+    }
+    std::random_shuffle(sampleIndices.begin(), sampleIndices.end());
+
+    for(int i=0; i<numberOfSamples; i++)
+    {
+        vec[i] = sampleIndices[i];
+    }
 }
 
 void sampleWithOutReplacement(int *vec, int dim, int samples)

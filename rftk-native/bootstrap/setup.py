@@ -23,9 +23,27 @@ class my_install(install):
 # extension module
 _bootstrap = Extension("_bootstrap",
                    ["bootstrap.i","bootstrap.cpp"],
-                   swig_opts=["-c++"],
-                   include_dirs = [numpy_include],
+                   swig_opts=["-c++", "-I../assert_util"],
+                   include_dirs = [numpy_include, "../assert_util"],
+                   runtime_library_dirs = [os.path.expandvars('$PYTHONPATH/rftk/')],
+                   extra_objects = [os.path.expandvars('$PYTHONPATH/rftk/native/_assert_util.so')],
                    )
+
+if sys.platform == 'linux2':
+    _bootstrap = Extension("_bootstrap",
+                       ["bootstrap.i","bootstrap.cpp"],
+                       swig_opts=["-c++", "-I../assert_util"],
+                       include_dirs = [numpy_include, "../assert_util"],
+                       runtime_library_dirs = [os.path.expandvars('$PYTHONPATH/rftk/')],
+                       extra_objects = [os.path.expandvars('$PYTHONPATH/rftk/native/_assert_util.so')],
+                       )
+elif sys.platform == 'darwin':
+    _bootstrap = Extension("_bootstrap",
+                       ["bootstrap.i","bootstrap.cpp"],
+                       swig_opts=["-c++", "-I../assert_util"],
+                       include_dirs = [numpy_include, "../assert_util"],
+                       )
+
 
 # NumyTypemapTests setup
 setup(  name        = "function",
