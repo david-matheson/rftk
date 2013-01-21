@@ -1,7 +1,7 @@
 import unittest as unittest
 import numpy as np
-import rftk.native.bootstrap
 import rftk.native.assert_util
+import rftk.native.bootstrap
 import rftk.native.buffers as buffers
 import rftk.utils.buffer_converters as buffer_converters
 import rftk.native.best_split as best_split
@@ -19,7 +19,7 @@ class TestClassInfoGainAllThresholdsBestSplit(unittest.TestCase):
         data.AddMatrixBufferFloat(buffers.SAMPLE_WEIGHTS, 
             buffer_converters.as_matrix_buffer(np.array([1,1,1,1], dtype=np.float32)))
 
-        splitter = best_split.ClassInfoGainAllThresholdsBestSplit(1.0, 1, data.GetMatrixBufferInt(buffers.CLASS_LABELS).GetMax() )
+        splitter = best_split.ClassInfoGainAllThresholdsBestSplit(1.0, 1, data.GetMatrixBufferInt(buffers.CLASS_LABELS).GetMax()+1 )
 
         impurity_buffer = buffers.MatrixBufferFloat()
         threshold_buffer = buffers.MatrixBufferFloat()
@@ -67,7 +67,7 @@ class TestClassInfoGainAllThresholdsBestSplit(unittest.TestCase):
             buffer_converters.as_matrix_buffer(np.array([1,1,0,1,0,1], dtype=np.int32)))
         data.AddMatrixBufferFloat(buffers.SAMPLE_WEIGHTS,
             buffer_converters.as_matrix_buffer(np.array([1,1,1,1,1,1], dtype=np.float32)))
-        splitter = best_split.ClassInfoGainAllThresholdsBestSplit( 1.0, 1, data.GetMatrixBufferInt(buffers.CLASS_LABELS).GetMax())
+        splitter = best_split.ClassInfoGainAllThresholdsBestSplit( 1.0, 1, data.GetMatrixBufferInt(buffers.CLASS_LABELS).GetMax()+1)
 
         impurity_buffer = buffers.MatrixBufferFloat()
         threshold_buffer = buffers.MatrixBufferFloat()
