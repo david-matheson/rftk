@@ -20,25 +20,27 @@ if sys.platform == 'linux2':
     _feature_extractors = Extension("_feature_extractors",
                        ["feature_extractors.i",
                        "AxisAlignedFeatureExtractor.cpp",
-                       "ProjectionFeatureExtractor.cpp",
+                       "RandomProjectionFeatureExtractor.cpp",
                        "DepthScaledDepthDeltaFeatureExtractor.cpp",
                        "DepthScaledEntangledYsFeatureExtractor.cpp",],
                        swig_opts=["-c++", "-I../assert_util", "-I../buffers"],
-                       include_dirs = ["../assert_util", "../buffers", "../features"],
+                       include_dirs = ["../assert_util", "../buffers", "../bootstrap", "../features"],
                        runtime_library_dirs = [os.path.expandvars('$PYTHONPATH/rftk/')],
                        extra_objects = [os.path.expandvars('$PYTHONPATH/rftk/native/_assert_util.so'),
                                         os.path.expandvars('$PYTHONPATH/rftk/native/_buffers.so'),
+                                        os.path.expandvars('$PYTHONPATH/rftk/native/_bootstrap.so'),
                                         os.path.expandvars('$PYTHONPATH/rftk/native/_features.so')],
                        )
 elif sys.platform == 'darwin':
     _feature_extractors = Extension("_feature_extractors",
                        ["feature_extractors.i",
                        "AxisAlignedFeatureExtractor.cpp",
-                       "ProjectionFeatureExtractor.cpp",
+                       "RandomProjectionFeatureExtractor.cpp",
                        "DepthScaledDepthDeltaFeatureExtractor.cpp",
                        "DepthScaledEntangledYsFeatureExtractor.cpp",],
                        swig_opts=["-c++", "-I../assert_util", "-I../buffers"],
-                       include_dirs = ["../assert_util", "../buffers", "../features"],
+                       include_dirs = ["../assert_util", "../buffers", "../bootstrap", "../features",
+                       "/usr/local/Cellar/boost/1.48.0/include"],
                        )
 
 # NumyTypemapTests setup

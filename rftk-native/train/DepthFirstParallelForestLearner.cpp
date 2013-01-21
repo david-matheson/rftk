@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <vector>
 
-#define USE_BOOST_THREAD 1
+#define USE_BOOST_THREAD 0
 
 #if USE_BOOST_THREAD
 #include <boost/thread.hpp>

@@ -1,7 +1,9 @@
 #include <cstdlib>
 #include <time.h>
+#include <vector>
 
 #include "assert_util.h"
+#include "bootstrap.h"
 
 #include "AxisAlignedFeatureExtractor.h"
 
@@ -25,10 +27,14 @@ MatrixBufferFloat AxisAlignedFeatureExtractor::CreateFloatParams() const
 MatrixBufferInt AxisAlignedFeatureExtractor::CreateIntParams() const 
 {
     MatrixBufferInt intParams = MatrixBufferInt(mNumberOfFeatures, GetIntParamsDim()); 
+
+    std::vector<int> axes(mNumberOfFeatures);
+    sampleIndicesWithOutReplacement(&axes[0], mNumberOfFeatures, mNumberOfComponents);
+
     for(int i=0; i<mNumberOfFeatures; i++)
     {
         intParams.Set(i, 0, GetUID());
-        intParams.Set(i, 1, std::rand() % mNumberOfComponents);
+        intParams.Set(i, 1, axes[i]);
     }
     return intParams;
 }
