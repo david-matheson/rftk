@@ -16,7 +16,8 @@ class OnlineRandomForestClassifier:
     def __init__(self, max_features, n_estimators, max_depth, min_samples_split, y_dim, x_dim, min_impurity=0.001, n_jobs=1):
         self.number_of_jobs = n_jobs
 
-        self.feature_extractor = feature_extractors.AxisAlignedFeatureExtractor( max_features, x_dim)
+        self.feature_extractor = feature_extractors.RandomProjectionFeatureExtractor( max_features, x_dim, x_dim)
+        # self.feature_extractor = feature_extractors.AxisAlignedFeatureExtractor( max_features, x_dim)
 
         # self.node_data_collector = train.AllNodeDataCollectorFactory()
         # self.class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, y_dim)
@@ -24,9 +25,14 @@ class OnlineRandomForestClassifier:
         self.node_data_collector = train.RandomThresholdHistogramDataCollectorFactory(y_dim, 10, 20)
         self.class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(y_dim)
 
-        self.split_criteria = train.OnlineAlphaBetaSplitCriteria(   max_depth,
+        # self.split_criteria = train.OnlineAlphaBetaSplitCriteria(   max_depth,
+        #                                                             min_impurity,
+        #                                                             min_samples_split)
+
+        self.split_criteria = train.OnlineConsistentSplitCriteria(  2.0,
                                                                     min_impurity,
-                                                                    min_samples_split)
+                                                                    min_samples_split,
+                                                                    10 * min_samples_split)
 
         self.list_test = [self.feature_extractor]
         self.train_config = train.TrainConfigParams(self.list_test,

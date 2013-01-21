@@ -13,6 +13,7 @@
     #include "RandomThresholdHistogramDataCollector.h"
     #include "OfflineSplitCriteria.h"
     #include "OnlineAlphaBetaSplitCriteria.h"
+    #include "OnlineConsistentSplitCriteria.h"
 %}
 
 %include <exception.i>
@@ -38,3 +39,4 @@ namespace std {
 %include "RandomThresholdHistogramDataCollector.h"
 %include "OfflineSplitCriteria.h"
 %include "OnlineAlphaBetaSplitCriteria.h"
+%include "OnlineConsistentSplitCriteria.h"
