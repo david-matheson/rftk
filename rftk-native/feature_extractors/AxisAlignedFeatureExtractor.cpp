@@ -1,5 +1,9 @@
+#include <boost/random.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/poisson_distribution.hpp>
+
 #include <cstdlib>
-#include <time.h>
+#include <ctime>
 #include <vector>
 
 #include "assert_util.h"
@@ -7,31 +11,37 @@
 
 #include "AxisAlignedFeatureExtractor.h"
 
-AxisAlignedFeatureExtractor::AxisAlignedFeatureExtractor(int numberOfFeatures, int numberOfComponents)
+AxisAlignedFeatureExtractor::AxisAlignedFeatureExtractor(int numberOfFeatures, int numberOfComponents, bool usePoisson)
 : mNumberOfFeatures(numberOfFeatures)
 , mNumberOfComponents(numberOfComponents)
+, mUsePoisson(usePoisson)
 {
-    /* initialize random seed: */
-    srand ( time(NULL) );
 }
 
-AxisAlignedFeatureExtractor::~AxisAlignedFeatureExtractor() 
+AxisAlignedFeatureExtractor::~AxisAlignedFeatureExtractor()
 {}
 
-MatrixBufferFloat AxisAlignedFeatureExtractor::CreateFloatParams() const 
+int AxisAlignedFeatureExtractor::GetNumberOfFeatures() const
 {
-    MatrixBufferFloat floatParams = MatrixBufferFloat(mNumberOfFeatures, GetFloatParamsDim()); 
+    boost::mt19937 gen( std::time(NULL) );
+    boost::poisson_distribution<> poisson(static_cast<int>(mNumberOfFeatures));
+    const int numberOfFeatures = mUsePoisson ? poisson(gen) : mNumberOfFeatures;
+    return numberOfFeatures;
+}
+
+MatrixBufferFloat AxisAlignedFeatureExtractor::CreateFloatParams(const int numberOfFeatures) const
+{
+    MatrixBufferFloat floatParams = MatrixBufferFloat(numberOfFeatures, GetFloatParamsDim());
     return floatParams;
 }
 
-MatrixBufferInt AxisAlignedFeatureExtractor::CreateIntParams() const 
+MatrixBufferInt AxisAlignedFeatureExtractor::CreateIntParams(const int numberOfFeatures) const
 {
-    MatrixBufferInt intParams = MatrixBufferInt(mNumberOfFeatures, GetIntParamsDim()); 
+    MatrixBufferInt intParams = MatrixBufferInt(numberOfFeatures, GetIntParamsDim());
+    std::vector<int> axes(numberOfFeatures);
+    sampleIndicesWithOutReplacement(&axes[0], numberOfFeatures, mNumberOfComponents);
 
-    std::vector<int> axes(mNumberOfFeatures);
-    sampleIndicesWithOutReplacement(&axes[0], mNumberOfFeatures, mNumberOfComponents);
-
-    for(int i=0; i<mNumberOfFeatures; i++)
+    for(int i=0; i<numberOfFeatures; i++)
     {
         intParams.Set(i, 0, GetUID());
         intParams.Set(i, 1, axes[i]);

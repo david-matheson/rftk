@@ -15,8 +15,9 @@ public:
 
     virtual int GetUID() const { return 0; }
 
-    virtual MatrixBufferFloat CreateFloatParams() const { return MatrixBufferFloat(); }
-    virtual MatrixBufferInt CreateIntParams() const { return MatrixBufferInt(); }
+    virtual int GetNumberOfFeatures() const { return 0; }
+    virtual MatrixBufferFloat CreateFloatParams(const int numberOfFeatures) const { return MatrixBufferFloat(); }
+    virtual MatrixBufferInt CreateIntParams(const int numberOfFeatures) const { return MatrixBufferInt(); }
 
     virtual int GetFloatParamsDim() const { return 1; }
     virtual int GetIntParamsDim() const { return 1; }

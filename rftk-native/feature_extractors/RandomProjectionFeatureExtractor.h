@@ -9,16 +9,18 @@
 
 class RandomProjectionFeatureExtractor : public FeatureExtractorI {
 public:
-    RandomProjectionFeatureExtractor(   int numberOfFeatures, 
+    RandomProjectionFeatureExtractor(   int numberOfFeatures,
                                         int numberOfComponents,
-                                        int numberOfComponentsInSubspace );
+                                        int numberOfComponentsInSubspace,
+                                        bool usePoisson = false );
 
     ~RandomProjectionFeatureExtractor();
 
     virtual int GetUID() const { return VEC_FEATURE_PROJECTION; }
 
-    virtual MatrixBufferFloat CreateFloatParams() const;
-    virtual MatrixBufferInt CreateIntParams() const;
+    virtual int GetNumberOfFeatures() const;
+    virtual MatrixBufferFloat CreateFloatParams(const int numberOfFeatures) const;
+    virtual MatrixBufferInt CreateIntParams(const int numberOfFeatures) const;
 
     virtual int GetFloatParamsDim() const;
     virtual int GetIntParamsDim() const;
@@ -33,5 +35,5 @@ private:
     int mNumberOfFeatures;
     int mNumberOfComponents;
     int mNumberOfComponentsInSubspace;
-
+    bool mUsePoisson;
 };

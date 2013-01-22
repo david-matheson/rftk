@@ -1,9 +1,10 @@
 #include <boost/random.hpp>
 #include <boost/random/mersenne_twister.hpp>
+#include <boost/random/poisson_distribution.hpp>
 #include <boost/random/uniform_real.hpp>
 
 #include <cstdlib>
-#include <time.h>
+#include <ctime>
 #include <vector>
 
 #include "assert_util.h"
@@ -11,28 +12,36 @@
 
 #include "RandomProjectionFeatureExtractor.h"
 
-RandomProjectionFeatureExtractor::RandomProjectionFeatureExtractor( int numberOfFeatures, 
+RandomProjectionFeatureExtractor::RandomProjectionFeatureExtractor( int numberOfFeatures,
                                                                     int numberOfComponents,
-                                                                    int numberOfComponentsInSubspace )
+                                                                    int numberOfComponentsInSubspace,
+                                                                    bool usePoisson )
 : mNumberOfFeatures(numberOfFeatures)
 , mNumberOfComponents(numberOfComponents)
 , mNumberOfComponentsInSubspace(numberOfComponentsInSubspace)
+, mUsePoisson(usePoisson)
 {
-    /* initialize random seed: */
-    srand ( time(NULL) );
 }
 
-RandomProjectionFeatureExtractor::~RandomProjectionFeatureExtractor() 
+RandomProjectionFeatureExtractor::~RandomProjectionFeatureExtractor()
 {}
 
-MatrixBufferFloat RandomProjectionFeatureExtractor::CreateFloatParams() const 
+int RandomProjectionFeatureExtractor::GetNumberOfFeatures() const
 {
-    MatrixBufferFloat floatParams = MatrixBufferFloat(mNumberOfFeatures, GetFloatParamsDim()); 
+    boost::mt19937 gen( std::time(NULL) );
+
+    boost::poisson_distribution<> poisson(static_cast<int>(mNumberOfFeatures));
+    const int numberOfFeatures = mUsePoisson ? poisson(gen) : mNumberOfFeatures;
+    return numberOfFeatures;
+}
+
+MatrixBufferFloat RandomProjectionFeatureExtractor::CreateFloatParams(const int numberOfFeatures) const
+{
+    MatrixBufferFloat floatParams = MatrixBufferFloat(numberOfFeatures, GetFloatParamsDim());
 
     boost::mt19937 gen( std::time(NULL) );
-    boost::uniform_real<float> uniform(-1.0, 1.0);
-
-    for(int i=0; i<mNumberOfFeatures; i++)
+    boost::uniform_real<float> uniform(-1.0f, 1.0f);
+    for(int i=0; i<numberOfFeatures; i++)
     {
         for(int c=0; c<mNumberOfComponentsInSubspace; c++)
         {
@@ -40,14 +49,13 @@ MatrixBufferFloat RandomProjectionFeatureExtractor::CreateFloatParams() const
             floatParams.Set(i, c+2, componentProjection);
         }
     }
-
     return floatParams;
 }
 
-MatrixBufferInt RandomProjectionFeatureExtractor::CreateIntParams() const 
+MatrixBufferInt RandomProjectionFeatureExtractor::CreateIntParams(const int numberOfFeatures) const
 {
-    MatrixBufferInt intParams = MatrixBufferInt(mNumberOfFeatures, GetIntParamsDim()); 
-    for(int i=0; i<mNumberOfFeatures; i++)
+    MatrixBufferInt intParams = MatrixBufferInt(numberOfFeatures, GetIntParamsDim());
+    for(int i=0; i<numberOfFeatures; i++)
     {
         // intParams[0,:] is reserved for feature type
         intParams.Set(i, 0, GetUID());

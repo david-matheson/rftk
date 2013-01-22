@@ -9,14 +9,15 @@
 
 class AxisAlignedFeatureExtractor : public FeatureExtractorI {
 public:
-    AxisAlignedFeatureExtractor(int numberOfFeatures, int numberOfComponents);
+    AxisAlignedFeatureExtractor(int numberOfFeatures, int numberOfComponents, bool usePoisson = false);
 
     ~AxisAlignedFeatureExtractor();
 
     virtual int GetUID() const { return VEC_FEATURE_AXIS_ALIGNED; }
 
-    virtual MatrixBufferFloat CreateFloatParams() const;
-    virtual MatrixBufferInt CreateIntParams() const;
+    virtual int GetNumberOfFeatures() const;
+    virtual MatrixBufferFloat CreateFloatParams(const int numberOfFeatures) const;
+    virtual MatrixBufferInt CreateIntParams(const int numberOfFeatures) const;
 
     virtual int GetFloatParamsDim() const;
     virtual int GetIntParamsDim() const;
@@ -30,4 +31,5 @@ public:
 private:
     int mNumberOfFeatures;
     int mNumberOfComponents;
+    bool mUsePoisson;
 };

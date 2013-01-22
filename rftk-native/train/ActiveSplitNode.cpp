@@ -17,8 +17,9 @@ ActiveSplitNodeFeatureSet::ActiveSplitNodeFeatureSet(  const FeatureExtractorI* 
 , mNodeDataCollector(nodeDataCollector)
 , mBestSplitter(bestSplitter)
 {
-    mFloatParams = featureExtractor->CreateFloatParams();
-    mIntParams = featureExtractor->CreateIntParams();
+    const int numberOfFeatures = featureExtractor->GetNumberOfFeatures();
+    mFloatParams = featureExtractor->CreateFloatParams(numberOfFeatures);
+    mIntParams = featureExtractor->CreateIntParams(numberOfFeatures);
     ASSERT_ARG_DIM_1D(mFloatParams.GetM(), mIntParams.GetM());
 
     const int numberOfCandidateFeatures = mFloatParams.GetM();
