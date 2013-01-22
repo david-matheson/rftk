@@ -1,5 +1,8 @@
 #pragma once
 
+#include <boost/random.hpp>
+#include <boost/random/mersenne_twister.hpp>
+
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
 
@@ -36,4 +39,5 @@ private:
     int mNumberOfComponents;
     int mNumberOfComponentsInSubspace;
     bool mUsePoisson;
+    mutable boost::mt19937 mGen;
 };

@@ -1,8 +1,7 @@
-#include <boost/random.hpp>
-#include <boost/random/mersenne_twister.hpp>
 #include <boost/random/poisson_distribution.hpp>
 #include <boost/random/uniform_real.hpp>
 
+#include <stdio.h>
 #include <cstdlib>
 #include <ctime>
 #include <vector>
@@ -20,6 +19,7 @@ RandomProjectionFeatureExtractor::RandomProjectionFeatureExtractor( int numberOf
 , mNumberOfComponents(numberOfComponents)
 , mNumberOfComponentsInSubspace(numberOfComponentsInSubspace)
 , mUsePoisson(usePoisson)
+, mGen( static_cast<unsigned int>(std::time(NULL)) )
 {
 }
 
@@ -28,10 +28,13 @@ RandomProjectionFeatureExtractor::~RandomProjectionFeatureExtractor()
 
 int RandomProjectionFeatureExtractor::GetNumberOfFeatures() const
 {
-    boost::mt19937 gen( std::time(NULL) );
-
-    boost::poisson_distribution<> poisson(static_cast<int>(mNumberOfFeatures));
-    const int numberOfFeatures = mUsePoisson ? poisson(gen) : mNumberOfFeatures;
+    int numberOfFeatures = mNumberOfFeatures;
+    if(mUsePoisson)
+    {
+        boost::poisson_distribution<> poisson(static_cast<double>(mNumberOfFeatures));
+        boost::variate_generator<boost::mt19937&,boost::poisson_distribution<> > var_poisson(mGen, poisson);
+        numberOfFeatures = std::max(1, var_poisson());
+    }
     return numberOfFeatures;
 }
 
@@ -39,13 +42,14 @@ MatrixBufferFloat RandomProjectionFeatureExtractor::CreateFloatParams(const int 
 {
     MatrixBufferFloat floatParams = MatrixBufferFloat(numberOfFeatures, GetFloatParamsDim());
 
-    boost::mt19937 gen( std::time(NULL) );
     boost::uniform_real<float> uniform(-1.0f, 1.0f);
+    boost::variate_generator<boost::mt19937&,boost::uniform_real<float> > var_uniform_float(mGen, uniform);
+
     for(int i=0; i<numberOfFeatures; i++)
     {
         for(int c=0; c<mNumberOfComponentsInSubspace; c++)
         {
-            const float componentProjection = uniform(gen);
+            const float componentProjection = var_uniform_float();
             floatParams.Set(i, c+2, componentProjection);
         }
     }

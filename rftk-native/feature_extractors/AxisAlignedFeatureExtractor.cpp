@@ -15,6 +15,7 @@ AxisAlignedFeatureExtractor::AxisAlignedFeatureExtractor(int numberOfFeatures, i
 : mNumberOfFeatures(numberOfFeatures)
 , mNumberOfComponents(numberOfComponents)
 , mUsePoisson(usePoisson)
+, mGen( static_cast<unsigned int>(std::time(NULL)) )
 {
 }
 
@@ -23,9 +24,13 @@ AxisAlignedFeatureExtractor::~AxisAlignedFeatureExtractor()
 
 int AxisAlignedFeatureExtractor::GetNumberOfFeatures() const
 {
-    boost::mt19937 gen( std::time(NULL) );
-    boost::poisson_distribution<> poisson(static_cast<int>(mNumberOfFeatures));
-    const int numberOfFeatures = mUsePoisson ? poisson(gen) : mNumberOfFeatures;
+    int numberOfFeatures = mNumberOfFeatures;
+    if(mUsePoisson)
+    {
+        boost::poisson_distribution<> poisson(static_cast<double>(mNumberOfFeatures));
+        boost::variate_generator<boost::mt19937&,boost::poisson_distribution<> > var_poisson(mGen, poisson);
+        numberOfFeatures = std::min(mNumberOfComponents, std::max(1, var_poisson())); //can't have more features than components
+    }
     return numberOfFeatures;
 }
 

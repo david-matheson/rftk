@@ -28,6 +28,7 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, 
 
     boost::mt19937 gen( std::time(NULL) );
     boost::poisson_distribution<> poisson(1.0);
+    boost::variate_generator<boost::mt19937&,boost::poisson_distribution<> > var_poisson(gen, poisson);
 
     // Loop over trees could be farmed out to different jobs
     for(int treeIndex=0; treeIndex<mForest.mTrees.size(); treeIndex++)
@@ -39,7 +40,7 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, 
         {
             for(int i=0; i<weights.GetM(); i++)
             {
-                const float possionValue = static_cast<float>(poisson(gen));
+                const float possionValue = static_cast<float>(var_poisson());
                 weights.Set(i,0, possionValue);
             }
         }
@@ -58,7 +59,6 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, 
 
             if( weights.Get(sampleIndex,0) < FLT_EPSILON )
             {
-                printf("skipping %d\n", sampleIndex);
                 continue;
             }
 
