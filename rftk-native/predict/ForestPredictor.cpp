@@ -2,70 +2,67 @@
 #include "MatrixBuffer.h"
 #include "FeatureTypes.h"
 #include "Forest.h"
-#include "VecPredict.h"
+#include "ForestPredictor.h"
 
 
-VecForestPredictor::VecForestPredictor( const Forest& forest )
+ForestPredictor::ForestPredictor( const Forest& forest )
 : mForest(forest)
 {}
 
-void VecForestPredictor::PredictLeafs(const MatrixBufferFloat& x, MatrixBufferInt& leafsOut)
+void ForestPredictor::PredictLeafs(BufferCollection& data,  const int numberOfindices, MatrixBufferInt& leafsOut)
 {
-    return VecPredictLeafs(mForest, x, leafsOut);
+    ForestPredictLeafs(mForest, data, numberOfindices, leafsOut);
 }
 
-void VecForestPredictor::PredictYs(const MatrixBufferFloat& x, MatrixBufferFloat& ysOut)
+void ForestPredictor::PredictYs(BufferCollection& data,  const int numberOfindices, MatrixBufferFloat& ysOut)
 {
-    return VecPredictYs(mForest, x, ysOut);
+    return ForestPredictYs(mForest, data, numberOfindices, ysOut);
 }
 
-int walkTree( const Tree& tree, int nodeId, const float* x );
-int nextChild( const Tree& tree, int nodeId, const float* x );
+int walkTree( const Tree& tree, int nodeId, BufferCollection& data, const int index );
+int nextChild( const Tree& tree, int nodeId, BufferCollection& data, const int index );
 
 
-void VecPredictLeafs(const Forest& forest, const MatrixBufferFloat& x, MatrixBufferInt& leafsOut)
+void ForestPredictLeafs(const Forest& forest, BufferCollection& data, const int numberOfindices, MatrixBufferInt& leafsOut)
 {
-    const int numberOfSamples = x.GetM();
     const int numberOfTreesInForest = forest.mTrees.size();
     // Create new results buffer if it's not the right dimensions
-    if( leafsOut.GetM() != numberOfSamples || leafsOut.GetN() != numberOfTreesInForest )
+    if( leafsOut.GetM() != numberOfindices || leafsOut.GetN() != numberOfTreesInForest )
     {
-        leafsOut = MatrixBufferInt(numberOfSamples, numberOfTreesInForest);
+        leafsOut = MatrixBufferInt(numberOfindices, numberOfTreesInForest);
     }
 
-    for(int i=0; i<numberOfSamples; i++)
+    for(int i=0; i<numberOfindices; i++)
     {
-        const float* x_ptr = x.GetRowPtrUnsafe(i);
         for(int treeId=0; treeId<numberOfTreesInForest; treeId++)
         {
-            int leafNodeId = walkTree(forest.mTrees[treeId], 0, x_ptr);
+            int leafNodeId = walkTree(forest.mTrees[treeId], 0, data, i);
             leafsOut.Set(i, treeId, leafNodeId);
         }
     }
 }
 
-void VecPredictYs(const Forest& forest, const MatrixBufferFloat& x, MatrixBufferFloat& ysOut)
+void ForestPredictYs(const Forest& forest, BufferCollection& data, const int numberOfindices, MatrixBufferFloat& ysOut)
 {
     // Create new results buffer if it's not the right dimensions
-    const int numberOfSamples = x.GetM();
     const int numberOfTreesInForest = forest.mTrees.size();
     const int yDim = forest.mTrees[0].mYs.GetN();
-    if( ysOut.GetM() != numberOfSamples || ysOut.GetN() != yDim )
+    if( ysOut.GetM() != numberOfindices || ysOut.GetN() != yDim )
     {
-        ysOut = MatrixBufferFloat(numberOfSamples, yDim);
+        ysOut = MatrixBufferFloat(numberOfindices, yDim);
     }
     // Reset predictions if the buffer is being reused
     ysOut.Zero();
 
 
     // Create a temp buffer for leaf node id (this requires all leaf node ids to be stored in memory)
-    // If the number of samples (ie number of rows in x) is to large this might be an issue
-    MatrixBufferInt leafNodeIds = MatrixBufferInt(numberOfSamples, forest.mTrees.size());
-    VecPredictLeafs(forest, x, leafNodeIds);
+    // If the number of indices (ie number of rows in x) is to large this might be an issue
+    MatrixBufferInt leafNodeIds = MatrixBufferInt(numberOfindices, forest.mTrees.size());
+    ForestPredictLeafs(forest, data, numberOfindices, leafNodeIds);
 
     float invNumberTrees = 1.0 / static_cast<float>(numberOfTreesInForest);
 
-    for(int i=0; i<numberOfSamples; i++)
+    for(int i=0; i<numberOfindices; i++)
     {
         for(int treeId=0; treeId<numberOfTreesInForest; treeId++)
         {
@@ -80,17 +77,17 @@ void VecPredictYs(const Forest& forest, const MatrixBufferFloat& x, MatrixBuffer
     }
 }
 
-int walkTree( const Tree& tree, int nodeId, const float* x )
+int walkTree( const Tree& tree, int nodeId, BufferCollection& data, const int index )
 {
-    const int childNodeId = nextChild( tree, nodeId, x);
+    const int childNodeId = nextChild( tree, nodeId, data, index);
     if(childNodeId == -1)
     {
        return nodeId;
     }
-    return walkTree(tree, childNodeId, x);
+    return walkTree(tree, childNodeId, data, index);
 }
 
-int nextChild( const Tree& tree, int nodeId, const float* x )
+int nextChild( const Tree& tree, int nodeId, BufferCollection& data, const int index )
 {
     // First int param is which feature to use
     const int featureType = tree.mIntFeatureParams.Get(nodeId, 0);
@@ -101,19 +98,24 @@ int nextChild( const Tree& tree, int nodeId, const float* x )
     {
         case VEC_FEATURE_AXIS_ALIGNED:
         {
+            ASSERT( data.HasMatrixBufferFloat(X_FLOAT_DATA) )
+            const MatrixBufferFloat& xs = data.GetMatrixBufferFloat(X_FLOAT_DATA);
             int component = tree.mIntFeatureParams.Get(nodeId, 1);
-            testResult = x[component] > threshold;
+            testResult = xs.Get(index, component) > threshold;
             break;
         }
         case VEC_FEATURE_PROJECTION:
         {
+            ASSERT( data.HasMatrixBufferFloat(X_FLOAT_DATA) )
+            const MatrixBufferFloat& xs = data.GetMatrixBufferFloat(X_FLOAT_DATA);
+
             float projectionValue = 0.0f;
             const int numberOfComponentsInProjection = tree.mIntFeatureParams.Get(nodeId, 1);
             for(int p=2; p<numberOfComponentsInProjection+2; p++)
             {
                 const int componentId = tree.mIntFeatureParams.Get(nodeId, p);
                 const float componentProjection = tree.mFloatFeatureParams.Get(nodeId, p);
-                projectionValue += x[componentId] * componentProjection;
+                projectionValue += xs.Get(index, componentId) * componentProjection;
             }
             testResult = projectionValue > threshold;
             break;

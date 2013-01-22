@@ -17,7 +17,10 @@ def as_predict_forest( tree_data_list ):
     return predict_forest
 
 def vec_predict_ys(vec_predict_forest, x):
-    x_buffer = buffer_converters.as_matrix_buffer(x)
+    (m,n) = x.shape
+    buffer_collection = buffers.BufferCollection()
+    buffer_collection.AddMatrixBufferFloat(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(x))
+
     yhat_buffer = buffers.MatrixBufferFloat()
-    vec_predict_forest.PredictYs(x_buffer, yhat_buffer)
+    vec_predict_forest.PredictYs(buffer_collection, m, yhat_buffer)
     return buffer_converters.as_numpy_array(yhat_buffer)

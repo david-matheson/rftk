@@ -1,7 +1,7 @@
 %module predict
 %{
     #define SWIG_FILE_WITH_INIT
-    #include "VecPredict.h"
+    #include "ForestPredictor.h"
 %}
 
 %include <exception.i>
@@ -9,5 +9,4 @@
 %import "buffers.i"
 
 
-
-%include "VecPredict.h"
+%include "ForestPredictor.h"

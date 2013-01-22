@@ -54,13 +54,13 @@ class RandomForestClassifier:
         self.tree_list = builder.train_forest(data=x, indices=np.arange(x_m), ys=y)
 
         predict_forest = predict_utils.as_predict_forest(self.tree_list)
-        self.vec_predict_forest = predict.VecForestPredictor(predict_forest)
+        self.predict_forest = predict.ForestPredictor(predict_forest)
 
     def predict_class(self, x):
         yhat = self.predict(x)
         return yhat.argmax(axis=1)
 
     def predict(self, x):
-        yhat = predict_utils.vec_predict_ys(self.vec_predict_forest, x)
+        yhat = predict_utils.vec_predict_ys(self.predict_forest, x)
         return yhat
 

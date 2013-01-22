@@ -57,13 +57,13 @@ class OnlineRandomForestClassifier:
         indices = buffer_converters.as_matrix_buffer( np.arange(x_m) )
 
         self.online_learner.Train(data, indices, self.sampling_config)
-        self.vec_predict_forest = predict.VecForestPredictor(self.online_learner.GetForest())
+        self.predict_forest = predict.ForestPredictor(self.online_learner.GetForest())
 
     def predict_class(self, x):
         yhat = self.predict(x)
         return yhat.argmax(axis=1)
 
     def predict(self, x):
-        yhat = predict_utils.vec_predict_ys(self.vec_predict_forest, x)
+        yhat = predict_utils.vec_predict_ys(self.predict_forest, x)
         return yhat
 

@@ -7,7 +7,7 @@ import rftk.native.forest_data as forest_data
 import rftk.native.predict as predict
 import rftk.utils.buffer_converters as buffer_converters
 
-class TestVecPredictWithAxisAligned(unittest.TestCase):
+class TestPredictWithAxisAligned(unittest.TestCase):
 
     def construct_axis_aligned_forest(self):
         #                   (0) X[0] > 2.2
@@ -39,24 +39,28 @@ class TestVecPredictWithAxisAligned(unittest.TestCase):
         return forest
 
 
-    def test_vec_predict_leafnodes_with_axis_aligned(self):
+    def test_predict_leafnodes_with_axis_aligned(self):
         forest = self.construct_axis_aligned_forest()
-        vec_forest_predict = predict.VecForestPredictor(forest)
+        forest_predict = predict.ForestPredictor(forest)
 
         x = buffer_converters.as_matrix_buffer(np.array([[4.0,0.0]], dtype=np.float32))
+        buffer_collection = buffers.BufferCollection()
+        buffer_collection.AddMatrixBufferFloat(buffers.X_FLOAT_DATA, x)
         leaf_node_ids = buffers.MatrixBufferInt()
-        vec_forest_predict.PredictLeafs(x, leaf_node_ids)
+        forest_predict.PredictLeafs(buffer_collection, 1, leaf_node_ids)
 
         self.assertEqual(leaf_node_ids.Get(0,0), 3)
         self.assertEqual(leaf_node_ids.Get(0,1), 2)
 
-    def test_vec_predict_ys_with_axis_aligned(self):
+    def test_predict_ys_with_axis_aligned(self):
         forest = self.construct_axis_aligned_forest()
-        vec_forest_predict = predict.VecForestPredictor(forest)
+        forest_predict = predict.ForestPredictor(forest)
 
         x = buffer_converters.as_matrix_buffer(np.array([[4.0,0.0]], dtype=np.float32))
+        buffer_collection = buffers.BufferCollection()
+        buffer_collection.AddMatrixBufferFloat(buffers.X_FLOAT_DATA, x)
         ys = buffers.MatrixBufferFloat()
-        vec_forest_predict.PredictYs(x, ys)
+        forest_predict.PredictYs(buffer_collection, 1, ys)
 
 
         self.assertAlmostEqual(ys.Get(0,0), 0.55)

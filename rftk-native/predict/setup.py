@@ -19,7 +19,7 @@ class my_install(install):
 if sys.platform == 'linux2':
     _predict = Extension("_predict",
                        ["predict.i",
-                       "VecPredict.cpp",],
+                       "ForestPredictor.cpp",],
                        swig_opts=["-c++", "-I../assert_util", "-I../buffers", "-I../forest_data"],
                        include_dirs = ["../assert_util", "../buffers", "../features", "../forest_data"],
                        runtime_library_dirs = [os.path.expandvars('$PYTHONPATH/rftk/')],
@@ -31,7 +31,7 @@ if sys.platform == 'linux2':
 elif sys.platform == 'darwin':
     _predict = Extension("_predict",
                        ["predict.i",
-                       "VecPredict.cpp",],
+                       "ForestPredictor.cpp",],
                        swig_opts=["-c++", "-I../assert_util", "-I../buffers", "-I../forest_data"],
                        include_dirs = ["../assert_util", "../buffers", "../features", "../forest_data"],
                        )

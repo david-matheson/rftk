@@ -6,7 +6,7 @@
 #include <cstdio>
 
 #include "BufferCollection.h"
-#include "VecPredict.h"
+#include "ForestPredictor.h"
 #include "OnlineForestLearner.h"
 
 OnlineForestLearner::OnlineForestLearner( const TrainConfigParams& trainConfigParams )
@@ -22,9 +22,9 @@ Forest OnlineForestLearner::GetForest() const { return mForest; }
 
 void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, OnlineSamplingParams samplingParams )
 {
-    VecForestPredictor forestPredictor = VecForestPredictor(mForest);
+    ForestPredictor forestPredictor = ForestPredictor(mForest);
     MatrixBufferInt leafs;
-    forestPredictor.PredictLeafs(data.GetMatrixBufferFloat(X_FLOAT_DATA), leafs);
+    forestPredictor.PredictLeafs(data, indices.GetM(), leafs);
 
     boost::mt19937 gen( std::time(NULL) );
     boost::poisson_distribution<> poisson(1.0);

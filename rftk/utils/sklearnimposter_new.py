@@ -30,7 +30,7 @@ class RandomForestClassifier:
         data.AddMatrixBufferFloat(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(x))
         data.AddMatrixBufferInt(buffers.CLASS_LABELS, buffer_converters.as_matrix_buffer(y))
 
-        # feature_extractor = feature_extractors.RandomProjectionFeatureExtractor( self.max_features, x_n, x_n, True)
+        feature_extractor = feature_extractors.RandomProjectionFeatureExtractor( self.max_features, x_n, x_n, True)
         # feature_extractor = feature_extractors.AxisAlignedFeatureExtractor( self.max_features, x_n)
         # node_data_collector = train.AllNodeDataCollectorFactory()
         # class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, int(np.max(y)) + 1)
@@ -55,13 +55,13 @@ class RandomForestClassifier:
 
         depth_first_learner = train.DepthFirstParallelForestLearner(train_config)
         forest = depth_first_learner.Train(data, indices, sampling_config, self.number_of_jobs)
-        self.vec_predict_forest = predict.VecForestPredictor(forest)
+        self.predict_forest = predict.ForestPredictor(forest)
 
     def predict_class(self, x):
         yhat = self.predict(x)
         return yhat.argmax(axis=1)
 
     def predict(self, x):
-        yhat = predict_utils.vec_predict_ys(self.vec_predict_forest, x)
+        yhat = predict_utils.vec_predict_ys(self.predict_forest, x)
         return yhat
 
