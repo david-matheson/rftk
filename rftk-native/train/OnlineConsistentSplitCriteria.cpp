@@ -67,14 +67,14 @@ int OnlineConsistentSplitCriteria::BestSplit(int treeDepth,
     }
 
     // Force a split if past the maximum number of samples
-    if(maxIndex == -1 && maxCounts > mMaxNumberOfSamplesFirstSplit)
+    if(maxIndex == -1 && maxCounts > maxNumberOfSamples)
     {
         for(int i=0; i<impurityValues.GetM(); i++)
         {
             const float leftCounts = childCounts.Get(i, 0);
             const float rightCounts = childCounts.Get(i, 1);
 
-            if (leftCounts + rightCounts > mMaxNumberOfSamplesFirstSplit)
+            if (leftCounts + rightCounts > maxNumberOfSamples)
             {
                 maxIndex = i;
             }
