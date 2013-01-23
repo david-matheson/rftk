@@ -1,5 +1,7 @@
-#include "float.h"
-#include "limits.h"
+#include <cfloat>
+#include <climits>
+#include <cstdio>
+
 
 #include "assert_util.h"
 #include "MatrixBuffer.h"
@@ -74,7 +76,7 @@ MatrixBufferFloat MatrixBufferFloat::Slice(const MatrixBufferInt& indices) const
         for(int c=0; c<mN; c++)
         {
             sliced.Set(i, c, Get(r, c));
-        }       
+        }
     }
     return sliced;
 }
@@ -86,7 +88,7 @@ void MatrixBufferFloat::Zero()
 
 void MatrixBufferFloat::SetAll(const float value)
 {
-    std::fill((*mData).begin(), (*mData).end(), value);   
+    std::fill((*mData).begin(), (*mData).end(), value);
 }
 
 void MatrixBufferFloat::Set(int m, int n, float value)
@@ -130,6 +132,22 @@ void MatrixBufferFloat::AsNumpy(float* outfloat2d, int m, int n)
     {
         outfloat2d[i] = (*mData)[i];
     }
+}
+
+void MatrixBufferFloat::Print() const
+{
+    printf("[%d %d]\n", mM, mN);
+    printf("[\n");
+    for(int m=0; m<mM; m++)
+    {
+        printf("  [");
+        for(int n=0; n<mN; n++)
+        {
+            printf("%0.2f ", Get(m,n));
+        }
+        printf("]\n");
+    }
+    printf("]\n");
 }
 
 MatrixBufferInt::MatrixBufferInt()
@@ -202,7 +220,7 @@ MatrixBufferInt MatrixBufferInt::Slice(const MatrixBufferInt& indices) const
         for(int c=0; c<mN; c++)
         {
             sliced.Set(i, c, Get(r, c));
-        }       
+        }
     }
     return sliced;
 }
@@ -214,7 +232,7 @@ void MatrixBufferInt::Zero()
 
 void MatrixBufferInt::SetAll(const int value)
 {
-    std::fill((*mData).begin(), (*mData).end(), value);   
+    std::fill((*mData).begin(), (*mData).end(), value);
 }
 
 void MatrixBufferInt::Set(int m, int n, int value)
