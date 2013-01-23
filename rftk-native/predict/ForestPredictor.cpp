@@ -1,3 +1,5 @@
+#include <cstdio>
+
 #include "assert_util.h"
 #include "MatrixBuffer.h"
 #include "FeatureTypes.h"
@@ -19,10 +21,6 @@ void ForestPredictor::PredictYs(BufferCollection& data,  const int numberOfindic
     return ForestPredictYs(mForest, data, numberOfindices, ysOut);
 }
 
-int walkTree( const Tree& tree, int nodeId, BufferCollection& data, const int index );
-int nextChild( const Tree& tree, int nodeId, BufferCollection& data, const int index );
-
-
 void ForestPredictLeafs(const Forest& forest, BufferCollection& data, const int numberOfindices, MatrixBufferInt& leafsOut)
 {
     const int numberOfTreesInForest = forest.mTrees.size();
@@ -36,7 +34,8 @@ void ForestPredictLeafs(const Forest& forest, BufferCollection& data, const int 
     {
         for(int treeId=0; treeId<numberOfTreesInForest; treeId++)
         {
-            int leafNodeId = walkTree(forest.mTrees[treeId], 0, data, i);
+            int treeDepthOut = 0;
+            int leafNodeId = walkTree(forest.mTrees[treeId], 0, data, i, treeDepthOut);
             leafsOut.Set(i, treeId, leafNodeId);
         }
     }
@@ -77,14 +76,17 @@ void ForestPredictYs(const Forest& forest, BufferCollection& data, const int num
     }
 }
 
-int walkTree( const Tree& tree, int nodeId, BufferCollection& data, const int index )
+int nextChild( const Tree& tree, int nodeId, BufferCollection& data, const int index );
+
+int walkTree( const Tree& tree, int nodeId, BufferCollection& data, const int index, int& treeDepthOut )
 {
     const int childNodeId = nextChild( tree, nodeId, data, index);
     if(childNodeId == -1)
     {
        return nodeId;
     }
-    return walkTree(tree, childNodeId, data, index);
+    treeDepthOut++;
+    return walkTree(tree, childNodeId, data, index, treeDepthOut);
 }
 
 int nextChild( const Tree& tree, int nodeId, BufferCollection& data, const int index )

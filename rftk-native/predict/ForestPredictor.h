@@ -18,3 +18,4 @@ public:
 
 void ForestPredictLeafs(const Forest& forest, BufferCollection& data, const int numberOfindices, MatrixBufferInt& leafsOut);
 void ForestPredictYs(const Forest& forest, BufferCollection& data, const int numberOfindices, MatrixBufferFloat& ysOut);
+int walkTree( const Tree& tree, int nodeId, BufferCollection& data, const int index, int& treeDepthOut );
