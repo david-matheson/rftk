@@ -1,8 +1,9 @@
 #include <boost/random.hpp>
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_real.hpp>
+#include <boost/random/bernoulli_distribution.hpp>
 #include <ctime>
 #include <cstdio>
+#include <climits>
 
 #include "assert_util.h"
 #include "RandomThresholdHistogramDataCollector.h"
@@ -10,11 +11,13 @@
 
 RandomThresholdHistogramDataCollector::RandomThresholdHistogramDataCollector(int numberOfClasses,
                                                                             int numberOfThresholds,
-                                                                            int numberOfSamplesToEstimateThresholds)
-: mNumberOfCollectedSamples(0)
+                                                                            float probabilityOfNullStream )
+: mNumberOfThresholdSamples(0)
+, mNumberOfCollectedSamples(0)
 , mNumberOfClasses(numberOfClasses)
 , mNumberOfThresholds(numberOfThresholds)
-, mNumberOfSamplesToEstimateThresholds(numberOfSamplesToEstimateThresholds)
+, mProbabilityOfNullStream(probabilityOfNullStream)
+, mCandidateThresholds()
 {
 }
 
@@ -24,7 +27,8 @@ RandomThresholdHistogramDataCollector::~RandomThresholdHistogramDataCollector()
 
 void RandomThresholdHistogramDataCollector::Collect( BufferCollection& data,
                                     const MatrixBufferInt& sampleIndices,
-                                    const MatrixBufferFloat& featureValues )
+                                    const MatrixBufferFloat& featureValues,
+                                    boost::mt19937& gen )
 {
     // printf("RandomThresholdHistogramDataCollector::Collect\n");
 
@@ -32,43 +36,70 @@ void RandomThresholdHistogramDataCollector::Collect( BufferCollection& data,
     ASSERT_ARG_DIM_1D(sampleIndices.GetM(), featureValues.GetM())
     ASSERT(data.HasMatrixBufferInt(CLASS_LABELS))
 
-    const int numberOfFeatures = featureValues.GetN();
-
-    if( mNumberOfSamplesToEstimateThresholds > 0 )
+    boost::bernoulli_distribution<> bernoulli(mProbabilityOfNullStream);
+    boost::variate_generator<boost::mt19937&,boost::bernoulli_distribution<> > var_bernoulli(gen, bernoulli);
+    if(var_bernoulli() > 0)
     {
-        if( mFeaturesForThresholds.GetN() != numberOfFeatures )
-        {
-            mFeaturesForThresholds = featureValues;
-        }
-        else
-        {
-            mFeaturesForThresholds.AppendVertical(featureValues);
-        }
-        mNumberOfSamplesToEstimateThresholds -= featureValues.GetM();
+        // printf("RandomThresholdHistogramDataCollector NULL STREAM\n");
+        return;
     }
 
-    if ( mNumberOfSamplesToEstimateThresholds <= 0 )
+    const int numberOfFeatures = featureValues.GetN();
+
+    // If the random thresholds have not been set
+    if( !mData.HasMatrixBufferFloat(THRESHOLDS) )
     {
-        if( !mData.HasMatrixBufferFloat(THRESHOLDS) )
+        if( mCandidateThresholds.size() != numberOfFeatures)
         {
-            MatrixBufferFloat thresholds = MatrixBufferFloat(numberOfFeatures, mNumberOfThresholds);
-            boost::mt19937 gen( std::time(NULL) );
-            for(int f=0; f<featureValues.GetN(); f++)
+            mCandidateThresholds.resize(numberOfFeatures);
+        }
+        for(unsigned int s=0; s<featureValues.GetM(); s++)
+        {
+            for(unsigned int f=0; f<featureValues.GetN(); f++)
             {
-                const float minFeatureValue = mFeaturesForThresholds.GetMin();//minBuffer.Get(f,0);
-                const float maxFeatureValue = mFeaturesForThresholds.GetMax();//maxBuffer.Get(f,0);
-
-                boost::uniform_real<float> uniform(minFeatureValue, maxFeatureValue);
-                for(int t=0; t<mNumberOfThresholds; t++)
+                std::set<float>& set = mCandidateThresholds[f];
+                if(set.size() < mNumberOfThresholds)
                 {
-                    const float randomThreshold = uniform(gen);
-                    thresholds.Set(f,t, randomThreshold);
+                    set.insert(featureValues.Get(s,f));
                 }
-
-                mData.AddMatrixBufferFloat(THRESHOLDS, thresholds);
             }
         }
+        mNumberOfThresholdSamples += featureValues.GetN();
+        // Find the feature with the least number of unique samples
+        int minSetSize = INT_MAX;
+        for(int f=0; f<mCandidateThresholds.size(); f++)
+        {
+            std::set<float>& set = mCandidateThresholds[f];
+            minSetSize = std::min(minSetSize, static_cast<int>(set.size()));
+        }
+        // Incase there are less unique values than requested thresholds
+        if(mNumberOfThresholdSamples > mNumberOfThresholds*1000)
+        {
+            printf("WARNING RandomThresholdHistogramDataCollector wanted %d thresholds \
+                    but only saw %d unique feature values", mNumberOfThresholds, minSetSize);
+            mNumberOfThresholds = minSetSize;
+        }
+        // Use sets to construct thresholds
+        if( minSetSize >= mNumberOfThresholds)
+        {
+            MatrixBufferFloat thresholds = MatrixBufferFloat(numberOfFeatures, mNumberOfThresholds);
+            for(int f=0; f<mCandidateThresholds.size(); f++)
+            {
+                std::set<float>& set =  mCandidateThresholds[f];
+                std::set<float>::iterator iter = set.begin();
+                for (int i=0; i < mNumberOfThresholds && iter != set.end(); ++i, ++iter)
+                {
+                    thresholds.Set(f,i, *iter);
+                }
+            }
+            // printf("RandomThresholdHistogramDataCollector::Collect() thresholds\n");
+            // thresholds.Print();
+            mData.AddMatrixBufferFloat(THRESHOLDS, thresholds);
+        }
+    }
 
+    if ( mData.HasMatrixBufferFloat(THRESHOLDS) )
+    {
         if( !mData.HasImgBufferFloat(HISTOGRAM_LEFT) )
         {
             ImgBufferFloat histogramLeft = ImgBufferFloat(numberOfFeatures, mNumberOfThresholds, mNumberOfClasses);
@@ -123,10 +154,10 @@ int RandomThresholdHistogramDataCollector::GetNumberOfCollectedSamples()
 
 RandomThresholdHistogramDataCollectorFactory::RandomThresholdHistogramDataCollectorFactory(int numberOfClasses,
                                                                                             int numberOfThresholds,
-                                                                                            int numberOfSamplesToEstimateThresholds)
+                                                                                            float probabilityOfNullStream)
 : mNumberOfClasses(numberOfClasses)
 , mNumberOfThresholds(numberOfThresholds)
-, mNumberOfSamplesToEstimateThresholds(numberOfSamplesToEstimateThresholds)
+, mProbabilityOfNullStream(probabilityOfNullStream)
 {
 }
 
@@ -135,7 +166,7 @@ RandomThresholdHistogramDataCollectorFactory::~RandomThresholdHistogramDataColle
 
 NodeDataCollectorI* RandomThresholdHistogramDataCollectorFactory::Create() const
 {
-    return new RandomThresholdHistogramDataCollector(mNumberOfClasses, mNumberOfThresholds, mNumberOfSamplesToEstimateThresholds);
+    return new RandomThresholdHistogramDataCollector(mNumberOfClasses, mNumberOfThresholds, mProbabilityOfNullStream);
 }
 
 

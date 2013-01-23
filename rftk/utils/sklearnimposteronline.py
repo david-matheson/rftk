@@ -22,14 +22,14 @@ class OnlineRandomForestClassifier:
         # self.node_data_collector = train.AllNodeDataCollectorFactory()
         # self.class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, y_dim)
 
-        self.node_data_collector = train.RandomThresholdHistogramDataCollectorFactory(y_dim, 10, 20)
+        self.node_data_collector = train.RandomThresholdHistogramDataCollectorFactory(y_dim, 10, 0.7)
         self.class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(y_dim)
 
         # self.split_criteria = train.OnlineAlphaBetaSplitCriteria(   max_depth,
         #                                                             min_impurity,
         #                                                             min_samples_split)
 
-        self.split_criteria = train.OnlineConsistentSplitCriteria(  10.0,
+        self.split_criteria = train.OnlineConsistentSplitCriteria(  2.0,
                                                                     min_impurity,
                                                                     min_samples_split,
                                                                     10 * min_samples_split)
@@ -41,7 +41,7 @@ class OnlineRandomForestClassifier:
                                                 self.split_criteria,
                                                 n_estimators,
                                                 10000)
-        self.sampling_config = train.OnlineSamplingParams(True, 1.0)
+        self.sampling_config = train.OnlineSamplingParams(False, 1.0)
         self.online_learner = train.OnlineForestLearner(self.train_config)
 
 

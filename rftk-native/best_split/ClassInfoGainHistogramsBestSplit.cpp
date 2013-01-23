@@ -108,8 +108,6 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   BufferCollection& data,
     for(int f=0; f<histogramLeft.GetNumberOfImgs(); f++)
     {
         float bestGainInEntropy = FLT_MIN;
-        std::vector<float> bestLeftClassLabelCounts(mNumberOfClasses);
-        std::vector<float> bestRightClassLabelCounts(mNumberOfClasses);
 
         for(int t=0; t<histogramLeft.GetM(); t++)
         {

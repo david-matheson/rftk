@@ -1,5 +1,8 @@
 #pragma once
 
+#include <boost/random.hpp>
+#include <boost/random/mersenne_twister.hpp>
+
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
 #include "NodeDataCollectorI.h"
@@ -15,7 +18,8 @@ public:
     // Also copies/compacts weights, ys, etc
     virtual void Collect( BufferCollection& data,
                           const MatrixBufferInt& sampleIndices,
-                          const MatrixBufferFloat& featureValues );
+                          const MatrixBufferFloat& featureValues,
+                          boost::mt19937& gen);
 
     // Includes feature values, weights, ys, etc
     virtual BufferCollection GetCollectedData();

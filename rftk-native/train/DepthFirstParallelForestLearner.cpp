@@ -1,3 +1,7 @@
+#include <boost/random.hpp>
+#include <boost/random/mersenne_twister.hpp>
+
+#include <ctime>
 #include <stdio.h>
 #include <vector>
 
@@ -35,6 +39,7 @@ void ProcessNode(   const TrainConfigParams& trainConfigParams,
                     int treeDepth,
                     BufferCollection& data,
                     const MatrixBufferInt& indices,
+                    boost::mt19937& gen,
                     Tree* treeOut);
 
 DepthFirstParallelForestLearner::DepthFirstParallelForestLearner( const TrainConfigParams& trainConfigParams )
@@ -113,7 +118,8 @@ void TrainTree(    BufferCollection& data,
     }
     data.AddMatrixBufferFloat(SAMPLE_WEIGHTS, weights);
     MatrixBufferInt sampledIndicesBuffer(&sampledIndices[0], sampledIndices.size(), 1);
-    ProcessNode(trainConfigParams, 0, 0, data, sampledIndicesBuffer, treeOut);
+    boost::mt19937 gen( std::time(NULL) );
+    ProcessNode(trainConfigParams, 0, 0, data, sampledIndicesBuffer, gen, treeOut);
 }
 
 
@@ -122,6 +128,7 @@ void ProcessNode(   const TrainConfigParams& trainConfigParams,
                     int treeDepth,
                     BufferCollection& data,
                     const MatrixBufferInt& indices,
+                    boost::mt19937& gen,
                     Tree* treeOut)
 {
     // printf("DepthFirstParallelForestLearner::ProcessNode depth=%d\n", treeDepth);
@@ -131,7 +138,7 @@ void ProcessNode(   const TrainConfigParams& trainConfigParams,
                                                     trainConfigParams.mSplitCriteria,
                                                     treeDepth);
 
-    activeSplit.ProcessData(data, indices);
+    activeSplit.ProcessData(data, indices, gen);
     if( activeSplit.ShouldSplit() == SPLT_CRITERIA_READY_TO_SPLIT )
     {
         treeOut->mLastNodeIndex++;
@@ -146,7 +153,7 @@ void ProcessNode(   const TrainConfigParams& trainConfigParams,
         MatrixBufferInt rightIndices;
         activeSplit.SplitIndices(data, indices, leftIndices, rightIndices);
 
-        ProcessNode(trainConfigParams, leftNode, treeDepth+1, data, leftIndices, treeOut);
-        ProcessNode(trainConfigParams, rightNode, treeDepth+1, data, rightIndices, treeOut);
+        ProcessNode(trainConfigParams, leftNode, treeDepth+1, data, leftIndices, gen, treeOut);
+        ProcessNode(trainConfigParams, rightNode, treeDepth+1, data, rightIndices, gen, treeOut);
     }
 }

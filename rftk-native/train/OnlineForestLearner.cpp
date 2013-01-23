@@ -22,10 +22,6 @@ Forest OnlineForestLearner::GetForest() const { return mForest; }
 
 void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, OnlineSamplingParams samplingParams )
 {
-    ForestPredictor forestPredictor = ForestPredictor(mForest);
-    MatrixBufferInt leafs;
-    forestPredictor.PredictLeafs(data, indices.GetM(), leafs);
-
     boost::mt19937 gen( std::time(NULL) );
     boost::poisson_distribution<> poisson(1.0);
     boost::variate_generator<boost::mt19937&,boost::poisson_distribution<> > var_poisson(gen, poisson);
@@ -53,14 +49,14 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, 
         // Iterate over each sample (this cannot be farmed out to different threads)
         for(int sampleIndex=0; sampleIndex<indices.GetM(); sampleIndex++)
         {
-            Tree& tree = mForest.mTrees[treeIndex];
-            int nodeIndex = leafs.Get(sampleIndex, treeIndex);
-            int treeDepth = tree.mDepths.Get(nodeIndex,0);
-
             if( weights.Get(sampleIndex,0) < FLT_EPSILON )
             {
                 continue;
             }
+
+            Tree& tree = mForest.mTrees[treeIndex];
+            int treeDepth = 0;
+            const int nodeIndex = walkTree( tree, 0, data, sampleIndex, treeDepth );
 
             MatrixBufferInt singleIndex(1,1);
             singleIndex.Set(0,0, indices.Get(sampleIndex, 0));
@@ -76,10 +72,11 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, 
             }
 
             ActiveSplitNode* activeSplit = mActiveNodes[treeNodeKey];
-            activeSplit->ProcessData(data, singleIndex);
+            activeSplit->ProcessData(data, singleIndex, gen);
 
             if( activeSplit->ShouldSplit() == SPLT_CRITERIA_READY_TO_SPLIT )
             {
+                // printf("OnlineForestLearner::Train SPLIT tree=%d nodeIndex=%d treeDepth=%d\n", treeIndex, nodeIndex, treeDepth);
                 tree.mLastNodeIndex++;
                 const int leftNode = tree.mLastNodeIndex;
                 tree.mLastNodeIndex++;

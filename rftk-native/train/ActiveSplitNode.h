@@ -1,5 +1,8 @@
 #pragma once
 
+#include <boost/random.hpp>
+#include <boost/random/mersenne_twister.hpp>
+
 #include <vector>
 #include <tr1/memory>
 
@@ -22,7 +25,8 @@ public:
     ~ActiveSplitNodeFeatureSet();
 
     void ProcessData(   BufferCollection& data,
-                        const MatrixBufferInt& sampleIndices );
+                        const MatrixBufferInt& sampleIndices,
+                        boost::mt19937& gen );
 
     void WriteImpurity( int groupId,
                         int outStartIndex,
@@ -81,7 +85,8 @@ public:
     virtual ~ActiveSplitNode();
 
     void ProcessData(   BufferCollection& data,
-                        const MatrixBufferInt& sampleIndices );
+                        const MatrixBufferInt& sampleIndices,
+                        boost::mt19937& gen );
 
     SPLT_CRITERIA ShouldSplit() { return mShouldSplit; }
 

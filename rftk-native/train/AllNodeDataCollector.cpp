@@ -3,7 +3,7 @@
 
 
 AllNodeDataCollector::AllNodeDataCollector()
-{ 
+{
 }
 
 AllNodeDataCollector::~AllNodeDataCollector()
@@ -12,7 +12,8 @@ AllNodeDataCollector::~AllNodeDataCollector()
 
 void AllNodeDataCollector::Collect( BufferCollection& data,
                                     const MatrixBufferInt& sampleIndices,
-                                    const MatrixBufferFloat& featureValues ) 
+                                    const MatrixBufferFloat& featureValues,
+                                    boost::mt19937& gen )
 {
     ASSERT_ARG_DIM_1D(sampleIndices.GetN(), 1)
     ASSERT_ARG_DIM_1D(sampleIndices.GetM(), featureValues.GetM())
@@ -27,26 +28,26 @@ void AllNodeDataCollector::Collect( BufferCollection& data,
 
     if( data.HasMatrixBufferInt(CLASS_LABELS) )
     {
-        MatrixBufferInt classLabels = data.GetMatrixBufferInt(CLASS_LABELS).Slice(sampleIndices);        
+        MatrixBufferInt classLabels = data.GetMatrixBufferInt(CLASS_LABELS).Slice(sampleIndices);
         mData.AppendVerticalMatrixBufferInt(CLASS_LABELS, classLabels);
-    }    
+    }
 }
 
-BufferCollection AllNodeDataCollector::GetCollectedData() 
+BufferCollection AllNodeDataCollector::GetCollectedData()
 {
-    return mData; 
+    return mData;
 }
 
 int AllNodeDataCollector::GetNumberOfCollectedSamples()
 {
-    return mData.GetMatrixBufferFloat(FEATURE_VALUES).GetM(); 
+    return mData.GetMatrixBufferFloat(FEATURE_VALUES).GetM();
 }
 
 
-NodeDataCollectorI* AllNodeDataCollectorFactory::Create() const 
+NodeDataCollectorI* AllNodeDataCollectorFactory::Create() const
 {
     // printf("AllNodeDataCollectorFactory::Create\n");
-    return new AllNodeDataCollector(); 
+    return new AllNodeDataCollector();
 }
 
 

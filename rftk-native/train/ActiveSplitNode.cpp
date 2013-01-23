@@ -1,4 +1,5 @@
 #include <vector>
+#include <cstdio>
 
 #include "assert_util.h"
 #include "MatrixBuffer.h"
@@ -35,7 +36,8 @@ ActiveSplitNodeFeatureSet::~ActiveSplitNodeFeatureSet()
 }
 
 void ActiveSplitNodeFeatureSet::ProcessData(    BufferCollection& data,
-                                                const MatrixBufferInt& sampleIndices )
+                                                const MatrixBufferInt& sampleIndices,
+                                                boost::mt19937& gen )
 {
     ASSERT_ARG_DIM_1D(mFloatParams.GetM(), mIntParams.GetM());
     ASSERT_ARG_DIM_2D(mImpurities.GetM(), mImpurities.GetN(), mThresholds.GetM(), mThresholds.GetN());
@@ -49,7 +51,7 @@ void ActiveSplitNodeFeatureSet::ProcessData(    BufferCollection& data,
     mFeatureExtractor->Extract(data, sampleIndices, mIntParams, mFloatParams, featureValues);
 
     // Collect data
-    mNodeDataCollector->Collect(data, sampleIndices, featureValues);
+    mNodeDataCollector->Collect(data, sampleIndices, featureValues, gen);
 
     // Calculate impurity and child ys
     BufferCollection nodeBufferCollection = mNodeDataCollector->GetCollectedData();
@@ -146,21 +148,23 @@ void ActiveSplitNodeFeatureSet::WriteToTree(int index,
         floatParamsOut.Set(treeNodeIndex, c, mFloatParams.Get(index, c));
     }
 
-    // printf("ActiveSplitNodeFeatureSet::WriteToTree left leafs\n");
-
+    // printf("ActiveSplitNodeFeatureSet::WriteToTree left leafs %d %d\n", leftTreeNodeIndex, index);
     for(int c = 0; c < mLeftYs.GetN(); c++)
     {
         // Move slice copying functionality into MatrixBuffer
         leftYsOut.Set(leftTreeNodeIndex, c, mLeftYs.Get(index, c));
+        // printf("%0.2f ", leftYsOut.Get(leftTreeNodeIndex, c));
     }
+    // printf("\n");
 
-    // printf("ActiveSplitNodeFeatureSet::WriteToTree right leafs\n");
-
+    // printf("ActiveSplitNodeFeatureSet::WriteToTree right leafs %d %d\n", rightTreeNodeIndex, index);
     for(int c = 0; c < mRightYs.GetN(); c++)
     {
         // Move slice copying functionality into MatrixBuffer
         rightYsOut.Set(rightTreeNodeIndex, c, mRightYs.Get(index, c));
+        // printf("%0.2f ", rightYsOut.Get(rightTreeNodeIndex, c));
     }
+    // printf("\n");
 }
 
 ActiveSplitNode::ActiveSplitNode(const std::vector<FeatureExtractorI*> featureExtractors,
@@ -195,12 +199,13 @@ ActiveSplitNode::~ActiveSplitNode()
 
 
 void ActiveSplitNode::ProcessData(  BufferCollection& data,
-                                    const MatrixBufferInt& sampleIndices )
+                                    const MatrixBufferInt& sampleIndices,
+                                    boost::mt19937& gen )
 {
     // printf("ActiveSplitNode::ProcessData\n");
     for(int i = 0; i < mActiveSplitNodeFeatureSets.size(); i++)
     {
-        mActiveSplitNodeFeatureSets[i].ProcessData(data, sampleIndices);
+        mActiveSplitNodeFeatureSets[i].ProcessData(data, sampleIndices, gen);
     }
 
     // printf("ActiveSplitNode::ProcessData WriteImpurity\n");
