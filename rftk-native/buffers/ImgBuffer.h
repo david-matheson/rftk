@@ -28,6 +28,8 @@ public:
     ImgBufferFloat SharedMemoryCopy() { return *this; }
     void AsNumpy(float* outfloat3d, int l, int m, int n);
 
+    void Print() const;
+
     std::tr1::shared_ptr< std::vector< float > > mData;
     int mNumberOfImgs;
     int mM;

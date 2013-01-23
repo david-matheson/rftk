@@ -1,3 +1,5 @@
+#include <cstdio>
+
 #include "assert_util.h"
 #include "ImgBuffer.h"
 
@@ -24,7 +26,7 @@ ImgBufferFloat::ImgBufferFloat(double* data, int numberOfImgs, int m, int n)
 , mM(m)
 , mN(n)
 {
-    std::tr1::shared_ptr<int> p(new int(42));  
+    std::tr1::shared_ptr<int> p(new int(42));
     for(int i=0; i<numberOfImgs*m*n; i++)
     {
         (*mData)[i] = static_cast<float>(data[i]);
@@ -53,9 +55,29 @@ void ImgBufferFloat::AsNumpy(float* outfloat3d, int l, int m, int n)
     for(int i=0; i<l*m*n; i++)
     {
         outfloat3d[i] = (*mData)[i];
-    }  
+    }
 }
 
+void ImgBufferFloat::Print() const
+{
+    printf("[%d %d %d]\n", mNumberOfImgs, mM, mN);
+    printf("[\n");
+    for(int i=0; i<mNumberOfImgs; i++)
+    {
+        printf("  [\n");
+        for(int m=0; m<mM; m++)
+        {
+            printf("    [");
+            for(int n=0; n<mN; n++)
+            {
+                printf("%0.2f ", Get(i,m,n));
+            }
+            printf("]\n");
+        }
+        printf("  ]\n");
+    }
+    printf("]\n");
+}
 
 
 ImgBufferInt::ImgBufferInt(int numberOfImgs, int m, int n)
@@ -108,7 +130,7 @@ void ImgBufferInt::AsNumpy(int* outint3d, int l, int m, int n)
     for(int i=0; i<l*m*n; i++)
     {
         outint3d[i] = (*mData)[i];
-    }    
+    }
 }
 
 // From 2d numpy arrays
@@ -124,12 +146,12 @@ ImgBufferFloat imgBufferFloat64(double* double2d, int m, int n)
 
 ImgBufferInt imgBufferInt(int* int2d, int m, int n)
 {
-    return ImgBufferInt(int2d, 1, m, n);   
+    return ImgBufferInt(int2d, 1, m, n);
 }
 
 ImgBufferInt imgBufferInt64(long long* long2d, int m, int n)
 {
-    return ImgBufferInt(long2d, 1, m, n);   
+    return ImgBufferInt(long2d, 1, m, n);
 }
 
 // From 3d numpy arrays
