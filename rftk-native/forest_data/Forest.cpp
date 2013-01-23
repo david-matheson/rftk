@@ -22,3 +22,14 @@ Forest::Forest( int numberOfTrees,
         mTrees.push_back(Tree(maxNumberNodes, maxIntParamsDim, maxFloatParamsDim, maxYsDim));
     }
 }
+
+int Forest::GetNumberOfTrees() const
+{
+    return mTrees.size();
+}
+
+
+Tree Forest::GetTree(const int index) const
+{
+    return mTrees[index];
+}

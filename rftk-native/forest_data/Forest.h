@@ -16,5 +16,8 @@ public:
             int maxFloatParamsDim,
             int maxYsDim );
 
+    int GetNumberOfTrees() const;
+    Tree GetTree(const int index) const;
+
     std::vector<Tree> mTrees;
 };
