@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
     print datetime.now()
 
-    forest = rf.OnlineRandomForestClassifier(max_features=1, n_estimators=25, max_depth=15, min_impurity=0.001, min_samples_split=5, x_dim=2, y_dim=3)
+    forest = rf.OnlineRandomForestClassifier(max_features=1, n_estimators=100, max_depth=15, min_impurity=0.001, min_samples_split=5, x_dim=2, y_dim=3)
     for epoch_id in range(1000):
         print "Fitting epoch %d" % (epoch_id)
         epoch_per = 50
@@ -76,7 +76,7 @@ if __name__ == "__main__":
         print "Synthetic (classification):"
         print "    Accuracy:", np.mean(Y_test == y_hat)
 
-        grid_plot(forest.predict_forest, X_train, Y_train, X_test, "synthetic_online_classification-%d.png" % (epoch_id))
+        grid_plot(forest.predict_forest, X_train, Y_train, X_test, "output-all/synthetic_online_classification-%d.png" % (epoch_id))
 
         online_forest_data = forest.online_learner.GetForest()
 
@@ -84,4 +84,4 @@ if __name__ == "__main__":
             print tree_id
             single_tree_forest = forest_data.Forest([online_forest_data.GetTree(tree_id)])
             single_tree_forest_predictor = predict.ForestPredictor(single_tree_forest)
-            grid_plot(single_tree_forest_predictor, X_train, Y_train, X_test, "synthetic_online_classification-%d-%d.png" % (epoch_id, tree_id))
+            grid_plot(single_tree_forest_predictor, X_train, Y_train, X_test, "output-trees/synthetic_online_classification-%d-%d.png" % (epoch_id, tree_id))
