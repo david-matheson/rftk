@@ -22,9 +22,9 @@ void BufferCollection::AppendVerticalMatrixBufferFloat(std::string name, const M
     }
 }
 
-MatrixBufferFloat BufferCollection::GetMatrixBufferFloat(std::string name)
+const MatrixBufferFloat& BufferCollection::GetMatrixBufferFloat(const std::string& name) const
 {
-    return mFloatMatrixBuffers[name];
+    return mFloatMatrixBuffers.find(name)->second;
 }
 
 bool BufferCollection::HasMatrixBufferInt(std::string name) const
@@ -49,10 +49,11 @@ void BufferCollection::AppendVerticalMatrixBufferInt(std::string name, const Mat
     }
 }
 
-MatrixBufferInt BufferCollection::GetMatrixBufferInt(std::string name)
+const MatrixBufferInt& BufferCollection::GetMatrixBufferInt(const std::string& name) const
 {
-    return mIntMatrixBuffers[name];
+    return mIntMatrixBuffers.find(name)->second;
 }
+
 
 bool BufferCollection::HasImgBufferFloat(std::string name) const
 {

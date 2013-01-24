@@ -7,41 +7,52 @@
 #include "MatrixBuffer.h"
 
 MatrixBufferFloat::MatrixBufferFloat()
-: mData( new std::vector< float >() )
+: mData()
 , mM(0)
 , mN(0)
 {
 }
 
 MatrixBufferFloat::MatrixBufferFloat(int m, int n)
-: mData( new std::vector< float >(m*n) )
+: mData( m*n )
 , mM(m)
 , mN(n)
 {
 }
 
 MatrixBufferFloat::MatrixBufferFloat(float* data, int m, int n)
-: mData( new std::vector< float >(data, data + m*n) )
+: mData( data, data + m*n )
 , mM(m)
 , mN(n)
 {
 }
 
 MatrixBufferFloat::MatrixBufferFloat(double* data, int m, int n)
-: mData( new std::vector< float >(m*n) )
+: mData( m*n )
 , mM(m)
 , mN(n)
 {
     for(int i=0; i<m*n; i++)
     {
-        (*mData)[i] = static_cast<float>(data[i]);
+        mData[i] = static_cast<float>(data[i]);
     }
+}
+
+void MatrixBufferFloat::Resize(int m, int n)
+{
+    if(m*n > mData.size())
+    {
+        mData.resize(m*n);
+    }
+    Zero();
+    mM = m;
+    mN = n;
 }
 
 void MatrixBufferFloat::AppendVertical(const MatrixBufferFloat& buffer)
 {
     ASSERT_ARG_DIM_1D(mN, buffer.GetN())
-    (*mData).resize((mM + buffer.GetM()) * mN);
+    mData.resize((mM + buffer.GetM()) * mN);
     const int oldM = mM;
     mM += buffer.GetM();
     for(int r=0; r<buffer.GetM(); r++)
@@ -88,21 +99,21 @@ void MatrixBufferFloat::Zero()
 
 void MatrixBufferFloat::SetAll(const float value)
 {
-    std::fill((*mData).begin(), (*mData).end(), value);
+    std::fill(mData.begin(), mData.end(), value);
 }
 
 void MatrixBufferFloat::Set(int m, int n, float value)
 {
     ASSERT_VALID_RANGE(m, 0, mM)
     ASSERT_VALID_RANGE(n, 0, mN)
-    (*mData)[m*mN + n] = value;
+    mData[m*mN + n] = value;
 }
 
 float MatrixBufferFloat::Get(int m, int n) const
 {
     ASSERT_VALID_RANGE(m, 0, mM)
     ASSERT_VALID_RANGE(n, 0, mN)
-    return (*mData)[m*mN + n];
+    return mData[m*mN + n];
 }
 
 float MatrixBufferFloat::GetMax() const
@@ -110,7 +121,7 @@ float MatrixBufferFloat::GetMax() const
     float max = FLT_MIN;
     for(int i=0; i<mM*mN; i++)
     {
-        max = (max > (*mData)[i]) ? max : (*mData)[i];
+        max = (max > mData[i]) ? max : mData[i];
     }
     return max;
 }
@@ -120,7 +131,7 @@ float MatrixBufferFloat::GetMin() const
     float min = FLT_MAX;
     for(int i=0; i<mM*mN; i++)
     {
-        min = (min < (*mData)[i]) ? min : (*mData)[i];
+        min = (min < mData[i]) ? min : mData[i];
     }
     return min;
 }
@@ -130,7 +141,7 @@ void MatrixBufferFloat::AsNumpy(float* outfloat2d, int m, int n)
     ASSERT_ARG_DIM_2D(m, n, mM, mN)
     for(int i=0; i<m*n; i++)
     {
-        outfloat2d[i] = (*mData)[i];
+        outfloat2d[i] = mData[i];
     }
 }
 
@@ -151,41 +162,57 @@ void MatrixBufferFloat::Print() const
 }
 
 MatrixBufferInt::MatrixBufferInt()
-: mData( new std::vector< int >() )
+: mData( )
 , mM(0)
 , mN(0)
 {
 }
 
 MatrixBufferInt::MatrixBufferInt(int m, int n)
-: mData( new std::vector< int >(m*n) )
+: mData(m*n)
 , mM(m)
 , mN(n)
 {
 }
 
 MatrixBufferInt::MatrixBufferInt(int* data, int m, int n)
-: mData( new std::vector< int >(data, data + m*n) )
+: mData(data, data + m*n)
 , mM(m)
 , mN(n)
 {
 }
 
 MatrixBufferInt::MatrixBufferInt(long long* data, int m, int n)
-: mData( new std::vector< int >(m*n) )
+: mData(m*n)
 , mM(m)
 , mN(n)
 {
     for(int i=0; i<m*n; i++)
     {
-        (*mData)[i] = static_cast<int>(data[i]);
+        mData[i] = static_cast<int>(data[i]);
     }
+}
+
+void MatrixBufferInt::Resize(int m, int n)
+{
+    if(m*n > mData.size())
+    {
+        mData.resize(m*n);
+    }
+    Zero();
+    mM = m;
+    mN = n;
+}
+
+MatrixBufferInt::~MatrixBufferInt()
+{
+    // printf("MatrixBufferInt::~MatrixBufferInt [%d %d] %d %d", mM, mN, this, &mData);
 }
 
 void MatrixBufferInt::AppendVertical(const MatrixBufferInt& buffer)
 {
     ASSERT_ARG_DIM_1D(mN, buffer.GetN())
-    (*mData).resize((mM + buffer.GetM()) * mN);
+    mData.resize((mM + buffer.GetM()) * mN);
     const int oldM = mM;
     mM += buffer.GetM();
     for(int r=0; r<buffer.GetM(); r++)
@@ -232,21 +259,21 @@ void MatrixBufferInt::Zero()
 
 void MatrixBufferInt::SetAll(const int value)
 {
-    std::fill((*mData).begin(), (*mData).end(), value);
+    std::fill(mData.begin(), mData.end(), value);
 }
 
 void MatrixBufferInt::Set(int m, int n, int value)
 {
     ASSERT_VALID_RANGE(m, 0, mM)
     ASSERT_VALID_RANGE(n, 0, mN)
-    (*mData)[m*mN + n] = value;
+    mData[m*mN + n] = value;
 }
 
 int MatrixBufferInt::Get(int m, int n) const
 {
     ASSERT_VALID_RANGE(m, 0, mM)
     ASSERT_VALID_RANGE(n, 0, mN)
-    return (*mData)[m*mN + n];
+    return mData[m*mN + n];
 }
 
 int MatrixBufferInt::GetMax() const
@@ -254,7 +281,7 @@ int MatrixBufferInt::GetMax() const
     int max = INT_MIN;
     for(int i=0; i<mM*mN; i++)
     {
-        max = (max > (*mData)[i]) ? max : (*mData)[i];
+        max = (max > mData[i]) ? max : mData[i];
     }
     return max;
 }
@@ -264,7 +291,7 @@ int MatrixBufferInt::GetMin() const
     int min = INT_MAX;
     for(int i=0; i<mM*mN; i++)
     {
-        min = (min < (*mData)[i]) ? min : (*mData)[i];
+        min = (min < mData[i]) ? min : mData[i];
     }
     return min;
 }
@@ -274,7 +301,7 @@ void MatrixBufferInt::AsNumpy(int* outint2d, int m, int n)
     ASSERT_ARG_DIM_2D(m, n, mM, mN)
     for(int i=0; i<m*n; i++)
     {
-        outint2d[i] = (*mData)[i];
+        outint2d[i] = mData[i];
     }
 }
 

@@ -12,28 +12,11 @@ class DepthFirstParallelForestLearner
 public:
     DepthFirstParallelForestLearner( const TrainConfigParams& trainConfigParams );
 
-    Forest Train(   BufferCollection data,
-                    MatrixBufferInt indices,
+    Forest Train(   BufferCollection& data,
+                    const MatrixBufferInt& indices,
                     const OfflineSamplingParams& samplingParams,
                     int numberOfJobs );
 
 private:
-
-    // void TrainTrees(    BufferCollection data,
-    //                     MatrixBufferInt indices,
-    //                     const OfflineSamplingParams& samplingParams,
-    //                     int startIndex,
-    //                     int offset,
-    //                     Forest& forestOut );
-
-
-    // void TrainTree( BufferCollection data,
-    //                 MatrixBufferInt indices,
-    //                 const OfflineSamplingParams& samplingParams,
-    //                 Tree& treeOut);
-
-    // void ProcessNode(   int nodeIndex, int treeDepth,
-    //                     BufferCollection& data, const MatrixBufferInt& indices, Tree& treeOut);
-
     TrainConfigParams mTrainConfigParams;
 };

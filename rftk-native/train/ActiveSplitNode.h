@@ -24,7 +24,7 @@ public:
 
     ~ActiveSplitNodeFeatureSet();
 
-    void ProcessData(   BufferCollection& data,
+    void ProcessData(   const BufferCollection& data,
                         const MatrixBufferInt& sampleIndices,
                         boost::mt19937& gen );
 
@@ -36,7 +36,7 @@ public:
                         MatrixBufferInt& featureIndicesOut );
 
     void SplitIndices(  const int featureIndex,
-                        BufferCollection& data,
+                        const BufferCollection& data,
                         const MatrixBufferInt& sampleIndices,
                         MatrixBufferInt& leftSampleIndicesOut,
                         MatrixBufferInt& rightSampleIndicesOut );
@@ -84,7 +84,7 @@ public:
 
     virtual ~ActiveSplitNode();
 
-    void ProcessData(   BufferCollection& data,
+    void ProcessData(   const BufferCollection& data,
                         const MatrixBufferInt& sampleIndices,
                         boost::mt19937& gen );
 
@@ -101,7 +101,7 @@ public:
                         MatrixBufferFloat& rightYs);
 
     // Data has to be passed in because ProcessData may not keep the data
-    void SplitIndices(  BufferCollection& data,
+    void SplitIndices(  const BufferCollection& data,
                         const MatrixBufferInt& sampleIndices,
                         MatrixBufferInt& leftSampleIndicesOut,
                         MatrixBufferInt& rightSampleIndicesOut );

@@ -22,7 +22,7 @@ public:
     virtual ~RandomThresholdHistogramDataCollector();
 
     // Also copies/compacts weights, ys, etc
-    virtual void Collect( BufferCollection& data,
+    virtual void Collect( const BufferCollection& data,
                           const MatrixBufferInt& sampleIndices,
                           const MatrixBufferFloat& featureValues,
                           boost::mt19937& gen );
@@ -46,6 +46,7 @@ class RandomThresholdHistogramDataCollectorFactory : public NodeDataCollectorFac
 public:
     RandomThresholdHistogramDataCollectorFactory(int numberOfClasses, int numberOfThresholds, float probabilityOfNullStream);
     virtual ~RandomThresholdHistogramDataCollectorFactory();
+    virtual NodeDataCollectorFactoryI* Clone() const;
     virtual NodeDataCollectorI* Create() const;
 
 private:

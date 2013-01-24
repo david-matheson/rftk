@@ -47,7 +47,7 @@ if __name__ == "__main__":
         (x_m,x_n) = X_train.shape
         assert(x_m == len(Y_train))
 
-        # feature_extractor = feature_extractors.RandomProjectionFeatureExtractor( max_features, x_n, x_n, True)
+        # feature_extractor = feature_extractors.RandomProjectionFeatureExtractor( max_features, x_n, x_n)
         feature_extractor = feature_extractors.AxisAlignedFeatureExtractor( max_features, x_n)
         # node_data_collector = train.AllNodeDataCollectorFactory()
         # class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, int(np.max(Y_train)) + 1)
@@ -80,13 +80,16 @@ if __name__ == "__main__":
     print "Synthetic (classification):"
     print "    Accuracy:", np.mean(Y_test == y_hat)
 
+    print datetime.now()
+
     plot_utils.grid_plot(forest, X_train, Y_train, X_test, "synthetic_classification.png")
 
-    for tree_id in range(full_forest_data.GetNumberOfTrees()):
-        print tree_id
-        single_tree_forest_data = forest_data.Forest([full_forest_data.GetTree(tree_id)])
-        single_tree_forest_predictor = predict_utils.MatrixForestPredictor(single_tree_forest_data)
-        plot_utils.grid_plot(single_tree_forest_predictor, X_train, Y_train, X_test, "synthetic_classification-%d.png" % (tree_id))
+    if not useSklearn:
+        for tree_id in range(full_forest_data.GetNumberOfTrees()):
+            print tree_id
+            single_tree_forest_data = forest_data.Forest([full_forest_data.GetTree(tree_id)])
+            single_tree_forest_predictor = predict_utils.MatrixForestPredictor(single_tree_forest_data)
+            plot_utils.grid_plot(single_tree_forest_predictor, X_train, Y_train, X_test, "synthetic_classification-%d.png" % (tree_id))
 
 
 

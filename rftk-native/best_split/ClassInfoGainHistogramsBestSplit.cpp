@@ -42,6 +42,11 @@ ClassInfoGainHistogramsBestSplit::ClassInfoGainHistogramsBestSplit(int numberOfC
 {
 }
 
+BestSplitI* ClassInfoGainHistogramsBestSplit::Clone() const
+{
+    return new ClassInfoGainHistogramsBestSplit(*this);
+}
+
 
 int ClassInfoGainHistogramsBestSplit::GetYDim() const
 {

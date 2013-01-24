@@ -16,8 +16,8 @@ public:
                                         int numberOfComponents,
                                         int numberOfComponentsInSubspace,
                                         bool usePoisson = false );
-
     ~RandomProjectionFeatureExtractor();
+    virtual FeatureExtractorI* Clone() const;
 
     virtual int GetUID() const { return VEC_FEATURE_PROJECTION; }
 
@@ -28,7 +28,7 @@ public:
     virtual int GetFloatParamsDim() const;
     virtual int GetIntParamsDim() const;
 
-    virtual void Extract( BufferCollection& data,
+    virtual void Extract( const BufferCollection& data,
                             const MatrixBufferInt& sampleIndices,
                             const MatrixBufferInt& intFeatureParams,
                             const MatrixBufferFloat& floatFeatureParams,

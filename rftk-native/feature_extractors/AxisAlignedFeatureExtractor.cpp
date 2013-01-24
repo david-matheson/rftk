@@ -22,6 +22,11 @@ AxisAlignedFeatureExtractor::AxisAlignedFeatureExtractor(int numberOfFeatures, i
 AxisAlignedFeatureExtractor::~AxisAlignedFeatureExtractor()
 {}
 
+FeatureExtractorI* AxisAlignedFeatureExtractor::Clone() const
+{
+    return new AxisAlignedFeatureExtractor(*this);
+}
+
 int AxisAlignedFeatureExtractor::GetNumberOfFeatures() const
 {
     int numberOfFeatures = mNumberOfFeatures;
@@ -60,7 +65,7 @@ int AxisAlignedFeatureExtractor::GetFloatParamsDim() const { return 1; }
 //Includes FeatureExtractor id
 int AxisAlignedFeatureExtractor::GetIntParamsDim() const { return 2; }
 
-void AxisAlignedFeatureExtractor::Extract(  BufferCollection& data,
+void AxisAlignedFeatureExtractor::Extract(  const BufferCollection& data,
                                             const MatrixBufferInt& sampleIndices,
                                             const MatrixBufferInt& intFeatureParams,
                                             const MatrixBufferFloat& floatFeatureParams,
@@ -78,11 +83,7 @@ void AxisAlignedFeatureExtractor::Extract(  BufferCollection& data,
     const int numberOfFeatures = intFeatureParams.GetM();
     const int numberOfDataPoints = Xs.GetM();
 
-    // Create new results buffer if it's not the right dimensions
-    if( featureValuesOUT.GetM() != numberOfSamples || featureValuesOUT.GetN() != numberOfFeatures )
-    {
-        featureValuesOUT = MatrixBufferFloat(numberOfSamples,numberOfFeatures);
-    }
+    featureValuesOUT.Resize(numberOfSamples, numberOfFeatures);
 
     // Extract component features
     for(int s=0; s<numberOfSamples; s++)

@@ -17,6 +17,11 @@ OfflineSplitCriteria::~OfflineSplitCriteria()
 {
 }
 
+SplitCriteriaI* OfflineSplitCriteria::Clone() const
+{
+    return new OfflineSplitCriteria(*this);
+}
+
 SPLT_CRITERIA OfflineSplitCriteria::ShouldSplit(int treeDepth,
                                                 const MatrixBufferFloat& impurityValues,
                                                 const MatrixBufferFloat& childCounts) const

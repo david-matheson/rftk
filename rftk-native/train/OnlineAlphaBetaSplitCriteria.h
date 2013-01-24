@@ -10,8 +10,8 @@ public:
     OnlineAlphaBetaSplitCriteria(   int maxDepth, 
                                     float minImpurity, 
                                     float minNumberOfSamples);
-
     virtual ~OnlineAlphaBetaSplitCriteria();
+    virtual SplitCriteriaI* Clone() const;
 
     virtual SPLT_CRITERIA ShouldSplit(   int treeDepth,
                                         const MatrixBufferFloat& impurityValues,

@@ -19,6 +19,11 @@ OnlineConsistentSplitCriteria::~OnlineConsistentSplitCriteria()
 {
 }
 
+SplitCriteriaI* OnlineConsistentSplitCriteria::Clone() const
+{
+    return new OnlineConsistentSplitCriteria(*this);
+}
+
 SPLT_CRITERIA OnlineConsistentSplitCriteria::ShouldSplit(int treeDepth,
                                                 const MatrixBufferFloat& impurityValues,
                                                 const MatrixBufferFloat& childCounts) const

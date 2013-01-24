@@ -150,39 +150,39 @@ class TestBuffers(unittest.TestCase):
         with self.assertRaises(IndexError):
             a.Get(0,-1)
 
-    def test_buffer_shared_memory_copy(self):
-        data_float = np.arange(1000000).reshape(1000,1000)
-        data_int = np.array( data_float, dtype=np.int32)
+    # def test_buffer_shared_memory_copy(self):
+    #     data_float = np.arange(1000000).reshape(1000,1000)
+    #     data_int = np.array( data_float, dtype=np.int32)
 
-        matrix_buffer_float = buffers.matrixBufferFloat64( data_float )
-        matrix_buffer_int = buffers.matrixBufferInt( data_int )
-        img_buffer_float = buffers.imgBufferFloat64( data_float )
-        img_buffer_int = buffers.imgBufferFloat64( data_int )
+    #     matrix_buffer_float = buffers.matrixBufferFloat64( data_float )
+    #     matrix_buffer_int = buffers.matrixBufferInt( data_int )
+    #     img_buffer_float = buffers.imgBufferFloat64( data_float )
+    #     img_buffer_int = buffers.imgBufferFloat64( data_int )
 
-        # Check that changing a memory copy changes the original
-        copy = matrix_buffer_float.SharedMemoryCopy()
-        copy.Set(100, 100, -22)
-        self.assertEqual( matrix_buffer_float.Get(100,100), -22 )
+    #     # Check that changing a memory copy changes the original
+    #     copy = matrix_buffer_float.SharedMemoryCopy()
+    #     copy.Set(100, 100, -22)
+    #     self.assertEqual( matrix_buffer_float.Get(100,100), -22 )
 
-        copy = matrix_buffer_int.SharedMemoryCopy()
-        copy.Set(100, 100, -22)
-        self.assertEqual( matrix_buffer_int.Get(100,100), -22 )
+    #     copy = matrix_buffer_int.SharedMemoryCopy()
+    #     copy.Set(100, 100, -22)
+    #     self.assertEqual( matrix_buffer_int.Get(100,100), -22 )
 
-        copy = img_buffer_float.SharedMemoryCopy()
-        copy.Set(0, 100, 100, -22)
-        self.assertEqual( img_buffer_float.Get(0, 100,100), -22 )
+    #     copy = img_buffer_float.SharedMemoryCopy()
+    #     copy.Set(0, 100, 100, -22)
+    #     self.assertEqual( img_buffer_float.Get(0, 100,100), -22 )
 
-        copy = img_buffer_int.SharedMemoryCopy()
-        copy.Set(0, 100, 100, -22)
-        self.assertEqual( img_buffer_int.Get(0, 100,100), -22 )
+    #     copy = img_buffer_int.SharedMemoryCopy()
+    #     copy.Set(0, 100, 100, -22)
+    #     self.assertEqual( img_buffer_int.Get(0, 100,100), -22 )
 
-        # The loop below just checks than very little memory is used per copy
-        list_of_ref = []
-        for i in range(10000):
-            list_of_ref.append( matrix_buffer_float.SharedMemoryCopy() )
-            list_of_ref.append( matrix_buffer_int.SharedMemoryCopy() )
-            list_of_ref.append( img_buffer_float.SharedMemoryCopy() )
-            list_of_ref.append( img_buffer_int.SharedMemoryCopy() )
+    #     # The loop below just checks than very little memory is used per copy
+    #     list_of_ref = []
+    #     for i in range(10000):
+    #         list_of_ref.append( matrix_buffer_float.SharedMemoryCopy() )
+    #         list_of_ref.append( matrix_buffer_int.SharedMemoryCopy() )
+    #         list_of_ref.append( img_buffer_float.SharedMemoryCopy() )
+    #         list_of_ref.append( img_buffer_int.SharedMemoryCopy() )
 
     def test_matrix_buffer_minmax(self):
         A_float = np.array([[3,21,-1],[22,33,5]], dtype=np.float32 )
