@@ -10,7 +10,7 @@ AllNodeDataCollector::~AllNodeDataCollector()
 {
 }
 
-void AllNodeDataCollector::Collect( BufferCollection& data,
+void AllNodeDataCollector::Collect( const BufferCollection& data,
                                     const MatrixBufferInt& sampleIndices,
                                     const MatrixBufferFloat& featureValues,
                                     boost::mt19937& gen )
@@ -43,6 +43,11 @@ int AllNodeDataCollector::GetNumberOfCollectedSamples()
     return mData.GetMatrixBufferFloat(FEATURE_VALUES).GetM();
 }
 
+
+NodeDataCollectorFactoryI* AllNodeDataCollectorFactory::Clone() const
+{
+    return new AllNodeDataCollectorFactory(*this);
+}
 
 NodeDataCollectorI* AllNodeDataCollectorFactory::Create() const
 {

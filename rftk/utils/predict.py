@@ -24,3 +24,12 @@ def vec_predict_ys(vec_predict_forest, x):
     yhat_buffer = buffers.MatrixBufferFloat()
     vec_predict_forest.PredictYs(buffer_collection, m, yhat_buffer)
     return buffer_converters.as_numpy_array(yhat_buffer)
+
+
+class MatrixForestPredictor:
+    def __init__(self, forest_data):
+        self.predict_forest = predict.ForestPredictor(forest_data)
+
+    def predict_proba(self, x):
+        y_probs = vec_predict_ys(self.predict_forest, x)
+        return y_probs

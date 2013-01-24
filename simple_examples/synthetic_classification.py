@@ -1,75 +1,95 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 from datetime import datetime
-
-import rftk.utils.sklearnimposter_new as sklearnimposter
-import utils
-
 import sklearn.ensemble
 
-def build_data(n_per):
-    X_1 = np.random.standard_normal(size=(n_per, 2)) + np.array([2, 1])
-    X_2 = np.random.standard_normal(size=(n_per, 2)) + np.array([0.5, -2])
-    X_3 = np.random.standard_normal(size=(n_per, 2)) + np.array([-2, 0.5])
-    Y_1 = np.zeros(n_per)
-    Y_2 = np.ones(n_per)
-    Y_3 = np.ones(n_per) * 2
-    X = np.concatenate([X_1, X_2, X_3], axis=0)
-    Y = np.concatenate([Y_1, Y_2, Y_3], axis=0)
-    Xfloat32 = np.array( X, dtype=np.float32)
-    y = np.array( Y, dtype=np.int32 )
-    return Xfloat32, y
+import rftk.native.assert_util
+import rftk.native.bootstrap
+import rftk.native.buffers as buffers
+import rftk.native.forest_data as forest_data
+import rftk.native.feature_extractors as feature_extractors
+import rftk.native.best_split as best_splits
+import rftk.native.predict as predict
+import rftk.native.train as train
 
+import rftk.utils.buffer_converters as buffer_converters
+import rftk.utils.predict as predict_utils
+
+import plot_utils
+import dist_utils
 
 if __name__ == "__main__":
+    dist = dist_utils.Mog_2d_3class()
     n_per = 2000
 
-    X_train,Y_train = build_data(n_per)
-    X_test,Y_test = build_data(n_per)
+    X_train,Y_train = dist.sample(n_per)
+    X_test,Y_test = dist.sample(n_per)
 
     print datetime.now()
 
     useSklearn = False
-    if useSklearn:
-        forest = sklearn.ensemble.RandomForestClassifier(criterion="entropy", max_features=10, n_estimators=25, max_depth=10, min_samples_split=5, n_jobs=1)
-    else:
-        forest = sklearnimposter.RandomForestClassifier(max_features=5, n_estimators=1, max_depth=5, min_samples_split=5, n_jobs=1)
+    max_features = 1
+    number_to_trees = 25
+    max_depth = 15
+    min_samples_split = 5
+    number_random_thresholds = 10
+    number_of_jobs = 1
 
-    forest.fit(X_train, Y_train)
-    print datetime.now()
     if useSklearn:
-        y_probs = forest.predict_proba(X_test)
+        forest = sklearn.ensemble.RandomForestClassifier(   criterion="entropy", 
+                                                            max_features=max_features, 
+                                                            n_estimators=number_to_trees, 
+                                                            max_depth=max_depth, 
+                                                            min_samples_split=min_samples_split, 
+                                                            n_jobs=number_of_jobs)
+        forest.fit(X_train, Y_train)
     else:
-        y_probs = forest.predict(X_test)
+        (x_m,x_n) = X_train.shape
+        assert(x_m == len(Y_train))
 
-    y_hat = utils.max_of_n_prediction(y_probs)
+        # feature_extractor = feature_extractors.RandomProjectionFeatureExtractor( max_features, x_n, x_n)
+        feature_extractor = feature_extractors.AxisAlignedFeatureExtractor( max_features, x_n)
+        # node_data_collector = train.AllNodeDataCollectorFactory()
+        # class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, int(np.max(Y_train)) + 1)
+        node_data_collector = train.RandomThresholdHistogramDataCollectorFactory(int(np.max(Y_train)) + 1, number_random_thresholds, 0)
+        class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(int(np.max(Y_train)) + 1)
+        split_criteria = train.OfflineSplitCriteria( max_depth,
+                                                    0.001,
+                                                    min_samples_split,
+                                                    1)
+        extractor_list = [feature_extractor]
+        train_config = train.TrainConfigParams(extractor_list,
+                                                node_data_collector,
+                                                class_infogain_best_split,
+                                                split_criteria,
+                                                number_to_trees,
+                                                10000)
+        depth_first_learner = train.DepthFirstParallelForestLearner(train_config)
+
+        data = buffers.BufferCollection()
+        data.AddMatrixBufferFloat(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(X_train))
+        data.AddMatrixBufferInt(buffers.CLASS_LABELS, buffer_converters.as_matrix_buffer(Y_train))
+        sampling_config = train.OfflineSamplingParams(x_m, True)
+        indices = buffer_converters.as_matrix_buffer( np.arange(x_m) )
+        full_forest_data = depth_first_learner.Train(data, indices, sampling_config, number_of_jobs)
+        forest = predict_utils.MatrixForestPredictor(full_forest_data)
+    
+    y_probs = forest.predict_proba(X_test)
+    y_hat = y_probs.argmax(axis=1)
 
     print "Synthetic (classification):"
     print "    Accuracy:", np.mean(Y_test == y_hat)
 
-    grid_extend = [X_test[:,0].min(), X_test[:,0].max(), X_test[:,1].min(), X_test[:,1].max()]
-    Ux, Uy = np.meshgrid(
-            np.linspace(grid_extend[0], grid_extend[1]),
-            np.linspace(grid_extend[2], grid_extend[3]),
-        )
-
-    X_grid = np.concatenate([
-        Ux.reshape((-1,1)), Uy.reshape((-1,1))],
-        axis=1)
-
-    if useSklearn:
-        Y_probs = forest.predict_proba(X_grid)
-    else:
-        Y_probs = forest.predict(X_grid)
-
-    Y_hat = utils.max_of_n_prediction(Y_probs)
-
     print datetime.now()
 
-    plt.figure()
-    colors = np.array([[1,0,0], [0,1,0], [0,0,1]])
-    img = utils.image_from_predictions(Y_hat, utils.max_prob_of_n_prediction(Y_probs), colors, Ux.shape)
-    plt.imshow(img, extent=grid_extend, origin='lower')
-    # plt.scatter(X_test[:,0], X_test[:,1], c=utils.colors_from_predictions(y, colors))
-    plt.savefig("synthetic_classification.png")
+    plot_utils.grid_plot(forest, X_train, Y_train, X_test, "synthetic_classification.png")
+
+    if not useSklearn:
+        for tree_id in range(full_forest_data.GetNumberOfTrees()):
+            print tree_id
+            single_tree_forest_data = forest_data.Forest([full_forest_data.GetTree(tree_id)])
+            single_tree_forest_predictor = predict_utils.MatrixForestPredictor(single_tree_forest_data)
+            plot_utils.grid_plot(single_tree_forest_predictor, X_train, Y_train, X_test, "synthetic_classification-%d.png" % (tree_id))
+
+
+

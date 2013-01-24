@@ -16,6 +16,11 @@ OnlineAlphaBetaSplitCriteria::~OnlineAlphaBetaSplitCriteria()
 {
 }
 
+SplitCriteriaI* OnlineAlphaBetaSplitCriteria::Clone() const
+{
+    return new OnlineAlphaBetaSplitCriteria(*this);
+}
+
 SPLT_CRITERIA OnlineAlphaBetaSplitCriteria::ShouldSplit(int treeDepth,
                                                 const MatrixBufferFloat& impurityValues,
                                                 const MatrixBufferFloat& childCounts) const

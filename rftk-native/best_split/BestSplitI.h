@@ -8,11 +8,11 @@ class BufferCollection;
 class BestSplitI //Already exists
 {
 public:
+    virtual BestSplitI* Clone() const { return NULL; }
+
     virtual int GetYDim() const { return 0; }
 
     virtual void BestSplits( BufferCollection& data,
-                            // const MatrixBufferInt& sampleIndices,
-                            // const MatrixBufferFloat& featureValues, // contained in data (if needed)
                             MatrixBufferFloat& impurityOut,
                             MatrixBufferFloat& thresholdOut,
                             MatrixBufferFloat& childCountsOut,

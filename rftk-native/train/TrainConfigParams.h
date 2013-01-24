@@ -1,5 +1,8 @@
 #pragma once
 
+#include <tr1/memory>
+#include <vector>
+
 #include "BufferCollection.h"
 #include "FeatureExtractorI.h"
 #include "BestSplitI.h"
@@ -15,18 +18,22 @@ public:
                         SplitCriteriaI* splitCriteria,
                         int numberOfTrees,
                         int maxNumberOfNodes);
+    TrainConfigParams( const TrainConfigParams& other );
+    TrainConfigParams& operator=( const TrainConfigParams& rhs );
+    ~TrainConfigParams();
+    void Free();
 
     int GetIntParamsMaxDim() const;
-
     int GetFloatParamsMaxDim() const;
 
     int GetYDim() const;
 
-    std::vector<FeatureExtractorI*> mFeatureExtractors;
+    std::vector< FeatureExtractorI*> mFeatureExtractors;
     NodeDataCollectorFactoryI* mNodeDataCollectorFactory;
     BestSplitI* mBestSplit;
     SplitCriteriaI* mSplitCriteria;
     int mNumberOfTrees;
     int mMaxNumberOfNodes;
+
 };
 

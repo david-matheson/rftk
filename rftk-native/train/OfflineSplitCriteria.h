@@ -12,7 +12,8 @@ public:
                             float minSampleCounts,
                             float minChildSampleCounts);
 
-    virtual ~OfflineSplitCriteria();
+    virtual ~OfflineSplitCriteria();    
+    virtual SplitCriteriaI* Clone() const;
 
     virtual SPLT_CRITERIA ShouldSplit(   int treeDepth,
                                         const MatrixBufferFloat& impurityValues,

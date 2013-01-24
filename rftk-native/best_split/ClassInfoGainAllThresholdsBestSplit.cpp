@@ -40,6 +40,11 @@ ClassInfoGainAllThresholdsBestSplit::ClassInfoGainAllThresholdsBestSplit(   floa
 {
 }
 
+BestSplitI* ClassInfoGainAllThresholdsBestSplit::Clone() const
+{
+    return new ClassInfoGainAllThresholdsBestSplit(*this);
+}
+
 
 int ClassInfoGainAllThresholdsBestSplit::GetYDim() const
 {

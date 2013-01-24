@@ -11,8 +11,8 @@ public:
                                     float minImpurity,
                                     float minNumberOfSamplesFirstSplit,
                                     float maxNumberOfSamplesFirstSplit);
-
     virtual ~OnlineConsistentSplitCriteria();
+    virtual SplitCriteriaI* Clone() const;
 
     virtual SPLT_CRITERIA ShouldSplit(   int treeDepth,
                                         const MatrixBufferFloat& impurityValues,

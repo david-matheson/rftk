@@ -14,12 +14,11 @@ public:
     virtual ~NodeDataCollectorI() {}
 
     // Also copies/compacts weights, ys, etc
-    virtual void Collect( BufferCollection& data,
+    virtual void Collect( const BufferCollection& data,
                           const MatrixBufferInt& sampleIndices,
                           const MatrixBufferFloat& featureValues,
                           boost::mt19937& gen )
-    {
-    }
+    {}
 
     // Includes feature values, weights, ys, etc
     virtual BufferCollection GetCollectedData() { return BufferCollection(); }
@@ -30,8 +29,6 @@ public:
 class NodeDataCollectorFactoryI
 {
 public:
-    virtual NodeDataCollectorI* Create() const
-    {
-        return NULL;
-    }
+    virtual NodeDataCollectorFactoryI* Clone() const { return NULL; }
+    virtual NodeDataCollectorI* Create() const { return NULL; }
 };

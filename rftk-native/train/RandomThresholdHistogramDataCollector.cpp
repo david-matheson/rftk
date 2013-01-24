@@ -25,7 +25,7 @@ RandomThresholdHistogramDataCollector::~RandomThresholdHistogramDataCollector()
 {
 }
 
-void RandomThresholdHistogramDataCollector::Collect( BufferCollection& data,
+void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& data,
                                     const MatrixBufferInt& sampleIndices,
                                     const MatrixBufferFloat& featureValues,
                                     boost::mt19937& gen )
@@ -163,6 +163,11 @@ RandomThresholdHistogramDataCollectorFactory::RandomThresholdHistogramDataCollec
 
 RandomThresholdHistogramDataCollectorFactory::~RandomThresholdHistogramDataCollectorFactory()
 {}
+
+NodeDataCollectorFactoryI* RandomThresholdHistogramDataCollectorFactory::Clone() const
+{
+    return new RandomThresholdHistogramDataCollectorFactory(*this);
+}
 
 NodeDataCollectorI* RandomThresholdHistogramDataCollectorFactory::Create() const
 {

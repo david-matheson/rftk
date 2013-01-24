@@ -5,7 +5,9 @@
 
 class FeatureExtractorI {
 public:
-    virtual void Extract(BufferCollection& data,
+    virtual FeatureExtractorI* Clone() const { return NULL; }
+
+    virtual void Extract(const BufferCollection& data,
                         const MatrixBufferInt& sampleIndices,
                         const MatrixBufferInt& intFeatureParams,
                         const MatrixBufferFloat& floatFeatureParams,

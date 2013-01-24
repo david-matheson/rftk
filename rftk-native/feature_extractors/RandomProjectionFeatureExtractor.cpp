@@ -26,6 +26,11 @@ RandomProjectionFeatureExtractor::RandomProjectionFeatureExtractor( int numberOf
 RandomProjectionFeatureExtractor::~RandomProjectionFeatureExtractor()
 {}
 
+FeatureExtractorI* RandomProjectionFeatureExtractor::Clone() const
+{
+    return new RandomProjectionFeatureExtractor(*this);
+}
+
 int RandomProjectionFeatureExtractor::GetNumberOfFeatures() const
 {
     int numberOfFeatures = mNumberOfFeatures;
@@ -81,7 +86,7 @@ int RandomProjectionFeatureExtractor::GetFloatParamsDim() const { return mNumber
 //Includes FeatureExtractor id
 int RandomProjectionFeatureExtractor::GetIntParamsDim() const { return mNumberOfComponentsInSubspace + 2; }
 
-void RandomProjectionFeatureExtractor::Extract(  BufferCollection& data,
+void RandomProjectionFeatureExtractor::Extract(  const BufferCollection& data,
                                             const MatrixBufferInt& sampleIndices,
                                             const MatrixBufferInt& intFeatureParams,
                                             const MatrixBufferFloat& floatFeatureParams,
@@ -99,11 +104,7 @@ void RandomProjectionFeatureExtractor::Extract(  BufferCollection& data,
     const int numberOfFeatures = intFeatureParams.GetM();
     const int numberOfDataPoints = Xs.GetM();
 
-    // Create new results buffer if it's not the right dimensions
-    if( featureValuesOUT.GetM() != numberOfSamples || featureValuesOUT.GetN() != numberOfFeatures )
-    {
-        featureValuesOUT = MatrixBufferFloat(numberOfSamples,numberOfFeatures);
-    }
+    featureValuesOUT.Resize(numberOfSamples, numberOfFeatures);
 
     // Extract component features
     for(int s=0; s<numberOfSamples; s++)

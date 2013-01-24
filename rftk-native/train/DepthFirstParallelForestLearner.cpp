@@ -19,16 +19,16 @@
 #include "OfflineSamplingParams.h"
 #include "DepthFirstParallelForestLearner.h"
 
-void TrainTrees(   BufferCollection& data,
-                    MatrixBufferInt& indices,
+void TrainTrees(    BufferCollection& data,
+                    const MatrixBufferInt& indices,
                     const TrainConfigParams& trainConfigParams,
                     const OfflineSamplingParams& samplingParams,
                     int startIndex,
                     int offset,
                     Forest* forestOut );
 
-void TrainTree(    BufferCollection& data,
-                    MatrixBufferInt& indices,
+void TrainTree(     BufferCollection& data,
+                    const MatrixBufferInt& indices,
                     const TrainConfigParams& trainConfigParams,
                     const OfflineSamplingParams& samplingParams,
                     Tree* treeOut);
@@ -37,7 +37,7 @@ void TrainTree(    BufferCollection& data,
 void ProcessNode(   const TrainConfigParams& trainConfigParams,
                     int nodeIndex,
                     int treeDepth,
-                    BufferCollection& data,
+                    const BufferCollection& data,
                     const MatrixBufferInt& indices,
                     boost::mt19937& gen,
                     Tree* treeOut);
@@ -46,14 +46,14 @@ DepthFirstParallelForestLearner::DepthFirstParallelForestLearner( const TrainCon
 : mTrainConfigParams(trainConfigParams)
 {}
 
-Forest DepthFirstParallelForestLearner::Train(  BufferCollection data,
-                                                MatrixBufferInt indices,
+Forest DepthFirstParallelForestLearner::Train(  BufferCollection& data,
+                                                const MatrixBufferInt& indices,
                                                 const OfflineSamplingParams& samplingParams,
                                                 int numberOfJobs )
 {
-#if USE_BOOST_THREAD
     // Putting forest on heap because different threads are going to write to it
     Forest* forest = new Forest(mTrainConfigParams.mNumberOfTrees);
+#if USE_BOOST_THREAD
     std::vector< boost::shared_ptr< boost::thread > > threadVec;
     for(int job=0; job<numberOfJobs; job++)
     {
@@ -63,24 +63,22 @@ Forest DepthFirstParallelForestLearner::Train(  BufferCollection data,
     {
         threadVec[job]->join();
     }
+#else
+    TrainTrees(data, indices, mTrainConfigParams, samplingParams, 0, 1, forest);
+#endif
     Forest result = *forest;
     delete forest;
-#else
-    Forest result(mTrainConfigParams.mNumberOfTrees);
-    TrainTrees(data, indices, mTrainConfigParams, samplingParams, 0, 1, &result);
-#endif
     return result;
 }
 
-void TrainTrees(   BufferCollection& data,
-                    MatrixBufferInt& indices,
+void TrainTrees(    BufferCollection& data,
+                    const MatrixBufferInt& indices,
                     const TrainConfigParams& trainConfigParams,
                     const OfflineSamplingParams& samplingParams,
                     int startIndex,
                     int offset,
                     Forest* forestOut )
 {
-    // printf("DepthFirstParallelForestLearner::Train startIndex=%d offest=%d\n", startIndex, offset);
     for(int i=startIndex; i<trainConfigParams.mNumberOfTrees; i+=offset)
     {
         // printf("DepthFirstParallelForestLearner::Train tree=%d\n", i);
@@ -88,13 +86,18 @@ void TrainTrees(   BufferCollection& data,
                                         trainConfigParams.GetIntParamsMaxDim(),
                                         trainConfigParams.GetFloatParamsMaxDim(),
                                         trainConfigParams.GetYDim());
+    }
+
+    // printf("DepthFirstParallelForestLearner::Train startIndex=%d offest=%d\n", startIndex, offset);
+    for(int i=startIndex; i<trainConfigParams.mNumberOfTrees; i+=offset)
+    {
         TrainTree(data, indices, trainConfigParams, samplingParams, &forestOut->mTrees[i]);
     }
 }
 
 
-void TrainTree(    BufferCollection& data,
-                    MatrixBufferInt& indices,
+void TrainTree(     BufferCollection& data,
+                    const MatrixBufferInt& indices,
                     const TrainConfigParams& trainConfigParams,
                     const OfflineSamplingParams& samplingParams,
                     Tree* treeOut)
@@ -126,7 +129,7 @@ void TrainTree(    BufferCollection& data,
 void ProcessNode(   const TrainConfigParams& trainConfigParams,
                     int nodeIndex,
                     int treeDepth,
-                    BufferCollection& data,
+                    const BufferCollection& data,
                     const MatrixBufferInt& indices,
                     boost::mt19937& gen,
                     Tree* treeOut)

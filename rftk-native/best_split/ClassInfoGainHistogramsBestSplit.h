@@ -9,8 +9,9 @@
 class ClassInfoGainHistogramsBestSplit : public BestSplitI {
 public:
     ClassInfoGainHistogramsBestSplit(int numberOfClasses);
-
     ~ClassInfoGainHistogramsBestSplit();
+
+    virtual BestSplitI* Clone() const;
 
     virtual int GetYDim() const;
 

@@ -13,8 +13,8 @@
 class AxisAlignedFeatureExtractor : public FeatureExtractorI {
 public:
     AxisAlignedFeatureExtractor(int numberOfFeatures, int numberOfComponents, bool usePoisson = false);
-
     ~AxisAlignedFeatureExtractor();
+    virtual FeatureExtractorI* Clone() const;
 
     virtual int GetUID() const { return VEC_FEATURE_AXIS_ALIGNED; }
 
@@ -25,7 +25,7 @@ public:
     virtual int GetFloatParamsDim() const;
     virtual int GetIntParamsDim() const;
 
-    virtual void Extract( BufferCollection& data,
+    virtual void Extract( const BufferCollection& data,
                             const MatrixBufferInt& sampleIndices,
                             const MatrixBufferInt& intFeatureParams,
                             const MatrixBufferFloat& floatFeatureParams,

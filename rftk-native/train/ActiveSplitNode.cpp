@@ -35,7 +35,7 @@ ActiveSplitNodeFeatureSet::~ActiveSplitNodeFeatureSet()
 {
 }
 
-void ActiveSplitNodeFeatureSet::ProcessData(    BufferCollection& data,
+void ActiveSplitNodeFeatureSet::ProcessData(    const BufferCollection& data,
                                                 const MatrixBufferInt& sampleIndices,
                                                 boost::mt19937& gen )
 {
@@ -93,7 +93,7 @@ void ActiveSplitNodeFeatureSet::WriteImpurity(  int groupId,
 }
 
 void ActiveSplitNodeFeatureSet::SplitIndices(   const int featureIndex,
-                                                BufferCollection& data,
+                                                const BufferCollection& data,
                                                 const MatrixBufferInt& sampleIndices,
                                                 MatrixBufferInt& leftSampleIndicesOut,
                                                 MatrixBufferInt& rightSampleIndicesOut )
@@ -198,7 +198,7 @@ ActiveSplitNode::~ActiveSplitNode()
 }
 
 
-void ActiveSplitNode::ProcessData(  BufferCollection& data,
+void ActiveSplitNode::ProcessData(  const BufferCollection& data,
                                     const MatrixBufferInt& sampleIndices,
                                     boost::mt19937& gen )
 {
@@ -253,7 +253,7 @@ void ActiveSplitNode::WriteToTree(  const int treeNodeIndex,
 }
 
 // Data has to be passed in because ProcessData may not keep the data
-void ActiveSplitNode::SplitIndices(  BufferCollection& data,
+void ActiveSplitNode::SplitIndices(  const BufferCollection& data,
                     const MatrixBufferInt& sampleIndices,
                     MatrixBufferInt& leftSampleIndicesOut,
                     MatrixBufferInt& rightSampleIndicesOut )

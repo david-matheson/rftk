@@ -13,6 +13,7 @@ class SplitCriteriaI
 {
 public:
     virtual ~SplitCriteriaI() {}
+    virtual SplitCriteriaI* Clone() const { return NULL; }
 
     virtual SPLT_CRITERIA ShouldSplit(   int treeDepth,
                                         const MatrixBufferFloat& impurityValues,
