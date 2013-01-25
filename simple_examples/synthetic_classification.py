@@ -19,16 +19,16 @@ import plot_utils
 import dist_utils
 
 if __name__ == "__main__":
-    dist = dist_utils.mog_2d_3class_example2()
-    n_per = 10000
+    dist = dist_utils.mog_2d_3class_example1()
+    n_per = 100000
 
-    X_train,Y_train = dist.sample(n_per)
-    X_test,Y_test = dist.sample(n_per)
+    X_train,Y_train = dist.sample(100000)
+    X_test,Y_test = dist.sample(1000)
 
     print datetime.now()
 
     useSklearn = False
-    max_features = 1
+    max_features = 10
     number_to_trees = 25
     max_depth = 15
     min_samples_split = 5
@@ -47,8 +47,8 @@ if __name__ == "__main__":
         (x_m,x_n) = X_train.shape
         assert(x_m == len(Y_train))
 
-        # feature_extractor = feature_extractors.RandomProjectionFeatureExtractor( max_features, x_n, x_n)
-        feature_extractor = feature_extractors.AxisAlignedFeatureExtractor( max_features, x_n)
+        feature_extractor = feature_extractors.RandomProjectionFeatureExtractor( max_features, x_n, x_n)
+        # feature_extractor = feature_extractors.AxisAlignedFeatureExtractor( max_features, x_n)
         # node_data_collector = train.AllNodeDataCollectorFactory()
         # class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, int(np.max(Y_train)) + 1)
         node_data_collector = train.RandomThresholdHistogramDataCollectorFactory(int(np.max(Y_train)) + 1, number_random_thresholds, 0)

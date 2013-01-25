@@ -19,7 +19,7 @@ import dist_utils
 
 
 if __name__ == "__main__":
-    dist = dist_utils.mog_2d_3class_example2()
+    dist = dist_utils.mog_2d_3class_example1()
     n_per = 10000
 
     X_test,Y_test = dist.sample(n_per)
@@ -84,8 +84,8 @@ if __name__ == "__main__":
 
         online_forest_data = online_learner.GetForest()
 
-        for tree_id in range(online_forest_data.GetNumberOfTrees()):
-            print tree_id
-            single_tree_forest_data = forest_data.Forest([online_forest_data.GetTree(tree_id)])
-            single_tree_forest_predictor = predict_utils.MatrixForestPredictor(single_tree_forest_data)
-            plot_utils.grid_plot(single_tree_forest_predictor, X_train, Y_train, X_test, "output-trees/synthetic_online_classification-%d-%d.png" % (epoch_per, tree_id))
+        # for tree_id in range(online_forest_data.GetNumberOfTrees()):
+        #     print tree_id
+        #     single_tree_forest_data = forest_data.Forest([online_forest_data.GetTree(tree_id)])
+        #     single_tree_forest_predictor = predict_utils.MatrixForestPredictor(single_tree_forest_data)
+        #     plot_utils.grid_plot(single_tree_forest_predictor, X_train, Y_train, X_test, "output-trees/synthetic_online_classification-%d-%d.png" % (epoch_per, tree_id))
