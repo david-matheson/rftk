@@ -56,27 +56,20 @@ ClassInfoGainAllThresholdsBestSplit::~ClassInfoGainAllThresholdsBestSplit()
 }
 
 
-void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
-                                                        // const MatrixBufferInt& sampleIndices,
-                                                        // const MatrixBufferFloat& featureValues, // contained in data (if needed)
+void ClassInfoGainAllThresholdsBestSplit::BestSplits(   const BufferCollection& data,
                                                         MatrixBufferFloat& impurityOut,
                                                         MatrixBufferFloat& thresholdOut,
                                                         MatrixBufferFloat& childCountsOut,
                                                         MatrixBufferFloat& leftYsOut,
                                                         MatrixBufferFloat& rightYsOut) const
-// void ClassInfoGainAllThresholdsBestSplit::BestSplits(   BufferCollection& data,
-//                                                         const MatrixBufferInt& sampleIndices,
-//                                                         const MatrixBufferFloat& featureValues,
-//                                                         MatrixBufferFloat& impurityOut,
-//                                                         MatrixBufferFloat& thresholdOut)
 {
     ASSERT( data.HasMatrixBufferInt(CLASS_LABELS) )
     ASSERT( data.HasMatrixBufferFloat(SAMPLE_WEIGHTS) )
     ASSERT( data.HasMatrixBufferFloat(FEATURE_VALUES) )
 
-    const MatrixBufferInt classLabels = data.GetMatrixBufferInt(CLASS_LABELS);
-    const MatrixBufferFloat sampleWeights = data.GetMatrixBufferFloat(SAMPLE_WEIGHTS);
-    const MatrixBufferFloat featureValues = data.GetMatrixBufferFloat(FEATURE_VALUES).Transpose();
+    const MatrixBufferInt& classLabels = data.GetMatrixBufferInt(CLASS_LABELS);
+    const MatrixBufferFloat& sampleWeights = data.GetMatrixBufferFloat(SAMPLE_WEIGHTS);
+    const MatrixBufferFloat& featureValues = data.GetMatrixBufferFloat(FEATURE_VALUES).Transpose();
 
     ASSERT_ARG_DIM_1D(classLabels.GetN(), 1)
     ASSERT_ARG_DIM_1D(sampleWeights.GetN(), 1)

@@ -17,7 +17,7 @@ public:
 
     virtual int GetYDim() const;
 
-    virtual void BestSplits( BufferCollection& data,
+    virtual void BestSplits( const BufferCollection& data,
                             MatrixBufferFloat& impurityOut,
                             MatrixBufferFloat& thresholdOut,
                             MatrixBufferFloat& childCountsOut,

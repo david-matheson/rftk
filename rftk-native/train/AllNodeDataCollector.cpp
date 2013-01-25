@@ -22,18 +22,18 @@ void AllNodeDataCollector::Collect( const BufferCollection& data,
 
     if( data.HasMatrixBufferFloat(SAMPLE_WEIGHTS) )
     {
-        MatrixBufferFloat sampleWeights = data.GetMatrixBufferFloat(SAMPLE_WEIGHTS).Slice(sampleIndices);
+        const MatrixBufferFloat& sampleWeights = data.GetMatrixBufferFloat(SAMPLE_WEIGHTS).Slice(sampleIndices);
         mData.AppendVerticalMatrixBufferFloat(SAMPLE_WEIGHTS, sampleWeights);
     }
 
     if( data.HasMatrixBufferInt(CLASS_LABELS) )
     {
-        MatrixBufferInt classLabels = data.GetMatrixBufferInt(CLASS_LABELS).Slice(sampleIndices);
+        const MatrixBufferInt& classLabels = data.GetMatrixBufferInt(CLASS_LABELS).Slice(sampleIndices);
         mData.AppendVerticalMatrixBufferInt(CLASS_LABELS, classLabels);
     }
 }
 
-BufferCollection AllNodeDataCollector::GetCollectedData()
+const BufferCollection& AllNodeDataCollector::GetCollectedData()
 {
     return mData;
 }

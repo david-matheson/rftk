@@ -27,6 +27,11 @@ const MatrixBufferFloat& BufferCollection::GetMatrixBufferFloat(const std::strin
     return mFloatMatrixBuffers.find(name)->second;
 }
 
+MatrixBufferFloat& BufferCollection::GetMatrixBufferFloat(const std::string& name)
+{
+    return mFloatMatrixBuffers.find(name)->second;
+}
+
 bool BufferCollection::HasMatrixBufferInt(std::string name) const
 {
     return (mIntMatrixBuffers.find(name) != mIntMatrixBuffers.end());
@@ -54,6 +59,10 @@ const MatrixBufferInt& BufferCollection::GetMatrixBufferInt(const std::string& n
     return mIntMatrixBuffers.find(name)->second;
 }
 
+MatrixBufferInt& BufferCollection::GetMatrixBufferInt(const std::string& name)
+{
+    return mIntMatrixBuffers.find(name)->second;
+}
 
 bool BufferCollection::HasImgBufferFloat(std::string name) const
 {
@@ -65,9 +74,14 @@ void BufferCollection::AddImgBufferFloat(std::string name, const ImgBufferFloat&
     mFloatImgBuffers[name] = data;
 }
 
-ImgBufferFloat BufferCollection::GetImgBufferFloat(std::string name)
+const ImgBufferFloat& BufferCollection::GetImgBufferFloat(std::string name) const
 {
-    return mFloatImgBuffers[name];
+    return mFloatImgBuffers.find(name)->second;
+}
+
+ImgBufferFloat& BufferCollection::GetImgBufferFloat(std::string name)
+{
+    return mFloatImgBuffers.find(name)->second;
 }
 
 bool BufferCollection::HasImgBufferInt(std::string name) const
@@ -80,7 +94,12 @@ void BufferCollection::AddImgBufferInt(std::string name, const ImgBufferInt& dat
     mIntImgBuffers[name] = data;
 }
 
-ImgBufferInt BufferCollection::GetImgBufferInt(std::string name)
+const ImgBufferInt& BufferCollection::GetImgBufferInt(std::string name) const
 {
-    return mIntImgBuffers[name];
+    return mIntImgBuffers.find(name)->second;
+}
+
+ImgBufferInt& BufferCollection::GetImgBufferInt(std::string name)
+{
+    return mIntImgBuffers.find(name)->second;
 }

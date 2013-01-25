@@ -98,7 +98,7 @@ void RandomProjectionFeatureExtractor::Extract(  const BufferCollection& data,
     ASSERT( data.HasMatrixBufferFloat(X_FLOAT_DATA) )
     ASSERT_ARG_DIM_1D(data.GetMatrixBufferFloat(X_FLOAT_DATA).GetN(), mNumberOfComponents)
 
-    const MatrixBufferFloat Xs = data.GetMatrixBufferFloat(X_FLOAT_DATA);
+    const MatrixBufferFloat& Xs = data.GetMatrixBufferFloat(X_FLOAT_DATA);
 
     const int numberOfSamples = sampleIndices.GetM();
     const int numberOfFeatures = intFeatureParams.GetM();

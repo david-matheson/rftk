@@ -23,19 +23,23 @@ public:
     void AddMatrixBufferFloat(std::string name, const MatrixBufferFloat& data );
     void AppendVerticalMatrixBufferFloat(std::string name, const MatrixBufferFloat& data );
     const MatrixBufferFloat& GetMatrixBufferFloat(const std::string& name) const;
+    MatrixBufferFloat& GetMatrixBufferFloat(const std::string& name);
 
     bool HasMatrixBufferInt(std::string name) const;
     void AddMatrixBufferInt(std::string name, const MatrixBufferInt& data );
     void AppendVerticalMatrixBufferInt(std::string name, const MatrixBufferInt& data );
     const MatrixBufferInt& GetMatrixBufferInt(const std::string& name) const;
+    MatrixBufferInt& GetMatrixBufferInt(const std::string& name);
 
     bool HasImgBufferFloat(std::string name) const;
     void AddImgBufferFloat(std::string name, const ImgBufferFloat& data );
-    ImgBufferFloat GetImgBufferFloat(std::string name);
+    const ImgBufferFloat& GetImgBufferFloat(std::string name) const;
+    ImgBufferFloat& GetImgBufferFloat(std::string name);
 
     bool HasImgBufferInt(std::string name) const;
     void AddImgBufferInt(std::string name, const ImgBufferInt& data ) ;
-    ImgBufferInt GetImgBufferInt(std::string name);
+    const ImgBufferInt& GetImgBufferInt(std::string name) const;
+    ImgBufferInt& GetImgBufferInt(std::string name);
 
 private:
     std::map<std::string, MatrixBufferFloat> mFloatMatrixBuffers;

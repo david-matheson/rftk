@@ -28,7 +28,7 @@ public:
                           boost::mt19937& gen );
 
     // Includes feature values, weights, ys, etc
-    virtual BufferCollection GetCollectedData();
+    virtual const BufferCollection& GetCollectedData();
 
     virtual int GetNumberOfCollectedSamples();
 private:

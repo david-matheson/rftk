@@ -47,6 +47,7 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, 
         data.AddMatrixBufferFloat(SAMPLE_WEIGHTS, weights);
 
         // Iterate over each sample (this cannot be farmed out to different threads)
+        Tree& tree = mForest.mTrees[treeIndex];
         for(int sampleIndex=0; sampleIndex<indices.GetM(); sampleIndex++)
         {
             if( weights.Get(sampleIndex,0) < FLT_EPSILON )
@@ -54,7 +55,6 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, 
                 continue;
             }
 
-            Tree& tree = mForest.mTrees[treeIndex];
             int treeDepth = 0;
             const int nodeIndex = walkTree( tree, 0, data, sampleIndex, treeDepth );
 
@@ -91,5 +91,6 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, 
                 delete activeSplit;
             }
         }
+        printf("Tree=%d mLastNodeIndex=%d\n", treeIndex, tree.mLastNodeIndex);
     }
 }

@@ -58,7 +58,7 @@ ClassInfoGainHistogramsBestSplit::~ClassInfoGainHistogramsBestSplit()
 }
 
 
-void ClassInfoGainHistogramsBestSplit::BestSplits(   BufferCollection& data,
+void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& data,
                                                         MatrixBufferFloat& impurityOut,
                                                         MatrixBufferFloat& thresholdOut,
                                                         MatrixBufferFloat& childCountsOut,
@@ -69,9 +69,9 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   BufferCollection& data,
     ASSERT( data.HasImgBufferFloat(HISTOGRAM_RIGHT) )
     ASSERT( data.HasMatrixBufferFloat(THRESHOLDS) )
 
-    const ImgBufferFloat histogramLeft = data.GetImgBufferFloat(HISTOGRAM_LEFT);
-    const ImgBufferFloat histogramRight = data.GetImgBufferFloat(HISTOGRAM_RIGHT);
-    const MatrixBufferFloat thresholds = data.GetMatrixBufferFloat(THRESHOLDS);
+    const ImgBufferFloat& histogramLeft = data.GetImgBufferFloat(HISTOGRAM_LEFT);
+    const ImgBufferFloat& histogramRight = data.GetImgBufferFloat(HISTOGRAM_RIGHT);
+    const MatrixBufferFloat& thresholds = data.GetMatrixBufferFloat(THRESHOLDS);
 
     ASSERT_ARG_DIM_3D(  histogramLeft.GetNumberOfImgs(), histogramLeft.GetM(), histogramLeft.GetN(),
                         histogramRight.GetNumberOfImgs(), histogramRight.GetM(), histogramRight.GetN() )

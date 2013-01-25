@@ -82,7 +82,7 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
         // Use sets to construct thresholds
         if( minSetSize >= mNumberOfThresholds)
         {
-            MatrixBufferFloat thresholds = MatrixBufferFloat(numberOfFeatures, mNumberOfThresholds);
+            MatrixBufferFloat thresholds(numberOfFeatures, mNumberOfThresholds);
             for(int f=0; f<mCandidateThresholds.size(); f++)
             {
                 std::set<float>& set =  mCandidateThresholds[f];
@@ -102,22 +102,22 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
     {
         if( !mData.HasImgBufferFloat(HISTOGRAM_LEFT) )
         {
-            ImgBufferFloat histogramLeft = ImgBufferFloat(numberOfFeatures, mNumberOfThresholds, mNumberOfClasses);
+            ImgBufferFloat histogramLeft(numberOfFeatures, mNumberOfThresholds, mNumberOfClasses);
             mData.AddImgBufferFloat(HISTOGRAM_LEFT, histogramLeft);
         }
 
         if( !mData.HasImgBufferFloat(HISTOGRAM_RIGHT) )
         {
-            ImgBufferFloat histogramRight = ImgBufferFloat(numberOfFeatures, mNumberOfThresholds, mNumberOfClasses);
+            ImgBufferFloat histogramRight(numberOfFeatures, mNumberOfThresholds, mNumberOfClasses);
             mData.AddImgBufferFloat(HISTOGRAM_RIGHT, histogramRight);
         }
 
-        MatrixBufferInt classLabels = data.GetMatrixBufferInt(CLASS_LABELS).Slice(sampleIndices);
-        MatrixBufferFloat sampleWeights = data.GetMatrixBufferFloat(SAMPLE_WEIGHTS).Slice(sampleIndices);
+        const MatrixBufferInt& classLabels = data.GetMatrixBufferInt(CLASS_LABELS).Slice(sampleIndices);
+        const MatrixBufferFloat& sampleWeights = data.GetMatrixBufferFloat(SAMPLE_WEIGHTS).Slice(sampleIndices);
 
-        ImgBufferFloat histogramLeft = mData.GetImgBufferFloat(HISTOGRAM_LEFT);
-        ImgBufferFloat histogramRight = mData.GetImgBufferFloat(HISTOGRAM_RIGHT);
-        MatrixBufferFloat thresholds = mData.GetMatrixBufferFloat(THRESHOLDS);
+        ImgBufferFloat& histogramLeft = mData.GetImgBufferFloat(HISTOGRAM_LEFT);
+        ImgBufferFloat& histogramRight = mData.GetImgBufferFloat(HISTOGRAM_RIGHT);
+        MatrixBufferFloat& thresholds = mData.GetMatrixBufferFloat(THRESHOLDS);
 
         for(int i=0; i<sampleIndices.GetM(); i++)
         {
@@ -142,7 +142,7 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
     }
 }
 
-BufferCollection RandomThresholdHistogramDataCollector::GetCollectedData()
+const BufferCollection& RandomThresholdHistogramDataCollector::GetCollectedData()
 {
     return mData;
 }

@@ -21,7 +21,7 @@ public:
     {}
 
     // Includes feature values, weights, ys, etc
-    virtual BufferCollection GetCollectedData() { return BufferCollection(); }
+    virtual const BufferCollection& GetCollectedData()=0;
 
     virtual int GetNumberOfCollectedSamples() { return 0; }
 };
