@@ -1,3 +1,33 @@
+Todos:
+-Add support for two streams: split and histograms
+-Add IntVector and FloatVector.
+    Change:
+        MatrixBufferFloat->Float32Matrix,
+        MatrixBufferInt->Int32Matrix,
+        ImgBufferFloat->Float32Tensor3
+        ImgBufferInt ->Int32Tensor3
+    Switch samples, weights and classes to a Vector
+    Switch counts to Ints or Doubles
+-Get project libsvm data examples working
+    - rerun stat560 experiment
+-MOG example
+    -More advanced mog with 5 classes, different priors and different sds
+    -High dimension example
+    -Plot with density (show slow convergence is in low density)
+-Run on twitter data
+-Create ICML doc
+-Kinect example working
+    - rerun Ziyu experiment experiment
+    - rerun stat560 experiment
+    - get live viewer working (bring over from old code)
+        - add background subtraction
+-Performance
+    - Do prediction in parallel
+    - Do feature extraction in parallel
+    - Resize with padding
+    - Profile
+
+
 Structure
 |-rftk
     |- forest.py <- should include saving/loading for full forest and trees
