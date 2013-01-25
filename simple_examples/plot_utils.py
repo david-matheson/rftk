@@ -55,3 +55,4 @@ def grid_plot(predictor, X_train, Y_train, X_test, plot_filename):
     plt.imshow(img, extent=grid_extend, origin='lower')
     # plt.scatter(X_train[:,0], X_train[:,1], c=colors_from_predictions(Y_train, colors))
     plt.savefig(plot_filename)
+    plt.close()
