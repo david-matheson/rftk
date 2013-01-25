@@ -8,15 +8,18 @@ class BufferCollection;
 class BestSplitI //Already exists
 {
 public:
-    virtual BestSplitI* Clone() const { return NULL; }
+    BestSplitI() {} //Needed by swig for pseudo abstract base classes
+    virtual ~BestSplitI() {} //Needed by swig for pseudo abstract base classes
 
-    virtual int GetYDim() const { return 0; }
+    virtual BestSplitI* Clone() const=0;
+
+    virtual int GetYDim() const=0;
 
     virtual void BestSplits( const BufferCollection& data,
                             MatrixBufferFloat& impurityOut,
                             MatrixBufferFloat& thresholdOut,
                             MatrixBufferFloat& childCountsOut,
                             MatrixBufferFloat& leftYsOut,
-                            MatrixBufferFloat& rightYsOut) const {}
+                            MatrixBufferFloat& rightYsOut) const=0;
 };
 

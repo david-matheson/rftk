@@ -12,14 +12,15 @@ enum SPLT_CRITERIA
 class SplitCriteriaI
 {
 public:
-    virtual ~SplitCriteriaI() {}
-    virtual SplitCriteriaI* Clone() const { return NULL; }
+    SplitCriteriaI() {}     //Needed by swig for pseudo abstract base classes
+    virtual ~SplitCriteriaI() {}    //Needed by swig for pseudo abstract base classes
+    virtual SplitCriteriaI* Clone() const=0;
 
     virtual SPLT_CRITERIA ShouldSplit(   int treeDepth,
                                         const MatrixBufferFloat& impurityValues,
-                                        const MatrixBufferFloat& childCounts) const { return SPLT_CRITERIA_MORE_DATA_REQUIRED; }
+                                        const MatrixBufferFloat& childCounts) const=0;
 
     virtual int BestSplit(  int treeDepth,
                             const MatrixBufferFloat& impurityValues,
-                            const MatrixBufferFloat& childCounts ) const { return -1;}
+                            const MatrixBufferFloat& childCounts ) const=0;
 };

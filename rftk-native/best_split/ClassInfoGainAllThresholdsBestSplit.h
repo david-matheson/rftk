@@ -11,7 +11,7 @@ public:
     ClassInfoGainAllThresholdsBestSplit(  float ratioOfThresholdsToTest,
                                         int minNumberThresholdsToTest,
                                         int numberOfClasses);
-    ~ClassInfoGainAllThresholdsBestSplit();
+    virtual ~ClassInfoGainAllThresholdsBestSplit();
 
     virtual BestSplitI* Clone() const;
 

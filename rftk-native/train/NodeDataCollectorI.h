@@ -11,24 +11,24 @@
 class NodeDataCollectorI
 {
 public:
-    virtual ~NodeDataCollectorI() {}
+    NodeDataCollectorI() {} //Needed by swig for pseudo abstract base classes
+    virtual ~NodeDataCollectorI() {} //Needed by swig for pseudo abstract base classes
 
     // Also copies/compacts weights, ys, etc
     virtual void Collect( const BufferCollection& data,
                           const MatrixBufferInt& sampleIndices,
                           const MatrixBufferFloat& featureValues,
-                          boost::mt19937& gen )
-    {}
+                          boost::mt19937& gen )=0;
 
     // Includes feature values, weights, ys, etc
     virtual const BufferCollection& GetCollectedData()=0;
 
-    virtual int GetNumberOfCollectedSamples() { return 0; }
+    virtual int GetNumberOfCollectedSamples()=0;
 };
 
 class NodeDataCollectorFactoryI
 {
 public:
-    virtual NodeDataCollectorFactoryI* Clone() const { return NULL; }
-    virtual NodeDataCollectorI* Create() const { return NULL; }
+    virtual NodeDataCollectorFactoryI* Clone() const=0;
+    virtual NodeDataCollectorI* Create() const=0;
 };

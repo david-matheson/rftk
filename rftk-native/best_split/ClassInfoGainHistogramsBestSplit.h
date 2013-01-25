@@ -9,7 +9,7 @@
 class ClassInfoGainHistogramsBestSplit : public BestSplitI {
 public:
     ClassInfoGainHistogramsBestSplit(int numberOfClasses);
-    ~ClassInfoGainHistogramsBestSplit();
+    virtual ~ClassInfoGainHistogramsBestSplit();
 
     virtual BestSplitI* Clone() const;
 
