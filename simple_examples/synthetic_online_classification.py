@@ -19,16 +19,16 @@ import dist_utils
 
 
 if __name__ == "__main__":
-    dist = dist_utils.Mog_2d_3class()
-    n_per = 1000
+    dist = dist_utils.mog_2d_3class_example2()
+    n_per = 10000
 
     X_test,Y_test = dist.sample(n_per)
 
     print datetime.now()
 
-    # Configure 
+    # Configure
     max_features=1
-    number_of_trees=10
+    number_of_trees=25
     max_depth=15
     min_impurity=0.001
     min_samples_split=10
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     sampling_config = train.OnlineSamplingParams(False, 1.0)
     online_learner = train.OnlineForestLearner(train_config)
 
-    for epoch_id in range(1,10):
+    for epoch_id in range(1,2000):
         print "Fitting epoch %d" % (epoch_id)
         epoch_per = epoch_id * epoch_id
         X_train,Y_train = dist.sample(epoch_per)

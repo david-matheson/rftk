@@ -19,8 +19,8 @@ import plot_utils
 import dist_utils
 
 if __name__ == "__main__":
-    dist = dist_utils.Mog_2d_3class()
-    n_per = 2000
+    dist = dist_utils.mog_2d_3class_example2()
+    n_per = 10000
 
     X_train,Y_train = dist.sample(n_per)
     X_test,Y_test = dist.sample(n_per)
@@ -36,11 +36,11 @@ if __name__ == "__main__":
     number_of_jobs = 1
 
     if useSklearn:
-        forest = sklearn.ensemble.RandomForestClassifier(   criterion="entropy", 
-                                                            max_features=max_features, 
-                                                            n_estimators=number_to_trees, 
-                                                            max_depth=max_depth, 
-                                                            min_samples_split=min_samples_split, 
+        forest = sklearn.ensemble.RandomForestClassifier(   criterion="entropy",
+                                                            max_features=max_features,
+                                                            n_estimators=number_to_trees,
+                                                            max_depth=max_depth,
+                                                            min_samples_split=min_samples_split,
                                                             n_jobs=number_of_jobs)
         forest.fit(X_train, Y_train)
     else:
@@ -73,7 +73,7 @@ if __name__ == "__main__":
         indices = buffer_converters.as_matrix_buffer( np.arange(x_m) )
         full_forest_data = depth_first_learner.Train(data, indices, sampling_config, number_of_jobs)
         forest = predict_utils.MatrixForestPredictor(full_forest_data)
-    
+
     y_probs = forest.predict_proba(X_test)
     y_hat = y_probs.argmax(axis=1)
 
