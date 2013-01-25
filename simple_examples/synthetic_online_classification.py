@@ -44,7 +44,7 @@ if __name__ == "__main__":
     # self.split_criteria = train.OnlineAlphaBetaSplitCriteria(   max_depth,
     #                                                             min_impurity,
     #                                                             min_samples_split)
-    split_criteria = train.OnlineConsistentSplitCriteria(  2.0,
+    split_criteria = train.OnlineConsistentSplitCriteria(  1.3,
                                                                 min_impurity,
                                                                 min_samples_split,
                                                                 10 * min_samples_split)
