@@ -57,13 +57,19 @@ def as_numpy_array( buffer, flatten=False ):
 
     if isImgBufferFloat or isImgBufferInt:
         result = np.zeros((buffer.GetNumberOfImgs(), buffer.GetM(), buffer.GetN()), dtype=buffer_type)
-        buffer.AsNumpy(result)
+        if isImgBufferFloat:
+            buffer.AsNumpy3dFloat32(result)
+        if isImgBufferInt:
+            buffer.AsNumpy3dInt32(result)
         if buffer.GetNumberOfImgs() == 1 and flatten:
             result = result.reshape(buffer.GetM(), buffer.GetN)
 
     elif isMatrixBufferFloat or isMatrixBufferInt:
         result = np.zeros((buffer.GetM(), buffer.GetN()), dtype=buffer_type)
-        buffer.AsNumpy(result)
+        if isMatrixBufferFloat:
+            buffer.AsNumpy2dFloat32(result)
+        if isMatrixBufferInt:
+            buffer.AsNumpy2dInt32(result)
         if buffer.GetN() == 1 and flatten:
             result = result.flatten()
 

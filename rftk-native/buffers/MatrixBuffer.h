@@ -1,95 +1,314 @@
 #pragma once
 
-#include <tr1/memory>
 #include <vector>
+#include "MatrixBufferTemplate.h"
 
-class MatrixBufferInt;
+#include <vector>
+#include <limits>
+#include <iostream>
 
-class MatrixBufferFloat {
+#include "assert_util.h"
+
+template <class T>
+class MatrixBufferTemplate {
 public:
-    MatrixBufferFloat();
-    MatrixBufferFloat(int m, int n);
-    MatrixBufferFloat(float* data, int m, int n);
-    MatrixBufferFloat(double* data, int m, int n);
-    ~MatrixBufferFloat() {}
+    MatrixBufferTemplate();
+    MatrixBufferTemplate(int m, int n);
+    MatrixBufferTemplate(float* data, int m, int n);
+    MatrixBufferTemplate(double* data, int m, int n);
+    MatrixBufferTemplate(int* data, int m, int n);
+    MatrixBufferTemplate(long long* data, int m, int n);
+    ~MatrixBufferTemplate();
 
     void Resize(int m, int n);
-
-    void AppendVertical(const MatrixBufferFloat& buffer);
-    MatrixBufferFloat Transpose() const;
-    MatrixBufferFloat Slice(const MatrixBufferInt& indices) const;
-
     void Zero();
-    void SetAll(const float value);
+    void SetAll(const T value);
 
     int GetM() const { return mM; }
     int GetN() const { return mN; }
 
-    void Set(int m, int n, float value);
-    float Get(int m, int n) const;
-    void SetUnsafe(int m, int n, float value) { mData[m*mN + n] = value; }
-    float GetUnsafe(int m, int n) const { return mData[ m*mN + n]; }
+    void Set(int m, int n, T value);
+    T Get(int m, int n) const;
+    void SetUnsafe(int m, int n, T value);
+    T GetUnsafe(int m, int n) const;
 
-    const float* GetRowPtrUnsafe(int m) const { return &mData[m*mN]; }
+    const T* GetRowPtrUnsafe(int m) const;
 
-    float GetMax() const;
-    float GetMin() const;
+    T GetMax() const;
+    T GetMin() const;
 
+    void AppendVertical(const MatrixBufferTemplate<T>& buffer);
+    MatrixBufferTemplate<T> Transpose() const;
+    MatrixBufferTemplate<T> Slice(const MatrixBufferTemplate<int32_t>& indices) const;
+    MatrixBufferTemplate<T> SliceRow(const int row) const;
 
-    // MatrixBufferFloat SharedMemoryCopy() { return *this; }
-    void AsNumpy(float* outfloat2d, int m, int n);
+    void AsNumpy2dFloat32(float* outfloat2d, int m, int n) const;
+    void AsNumpy2dInt32(int* outint2d, int m, int n) const;
+
 
     void Print() const;
 
 private:
-    std::vector< float > mData;
+    std::vector< T > mData;
     int mM;
     int mN;
 };
 
+template <class T>
+MatrixBufferTemplate<T>::MatrixBufferTemplate()
+: mData()
+, mM(0)
+, mN(0)
+{
+}
 
-class MatrixBufferInt {
-public:
-    MatrixBufferInt();
-    MatrixBufferInt(int m, int n);
-    MatrixBufferInt(int* data, int m, int n);
-    MatrixBufferInt(long long* data, int m, int n);
-    ~MatrixBufferInt();
+template <class T>
+MatrixBufferTemplate<T>::MatrixBufferTemplate(int m, int n)
+: mData( m*n )
+, mM(m)
+, mN(n)
+{
+}
 
-    // MatrixBufferInt(const MatrixBufferInt& other);
-    // MatrixBufferInt& operator=( const MatrixBufferInt& rhs );
+template <class T>
+MatrixBufferTemplate<T>::MatrixBufferTemplate(float* data, int m, int n)
+: mData( data, data + m*n )
+, mM(m)
+, mN(n)
+{
+    for(int i=0; i<m*n; i++)
+    {
+        mData[i] = static_cast<T>(data[i]);
+    }
+}
 
-    void Resize(int m, int n);
+template <class T>
+MatrixBufferTemplate<T>::MatrixBufferTemplate(double* data, int m, int n)
+: mData( m*n )
+, mM(m)
+, mN(n)
+{
+    for(int i=0; i<m*n; i++)
+    {
+        mData[i] = static_cast<T>(data[i]);
+    }
+}
 
-    void AppendVertical(const MatrixBufferInt& buffer);
-    MatrixBufferInt Transpose() const;
-    MatrixBufferInt Slice(const MatrixBufferInt& indices) const;
+template <class T>
+MatrixBufferTemplate<T>::MatrixBufferTemplate(int* data, int m, int n)
+: mData( m*n )
+, mM(m)
+, mN(n)
+{
+    for(int i=0; i<m*n; i++)
+    {
+        mData[i] = static_cast<T>(data[i]);
+    }
+}
 
-    void SetAll(const int value);
-    void Zero();
+template <class T>
+MatrixBufferTemplate<T>::MatrixBufferTemplate(long long* data, int m, int n)
+: mData( m*n )
+, mM(m)
+, mN(n)
+{
+    for(int i=0; i<m*n; i++)
+    {
+        mData[i] = static_cast<T>(data[i]);
+    }
+}
 
-    int GetM() const { return mM; }
-    int GetN() const { return mN; }
+template <class T>
+MatrixBufferTemplate<T>::~MatrixBufferTemplate()
+{
+}
 
-    void Set(int m, int n, int value);
-    int Get(int m, int n) const;
-    void SetUnsafe(int m, int n, int value) { mData[m*mN + n] = value; }
-    int GetUnsafe(int m, int n) const { return mData[ m*mN + n]; }
+template <class T>
+void MatrixBufferTemplate<T>::Resize(int m, int n)
+{
+    if(m*n > mData.size())
+    {
+        mData.resize(m*n);
+    }
+    mM = m;
+    mN = n;
+}
 
-    const int* GetRowPtrUnsafe(int m) const { return &mData[m*mN]; }
+template <class T>
+void MatrixBufferTemplate<T>::Zero()
+{
+    SetAll(static_cast<T>(0));
+}
 
-    int GetMax() const;
-    int GetMin() const;
+template <class T>
+void MatrixBufferTemplate<T>::SetAll(const T value)
+{
+    std::fill(mData.begin(), mData.end(), value);
+}
 
-    // MatrixBufferInt SharedMemoryCopy() { return *this; }
-    void AsNumpy(int* outint2d, int m, int n);
+template <class T>
+void MatrixBufferTemplate<T>::Set(int m, int n, T value)
+{
+    ASSERT_VALID_RANGE(m, 0, mM)
+    ASSERT_VALID_RANGE(n, 0, mN)
+    mData[m*mN + n] = value;
+}
 
-private:
-    std::vector< int > mData;
-    int mM;
-    int mN;
-};
+template <class T>
+T MatrixBufferTemplate<T>::Get(int m, int n) const
+{
+    ASSERT_VALID_RANGE(m, 0, mM)
+    ASSERT_VALID_RANGE(n, 0, mN)
+    return mData[m*mN + n];
+}
 
+template <class T>
+void MatrixBufferTemplate<T>::SetUnsafe(int m, int n, T value)
+{
+    mData[m*mN + n] = value; 
+}
+
+template <class T>
+T MatrixBufferTemplate<T>::GetUnsafe(int m, int n) const 
+{
+    return mData[ m*mN + n]; 
+}
+
+template <class T>
+const T* MatrixBufferTemplate<T>::GetRowPtrUnsafe(int m) const 
+{
+    return &mData[m*mN];
+}
+
+template <class T>
+T MatrixBufferTemplate<T>::GetMax() const
+{
+    T max = std::numeric_limits<T>::min();
+    for(int i=0; i<mM*mN; i++)
+    {
+        max = (max > mData[i]) ? max : mData[i];
+    }
+    return max;
+}
+
+template <class T>
+T MatrixBufferTemplate<T>::GetMin() const
+{
+    T min = std::numeric_limits<T>::max();
+    for(int i=0; i<mM*mN; i++)
+    {
+        min = (min < mData[i]) ? min : mData[i];
+    }
+    return min;
+}
+
+template <class T>
+void MatrixBufferTemplate<T>::AppendVertical(const MatrixBufferTemplate<T>& buffer)
+{
+    ASSERT_ARG_DIM_1D(mN, buffer.GetN())
+    mData.resize((mM + buffer.GetM()) * mN);
+    const int oldM = mM;
+    mM += buffer.GetM();
+    for(int r=0; r<buffer.GetM(); r++)
+    {
+        for(int c=0; c<mN; c++)
+        {
+            Set(r+oldM, c, buffer.Get(r, c));
+        }
+    }
+}
+
+template <class T>
+MatrixBufferTemplate<T> MatrixBufferTemplate<T>::Transpose() const
+{
+    MatrixBufferTemplate<T> transpose(mN, mM);
+    for(int r=0; r<mM; r++)
+    {
+        for(int c=0; c<mN; c++)
+        {
+            transpose.Set(c, r, Get(r, c));
+        }
+    }
+    return transpose;
+}
+
+template <class T>
+MatrixBufferTemplate<T> MatrixBufferTemplate<T>::Slice(const MatrixBufferTemplate<int32_t>& indices) const
+{
+    MatrixBufferTemplate<T> sliced(indices.GetM(), mN);
+    ASSERT_ARG_DIM_1D(indices.GetN(), 1)
+    for(int i=0; i<indices.GetM(); i++)
+    {
+        int r = indices.Get(i,0);
+        for(int c=0; c<mN; c++)
+        {
+            sliced.Set(i, c, Get(r, c));
+        }
+    }
+    return sliced;
+}
+
+template <class T>
+MatrixBufferTemplate<T> MatrixBufferTemplate<T>::SliceRow(const int row) const
+{
+    MatrixBufferTemplate<T> sliced(1, mN);
+    for(int c=0; c<mN; c++)
+    {
+        sliced.Set(0, c, Get(row, c));
+    }
+
+    return sliced;
+}
+
+template <class T>
+void MatrixBufferTemplate<T>::AsNumpy2dFloat32(float* outfloat2d, int m, int n) const
+{
+    ASSERT_ARG_DIM_2D(m, n, mM, mN)
+    for(int i=0; i<m*n; i++)
+    {
+        outfloat2d[i] = static_cast<float>(mData[i]);
+    }
+}
+
+template <class T>
+void MatrixBufferTemplate<T>::AsNumpy2dInt32(int* outint2d, int m, int n) const
+{
+    ASSERT_ARG_DIM_2D(m, n, mM, mN)
+    for(int i=0; i<m*n; i++)
+    {
+        outint2d[i] = static_cast<int>(mData[i]);
+    }
+}
+
+template <class T>
+void MatrixBufferTemplate<T>::Print() const
+{
+    std::cout << "[" << mM << " " << mN << "]" << std::endl;
+    std::cout << "[" << std::endl;
+    for(int m=0; m<mM; m++)
+    {
+        std::cout << "  [";
+        for(int n=0; n<mN; n++)
+        {
+            std::cout << Get(m,n) << " ";
+        }
+        std::cout << "]" << std::endl;
+    }
+    std::cout << "]" << std::endl;
+}
+
+typedef MatrixBufferTemplate<float> Float32MatrixBuffer;
+typedef MatrixBufferTemplate<double> Float64MatrixBuffer;
+typedef MatrixBufferTemplate<int> Int32MatrixBuffer;
+typedef MatrixBufferTemplate<long long> Int64MatrixBuffer;
+
+Float32MatrixBuffer Float32Matrix(float* float2d, int m, int n);
+Float64MatrixBuffer Float64Matrix(double* double2d, int m, int n);
+Int32MatrixBuffer Int32Matrix(int* int2d, int m, int n);
+Int64MatrixBuffer Int64Matrix(long long* long2d, int m, int n);
+
+typedef MatrixBufferTemplate<float> MatrixBufferFloat;
+typedef MatrixBufferTemplate<int> MatrixBufferInt;
 
 
 MatrixBufferFloat vecBufferFloat(float* float1d, int m);

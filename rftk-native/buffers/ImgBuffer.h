@@ -26,7 +26,7 @@ public:
     const float* GetRowPtrUnsafe(int img, int m) const { return &(*mData)[img*mM*mN + m*mN]; }
 
     ImgBufferFloat SharedMemoryCopy() { return *this; }
-    void AsNumpy(float* outfloat3d, int l, int m, int n);
+    void AsNumpy3dFloat32(float* outfloat3d, int l, int m, int n);
 
     void Print() const;
 
@@ -60,7 +60,7 @@ public:
     const int* GetRowPtrUnsafe(int img, int m) const { return &(*mData)[img*mM*mN + m*mN]; }
 
     ImgBufferInt SharedMemoryCopy() { return *this; }
-    void AsNumpy(int* outint3d, int l, int m, int n);
+    void AsNumpy3dInt32(int* outint3d, int l, int m, int n);
 
     std::tr1::shared_ptr< std::vector< int > > mData;
     int mNumberOfImgs;

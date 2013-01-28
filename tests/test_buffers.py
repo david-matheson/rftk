@@ -10,7 +10,7 @@ class TestBuffers(unittest.TestCase):
         A = np.array([[[3,21,1],[22,1,5]],[[2,3,4],[7,7,7]]], dtype=np.float32 )
         a = buffers.imgsBufferFloat( A )
         B = np.zeros((2,2,3), dtype=np.float32)
-        a.AsNumpy(B)
+        a.AsNumpy3dFloat32(B)
         self.assertTrue((A == B).all())
         self.assertEqual(a.Get(1,0,2), 4)
         a.Set(1,0,2, 22)
@@ -20,7 +20,7 @@ class TestBuffers(unittest.TestCase):
         A = np.array([[[3,21,1],[22,1,5]],[[2,3,4],[7,7,7]]], dtype=np.int32 )
         a = buffers.imgsBufferInt( A )
         B = np.zeros((2,2,3), dtype=np.int32)
-        a.AsNumpy(B)
+        a.AsNumpy3dInt32(B)
         self.assertTrue((A == B).all())
         self.assertEqual(a.Get(1,0,2), 4)
         a.Set(1,0,2, 22)
@@ -30,7 +30,7 @@ class TestBuffers(unittest.TestCase):
         A = np.array([[3,21,1],[22,33,5]], dtype=np.float32 )
         a = buffers.matrixBufferFloat( A )
         B = np.zeros((2,3), dtype=np.float32)
-        a.AsNumpy(B)
+        a.AsNumpy2dFloat32(B)
         self.assertTrue((A == B).all())
         self.assertEqual(a.Get(1,2), 5)
         a.Set(0,2,22)
@@ -40,7 +40,7 @@ class TestBuffers(unittest.TestCase):
         A = np.array([[3,21,1],[22,33,5]], dtype=np.int32 )
         a = buffers.matrixBufferInt( A )
         B = np.zeros((2,3), dtype=np.int32)
-        a.AsNumpy(B)
+        a.AsNumpy2dInt32(B)
         self.assertTrue((A == B).all())
         self.assertEqual(a.Get(1,2), 5)
         a.Set(0,2,22)
@@ -50,7 +50,7 @@ class TestBuffers(unittest.TestCase):
         A = np.array([3,21,1], dtype=np.float32 )
         a = buffers.vecBufferFloat( A )
         B = np.zeros((3,1), dtype=np.float32)
-        a.AsNumpy(B)
+        a.AsNumpy2dFloat32(B)
         self.assertTrue((A == B.flatten()).all())
         self.assertEqual(a.Get(2,0), 1)
         a.Set(2,0,22)
@@ -60,7 +60,7 @@ class TestBuffers(unittest.TestCase):
         A = np.array([3,21,1], dtype=np.int32 )
         a = buffers.vecBufferInt( A )
         B = np.zeros((3,1), dtype=np.int32)
-        a.AsNumpy(B)
+        a.AsNumpy2dInt32(B)
         self.assertTrue((A == B.flatten()).all())
         self.assertEqual(a.Get(2,0), 1)
         a.Set(2,0,22)
@@ -71,28 +71,28 @@ class TestBuffers(unittest.TestCase):
         a = buffers.imgsBufferFloat( A )
         B = np.zeros((2,3,3), dtype=np.float32)
         with self.assertRaises(TypeError):
-            a.AsNumpy(B)
+            a.AsNumpy3dFloat32(B)
 
     def test_img_int_buffer_dim_exception(self):
         A = np.array([[[3,21,1],[22,1,5]],[[2,2,2],[7,7,7]]], dtype=np.int32 )
         a = buffers.imgsBufferInt( A )
         B = np.zeros((1,2,3), dtype=np.int32)
         with self.assertRaises(TypeError):
-            a.AsNumpy(B)
+            a.AsNumpy3dInt32(B)
 
     def test_matrix_float_buffer_dim_exception(self):
         A = np.array([[3,21,1],[22,33,5]], dtype=np.float32 )
         a = buffers.matrixBufferFloat( A )
         B = np.zeros((1,3), dtype=np.float32)
         with self.assertRaises(TypeError):
-            a.AsNumpy(B)
+            a.AsNumpy2dFloat32(B)
 
     def test_matrix_int_buffer_dim_exception(self):
         A = np.array([[3,21,1],[22,33,5]], dtype=np.int32 )
         a = buffers.matrixBufferInt( A )
         B = np.zeros((2,1), dtype=np.int32)
         with self.assertRaises(TypeError):
-            a.AsNumpy(B)
+            a.AsNumpy2dInt32(B)
 
     def test_img_float_buffer_out_of_range_exception(self):
         A = np.array([[[3,21,1],[22,1,5]],[[2,2,2],[7,7,7]]], dtype=np.float32 )
@@ -199,20 +199,20 @@ class TestBuffers(unittest.TestCase):
         A_nonzero = np.array([[3,21,1],[22,33,5]], dtype=np.float32 )
         a = buffers.matrixBufferFloat( A_nonzero )
         result = np.zeros((2,3), dtype=np.float32)
-        a.AsNumpy(result)
+        a.AsNumpy2dFloat32(result)
         self.assertTrue((A_nonzero == result).all())
         a.Zero()
-        a.AsNumpy(result)
+        a.AsNumpy2dFloat32(result)
         zeros = np.zeros((2,3), dtype=np.float32)
         self.assertTrue((zeros == result).all())
 
         A_nonzero = np.array([[3,21,1],[22,33,5]], dtype=np.int32 )
         a = buffers.matrixBufferInt( A_nonzero )
         result = np.zeros((2,3), dtype=np.int32)
-        a.AsNumpy(result)
+        a.AsNumpy2dInt32(result)
         self.assertTrue((A_nonzero == result).all())
         a.Zero()
-        a.AsNumpy(result)
+        a.AsNumpy2dInt32(result)
         zeros = np.zeros((2,3), dtype=np.int32)
         self.assertTrue((zeros == result).all())
 

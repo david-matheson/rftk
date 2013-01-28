@@ -31,6 +31,8 @@
 %apply (int* IN_ARRAY3, int DIM1, int DIM2, int DIM3) {(int* int3d, int l, int m, int n)}
 %apply (long long* IN_ARRAY3, int DIM1, int DIM2, int DIM3) {(long long* long3d, int l, int m, int n)}
 
+%apply (float* INPLACE_ARRAY1, int DIM1) {(float* outfloat1d, int n)}
+%apply (int* INPLACE_ARRAY1, int DIM1) {(int* outint1d, int n)}
 %apply (float* INPLACE_ARRAY2, int DIM1, int DIM2) {(float* outfloat2d, int m, int n)}
 %apply (int* INPLACE_ARRAY2, int DIM1, int DIM2) {(int* outint2d, int m, int n)}
 
@@ -41,3 +43,13 @@
 %include "ImgBuffer.h"
 %include "MatrixBuffer.h"
 %include "BufferCollection.h"
+
+%template(Float32MatrixBufferClass) MatrixBufferTemplate<float>;
+%template(Float64MatrixBufferClass) MatrixBufferTemplate<double>;
+%template(Int32MatrixBufferClass) MatrixBufferTemplate<int>;
+%template(Int64MatrixBufferClass) MatrixBufferTemplate<long long>;
+
+%template(MatrixBufferFloat) MatrixBufferTemplate<float>;
+%template(MatrixBufferInt) MatrixBufferTemplate<int>;
+
+

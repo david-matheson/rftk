@@ -49,7 +49,7 @@ float ImgBufferFloat::Get(int img, int m, int n) const
     return (*mData)[img*mM*mN + m*mN + n];
 }
 
-void ImgBufferFloat::AsNumpy(float* outfloat3d, int l, int m, int n)
+void ImgBufferFloat::AsNumpy3dFloat32(float* outfloat3d, int l, int m, int n)
 {
     ASSERT_ARG_DIM_3D(l, m, n, mNumberOfImgs, mM, mN)
     for(int i=0; i<l*m*n; i++)
@@ -124,7 +124,7 @@ int ImgBufferInt::Get(int img, int m, int n) const
     return (*mData)[img*mM*mN + m*mN + n];
 }
 
-void ImgBufferInt::AsNumpy(int* outint3d, int l, int m, int n)
+void ImgBufferInt::AsNumpy3dInt32(int* outint3d, int l, int m, int n)
 {
     ASSERT_ARG_DIM_3D(l, m, n, mNumberOfImgs, mM, mN)
     for(int i=0; i<l*m*n; i++)

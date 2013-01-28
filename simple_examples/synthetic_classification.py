@@ -20,15 +20,15 @@ import dist_utils
 
 if __name__ == "__main__":
     dist = dist_utils.mog_2d_3class_example1()
-    n_per = 100000
+    n_per = 1000
 
-    X_train,Y_train = dist.sample(100000)
+    X_train,Y_train = dist.sample(1000)
     X_test,Y_test = dist.sample(1000)
 
     print datetime.now()
 
     useSklearn = False
-    max_features = 10
+    max_features = 1
     number_to_trees = 25
     max_depth = 15
     min_samples_split = 5
