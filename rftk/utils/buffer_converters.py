@@ -26,31 +26,31 @@ def as_matrix_buffer( np_array ):
     if np_array.dtype == np.int32 and np_array.ndim == 1:
         return buffers.vecBufferInt( np_array )
     elif np_array.dtype == np.int32 and np_array.ndim == 2:
-        return buffers.matrixBufferInt( np_array )
+        return buffers.Int32Matrix( np_array )
     elif np_array.dtype == np.float32 and np_array.ndim == 1:
         return buffers.vecBufferFloat( np_array )
     elif np_array.dtype == np.float32 and np_array.ndim == 2:
-        return buffers.matrixBufferFloat( np_array )
+        return buffers.Float32Matrix( np_array )
     elif np_array.dtype == np.int64 and np_array.ndim == 1:
         return buffers.vecBufferInt64( np_array )
     elif np_array.dtype == np.int64 and np_array.ndim == 2:
-        return buffers.matrixBufferInt64( np_array )
+        return buffers.Int64Matrix( np_array )
     elif np_array.dtype == np.float64 and np_array.ndim == 1:
         return buffers.vecBufferFloat64( np_array )
     elif np_array.dtype == np.float64 and np_array.ndim == 2:
-        return buffers.matrixBufferFloat64( np_array )
+        return buffers.Float64Matrix( np_array )
     else:
         raise Exception('asMatrixBuffer unknown type and ndim', np_array.dtype, np_array.ndim())
 
 def as_numpy_array( buffer, flatten=False ):
     isImgBufferFloat = isinstance(buffer, buffers.ImgBufferFloat)
     isImgBufferInt = isinstance(buffer, buffers.ImgBufferInt)
-    isMatrixBufferFloat = isinstance(buffer, buffers.MatrixBufferFloat)
-    isMatrixBufferInt = isinstance(buffer, buffers.MatrixBufferInt)
+    isFloatMatrixBuffer = isinstance(buffer, buffers.Float32MatrixBuffer) or isinstance(buffer, buffers.Float64MatrixBuffer)
+    isIntMatrixBuffer = isinstance(buffer, buffers.Int32MatrixBuffer) or isinstance(buffer, buffers.Int64MatrixBuffer)
 
-    assert(isImgBufferFloat or isImgBufferInt or isMatrixBufferFloat or isMatrixBufferInt)
+    assert(isImgBufferFloat or isImgBufferInt or isFloatMatrixBuffer or isIntMatrixBuffer)
 
-    if isImgBufferFloat or isMatrixBufferFloat:
+    if isImgBufferFloat or isFloatMatrixBuffer:
         buffer_type = np.float32
     else:
         buffer_type = np.int32
@@ -64,11 +64,11 @@ def as_numpy_array( buffer, flatten=False ):
         if buffer.GetNumberOfImgs() == 1 and flatten:
             result = result.reshape(buffer.GetM(), buffer.GetN)
 
-    elif isMatrixBufferFloat or isMatrixBufferInt:
+    elif isFloatMatrixBuffer or isIntMatrixBuffer:
         result = np.zeros((buffer.GetM(), buffer.GetN()), dtype=buffer_type)
-        if isMatrixBufferFloat:
+        if isFloatMatrixBuffer:
             buffer.AsNumpy2dFloat32(result)
-        if isMatrixBufferInt:
+        if isIntMatrixBuffer:
             buffer.AsNumpy2dInt32(result)
         if buffer.GetN() == 1 and flatten:
             result = result.flatten()

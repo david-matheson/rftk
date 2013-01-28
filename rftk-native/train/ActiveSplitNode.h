@@ -25,30 +25,30 @@ public:
     ~ActiveSplitNodeFeatureSet();
 
     void ProcessData(   const BufferCollection& data,
-                        const MatrixBufferInt& sampleIndices,
+                        const Int32MatrixBuffer& sampleIndices,
                         boost::mt19937& gen );
 
     void WriteImpurity( int groupId,
                         int outStartIndex,
-                        MatrixBufferFloat& impuritiesOut,
-                        MatrixBufferFloat& thresholdsOut,
-                        MatrixBufferFloat& childCountsOut,
-                        MatrixBufferInt& featureIndicesOut );
+                        Float32MatrixBuffer& impuritiesOut,
+                        Float32MatrixBuffer& thresholdsOut,
+                        Float32MatrixBuffer& childCountsOut,
+                        Int32MatrixBuffer& featureIndicesOut );
 
     void SplitIndices(  const int featureIndex,
                         const BufferCollection& data,
-                        const MatrixBufferInt& sampleIndices,
-                        MatrixBufferInt& leftSampleIndicesOut,
-                        MatrixBufferInt& rightSampleIndicesOut );
+                        const Int32MatrixBuffer& sampleIndices,
+                        Int32MatrixBuffer& leftSampleIndicesOut,
+                        Int32MatrixBuffer& rightSampleIndicesOut );
 
     void WriteToTree(   int index,
                         const int treeNodeIndex,
-                        MatrixBufferFloat& floatParamsOut,
-                        MatrixBufferInt& intParamsOut,
+                        Float32MatrixBuffer& floatParamsOut,
+                        Int32MatrixBuffer& intParamsOut,
                         const int leftTreeNodeIndex,
-                        MatrixBufferFloat& leftYsOut,
+                        Float32MatrixBuffer& leftYsOut,
                         const int rightTreeNodeIndex,
-                        MatrixBufferFloat& rightYsOut );
+                        Float32MatrixBuffer& rightYsOut );
 
     int GetNumberFeatureCandidates() const { return mIntParams.GetM(); }
 
@@ -61,15 +61,15 @@ private:
     std::tr1::shared_ptr<NodeDataCollectorI> mNodeDataCollector;
 
     // Created on construction
-    MatrixBufferInt mIntParams;
-    MatrixBufferFloat mFloatParams;
+    Int32MatrixBuffer mIntParams;
+    Float32MatrixBuffer mFloatParams;
 
     // Updated everytime ProcessData is called
-    MatrixBufferFloat mImpurities;
-    MatrixBufferFloat mThresholds;
-    MatrixBufferFloat mChildCounts;
-    MatrixBufferFloat mLeftYs;
-    MatrixBufferFloat mRightYs;
+    Float32MatrixBuffer mImpurities;
+    Float32MatrixBuffer mThresholds;
+    Float32MatrixBuffer mChildCounts;
+    Float32MatrixBuffer mLeftYs;
+    Float32MatrixBuffer mRightYs;
 };
 
 
@@ -85,26 +85,26 @@ public:
     virtual ~ActiveSplitNode();
 
     void ProcessData(   const BufferCollection& data,
-                        const MatrixBufferInt& sampleIndices,
+                        const Int32MatrixBuffer& sampleIndices,
                         boost::mt19937& gen );
 
     SPLT_CRITERIA ShouldSplit() { return mShouldSplit; }
 
     void WriteToTree(   const int treeNodeIndex,
-                        MatrixBufferInt& paths,
-                        MatrixBufferFloat& floatParams,
-                        MatrixBufferInt& intParams,
-                        MatrixBufferInt& depth,
+                        Int32MatrixBuffer& paths,
+                        Float32MatrixBuffer& floatParams,
+                        Int32MatrixBuffer& intParams,
+                        Int32MatrixBuffer& depth,
                         const int leftTreeNodeIndex,
-                        MatrixBufferFloat& leftYs,
+                        Float32MatrixBuffer& leftYs,
                         const int rightTreeNodeIndex,
-                        MatrixBufferFloat& rightYs);
+                        Float32MatrixBuffer& rightYs);
 
     // Data has to be passed in because ProcessData may not keep the data
     void SplitIndices(  const BufferCollection& data,
-                        const MatrixBufferInt& sampleIndices,
-                        MatrixBufferInt& leftSampleIndicesOut,
-                        MatrixBufferInt& rightSampleIndicesOut );
+                        const Int32MatrixBuffer& sampleIndices,
+                        Int32MatrixBuffer& leftSampleIndicesOut,
+                        Int32MatrixBuffer& rightSampleIndicesOut );
 
 private:
     // Passed in (not owned)
@@ -119,9 +119,9 @@ private:
     int mBestFeatureIndex;
     SPLT_CRITERIA mShouldSplit;
 
-    MatrixBufferFloat mImpurities;
-    MatrixBufferFloat mThresholds;
-    MatrixBufferFloat mChildCounts;
-    MatrixBufferInt mFeatureIndices;
+    Float32MatrixBuffer mImpurities;
+    Float32MatrixBuffer mThresholds;
+    Float32MatrixBuffer mChildCounts;
+    Int32MatrixBuffer mFeatureIndices;
 
 };

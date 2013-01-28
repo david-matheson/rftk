@@ -14,10 +14,10 @@ public:
     virtual int GetYDim() const=0;
 
     virtual void BestSplits( const BufferCollection& data,
-                            MatrixBufferFloat& impurityOut,
-                            MatrixBufferFloat& thresholdOut,
-                            MatrixBufferFloat& childCountsOut,
-                            MatrixBufferFloat& leftYsOut,
-                            MatrixBufferFloat& rightYsOut) const=0;
+                            Float32MatrixBuffer& impurityOut,
+                            Float32MatrixBuffer& thresholdOut,
+                            Float32MatrixBuffer& childCountsOut,
+                            Float32MatrixBuffer& leftYsOut,
+                            Float32MatrixBuffer& rightYsOut) const=0;
 };
 

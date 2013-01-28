@@ -16,12 +16,12 @@ public:
     virtual SplitCriteriaI* Clone() const;
 
     virtual SPLT_CRITERIA ShouldSplit(   int treeDepth,
-                                        const MatrixBufferFloat& impurityValues,
-                                        const MatrixBufferFloat& childCounts) const;
+                                        const Float32MatrixBuffer& impurityValues,
+                                        const Float32MatrixBuffer& childCounts) const;
 
     virtual int BestSplit(  int treeDepth,
-                            const MatrixBufferFloat& impurityValues,
-                            const MatrixBufferFloat& childCounts ) const;
+                            const Float32MatrixBuffer& impurityValues,
+                            const Float32MatrixBuffer& childCounts ) const;
 private:
     const int mMaxDepth;
     const float mMinImpurity;

@@ -18,7 +18,7 @@ public:
 
     Forest GetForest() const;
 
-    void Train(BufferCollection data, MatrixBufferInt indices, OnlineSamplingParams samplingParams );
+    void Train(BufferCollection data, Int32MatrixBuffer indices, OnlineSamplingParams samplingParams );
 
 private:
     TrainConfigParams mTrainConfigParams;

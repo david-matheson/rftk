@@ -1,18 +1,18 @@
 #include "BufferCollection.h"
 
-bool BufferCollection::HasMatrixBufferFloat(std::string name) const
+bool BufferCollection::HasFloat32MatrixBuffer(std::string name) const
 {
     return (mFloatMatrixBuffers.find(name) != mFloatMatrixBuffers.end());
 }
 
-void BufferCollection::AddMatrixBufferFloat(std::string name, const MatrixBufferFloat& data )
+void BufferCollection::AddFloat32MatrixBuffer(std::string name, const Float32MatrixBuffer& data )
 {
     mFloatMatrixBuffers[name] = data;
 }
 
-void BufferCollection::AppendVerticalMatrixBufferFloat(std::string name, const MatrixBufferFloat& data )
+void BufferCollection::AppendVerticalFloat32MatrixBuffer(std::string name, const Float32MatrixBuffer& data )
 {
-    if( !HasMatrixBufferFloat(name) )
+    if( !HasFloat32MatrixBuffer(name) )
     {
         mFloatMatrixBuffers[name] = data;
     }
@@ -22,29 +22,29 @@ void BufferCollection::AppendVerticalMatrixBufferFloat(std::string name, const M
     }
 }
 
-const MatrixBufferFloat& BufferCollection::GetMatrixBufferFloat(const std::string& name) const
+const Float32MatrixBuffer& BufferCollection::GetFloat32MatrixBuffer(const std::string& name) const
 {
     return mFloatMatrixBuffers.find(name)->second;
 }
 
-MatrixBufferFloat& BufferCollection::GetMatrixBufferFloat(const std::string& name)
+Float32MatrixBuffer& BufferCollection::GetFloat32MatrixBuffer(const std::string& name)
 {
     return mFloatMatrixBuffers.find(name)->second;
 }
 
-bool BufferCollection::HasMatrixBufferInt(std::string name) const
+bool BufferCollection::HasInt32MatrixBuffer(std::string name) const
 {
     return (mIntMatrixBuffers.find(name) != mIntMatrixBuffers.end());
 }
 
-void BufferCollection::AddMatrixBufferInt(std::string name, const MatrixBufferInt& data )
+void BufferCollection::AddInt32MatrixBuffer(std::string name, const Int32MatrixBuffer& data )
 {
     mIntMatrixBuffers[name] = data;
 }
 
-void BufferCollection::AppendVerticalMatrixBufferInt(std::string name, const MatrixBufferInt& data )
+void BufferCollection::AppendVerticalInt32MatrixBuffer(std::string name, const Int32MatrixBuffer& data )
 {
-    if( !HasMatrixBufferInt(name) )
+    if( !HasInt32MatrixBuffer(name) )
     {
         mIntMatrixBuffers[name] = data;
     }
@@ -54,12 +54,12 @@ void BufferCollection::AppendVerticalMatrixBufferInt(std::string name, const Mat
     }
 }
 
-const MatrixBufferInt& BufferCollection::GetMatrixBufferInt(const std::string& name) const
+const Int32MatrixBuffer& BufferCollection::GetInt32MatrixBuffer(const std::string& name) const
 {
     return mIntMatrixBuffers.find(name)->second;
 }
 
-MatrixBufferInt& BufferCollection::GetMatrixBufferInt(const std::string& name)
+Int32MatrixBuffer& BufferCollection::GetInt32MatrixBuffer(const std::string& name)
 {
     return mIntMatrixBuffers.find(name)->second;
 }

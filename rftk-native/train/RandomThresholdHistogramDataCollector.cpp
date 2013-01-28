@@ -26,15 +26,15 @@ RandomThresholdHistogramDataCollector::~RandomThresholdHistogramDataCollector()
 }
 
 void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& data,
-                                    const MatrixBufferInt& sampleIndices,
-                                    const MatrixBufferFloat& featureValues,
+                                    const Int32MatrixBuffer& sampleIndices,
+                                    const Float32MatrixBuffer& featureValues,
                                     boost::mt19937& gen )
 {
     // printf("RandomThresholdHistogramDataCollector::Collect\n");
 
     ASSERT_ARG_DIM_1D(sampleIndices.GetN(), 1)
     ASSERT_ARG_DIM_1D(sampleIndices.GetM(), featureValues.GetM())
-    ASSERT(data.HasMatrixBufferInt(CLASS_LABELS))
+    ASSERT(data.HasInt32MatrixBuffer(CLASS_LABELS))
 
     boost::bernoulli_distribution<> bernoulli(mProbabilityOfNullStream);
     boost::variate_generator<boost::mt19937&,boost::bernoulli_distribution<> > var_bernoulli(gen, bernoulli);
@@ -47,7 +47,7 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
     const int numberOfFeatures = featureValues.GetN();
 
     // If the random thresholds have not been set
-    if( !mData.HasMatrixBufferFloat(THRESHOLDS) )
+    if( !mData.HasFloat32MatrixBuffer(THRESHOLDS) )
     {
         if( mCandidateThresholds.size() != numberOfFeatures)
         {
@@ -82,7 +82,7 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
         // Use sets to construct thresholds
         if( minSetSize >= mNumberOfThresholds)
         {
-            MatrixBufferFloat thresholds(numberOfFeatures, mNumberOfThresholds);
+            Float32MatrixBuffer thresholds(numberOfFeatures, mNumberOfThresholds);
             for(int f=0; f<mCandidateThresholds.size(); f++)
             {
                 std::set<float>& set =  mCandidateThresholds[f];
@@ -94,11 +94,11 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
             }
             // printf("RandomThresholdHistogramDataCollector::Collect() thresholds\n");
             // thresholds.Print();
-            mData.AddMatrixBufferFloat(THRESHOLDS, thresholds);
+            mData.AddFloat32MatrixBuffer(THRESHOLDS, thresholds);
         }
     }
 
-    if ( mData.HasMatrixBufferFloat(THRESHOLDS) )
+    if ( mData.HasFloat32MatrixBuffer(THRESHOLDS) )
     {
         if( !mData.HasImgBufferFloat(HISTOGRAM_LEFT) )
         {
@@ -112,12 +112,12 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
             mData.AddImgBufferFloat(HISTOGRAM_RIGHT, histogramRight);
         }
 
-        const MatrixBufferInt& classLabels = data.GetMatrixBufferInt(CLASS_LABELS).Slice(sampleIndices);
-        const MatrixBufferFloat& sampleWeights = data.GetMatrixBufferFloat(SAMPLE_WEIGHTS).Slice(sampleIndices);
+        const Int32MatrixBuffer& classLabels = data.GetInt32MatrixBuffer(CLASS_LABELS).Slice(sampleIndices);
+        const Float32MatrixBuffer& sampleWeights = data.GetFloat32MatrixBuffer(SAMPLE_WEIGHTS).Slice(sampleIndices);
 
         ImgBufferFloat& histogramLeft = mData.GetImgBufferFloat(HISTOGRAM_LEFT);
         ImgBufferFloat& histogramRight = mData.GetImgBufferFloat(HISTOGRAM_RIGHT);
-        MatrixBufferFloat& thresholds = mData.GetMatrixBufferFloat(THRESHOLDS);
+        Float32MatrixBuffer& thresholds = mData.GetFloat32MatrixBuffer(THRESHOLDS);
 
         for(int i=0; i<sampleIndices.GetM(); i++)
         {

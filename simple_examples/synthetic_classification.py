@@ -22,8 +22,8 @@ if __name__ == "__main__":
     dist = dist_utils.mog_2d_3class_example1()
     n_per = 1000
 
-    X_train,Y_train = dist.sample(1000)
-    X_test,Y_test = dist.sample(1000)
+    X_train,Y_train = dist.sample(10000)
+    X_test,Y_test = dist.sample(10000)
 
     print datetime.now()
 
@@ -67,10 +67,10 @@ if __name__ == "__main__":
         depth_first_learner = train.DepthFirstParallelForestLearner(train_config)
 
         data = buffers.BufferCollection()
-        data.AddMatrixBufferFloat(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(X_train))
-        data.AddMatrixBufferInt(buffers.CLASS_LABELS, buffer_converters.as_matrix_buffer(Y_train))
+        data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(X_train))
+        data.AddInt32MatrixBuffer(buffers.CLASS_LABELS, buffer_converters.as_matrix_buffer(Y_train))
         sampling_config = train.OfflineSamplingParams(x_m, True)
-        indices = buffer_converters.as_matrix_buffer( np.arange(x_m) )
+        indices = buffer_converters.as_matrix_buffer( np.array(np.arange(x_m), dtype=np.int32) )
         full_forest_data = depth_first_learner.Train(data, indices, sampling_config, number_of_jobs)
         forest = predict_utils.MatrixForestPredictor(full_forest_data)
 

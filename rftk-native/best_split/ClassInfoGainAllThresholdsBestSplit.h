@@ -18,11 +18,11 @@ public:
     virtual int GetYDim() const;
 
     virtual void BestSplits( const BufferCollection& data,
-                            MatrixBufferFloat& impurityOut,
-                            MatrixBufferFloat& thresholdOut,
-                            MatrixBufferFloat& childCountsOut,
-                            MatrixBufferFloat& leftYsOut,
-                            MatrixBufferFloat& rightYsOut) const;
+                            Float32MatrixBuffer& impurityOut,
+                            Float32MatrixBuffer& thresholdOut,
+                            Float32MatrixBuffer& childCountsOut,
+                            Float32MatrixBuffer& leftYsOut,
+                            Float32MatrixBuffer& rightYsOut) const;
 private:
   float mRatioOfThresholdsToTest;
   int mMinNumberThresholdsToTest;

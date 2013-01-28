@@ -13,7 +13,7 @@ public:
     DepthFirstParallelForestLearner( const TrainConfigParams& trainConfigParams );
 
     Forest Train(   BufferCollection& data,
-                    const MatrixBufferInt& indices,
+                    const Int32MatrixBuffer& indices,
                     const OfflineSamplingParams& samplingParams,
                     int numberOfJobs );
 

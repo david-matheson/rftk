@@ -20,7 +20,7 @@
 #include "DepthFirstParallelForestLearner.h"
 
 void TrainTrees(    BufferCollection& data,
-                    const MatrixBufferInt& indices,
+                    const Int32MatrixBuffer& indices,
                     const TrainConfigParams& trainConfigParams,
                     const OfflineSamplingParams& samplingParams,
                     int startIndex,
@@ -28,7 +28,7 @@ void TrainTrees(    BufferCollection& data,
                     Forest* forestOut );
 
 void TrainTree(     BufferCollection& data,
-                    const MatrixBufferInt& indices,
+                    const Int32MatrixBuffer& indices,
                     const TrainConfigParams& trainConfigParams,
                     const OfflineSamplingParams& samplingParams,
                     Tree* treeOut);
@@ -38,7 +38,7 @@ void ProcessNode(   const TrainConfigParams& trainConfigParams,
                     int nodeIndex,
                     int treeDepth,
                     const BufferCollection& data,
-                    const MatrixBufferInt& indices,
+                    const Int32MatrixBuffer& indices,
                     boost::mt19937& gen,
                     Tree* treeOut);
 
@@ -47,7 +47,7 @@ DepthFirstParallelForestLearner::DepthFirstParallelForestLearner( const TrainCon
 {}
 
 Forest DepthFirstParallelForestLearner::Train(  BufferCollection& data,
-                                                const MatrixBufferInt& indices,
+                                                const Int32MatrixBuffer& indices,
                                                 const OfflineSamplingParams& samplingParams,
                                                 int numberOfJobs )
 {
@@ -72,7 +72,7 @@ Forest DepthFirstParallelForestLearner::Train(  BufferCollection& data,
 }
 
 void TrainTrees(    BufferCollection& data,
-                    const MatrixBufferInt& indices,
+                    const Int32MatrixBuffer& indices,
                     const TrainConfigParams& trainConfigParams,
                     const OfflineSamplingParams& samplingParams,
                     int startIndex,
@@ -97,7 +97,7 @@ void TrainTrees(    BufferCollection& data,
 
 
 void TrainTree(     BufferCollection& data,
-                    const MatrixBufferInt& indices,
+                    const Int32MatrixBuffer& indices,
                     const TrainConfigParams& trainConfigParams,
                     const OfflineSamplingParams& samplingParams,
                     Tree* treeOut)
@@ -109,7 +109,7 @@ void TrainTree(     BufferCollection& data,
             samplingParams.mNumberOfSamples,
             samplingParams.mWithReplacement);
 
-    MatrixBufferFloat weights(samplingParams.mNumberOfSamples, 1);
+    Float32MatrixBuffer weights(samplingParams.mNumberOfSamples, 1);
     std::vector<int> sampledIndices;
     for(int i=0; i<counts.size(); i++)
     {
@@ -119,8 +119,8 @@ void TrainTree(     BufferCollection& data,
             sampledIndices.push_back(i);
         }
     }
-    data.AddMatrixBufferFloat(SAMPLE_WEIGHTS, weights);
-    MatrixBufferInt sampledIndicesBuffer(&sampledIndices[0], sampledIndices.size(), 1);
+    data.AddFloat32MatrixBuffer(SAMPLE_WEIGHTS, weights);
+    Int32MatrixBuffer sampledIndicesBuffer(&sampledIndices[0], sampledIndices.size(), 1);
     boost::mt19937 gen( std::time(NULL) );
     ProcessNode(trainConfigParams, 0, 0, data, sampledIndicesBuffer, gen, treeOut);
 }
@@ -130,7 +130,7 @@ void ProcessNode(   const TrainConfigParams& trainConfigParams,
                     int nodeIndex,
                     int treeDepth,
                     const BufferCollection& data,
-                    const MatrixBufferInt& indices,
+                    const Int32MatrixBuffer& indices,
                     boost::mt19937& gen,
                     Tree* treeOut)
 {
@@ -152,8 +152,8 @@ void ProcessNode(   const TrainConfigParams& trainConfigParams,
                                 leftNode, treeOut->mYs,
                                 rightNode, treeOut->mYs);
 
-        MatrixBufferInt leftIndices;
-        MatrixBufferInt rightIndices;
+        Int32MatrixBuffer leftIndices;
+        Int32MatrixBuffer rightIndices;
         activeSplit.SplitIndices(data, indices, leftIndices, rightIndices);
 
         ProcessNode(trainConfigParams, leftNode, treeDepth+1, data, leftIndices, gen, treeOut);

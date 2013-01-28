@@ -43,9 +43,9 @@ int RandomProjectionFeatureExtractor::GetNumberOfFeatures() const
     return numberOfFeatures;
 }
 
-MatrixBufferFloat RandomProjectionFeatureExtractor::CreateFloatParams(const int numberOfFeatures) const
+Float32MatrixBuffer RandomProjectionFeatureExtractor::CreateFloatParams(const int numberOfFeatures) const
 {
-    MatrixBufferFloat floatParams = MatrixBufferFloat(numberOfFeatures, GetFloatParamsDim());
+    Float32MatrixBuffer floatParams = Float32MatrixBuffer(numberOfFeatures, GetFloatParamsDim());
 
     boost::uniform_real<float> uniform(-1.0f, 1.0f);
     boost::variate_generator<boost::mt19937&,boost::uniform_real<float> > var_uniform_float(mGen, uniform);
@@ -61,9 +61,9 @@ MatrixBufferFloat RandomProjectionFeatureExtractor::CreateFloatParams(const int 
     return floatParams;
 }
 
-MatrixBufferInt RandomProjectionFeatureExtractor::CreateIntParams(const int numberOfFeatures) const
+Int32MatrixBuffer RandomProjectionFeatureExtractor::CreateIntParams(const int numberOfFeatures) const
 {
-    MatrixBufferInt intParams = MatrixBufferInt(numberOfFeatures, GetIntParamsDim());
+    Int32MatrixBuffer intParams = Int32MatrixBuffer(numberOfFeatures, GetIntParamsDim());
     for(int i=0; i<numberOfFeatures; i++)
     {
         // intParams[0,:] is reserved for feature type
@@ -87,18 +87,18 @@ int RandomProjectionFeatureExtractor::GetFloatParamsDim() const { return mNumber
 int RandomProjectionFeatureExtractor::GetIntParamsDim() const { return mNumberOfComponentsInSubspace + 2; }
 
 void RandomProjectionFeatureExtractor::Extract(  const BufferCollection& data,
-                                            const MatrixBufferInt& sampleIndices,
-                                            const MatrixBufferInt& intFeatureParams,
-                                            const MatrixBufferFloat& floatFeatureParams,
-                                            MatrixBufferFloat& featureValuesOUT) const// #features X #samples
+                                            const Int32MatrixBuffer& sampleIndices,
+                                            const Int32MatrixBuffer& intFeatureParams,
+                                            const Float32MatrixBuffer& floatFeatureParams,
+                                            Float32MatrixBuffer& featureValuesOUT) const// #features X #samples
 {
     // printf("RandomProjectionFeatureExtractor::Extract\n");
     ASSERT_ARG_DIM_1D(sampleIndices.GetN(), 1)
     ASSERT_ARG_DIM_1D(intFeatureParams.GetM(), floatFeatureParams.GetM())
-    ASSERT( data.HasMatrixBufferFloat(X_FLOAT_DATA) )
-    ASSERT_ARG_DIM_1D(data.GetMatrixBufferFloat(X_FLOAT_DATA).GetN(), mNumberOfComponents)
+    ASSERT( data.HasFloat32MatrixBuffer(X_FLOAT_DATA) )
+    ASSERT_ARG_DIM_1D(data.GetFloat32MatrixBuffer(X_FLOAT_DATA).GetN(), mNumberOfComponents)
 
-    const MatrixBufferFloat& Xs = data.GetMatrixBufferFloat(X_FLOAT_DATA);
+    const Float32MatrixBuffer& Xs = data.GetFloat32MatrixBuffer(X_FLOAT_DATA);
 
     const int numberOfSamples = sampleIndices.GetM();
     const int numberOfFeatures = intFeatureParams.GetM();

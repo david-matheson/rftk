@@ -12,20 +12,20 @@ class TestClassInfoGainAllThresholdsBestSplit(unittest.TestCase):
     def test_class_info_gain_all_thresholds_best_split_1_class(self):   
         data = buffers.BufferCollection()
         #feature matrix is (#features X #samples)
-        data.AddMatrixBufferFloat(buffers.FEATURE_VALUES, 
+        data.AddFloat32MatrixBuffer(buffers.FEATURE_VALUES, 
             buffer_converters.as_matrix_buffer(np.array([[4,0],[3,1],[2,0],[1,1]], dtype=np.float32))) #[4,3,2,1],[0,1,0,1]]
-        data.AddMatrixBufferInt(buffers.CLASS_LABELS,
+        data.AddInt32MatrixBuffer(buffers.CLASS_LABELS,
             buffer_converters.as_matrix_buffer(np.array([0,0,1,1], dtype=np.int32)))
-        data.AddMatrixBufferFloat(buffers.SAMPLE_WEIGHTS, 
+        data.AddFloat32MatrixBuffer(buffers.SAMPLE_WEIGHTS, 
             buffer_converters.as_matrix_buffer(np.array([1,1,1,1], dtype=np.float32)))
 
-        splitter = best_split.ClassInfoGainAllThresholdsBestSplit(1.0, 1, data.GetMatrixBufferInt(buffers.CLASS_LABELS).GetMax()+1 )
+        splitter = best_split.ClassInfoGainAllThresholdsBestSplit(1.0, 1, data.GetInt32MatrixBuffer(buffers.CLASS_LABELS).GetMax()+1 )
 
-        impurity_buffer = buffers.MatrixBufferFloat()
-        threshold_buffer = buffers.MatrixBufferFloat()
-        child_counts_buffer = buffers.MatrixBufferFloat()
-        left_ys_buffer = buffers.MatrixBufferFloat()
-        right_ys_buffer = buffers.MatrixBufferFloat()
+        impurity_buffer = buffers.Float32MatrixBuffer()
+        threshold_buffer = buffers.Float32MatrixBuffer()
+        child_counts_buffer = buffers.Float32MatrixBuffer()
+        left_ys_buffer = buffers.Float32MatrixBuffer()
+        right_ys_buffer = buffers.Float32MatrixBuffer()
         splitter.BestSplits(  data,
                                 impurity_buffer,
                                 threshold_buffer,
@@ -58,22 +58,22 @@ class TestClassInfoGainAllThresholdsBestSplit(unittest.TestCase):
     def test_class_info_gain_all_thresholds_best_split_2_class(self):
         data = buffers.BufferCollection()
         #feature matrix is (#features X #samples)
-        data.AddMatrixBufferFloat(buffers.FEATURE_VALUES, 
+        data.AddFloat32MatrixBuffer(buffers.FEATURE_VALUES, 
             buffer_converters.as_matrix_buffer(np.array([[1,2,-3,4,5,6],
                                                         [0,0,0,1,1,1],
                                                         [1,10,2,11,3,12]], 
                                                         dtype=np.float32)).Transpose())
-        data.AddMatrixBufferInt(buffers.CLASS_LABELS,
+        data.AddInt32MatrixBuffer(buffers.CLASS_LABELS,
             buffer_converters.as_matrix_buffer(np.array([1,1,0,1,0,1], dtype=np.int32)))
-        data.AddMatrixBufferFloat(buffers.SAMPLE_WEIGHTS,
+        data.AddFloat32MatrixBuffer(buffers.SAMPLE_WEIGHTS,
             buffer_converters.as_matrix_buffer(np.array([1,1,1,1,1,1], dtype=np.float32)))
-        splitter = best_split.ClassInfoGainAllThresholdsBestSplit( 1.0, 1, data.GetMatrixBufferInt(buffers.CLASS_LABELS).GetMax()+1)
+        splitter = best_split.ClassInfoGainAllThresholdsBestSplit( 1.0, 1, data.GetInt32MatrixBuffer(buffers.CLASS_LABELS).GetMax()+1)
 
-        impurity_buffer = buffers.MatrixBufferFloat()
-        threshold_buffer = buffers.MatrixBufferFloat()
-        child_counts_buffer = buffers.MatrixBufferFloat()
-        left_ys_buffer = buffers.MatrixBufferFloat()
-        right_ys_buffer = buffers.MatrixBufferFloat()
+        impurity_buffer = buffers.Float32MatrixBuffer()
+        threshold_buffer = buffers.Float32MatrixBuffer()
+        child_counts_buffer = buffers.Float32MatrixBuffer()
+        left_ys_buffer = buffers.Float32MatrixBuffer()
+        right_ys_buffer = buffers.Float32MatrixBuffer()
         splitter.BestSplits(  data,
                                 impurity_buffer,
                                 threshold_buffer,

@@ -44,12 +44,10 @@
 %include "MatrixBuffer.h"
 %include "BufferCollection.h"
 
-%template(Float32MatrixBufferClass) MatrixBufferTemplate<float>;
-%template(Float64MatrixBufferClass) MatrixBufferTemplate<double>;
-%template(Int32MatrixBufferClass) MatrixBufferTemplate<int>;
-%template(Int64MatrixBufferClass) MatrixBufferTemplate<long long>;
+%template(Float32MatrixBuffer) MatrixBufferTemplate<float>;
+%template(Float64MatrixBuffer) MatrixBufferTemplate<double>;
+%template(Int32MatrixBuffer) MatrixBufferTemplate<int>;
+%template(Int64MatrixBuffer) MatrixBufferTemplate<long long>;
 
-%template(MatrixBufferFloat) MatrixBufferTemplate<float>;
-%template(MatrixBufferInt) MatrixBufferTemplate<int>;
 
 

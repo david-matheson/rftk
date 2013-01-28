@@ -45,8 +45,8 @@ class TestPredictWithAxisAligned(unittest.TestCase):
 
         x = buffer_converters.as_matrix_buffer(np.array([[4.0,0.0]], dtype=np.float32))
         buffer_collection = buffers.BufferCollection()
-        buffer_collection.AddMatrixBufferFloat(buffers.X_FLOAT_DATA, x)
-        leaf_node_ids = buffers.MatrixBufferInt()
+        buffer_collection.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, x)
+        leaf_node_ids = buffers.Int32MatrixBuffer()
         forest_predict.PredictLeafs(buffer_collection, 1, leaf_node_ids)
 
         self.assertEqual(leaf_node_ids.Get(0,0), 3)
@@ -58,8 +58,8 @@ class TestPredictWithAxisAligned(unittest.TestCase):
 
         x = buffer_converters.as_matrix_buffer(np.array([[4.0,0.0]], dtype=np.float32))
         buffer_collection = buffers.BufferCollection()
-        buffer_collection.AddMatrixBufferFloat(buffers.X_FLOAT_DATA, x)
-        ys = buffers.MatrixBufferFloat()
+        buffer_collection.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, x)
+        ys = buffers.Float32MatrixBuffer()
         forest_predict.PredictYs(buffer_collection, 1, ys)
 
 

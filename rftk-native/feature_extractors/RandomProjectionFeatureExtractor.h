@@ -22,17 +22,17 @@ public:
     virtual int GetUID() const { return VEC_FEATURE_PROJECTION; }
 
     virtual int GetNumberOfFeatures() const;
-    virtual MatrixBufferFloat CreateFloatParams(const int numberOfFeatures) const;
-    virtual MatrixBufferInt CreateIntParams(const int numberOfFeatures) const;
+    virtual Float32MatrixBuffer CreateFloatParams(const int numberOfFeatures) const;
+    virtual Int32MatrixBuffer CreateIntParams(const int numberOfFeatures) const;
 
     virtual int GetFloatParamsDim() const;
     virtual int GetIntParamsDim() const;
 
     virtual void Extract( const BufferCollection& data,
-                            const MatrixBufferInt& sampleIndices,
-                            const MatrixBufferInt& intFeatureParams,
-                            const MatrixBufferFloat& floatFeatureParams,
-                            MatrixBufferFloat& featureValuesOUT) const; // #tests X #samples
+                            const Int32MatrixBuffer& sampleIndices,
+                            const Int32MatrixBuffer& intFeatureParams,
+                            const Float32MatrixBuffer& floatFeatureParams,
+                            Float32MatrixBuffer& featureValuesOUT) const; // #tests X #samples
 
 private:
     int mNumberOfFeatures;

@@ -59,19 +59,19 @@ ClassInfoGainHistogramsBestSplit::~ClassInfoGainHistogramsBestSplit()
 
 
 void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& data,
-                                                        MatrixBufferFloat& impurityOut,
-                                                        MatrixBufferFloat& thresholdOut,
-                                                        MatrixBufferFloat& childCountsOut,
-                                                        MatrixBufferFloat& leftYsOut,
-                                                        MatrixBufferFloat& rightYsOut) const
+                                                        Float32MatrixBuffer& impurityOut,
+                                                        Float32MatrixBuffer& thresholdOut,
+                                                        Float32MatrixBuffer& childCountsOut,
+                                                        Float32MatrixBuffer& leftYsOut,
+                                                        Float32MatrixBuffer& rightYsOut) const
 {
     ASSERT( data.HasImgBufferFloat(HISTOGRAM_LEFT) )
     ASSERT( data.HasImgBufferFloat(HISTOGRAM_RIGHT) )
-    ASSERT( data.HasMatrixBufferFloat(THRESHOLDS) )
+    ASSERT( data.HasFloat32MatrixBuffer(THRESHOLDS) )
 
     const ImgBufferFloat& histogramLeft = data.GetImgBufferFloat(HISTOGRAM_LEFT);
     const ImgBufferFloat& histogramRight = data.GetImgBufferFloat(HISTOGRAM_RIGHT);
-    const MatrixBufferFloat& thresholds = data.GetMatrixBufferFloat(THRESHOLDS);
+    const Float32MatrixBuffer& thresholds = data.GetFloat32MatrixBuffer(THRESHOLDS);
 
     ASSERT_ARG_DIM_3D(  histogramLeft.GetNumberOfImgs(), histogramLeft.GetM(), histogramLeft.GetN(),
                         histogramRight.GetNumberOfImgs(), histogramRight.GetM(), histogramRight.GetN() )
@@ -82,23 +82,23 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& dat
     // Create new results buffer if they're not the right dimensions
     if( impurityOut.GetM() != numberOfFeatures || impurityOut.GetN() != 1 )
     {
-        impurityOut = MatrixBufferFloat(numberOfFeatures, 1);
+        impurityOut = Float32MatrixBuffer(numberOfFeatures, 1);
     }
     if( thresholdOut.GetM() != numberOfFeatures || thresholdOut.GetN() != 1 )
     {
-        thresholdOut = MatrixBufferFloat(numberOfFeatures, 1);
+        thresholdOut = Float32MatrixBuffer(numberOfFeatures, 1);
     }
     if( childCountsOut.GetM() != numberOfFeatures || childCountsOut.GetN() != 1 )
     {
-        childCountsOut = MatrixBufferFloat(numberOfFeatures, 2);
+        childCountsOut = Float32MatrixBuffer(numberOfFeatures, 2);
     }
     if( leftYsOut.GetM() != numberOfFeatures || leftYsOut.GetN() != mNumberOfClasses )
     {
-        leftYsOut = MatrixBufferFloat(numberOfFeatures, mNumberOfClasses);
+        leftYsOut = Float32MatrixBuffer(numberOfFeatures, mNumberOfClasses);
     }
     if( rightYsOut.GetM() != numberOfFeatures || rightYsOut.GetN() != mNumberOfClasses )
     {
-        rightYsOut = MatrixBufferFloat(numberOfFeatures, mNumberOfClasses);
+        rightYsOut = Float32MatrixBuffer(numberOfFeatures, mNumberOfClasses);
     }
 
     std::vector<float> initialClassLabelCounts(mNumberOfClasses);

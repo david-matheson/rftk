@@ -19,17 +19,17 @@
 class BufferCollection
 {
 public:
-    bool HasMatrixBufferFloat(std::string name) const;
-    void AddMatrixBufferFloat(std::string name, const MatrixBufferFloat& data );
-    void AppendVerticalMatrixBufferFloat(std::string name, const MatrixBufferFloat& data );
-    const MatrixBufferFloat& GetMatrixBufferFloat(const std::string& name) const;
-    MatrixBufferFloat& GetMatrixBufferFloat(const std::string& name);
+    bool HasFloat32MatrixBuffer(std::string name) const;
+    void AddFloat32MatrixBuffer(std::string name, const Float32MatrixBuffer& data );
+    void AppendVerticalFloat32MatrixBuffer(std::string name, const Float32MatrixBuffer& data );
+    const Float32MatrixBuffer& GetFloat32MatrixBuffer(const std::string& name) const;
+    Float32MatrixBuffer& GetFloat32MatrixBuffer(const std::string& name);
 
-    bool HasMatrixBufferInt(std::string name) const;
-    void AddMatrixBufferInt(std::string name, const MatrixBufferInt& data );
-    void AppendVerticalMatrixBufferInt(std::string name, const MatrixBufferInt& data );
-    const MatrixBufferInt& GetMatrixBufferInt(const std::string& name) const;
-    MatrixBufferInt& GetMatrixBufferInt(const std::string& name);
+    bool HasInt32MatrixBuffer(std::string name) const;
+    void AddInt32MatrixBuffer(std::string name, const Int32MatrixBuffer& data );
+    void AppendVerticalInt32MatrixBuffer(std::string name, const Int32MatrixBuffer& data );
+    const Int32MatrixBuffer& GetInt32MatrixBuffer(const std::string& name) const;
+    Int32MatrixBuffer& GetInt32MatrixBuffer(const std::string& name);
 
     bool HasImgBufferFloat(std::string name) const;
     void AddImgBufferFloat(std::string name, const ImgBufferFloat& data );
@@ -42,8 +42,8 @@ public:
     ImgBufferInt& GetImgBufferInt(std::string name);
 
 private:
-    std::map<std::string, MatrixBufferFloat> mFloatMatrixBuffers;
-    std::map<std::string, MatrixBufferInt> mIntMatrixBuffers;
+    std::map<std::string, Float32MatrixBuffer> mFloatMatrixBuffers;
+    std::map<std::string, Int32MatrixBuffer> mIntMatrixBuffers;
     std::map<std::string, ImgBufferFloat> mFloatImgBuffers;
     std::map<std::string, ImgBufferInt> mIntImgBuffers;
 };

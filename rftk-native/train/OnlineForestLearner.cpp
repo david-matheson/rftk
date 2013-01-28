@@ -20,7 +20,7 @@ OnlineForestLearner::OnlineForestLearner( const TrainConfigParams& trainConfigPa
 
 Forest OnlineForestLearner::GetForest() const { return mForest; }
 
-void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, OnlineSamplingParams samplingParams )
+void OnlineForestLearner::Train(BufferCollection data, Int32MatrixBuffer indices, OnlineSamplingParams samplingParams )
 {
     boost::mt19937 gen( std::time(NULL) );
     boost::poisson_distribution<> poisson(1.0);
@@ -31,7 +31,7 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, 
     {
         printf("OnlineForestLearner::Train tree=%d\n", treeIndex);
 
-        MatrixBufferFloat weights(indices.GetM(),1);
+        Float32MatrixBuffer weights(indices.GetM(),1);
         if( samplingParams.mUsePoisson )
         {
             for(int i=0; i<weights.GetM(); i++)
@@ -44,7 +44,7 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, 
         {
             weights.SetAll(1.0f);
         }
-        data.AddMatrixBufferFloat(SAMPLE_WEIGHTS, weights);
+        data.AddFloat32MatrixBuffer(SAMPLE_WEIGHTS, weights);
 
         // Iterate over each sample (this cannot be farmed out to different threads)
         Tree& tree = mForest.mTrees[treeIndex];
@@ -58,7 +58,7 @@ void OnlineForestLearner::Train(BufferCollection data, MatrixBufferInt indices, 
             int treeDepth = 0;
             const int nodeIndex = walkTree( tree, 0, data, sampleIndex, treeDepth );
 
-            MatrixBufferInt singleIndex(1,1);
+            Int32MatrixBuffer singleIndex(1,1);
             singleIndex.Set(0,0, indices.Get(sampleIndex, 0));
 
             std::pair<int,int> treeNodeKey = std::make_pair(treeIndex, nodeIndex);

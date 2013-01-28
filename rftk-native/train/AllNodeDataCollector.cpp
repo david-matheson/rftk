@@ -11,25 +11,25 @@ AllNodeDataCollector::~AllNodeDataCollector()
 }
 
 void AllNodeDataCollector::Collect( const BufferCollection& data,
-                                    const MatrixBufferInt& sampleIndices,
-                                    const MatrixBufferFloat& featureValues,
+                                    const Int32MatrixBuffer& sampleIndices,
+                                    const Float32MatrixBuffer& featureValues,
                                     boost::mt19937& gen )
 {
     ASSERT_ARG_DIM_1D(sampleIndices.GetN(), 1)
     ASSERT_ARG_DIM_1D(sampleIndices.GetM(), featureValues.GetM())
 
-    mData.AppendVerticalMatrixBufferFloat(FEATURE_VALUES, featureValues);
+    mData.AppendVerticalFloat32MatrixBuffer(FEATURE_VALUES, featureValues);
 
-    if( data.HasMatrixBufferFloat(SAMPLE_WEIGHTS) )
+    if( data.HasFloat32MatrixBuffer(SAMPLE_WEIGHTS) )
     {
-        const MatrixBufferFloat& sampleWeights = data.GetMatrixBufferFloat(SAMPLE_WEIGHTS).Slice(sampleIndices);
-        mData.AppendVerticalMatrixBufferFloat(SAMPLE_WEIGHTS, sampleWeights);
+        const Float32MatrixBuffer& sampleWeights = data.GetFloat32MatrixBuffer(SAMPLE_WEIGHTS).Slice(sampleIndices);
+        mData.AppendVerticalFloat32MatrixBuffer(SAMPLE_WEIGHTS, sampleWeights);
     }
 
-    if( data.HasMatrixBufferInt(CLASS_LABELS) )
+    if( data.HasInt32MatrixBuffer(CLASS_LABELS) )
     {
-        const MatrixBufferInt& classLabels = data.GetMatrixBufferInt(CLASS_LABELS).Slice(sampleIndices);
-        mData.AppendVerticalMatrixBufferInt(CLASS_LABELS, classLabels);
+        const Int32MatrixBuffer& classLabels = data.GetInt32MatrixBuffer(CLASS_LABELS).Slice(sampleIndices);
+        mData.AppendVerticalInt32MatrixBuffer(CLASS_LABELS, classLabels);
     }
 }
 
@@ -40,7 +40,7 @@ const BufferCollection& AllNodeDataCollector::GetCollectedData()
 
 int AllNodeDataCollector::GetNumberOfCollectedSamples()
 {
-    return mData.GetMatrixBufferFloat(FEATURE_VALUES).GetM();
+    return mData.GetFloat32MatrixBuffer(FEATURE_VALUES).GetM();
 }
 
 

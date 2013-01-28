@@ -11,23 +11,23 @@ ForestPredictor::ForestPredictor( const Forest& forest )
 : mForest(forest)
 {}
 
-void ForestPredictor::PredictLeafs(BufferCollection& data,  const int numberOfindices, MatrixBufferInt& leafsOut)
+void ForestPredictor::PredictLeafs(BufferCollection& data,  const int numberOfindices, Int32MatrixBuffer& leafsOut)
 {
     ForestPredictLeafs(mForest, data, numberOfindices, leafsOut);
 }
 
-void ForestPredictor::PredictYs(BufferCollection& data,  const int numberOfindices, MatrixBufferFloat& ysOut)
+void ForestPredictor::PredictYs(BufferCollection& data,  const int numberOfindices, Float32MatrixBuffer& ysOut)
 {
     return ForestPredictYs(mForest, data, numberOfindices, ysOut);
 }
 
-void ForestPredictLeafs(const Forest& forest, BufferCollection& data, const int numberOfindices, MatrixBufferInt& leafsOut)
+void ForestPredictLeafs(const Forest& forest, BufferCollection& data, const int numberOfindices, Int32MatrixBuffer& leafsOut)
 {
     const int numberOfTreesInForest = forest.mTrees.size();
     // Create new results buffer if it's not the right dimensions
     if( leafsOut.GetM() != numberOfindices || leafsOut.GetN() != numberOfTreesInForest )
     {
-        leafsOut = MatrixBufferInt(numberOfindices, numberOfTreesInForest);
+        leafsOut = Int32MatrixBuffer(numberOfindices, numberOfTreesInForest);
     }
 
     for(int i=0; i<numberOfindices; i++)
@@ -41,14 +41,14 @@ void ForestPredictLeafs(const Forest& forest, BufferCollection& data, const int 
     }
 }
 
-void ForestPredictYs(const Forest& forest, BufferCollection& data, const int numberOfindices, MatrixBufferFloat& ysOut)
+void ForestPredictYs(const Forest& forest, BufferCollection& data, const int numberOfindices, Float32MatrixBuffer& ysOut)
 {
     // Create new results buffer if it's not the right dimensions
     const int numberOfTreesInForest = forest.mTrees.size();
     const int yDim = forest.mTrees[0].mYs.GetN();
     if( ysOut.GetM() != numberOfindices || ysOut.GetN() != yDim )
     {
-        ysOut = MatrixBufferFloat(numberOfindices, yDim);
+        ysOut = Float32MatrixBuffer(numberOfindices, yDim);
     }
     // Reset predictions if the buffer is being reused
     ysOut.Zero();
@@ -56,7 +56,7 @@ void ForestPredictYs(const Forest& forest, BufferCollection& data, const int num
 
     // Create a temp buffer for leaf node id (this requires all leaf node ids to be stored in memory)
     // If the number of indices (ie number of rows in x) is to large this might be an issue
-    MatrixBufferInt leafNodeIds = MatrixBufferInt(numberOfindices, forest.mTrees.size());
+    Int32MatrixBuffer leafNodeIds = Int32MatrixBuffer(numberOfindices, forest.mTrees.size());
     ForestPredictLeafs(forest, data, numberOfindices, leafNodeIds);
 
     float invNumberTrees = 1.0 / static_cast<float>(numberOfTreesInForest);
@@ -100,16 +100,16 @@ int nextChild( const Tree& tree, int nodeId, BufferCollection& data, const int i
     {
         case VEC_FEATURE_AXIS_ALIGNED:
         {
-            ASSERT( data.HasMatrixBufferFloat(X_FLOAT_DATA) )
-            const MatrixBufferFloat& xs = data.GetMatrixBufferFloat(X_FLOAT_DATA);
+            ASSERT( data.HasFloat32MatrixBuffer(X_FLOAT_DATA) )
+            const Float32MatrixBuffer& xs = data.GetFloat32MatrixBuffer(X_FLOAT_DATA);
             int component = tree.mIntFeatureParams.Get(nodeId, 1);
             testResult = xs.Get(index, component) > threshold;
             break;
         }
         case VEC_FEATURE_PROJECTION:
         {
-            ASSERT( data.HasMatrixBufferFloat(X_FLOAT_DATA) )
-            const MatrixBufferFloat& xs = data.GetMatrixBufferFloat(X_FLOAT_DATA);
+            ASSERT( data.HasFloat32MatrixBuffer(X_FLOAT_DATA) )
+            const Float32MatrixBuffer& xs = data.GetFloat32MatrixBuffer(X_FLOAT_DATA);
 
             float projectionValue = 0.0f;
             const int numberOfComponentsInProjection = tree.mIntFeatureParams.Get(nodeId, 1);

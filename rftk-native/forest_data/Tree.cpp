@@ -2,11 +2,11 @@
 
 #include "Tree.h"
 
-Tree::Tree( const MatrixBufferInt& path,
-            const MatrixBufferInt& intFeatureParams,
-            const MatrixBufferFloat& floatFeatureParams,
-            const MatrixBufferInt& depths,
-            const MatrixBufferFloat& ys )
+Tree::Tree( const Int32MatrixBuffer& path,
+            const Int32MatrixBuffer& intFeatureParams,
+            const Float32MatrixBuffer& floatFeatureParams,
+            const Int32MatrixBuffer& depths,
+            const Float32MatrixBuffer& ys )
 : mPath(path)
 , mIntFeatureParams(intFeatureParams)
 , mFloatFeatureParams(floatFeatureParams)

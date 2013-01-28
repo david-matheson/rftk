@@ -60,24 +60,24 @@ class TestBufferConverters(unittest.TestCase):
 
     def test_matrix_buffer(self):
         X = np.array([[3,21,1],[22,1,5]], dtype=np.int32 )
-        self.convert_matrix_buffer_both_directions_helper(X=X, buffer_type=buffers.MatrixBufferInt)
+        self.convert_matrix_buffer_both_directions_helper(X=X, buffer_type=buffers.Int32MatrixBuffer)
         X = np.array([[3,21,1],[22,1,5]], dtype=np.int )
-        self.convert_matrix_buffer_both_directions_helper(X=X, buffer_type=buffers.MatrixBufferInt)
+        self.convert_matrix_buffer_both_directions_helper(X=X, buffer_type=buffers.Int64MatrixBuffer)
         X = np.array([[3,21,1],[22,1,5]], dtype=np.float32 )
-        self.convert_matrix_buffer_both_directions_helper(X=X, buffer_type=buffers.MatrixBufferFloat)
+        self.convert_matrix_buffer_both_directions_helper(X=X, buffer_type=buffers.Float32MatrixBuffer)
         X = np.array([[3,21,1],[22,1,5]], dtype=np.float )
-        self.convert_matrix_buffer_both_directions_helper(X=X, buffer_type=buffers.MatrixBufferFloat)
+        self.convert_matrix_buffer_both_directions_helper(X=X, buffer_type=buffers.Float64MatrixBuffer)
 
 
     def test_matrix_buffer_flatten(self):
         X = np.array([22,1,5], dtype=np.int32 )
-        self.matrix_buffer_flatten_helper(X=X, buffer_type=buffers.MatrixBufferInt)
+        self.matrix_buffer_flatten_helper(X=X, buffer_type=buffers.Int32MatrixBuffer)
         X_64 = np.array([22,1,5], dtype=np.int )
-        self.matrix_buffer_flatten_helper(X=X_64, buffer_type=buffers.MatrixBufferInt)
+        self.matrix_buffer_flatten_helper(X=X_64, buffer_type=buffers.Int64MatrixBuffer)
         X = np.array([22,1,5], dtype=np.float32 )
-        self.matrix_buffer_flatten_helper(X=X, buffer_type=buffers.MatrixBufferFloat)
+        self.matrix_buffer_flatten_helper(X=X, buffer_type=buffers.Float32MatrixBuffer)
         X_64 = np.array([22,1,5], dtype=np.float )
-        self.matrix_buffer_flatten_helper(X=X_64, buffer_type=buffers.MatrixBufferFloat)
+        self.matrix_buffer_flatten_helper(X=X_64, buffer_type=buffers.Float64MatrixBuffer)
 
 
 

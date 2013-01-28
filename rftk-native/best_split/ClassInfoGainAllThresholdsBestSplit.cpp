@@ -57,19 +57,19 @@ ClassInfoGainAllThresholdsBestSplit::~ClassInfoGainAllThresholdsBestSplit()
 
 
 void ClassInfoGainAllThresholdsBestSplit::BestSplits(   const BufferCollection& data,
-                                                        MatrixBufferFloat& impurityOut,
-                                                        MatrixBufferFloat& thresholdOut,
-                                                        MatrixBufferFloat& childCountsOut,
-                                                        MatrixBufferFloat& leftYsOut,
-                                                        MatrixBufferFloat& rightYsOut) const
+                                                        Float32MatrixBuffer& impurityOut,
+                                                        Float32MatrixBuffer& thresholdOut,
+                                                        Float32MatrixBuffer& childCountsOut,
+                                                        Float32MatrixBuffer& leftYsOut,
+                                                        Float32MatrixBuffer& rightYsOut) const
 {
-    ASSERT( data.HasMatrixBufferInt(CLASS_LABELS) )
-    ASSERT( data.HasMatrixBufferFloat(SAMPLE_WEIGHTS) )
-    ASSERT( data.HasMatrixBufferFloat(FEATURE_VALUES) )
+    ASSERT( data.HasInt32MatrixBuffer(CLASS_LABELS) )
+    ASSERT( data.HasFloat32MatrixBuffer(SAMPLE_WEIGHTS) )
+    ASSERT( data.HasFloat32MatrixBuffer(FEATURE_VALUES) )
 
-    const MatrixBufferInt& classLabels = data.GetMatrixBufferInt(CLASS_LABELS);
-    const MatrixBufferFloat& sampleWeights = data.GetMatrixBufferFloat(SAMPLE_WEIGHTS);
-    const MatrixBufferFloat& featureValues = data.GetMatrixBufferFloat(FEATURE_VALUES).Transpose();
+    const Int32MatrixBuffer& classLabels = data.GetInt32MatrixBuffer(CLASS_LABELS);
+    const Float32MatrixBuffer& sampleWeights = data.GetFloat32MatrixBuffer(SAMPLE_WEIGHTS);
+    const Float32MatrixBuffer& featureValues = data.GetFloat32MatrixBuffer(FEATURE_VALUES).Transpose();
 
     ASSERT_ARG_DIM_1D(classLabels.GetN(), 1)
     ASSERT_ARG_DIM_1D(sampleWeights.GetN(), 1)
@@ -82,23 +82,23 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   const BufferCollection& 
     // Create new results buffer if they're not the right dimensions
     if( impurityOut.GetM() != numberOfFeatures || impurityOut.GetN() != 1 )
     {
-        impurityOut = MatrixBufferFloat(numberOfFeatures, 1);
+        impurityOut = Float32MatrixBuffer(numberOfFeatures, 1);
     }
     if( thresholdOut.GetM() != numberOfFeatures || thresholdOut.GetN() != 1 )
     {
-        thresholdOut = MatrixBufferFloat(numberOfFeatures, 1);
+        thresholdOut = Float32MatrixBuffer(numberOfFeatures, 1);
     }
     if( childCountsOut.GetM() != numberOfFeatures || childCountsOut.GetN() != 1 )
     {
-        childCountsOut = MatrixBufferFloat(numberOfFeatures, 2);
+        childCountsOut = Float32MatrixBuffer(numberOfFeatures, 2);
     }
     if( leftYsOut.GetM() != numberOfFeatures || leftYsOut.GetN() != mNumberOfClasses )
     {
-        leftYsOut = MatrixBufferFloat(numberOfFeatures, mNumberOfClasses);
+        leftYsOut = Float32MatrixBuffer(numberOfFeatures, mNumberOfClasses);
     }
     if( rightYsOut.GetM() != numberOfFeatures || rightYsOut.GetN() != mNumberOfClasses )
     {
-        rightYsOut = MatrixBufferFloat(numberOfFeatures, mNumberOfClasses);
+        rightYsOut = Float32MatrixBuffer(numberOfFeatures, mNumberOfClasses);
     }
 
     // Initial class histogram and total class weights

@@ -9,18 +9,18 @@ public:
     : mLastNodeIndex(0)
     , mValid(false) {}
 
-    Tree(   const MatrixBufferInt& path,
-            const MatrixBufferInt& intFeatureParams,
-            const MatrixBufferFloat& floatFeatureParams,
-            const MatrixBufferInt& depths,
-            const MatrixBufferFloat& ys );
+    Tree(   const Int32MatrixBuffer& path,
+            const Int32MatrixBuffer& intFeatureParams,
+            const Float32MatrixBuffer& floatFeatureParams,
+            const Int32MatrixBuffer& depths,
+            const Float32MatrixBuffer& ys );
     Tree( int maxNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim );
 
-    MatrixBufferInt mPath;
-    MatrixBufferInt mIntFeatureParams;
-    MatrixBufferFloat mFloatFeatureParams;
-    MatrixBufferInt mDepths;
-    MatrixBufferFloat mYs;
+    Int32MatrixBuffer mPath;
+    Int32MatrixBuffer mIntFeatureParams;
+    Float32MatrixBuffer mFloatFeatureParams;
+    Int32MatrixBuffer mDepths;
+    Float32MatrixBuffer mYs;
     int mLastNodeIndex;
     bool mValid;
 };

@@ -66,9 +66,9 @@ if __name__ == "__main__":
         (x_m,_) = X_train.shape
 
         data = buffers.BufferCollection()
-        data.AddMatrixBufferFloat(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(X_train))
-        data.AddMatrixBufferInt(buffers.CLASS_LABELS, buffer_converters.as_matrix_buffer(Y_train))
-        indices = buffer_converters.as_matrix_buffer( np.arange(x_m) )
+        data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(X_train))
+        data.AddInt32MatrixBuffer(buffers.CLASS_LABELS, buffer_converters.as_matrix_buffer(Y_train))
+        indices = buffer_converters.as_matrix_buffer( np.array(np.arange(x_m), dtype=np.int32) )
         online_learner.Train(data, indices, sampling_config)
         predict_forest = predict_utils.MatrixForestPredictor(online_learner.GetForest())
 

@@ -1,9 +1,6 @@
 #pragma once
 
 #include <vector>
-#include "MatrixBufferTemplate.h"
-
-#include <vector>
 #include <limits>
 #include <iostream>
 
@@ -302,22 +299,14 @@ typedef MatrixBufferTemplate<double> Float64MatrixBuffer;
 typedef MatrixBufferTemplate<int> Int32MatrixBuffer;
 typedef MatrixBufferTemplate<long long> Int64MatrixBuffer;
 
-Float32MatrixBuffer Float32Matrix(float* float2d, int m, int n);
+Float32MatrixBuffer Float32Matrix(double* double2d, int m, int n);
 Float64MatrixBuffer Float64Matrix(double* double2d, int m, int n);
 Int32MatrixBuffer Int32Matrix(int* int2d, int m, int n);
 Int64MatrixBuffer Int64Matrix(long long* long2d, int m, int n);
 
-typedef MatrixBufferTemplate<float> MatrixBufferFloat;
-typedef MatrixBufferTemplate<int> MatrixBufferInt;
+Float32MatrixBuffer vecBufferFloat(float* float1d, int m);
+Float64MatrixBuffer vecBufferFloat64(double* double1d, int m);
+Int32MatrixBuffer vecBufferInt(int* int1d, int m);
+Int64MatrixBuffer vecBufferInt64(long long* long1d, int m);
 
-
-MatrixBufferFloat vecBufferFloat(float* float1d, int m);
-MatrixBufferFloat vecBufferFloat64(double* double1d, int m);
-MatrixBufferInt vecBufferInt(int* int1d, int m);
-MatrixBufferInt vecBufferInt64(long long* long1d, int m);
-
-MatrixBufferFloat matrixBufferFloat(float* float2d, int m, int n);
-MatrixBufferFloat matrixBufferFloat64(double* double2d, int m, int n);
-MatrixBufferInt matrixBufferInt(int* int2d, int m, int n);
-MatrixBufferInt matrixBufferInt64(long long* long2d, int m, int n);
 

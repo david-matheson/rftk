@@ -17,8 +17,8 @@ public:
 
     // Also copies/compacts weights, ys, etc
     virtual void Collect( const BufferCollection& data,
-                          const MatrixBufferInt& sampleIndices,
-                          const MatrixBufferFloat& featureValues,
+                          const Int32MatrixBuffer& sampleIndices,
+                          const Float32MatrixBuffer& featureValues,
                           boost::mt19937& gen);
 
     // Includes feature values, weights, ys, etc

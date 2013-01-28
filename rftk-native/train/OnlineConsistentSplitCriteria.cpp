@@ -25,8 +25,8 @@ SplitCriteriaI* OnlineConsistentSplitCriteria::Clone() const
 }
 
 SPLT_CRITERIA OnlineConsistentSplitCriteria::ShouldSplit(int treeDepth,
-                                                const MatrixBufferFloat& impurityValues,
-                                                const MatrixBufferFloat& childCounts) const
+                                                const Float32MatrixBuffer& impurityValues,
+                                                const Float32MatrixBuffer& childCounts) const
 {
     ASSERT_ARG_DIM_1D(impurityValues.GetM(), childCounts.GetM())
     ASSERT_ARG_DIM_1D(impurityValues.GetN(), 1)
@@ -42,8 +42,8 @@ SPLT_CRITERIA OnlineConsistentSplitCriteria::ShouldSplit(int treeDepth,
 }
 
 int OnlineConsistentSplitCriteria::BestSplit(int treeDepth,
-                                    const MatrixBufferFloat& impurityValues,
-                                    const MatrixBufferFloat& childCounts ) const
+                                    const Float32MatrixBuffer& impurityValues,
+                                    const Float32MatrixBuffer& childCounts ) const
 {
     ASSERT_ARG_DIM_1D(impurityValues.GetM(), childCounts.GetM())
     ASSERT_ARG_DIM_1D(impurityValues.GetN(), 1)

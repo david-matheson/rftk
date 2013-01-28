@@ -8,15 +8,15 @@ public:
     virtual FeatureExtractorI* Clone() const=0;
 
     virtual void Extract(const BufferCollection& data,
-                        const MatrixBufferInt& sampleIndices,
-                        const MatrixBufferInt& intFeatureParams,
-                        const MatrixBufferFloat& floatFeatureParams,
-                        MatrixBufferFloat& featureValuesOUT ) const=0;// #tests X #samples
+                        const Int32MatrixBuffer& sampleIndices,
+                        const Int32MatrixBuffer& intFeatureParams,
+                        const Float32MatrixBuffer& floatFeatureParams,
+                        Float32MatrixBuffer& featureValuesOUT ) const=0;// #tests X #samples
 
     virtual int GetUID() const=0;
     virtual int GetNumberOfFeatures() const=0;
-    virtual MatrixBufferFloat CreateFloatParams(const int numberOfFeatures) const=0;
-    virtual MatrixBufferInt CreateIntParams(const int numberOfFeatures) const=0;
+    virtual Float32MatrixBuffer CreateFloatParams(const int numberOfFeatures) const=0;
+    virtual Int32MatrixBuffer CreateIntParams(const int numberOfFeatures) const=0;
 
     virtual int GetFloatParamsDim() const=0;
     virtual int GetIntParamsDim() const=0;
