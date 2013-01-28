@@ -28,7 +28,7 @@ class my_install(install):
 if sys.platform == 'linux2':
     _buffers = Extension("_buffers",
                        ["buffers.i",
-                       "ImgBuffer.cpp",
+                       "Tensor3Buffer.cpp",
                        "MatrixBuffer.cpp",
                        "BufferCollection.cpp"],
                        swig_opts=["-c++", "-I../assert_util"],
@@ -39,7 +39,7 @@ if sys.platform == 'linux2':
 elif sys.platform == 'darwin':
     _buffers = Extension("_buffers",
                        ["buffers.i",
-                       "ImgBuffer.cpp",
+                       "Tensor3Buffer.cpp",
                        "MatrixBuffer.cpp",
                        "BufferCollection.cpp"],
                        swig_opts=["-c++", "-I../assert_util"],

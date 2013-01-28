@@ -10,39 +10,39 @@ class TestBufferCollectoin(unittest.TestCase):
     def test_img_float(self):
         collection = buffers.BufferCollection()
 
-        self.assertEqual(collection.HasImgBufferFloat("first"), False)
+        self.assertEqual(collection.HasFloat32Tensor3Buffer("first"), False)
         data_1 = np.array([[[3,21,1],[22,1,5]],[[2,3,4],[7,7,7]]], dtype=np.float32 )
-        collection.AddImgBufferFloat("first", buffers.imgsBufferFloat( data_1 ))
-        self.assertEqual(collection.HasImgBufferFloat("first"), True)
+        collection.AddFloat32Tensor3Buffer("first", buffers.Float32Tensor3( data_1 ))
+        self.assertEqual(collection.HasFloat32Tensor3Buffer("first"), True)
 
-        self.assertEqual(collection.HasImgBufferFloat("second"), False)
+        self.assertEqual(collection.HasFloat32Tensor3Buffer("second"), False)
         data_2 = np.array([[[3,21,1],[22,1,5]]], dtype=np.float32 )
-        collection.AddImgBufferFloat("second", buffers.imgsBufferFloat( data_2 ))
-        self.assertEqual(collection.HasImgBufferFloat("second"), True)
+        collection.AddFloat32Tensor3Buffer("second", buffers.Float32Tensor3( data_2 ))
+        self.assertEqual(collection.HasFloat32Tensor3Buffer("second"), True)
 
-        data_1_out = buffer_converters.as_numpy_array(buffer=collection.GetImgBufferFloat("first"))
+        data_1_out = buffer_converters.as_numpy_array(buffer=collection.GetFloat32Tensor3Buffer("first"))
         self.assertTrue((data_1 == data_1_out).all())
 
-        data_2_out = buffer_converters.as_numpy_array(buffer=collection.GetImgBufferFloat("second"))
+        data_2_out = buffer_converters.as_numpy_array(buffer=collection.GetFloat32Tensor3Buffer("second"))
         self.assertTrue((data_2 == data_2_out).all())
 
     def test_img_int(self):
         collection = buffers.BufferCollection()
 
-        self.assertEqual(collection.HasImgBufferInt("first"), False)
+        self.assertEqual(collection.HasInt32Tensor3Buffer("first"), False)
         data_1 = np.array([[[3,21,1],[22,1,5]],[[2,3,4],[7,7,7]]], dtype=np.int32 )
-        collection.AddImgBufferInt("first", buffers.imgsBufferInt( data_1 ))
-        self.assertEqual(collection.HasImgBufferInt("first"), True)
+        collection.AddInt32Tensor3Buffer("first", buffers.Int32Tensor3( data_1 ))
+        self.assertEqual(collection.HasInt32Tensor3Buffer("first"), True)
 
-        self.assertEqual(collection.HasImgBufferInt("second"), False)
+        self.assertEqual(collection.HasInt32Tensor3Buffer("second"), False)
         data_2 = np.array([[[3,21,1],[22,1,5]]], dtype=np.int32 )
-        collection.AddImgBufferInt("second", buffers.imgsBufferInt( data_2 ))
-        self.assertEqual(collection.HasImgBufferInt("second"), True)
+        collection.AddInt32Tensor3Buffer("second", buffers.Int32Tensor3( data_2 ))
+        self.assertEqual(collection.HasInt32Tensor3Buffer("second"), True)
 
-        data_1_out = buffer_converters.as_numpy_array(buffer=collection.GetImgBufferInt("first"))
+        data_1_out = buffer_converters.as_numpy_array(buffer=collection.GetInt32Tensor3Buffer("first"))
         self.assertTrue((data_1 == data_1_out).all())
 
-        data_2_out = buffer_converters.as_numpy_array(buffer=collection.GetImgBufferInt("second"))
+        data_2_out = buffer_converters.as_numpy_array(buffer=collection.GetInt32Tensor3Buffer("second"))
         self.assertTrue((data_2 == data_2_out).all())
 
     def test_matrix_float(self):

@@ -64,42 +64,42 @@ Int32MatrixBuffer& BufferCollection::GetInt32MatrixBuffer(const std::string& nam
     return mIntMatrixBuffers.find(name)->second;
 }
 
-bool BufferCollection::HasImgBufferFloat(std::string name) const
+bool BufferCollection::HasFloat32Tensor3Buffer(std::string name) const
 {
     return (mFloatImgBuffers.find(name) != mFloatImgBuffers.end());
 }
 
-void BufferCollection::AddImgBufferFloat(std::string name, const ImgBufferFloat& data )
+void BufferCollection::AddFloat32Tensor3Buffer(std::string name, const Float32Tensor3Buffer& data )
 {
     mFloatImgBuffers[name] = data;
 }
 
-const ImgBufferFloat& BufferCollection::GetImgBufferFloat(std::string name) const
+const Float32Tensor3Buffer& BufferCollection::GetFloat32Tensor3Buffer(std::string name) const
 {
     return mFloatImgBuffers.find(name)->second;
 }
 
-ImgBufferFloat& BufferCollection::GetImgBufferFloat(std::string name)
+Float32Tensor3Buffer& BufferCollection::GetFloat32Tensor3Buffer(std::string name)
 {
     return mFloatImgBuffers.find(name)->second;
 }
 
-bool BufferCollection::HasImgBufferInt(std::string name) const
+bool BufferCollection::HasInt32Tensor3Buffer(std::string name) const
 {
     return (mIntImgBuffers.find(name) != mIntImgBuffers.end());
 }
 
-void BufferCollection::AddImgBufferInt(std::string name, const ImgBufferInt& data )
+void BufferCollection::AddInt32Tensor3Buffer(std::string name, const Int32Tensor3Buffer& data )
 {
     mIntImgBuffers[name] = data;
 }
 
-const ImgBufferInt& BufferCollection::GetImgBufferInt(std::string name) const
+const Int32Tensor3Buffer& BufferCollection::GetInt32Tensor3Buffer(std::string name) const
 {
     return mIntImgBuffers.find(name)->second;
 }
 
-ImgBufferInt& BufferCollection::GetImgBufferInt(std::string name)
+Int32Tensor3Buffer& BufferCollection::GetInt32Tensor3Buffer(std::string name)
 {
     return mIntImgBuffers.find(name)->second;
 }

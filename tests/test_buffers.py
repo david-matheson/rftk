@@ -8,7 +8,7 @@ class TestBuffers(unittest.TestCase):
 
     def test_img_float_buffer(self):
         A = np.array([[[3,21,1],[22,1,5]],[[2,3,4],[7,7,7]]], dtype=np.float32 )
-        a = buffers.imgsBufferFloat( A )
+        a = buffers.Float32Tensor3( A )
         B = np.zeros((2,2,3), dtype=np.float32)
         a.AsNumpy3dFloat32(B)
         self.assertTrue((A == B).all())
@@ -18,7 +18,7 @@ class TestBuffers(unittest.TestCase):
 
     def test_img_int_buffer(self):
         A = np.array([[[3,21,1],[22,1,5]],[[2,3,4],[7,7,7]]], dtype=np.int32 )
-        a = buffers.imgsBufferInt( A )
+        a = buffers.Int32Tensor3( A )
         B = np.zeros((2,2,3), dtype=np.int32)
         a.AsNumpy3dInt32(B)
         self.assertTrue((A == B).all())
@@ -68,14 +68,14 @@ class TestBuffers(unittest.TestCase):
 
     def test_img_float_buffer_dim_exception(self):
         A = np.array([[[3,21,1],[22,1,5]],[[2,2,2],[7,7,7]]], dtype=np.float32 )
-        a = buffers.imgsBufferFloat( A )
+        a = buffers.Float32Tensor3( A )
         B = np.zeros((2,3,3), dtype=np.float32)
         with self.assertRaises(TypeError):
             a.AsNumpy3dFloat32(B)
 
     def test_img_int_buffer_dim_exception(self):
         A = np.array([[[3,21,1],[22,1,5]],[[2,2,2],[7,7,7]]], dtype=np.int32 )
-        a = buffers.imgsBufferInt( A )
+        a = buffers.Int32Tensor3( A )
         B = np.zeros((1,2,3), dtype=np.int32)
         with self.assertRaises(TypeError):
             a.AsNumpy3dInt32(B)
@@ -96,7 +96,7 @@ class TestBuffers(unittest.TestCase):
 
     def test_img_float_buffer_out_of_range_exception(self):
         A = np.array([[[3,21,1],[22,1,5]],[[2,2,2],[7,7,7]]], dtype=np.float32 )
-        a = buffers.imgsBufferFloat( A )
+        a = buffers.Float32Tensor3( A )
         with self.assertRaises(IndexError):
             a.Get(2,0,0)
         with self.assertRaises(IndexError):
@@ -112,7 +112,7 @@ class TestBuffers(unittest.TestCase):
 
     def test_img_int_buffer_out_of_range_exception(self):
         A = np.array([[[3,21,1],[22,1,5]],[[2,2,2],[7,7,7]]], dtype=np.int32 )
-        a = buffers.imgsBufferInt( A )
+        a = buffers.Int32Tensor3( A )
         with self.assertRaises(IndexError):
             a.Get(2,0,0)
         with self.assertRaises(IndexError):
@@ -156,8 +156,8 @@ class TestBuffers(unittest.TestCase):
 
     #     matrix_buffer_float = buffers.Float64Matrix( data_float )
     #     matrix_buffer_int = buffers.Int32Matrix( data_int )
-    #     img_buffer_float = buffers.imgBufferFloat64( data_float )
-    #     img_buffer_int = buffers.imgBufferFloat64( data_int )
+    #     img_buffer_float = buffers.Float32Tensor3Buffer64( data_float )
+    #     img_buffer_int = buffers.Float32Tensor3Buffer64( data_int )
 
     #     # Check that changing a memory copy changes the original
     #     copy = matrix_buffer_float.SharedMemoryCopy()

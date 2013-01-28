@@ -4,21 +4,21 @@ import rftk.native.buffers as buffers
 
 def as_img_buffer( np_array ):
     if np_array.dtype == np.int32 and np_array.ndim == 2:
-        return buffers.imgBufferInt( np_array )
+        return buffers.Int32Tensor2( np_array )
     elif np_array.dtype == np.int32 and np_array.ndim == 3:
-        return buffers.imgsBufferInt( np_array )
+        return buffers.Int32Tensor3( np_array )
     elif np_array.dtype == np.float32 and np_array.ndim == 2:
-        return buffers.imgBufferFloat( np_array )
+        return buffers.Float32Tensor2( np_array )
     elif np_array.dtype == np.float32 and np_array.ndim == 3:
-        return buffers.imgsBufferFloat( np_array )
+        return buffers.Float32Tensor3( np_array )
     elif np_array.dtype == np.int64 and np_array.ndim == 2:
-        return buffers.imgBufferInt64( np_array )
+        return buffers.Int32Tensor2( np_array )
     elif np_array.dtype == np.int64 and np_array.ndim == 3:
-        return buffers.imgsBufferInt64( np_array )
+        return buffers.Int32Tensor3( np_array )
     elif np_array.dtype == np.float64 and np_array.ndim == 2:
-        return buffers.imgBufferFloat64( np_array )
+        return buffers.Float32Tensor2( np_array )
     elif np_array.dtype == np.float64 and np_array.ndim == 3:
-        return buffers.imgsBufferFloat64( np_array )
+        return buffers.Float32Tensor3( np_array )
     else:
         raise Exception('asImgBuffer unknown type and ndim', np_array.dtype, np_array.ndim())
 
@@ -43,23 +43,23 @@ def as_matrix_buffer( np_array ):
         raise Exception('asMatrixBuffer unknown type and ndim', np_array.dtype, np_array.ndim())
 
 def as_numpy_array( buffer, flatten=False ):
-    isImgBufferFloat = isinstance(buffer, buffers.ImgBufferFloat)
-    isImgBufferInt = isinstance(buffer, buffers.ImgBufferInt)
+    isFloat32Tensor3Buffer = isinstance(buffer, buffers.Float32Tensor3Buffer)
+    isInt32Tensor3Buffer = isinstance(buffer, buffers.Int32Tensor3Buffer)
     isFloatMatrixBuffer = isinstance(buffer, buffers.Float32MatrixBuffer) or isinstance(buffer, buffers.Float64MatrixBuffer)
     isIntMatrixBuffer = isinstance(buffer, buffers.Int32MatrixBuffer) or isinstance(buffer, buffers.Int64MatrixBuffer)
 
-    assert(isImgBufferFloat or isImgBufferInt or isFloatMatrixBuffer or isIntMatrixBuffer)
+    assert(isFloat32Tensor3Buffer or isInt32Tensor3Buffer or isFloatMatrixBuffer or isIntMatrixBuffer)
 
-    if isImgBufferFloat or isFloatMatrixBuffer:
+    if isFloat32Tensor3Buffer or isFloatMatrixBuffer:
         buffer_type = np.float32
     else:
         buffer_type = np.int32
 
-    if isImgBufferFloat or isImgBufferInt:
+    if isFloat32Tensor3Buffer or isInt32Tensor3Buffer:
         result = np.zeros((buffer.GetNumberOfImgs(), buffer.GetM(), buffer.GetN()), dtype=buffer_type)
-        if isImgBufferFloat:
+        if isFloat32Tensor3Buffer:
             buffer.AsNumpy3dFloat32(result)
-        if isImgBufferInt:
+        if isInt32Tensor3Buffer:
             buffer.AsNumpy3dInt32(result)
         if buffer.GetNumberOfImgs() == 1 and flatten:
             result = result.reshape(buffer.GetM(), buffer.GetN)

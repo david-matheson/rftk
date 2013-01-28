@@ -1,7 +1,7 @@
 %module buffers
 %{
     #define SWIG_FILE_WITH_INIT
-    #include "ImgBuffer.h"
+    #include "Tensor3Buffer.h"
     #include "MatrixBuffer.h"
     #include "BufferCollection.h"
 %}
@@ -40,7 +40,7 @@
 %apply (int* INPLACE_ARRAY3, int DIM1, int DIM2, int DIM3) {(int* outint3d, int l, int m, int n)}
 
 
-%include "ImgBuffer.h"
+%include "Tensor3Buffer.h"
 %include "MatrixBuffer.h"
 %include "BufferCollection.h"
 

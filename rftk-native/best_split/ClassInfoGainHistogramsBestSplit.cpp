@@ -5,7 +5,7 @@
 #include <cstdio>
 
 #include "assert_util.h"
-#include "ImgBuffer.h"
+#include "Tensor3Buffer.h"
 #include "ClassInfoGainHistogramsBestSplit.h"
 
 float sum(const float* array, int len)
@@ -65,12 +65,12 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& dat
                                                         Float32MatrixBuffer& leftYsOut,
                                                         Float32MatrixBuffer& rightYsOut) const
 {
-    ASSERT( data.HasImgBufferFloat(HISTOGRAM_LEFT) )
-    ASSERT( data.HasImgBufferFloat(HISTOGRAM_RIGHT) )
+    ASSERT( data.HasFloat32Tensor3Buffer(HISTOGRAM_LEFT) )
+    ASSERT( data.HasFloat32Tensor3Buffer(HISTOGRAM_RIGHT) )
     ASSERT( data.HasFloat32MatrixBuffer(THRESHOLDS) )
 
-    const ImgBufferFloat& histogramLeft = data.GetImgBufferFloat(HISTOGRAM_LEFT);
-    const ImgBufferFloat& histogramRight = data.GetImgBufferFloat(HISTOGRAM_RIGHT);
+    const Float32Tensor3Buffer& histogramLeft = data.GetFloat32Tensor3Buffer(HISTOGRAM_LEFT);
+    const Float32Tensor3Buffer& histogramRight = data.GetFloat32Tensor3Buffer(HISTOGRAM_RIGHT);
     const Float32MatrixBuffer& thresholds = data.GetFloat32MatrixBuffer(THRESHOLDS);
 
     ASSERT_ARG_DIM_3D(  histogramLeft.GetNumberOfImgs(), histogramLeft.GetM(), histogramLeft.GetN(),

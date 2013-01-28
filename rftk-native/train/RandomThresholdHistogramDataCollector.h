@@ -7,7 +7,7 @@
 #include <set>
 
 #include "MatrixBuffer.h"
-#include "ImgBuffer.h"
+#include "Tensor3Buffer.h"
 #include "BufferCollection.h"
 #include "NodeDataCollectorI.h"
 

@@ -3,13 +3,13 @@
 #include <tr1/memory>
 #include <vector>
 
-class ImgBufferFloat {
+class Float32Tensor3Buffer {
 public:
-    ImgBufferFloat() {}
-    ImgBufferFloat(int numberOfImgs, int m, int n);
-    ImgBufferFloat(float* data, int numberOfImgs, int m, int n);
-    ImgBufferFloat(double* data, int numberOfImgs, int m, int n);
-    ~ImgBufferFloat() {}
+    Float32Tensor3Buffer() {}
+    Float32Tensor3Buffer(int numberOfImgs, int m, int n);
+    Float32Tensor3Buffer(float* data, int numberOfImgs, int m, int n);
+    Float32Tensor3Buffer(double* data, int numberOfImgs, int m, int n);
+    ~Float32Tensor3Buffer() {}
 
     int GetNumberOfImgs() const { return mNumberOfImgs; }
     int GetM() const { return mM; }
@@ -25,7 +25,7 @@ public:
 
     const float* GetRowPtrUnsafe(int img, int m) const { return &(*mData)[img*mM*mN + m*mN]; }
 
-    ImgBufferFloat SharedMemoryCopy() { return *this; }
+    Float32Tensor3Buffer SharedMemoryCopy() { return *this; }
     void AsNumpy3dFloat32(float* outfloat3d, int l, int m, int n);
 
     void Print() const;
@@ -37,13 +37,13 @@ public:
 };
 
 
-class ImgBufferInt {
+class Int32Tensor3Buffer {
 public:
-    ImgBufferInt() {}
-    ImgBufferInt(int numberOfImgs, int m, int n);
-    ImgBufferInt(int* data, int numberOfImgs, int m, int n);
-    ImgBufferInt(long long* data, int numberOfImgs, int m, int n);
-    ~ImgBufferInt() {}
+    Int32Tensor3Buffer() {}
+    Int32Tensor3Buffer(int numberOfImgs, int m, int n);
+    Int32Tensor3Buffer(int* data, int numberOfImgs, int m, int n);
+    Int32Tensor3Buffer(long long* data, int numberOfImgs, int m, int n);
+    ~Int32Tensor3Buffer() {}
 
     int GetNumberOfImgs() const { return mNumberOfImgs; }
     int GetM() const { return mM; }
@@ -59,7 +59,7 @@ public:
 
     const int* GetRowPtrUnsafe(int img, int m) const { return &(*mData)[img*mM*mN + m*mN]; }
 
-    ImgBufferInt SharedMemoryCopy() { return *this; }
+    Int32Tensor3Buffer SharedMemoryCopy() { return *this; }
     void AsNumpy3dInt32(int* outint3d, int l, int m, int n);
 
     std::tr1::shared_ptr< std::vector< int > > mData;
@@ -69,12 +69,12 @@ public:
 };
 
 
-ImgBufferFloat imgBufferFloat(float* float2d, int m, int n);
-ImgBufferFloat imgBufferFloat64(double* double2d, int m, int n);
-ImgBufferInt imgBufferInt(int* int2d, int m, int n);
-ImgBufferInt imgBufferInt64(long long* long2d, int m, int n);
+// Float32Tensor3Buffer Float32Tensor2(float* float2d, int m, int n);
+Float32Tensor3Buffer Float32Tensor2(double* double2d, int m, int n);
+// Int32Tensor3Buffer Int32Tensor2(int* int2d, int m, int n);
+Int32Tensor3Buffer Int32Tensor2(long long* long2d, int m, int n);
 
-ImgBufferFloat imgsBufferFloat(float* float3d, int l, int m, int n);
-ImgBufferFloat imgsBufferFloat64(double* double3d, int l, int m, int n);
-ImgBufferInt imgsBufferInt(int* int3d, int l, int m, int n);
-ImgBufferInt imgsBufferInt64(long long* long3d, int l, int m, int n);
+// Float32Tensor3Buffer Float32Tensor3(float* float3d, int l, int m, int n);
+Float32Tensor3Buffer Float32Tensor3(double* double3d, int l, int m, int n);
+// Int32Tensor3Buffer Int32Tensor3(int* int3d, int l, int m, int n);
+Int32Tensor3Buffer Int32Tensor3(long long* long3d, int l, int m, int n);

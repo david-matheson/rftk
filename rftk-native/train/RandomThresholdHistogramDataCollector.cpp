@@ -100,23 +100,23 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
 
     if ( mData.HasFloat32MatrixBuffer(THRESHOLDS) )
     {
-        if( !mData.HasImgBufferFloat(HISTOGRAM_LEFT) )
+        if( !mData.HasFloat32Tensor3Buffer(HISTOGRAM_LEFT) )
         {
-            ImgBufferFloat histogramLeft(numberOfFeatures, mNumberOfThresholds, mNumberOfClasses);
-            mData.AddImgBufferFloat(HISTOGRAM_LEFT, histogramLeft);
+            Float32Tensor3Buffer histogramLeft(numberOfFeatures, mNumberOfThresholds, mNumberOfClasses);
+            mData.AddFloat32Tensor3Buffer(HISTOGRAM_LEFT, histogramLeft);
         }
 
-        if( !mData.HasImgBufferFloat(HISTOGRAM_RIGHT) )
+        if( !mData.HasFloat32Tensor3Buffer(HISTOGRAM_RIGHT) )
         {
-            ImgBufferFloat histogramRight(numberOfFeatures, mNumberOfThresholds, mNumberOfClasses);
-            mData.AddImgBufferFloat(HISTOGRAM_RIGHT, histogramRight);
+            Float32Tensor3Buffer histogramRight(numberOfFeatures, mNumberOfThresholds, mNumberOfClasses);
+            mData.AddFloat32Tensor3Buffer(HISTOGRAM_RIGHT, histogramRight);
         }
 
         const Int32MatrixBuffer& classLabels = data.GetInt32MatrixBuffer(CLASS_LABELS).Slice(sampleIndices);
         const Float32MatrixBuffer& sampleWeights = data.GetFloat32MatrixBuffer(SAMPLE_WEIGHTS).Slice(sampleIndices);
 
-        ImgBufferFloat& histogramLeft = mData.GetImgBufferFloat(HISTOGRAM_LEFT);
-        ImgBufferFloat& histogramRight = mData.GetImgBufferFloat(HISTOGRAM_RIGHT);
+        Float32Tensor3Buffer& histogramLeft = mData.GetFloat32Tensor3Buffer(HISTOGRAM_LEFT);
+        Float32Tensor3Buffer& histogramRight = mData.GetFloat32Tensor3Buffer(HISTOGRAM_RIGHT);
         Float32MatrixBuffer& thresholds = mData.GetFloat32MatrixBuffer(THRESHOLDS);
 
         for(int i=0; i<sampleIndices.GetM(); i++)
@@ -130,7 +130,7 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
                 {
                     const float threshold = thresholds.Get(f,t);
                     const bool isleft = (featureValue >= threshold);
-                    ImgBufferFloat& histogram = isleft ? histogramLeft : histogramRight;
+                    Float32Tensor3Buffer& histogram = isleft ? histogramLeft : histogramRight;
                     const float newClassCount = histogram.Get(f, t, classLabel) + weight;
                     histogram.Set(f, t, classLabel, newClassCount);
                     // printf("class=%d count=%0.2f isLeft=%d threshold=%0.2f\n", classLabel, newClassCount, isleft, threshold);

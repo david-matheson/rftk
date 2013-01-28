@@ -1,10 +1,10 @@
 #include <cstdio>
 
 #include "assert_util.h"
-#include "ImgBuffer.h"
+#include "Tensor3Buffer.h"
 
 
-ImgBufferFloat::ImgBufferFloat(int numberOfImgs, int m, int n)
+Float32Tensor3Buffer::Float32Tensor3Buffer(int numberOfImgs, int m, int n)
 : mData( new std::vector< float >(numberOfImgs*m*n) )
 , mNumberOfImgs(numberOfImgs)
 , mM(m)
@@ -12,7 +12,7 @@ ImgBufferFloat::ImgBufferFloat(int numberOfImgs, int m, int n)
 {
 }
 
-ImgBufferFloat::ImgBufferFloat(float* data, int numberOfImgs, int m, int n)
+Float32Tensor3Buffer::Float32Tensor3Buffer(float* data, int numberOfImgs, int m, int n)
 : mData( new std::vector< float >(data, data + numberOfImgs*m*n) )
 , mNumberOfImgs(numberOfImgs)
 , mM(m)
@@ -20,7 +20,7 @@ ImgBufferFloat::ImgBufferFloat(float* data, int numberOfImgs, int m, int n)
 {
 }
 
-ImgBufferFloat::ImgBufferFloat(double* data, int numberOfImgs, int m, int n)
+Float32Tensor3Buffer::Float32Tensor3Buffer(double* data, int numberOfImgs, int m, int n)
 : mData( new std::vector< float >(numberOfImgs*m*n) )
 , mNumberOfImgs(numberOfImgs)
 , mM(m)
@@ -33,7 +33,7 @@ ImgBufferFloat::ImgBufferFloat(double* data, int numberOfImgs, int m, int n)
     }
 }
 
-void ImgBufferFloat::Set(int img, int m, int n, float value)
+void Float32Tensor3Buffer::Set(int img, int m, int n, float value)
 {
     ASSERT_VALID_RANGE(img, 0, mNumberOfImgs)
     ASSERT_VALID_RANGE(m, 0, mM)
@@ -41,7 +41,7 @@ void ImgBufferFloat::Set(int img, int m, int n, float value)
     (*mData)[img*mM*mN + m*mN + n] = value;
 }
 
-float ImgBufferFloat::Get(int img, int m, int n) const
+float Float32Tensor3Buffer::Get(int img, int m, int n) const
 {
     ASSERT_VALID_RANGE(img, 0, mNumberOfImgs)
     ASSERT_VALID_RANGE(m, 0, mM)
@@ -49,7 +49,7 @@ float ImgBufferFloat::Get(int img, int m, int n) const
     return (*mData)[img*mM*mN + m*mN + n];
 }
 
-void ImgBufferFloat::AsNumpy3dFloat32(float* outfloat3d, int l, int m, int n)
+void Float32Tensor3Buffer::AsNumpy3dFloat32(float* outfloat3d, int l, int m, int n)
 {
     ASSERT_ARG_DIM_3D(l, m, n, mNumberOfImgs, mM, mN)
     for(int i=0; i<l*m*n; i++)
@@ -58,7 +58,7 @@ void ImgBufferFloat::AsNumpy3dFloat32(float* outfloat3d, int l, int m, int n)
     }
 }
 
-void ImgBufferFloat::Print() const
+void Float32Tensor3Buffer::Print() const
 {
     printf("[%d %d %d]\n", mNumberOfImgs, mM, mN);
     printf("[\n");
@@ -80,7 +80,7 @@ void ImgBufferFloat::Print() const
 }
 
 
-ImgBufferInt::ImgBufferInt(int numberOfImgs, int m, int n)
+Int32Tensor3Buffer::Int32Tensor3Buffer(int numberOfImgs, int m, int n)
 : mData( new std::vector< int >(numberOfImgs*m*n) )
 , mNumberOfImgs(numberOfImgs)
 , mM(m)
@@ -88,7 +88,7 @@ ImgBufferInt::ImgBufferInt(int numberOfImgs, int m, int n)
 {
 }
 
-ImgBufferInt::ImgBufferInt(int* data, int numberOfImgs, int m, int n)
+Int32Tensor3Buffer::Int32Tensor3Buffer(int* data, int numberOfImgs, int m, int n)
 : mData( new std::vector< int >(data, data + numberOfImgs*m*n) )
 , mNumberOfImgs(numberOfImgs)
 , mM(m)
@@ -96,7 +96,7 @@ ImgBufferInt::ImgBufferInt(int* data, int numberOfImgs, int m, int n)
 {
 }
 
-ImgBufferInt::ImgBufferInt(long long* data, int numberOfImgs, int m, int n)
+Int32Tensor3Buffer::Int32Tensor3Buffer(long long* data, int numberOfImgs, int m, int n)
 : mData( new std::vector< int >(numberOfImgs*m*n) )
 , mNumberOfImgs(numberOfImgs)
 , mM(m)
@@ -108,7 +108,7 @@ ImgBufferInt::ImgBufferInt(long long* data, int numberOfImgs, int m, int n)
     }
 }
 
-void ImgBufferInt::Set(int img, int m, int n, int value)
+void Int32Tensor3Buffer::Set(int img, int m, int n, int value)
 {
     ASSERT_VALID_RANGE(img, 0, mNumberOfImgs)
     ASSERT_VALID_RANGE(m, 0, mM)
@@ -116,7 +116,7 @@ void ImgBufferInt::Set(int img, int m, int n, int value)
     (*mData)[img*mM*mN + m*mN + n] = value;
 }
 
-int ImgBufferInt::Get(int img, int m, int n) const
+int Int32Tensor3Buffer::Get(int img, int m, int n) const
 {
     ASSERT_VALID_RANGE(img, 0, mNumberOfImgs)
     ASSERT_VALID_RANGE(m, 0, mM)
@@ -124,7 +124,7 @@ int ImgBufferInt::Get(int img, int m, int n) const
     return (*mData)[img*mM*mN + m*mN + n];
 }
 
-void ImgBufferInt::AsNumpy3dInt32(int* outint3d, int l, int m, int n)
+void Int32Tensor3Buffer::AsNumpy3dInt32(int* outint3d, int l, int m, int n)
 {
     ASSERT_ARG_DIM_3D(l, m, n, mNumberOfImgs, mM, mN)
     for(int i=0; i<l*m*n; i++)
@@ -134,43 +134,43 @@ void ImgBufferInt::AsNumpy3dInt32(int* outint3d, int l, int m, int n)
 }
 
 // From 2d numpy arrays
-ImgBufferFloat imgBufferFloat(float* float2d, int m, int n)
+// Float32Tensor3Buffer Float32Tensor2(float* float2d, int m, int n)
+// {
+//     return Float32Tensor3Buffer(float2d, 1, m, n);
+// }
+
+Float32Tensor3Buffer Float32Tensor2(double* double2d, int m, int n)
 {
-    return ImgBufferFloat(float2d, 1, m, n);
+    return Float32Tensor3Buffer(double2d, 1, m, n);
 }
 
-ImgBufferFloat imgBufferFloat64(double* double2d, int m, int n)
-{
-    return ImgBufferFloat(double2d, 1, m, n);
-}
+// Int32Tensor3Buffer Int32Tensor2(int* int2d, int m, int n)
+// {
+//     return Int32Tensor3Buffer(int2d, 1, m, n);
+// }
 
-ImgBufferInt imgBufferInt(int* int2d, int m, int n)
+Int32Tensor3Buffer Int32Tensor2(long long* long2d, int m, int n)
 {
-    return ImgBufferInt(int2d, 1, m, n);
-}
-
-ImgBufferInt imgBufferInt64(long long* long2d, int m, int n)
-{
-    return ImgBufferInt(long2d, 1, m, n);
+    return Int32Tensor3Buffer(long2d, 1, m, n);
 }
 
 // From 3d numpy arrays
-ImgBufferFloat imgsBufferFloat(float* float3d, int l, int m, int n)
+// Float32Tensor3Buffer imgsBufferFloat(float* float3d, int l, int m, int n)
+// {
+//     return Float32Tensor3Buffer(float3d, l, m, n);
+// }
+
+Float32Tensor3Buffer Float32Tensor3(double* double3d, int l, int m, int n)
 {
-    return ImgBufferFloat(float3d, l, m, n);
+    return Float32Tensor3Buffer(double3d, l, m, n);
 }
 
-ImgBufferFloat imgsBufferFloat64(double* double3d, int l, int m, int n)
-{
-    return ImgBufferFloat(double3d, l, m, n);
-}
+// Int32Tensor3Buffer imgsBufferInt(int* int3d, int l, int m, int n)
+// {
+//     return Int32Tensor3Buffer(int3d, l, m, n);
+// }
 
-ImgBufferInt imgsBufferInt(int* int3d, int l, int m, int n)
+Int32Tensor3Buffer Int32Tensor3(long long* long3d, int l, int m, int n)
 {
-    return ImgBufferInt(int3d, l, m, n);
-}
-
-ImgBufferInt imgsBufferInt64(long long* long3d, int l, int m, int n)
-{
-    return ImgBufferInt(long3d, l, m, n);
+    return Int32Tensor3Buffer(long3d, l, m, n);
 }

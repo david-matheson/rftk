@@ -4,7 +4,7 @@
 #include <map>
 
 #include "MatrixBuffer.h"
-#include "ImgBuffer.h"
+#include "Tensor3Buffer.h"
 
 //Using #define for compatibility with swig
 #define X_FLOAT_DATA    "X_Float"
@@ -31,19 +31,19 @@ public:
     const Int32MatrixBuffer& GetInt32MatrixBuffer(const std::string& name) const;
     Int32MatrixBuffer& GetInt32MatrixBuffer(const std::string& name);
 
-    bool HasImgBufferFloat(std::string name) const;
-    void AddImgBufferFloat(std::string name, const ImgBufferFloat& data );
-    const ImgBufferFloat& GetImgBufferFloat(std::string name) const;
-    ImgBufferFloat& GetImgBufferFloat(std::string name);
+    bool HasFloat32Tensor3Buffer(std::string name) const;
+    void AddFloat32Tensor3Buffer(std::string name, const Float32Tensor3Buffer& data );
+    const Float32Tensor3Buffer& GetFloat32Tensor3Buffer(std::string name) const;
+    Float32Tensor3Buffer& GetFloat32Tensor3Buffer(std::string name);
 
-    bool HasImgBufferInt(std::string name) const;
-    void AddImgBufferInt(std::string name, const ImgBufferInt& data ) ;
-    const ImgBufferInt& GetImgBufferInt(std::string name) const;
-    ImgBufferInt& GetImgBufferInt(std::string name);
+    bool HasInt32Tensor3Buffer(std::string name) const;
+    void AddInt32Tensor3Buffer(std::string name, const Int32Tensor3Buffer& data ) ;
+    const Int32Tensor3Buffer& GetInt32Tensor3Buffer(std::string name) const;
+    Int32Tensor3Buffer& GetInt32Tensor3Buffer(std::string name);
 
 private:
     std::map<std::string, Float32MatrixBuffer> mFloatMatrixBuffers;
     std::map<std::string, Int32MatrixBuffer> mIntMatrixBuffers;
-    std::map<std::string, ImgBufferFloat> mFloatImgBuffers;
-    std::map<std::string, ImgBufferInt> mIntImgBuffers;
+    std::map<std::string, Float32Tensor3Buffer> mFloatImgBuffers;
+    std::map<std::string, Int32Tensor3Buffer> mIntImgBuffers;
 };
