@@ -17,5 +17,5 @@ public:
 };
 
 void ForestPredictLeafs(const Forest& forest, BufferCollection& data, const int numberOfindices, Int32MatrixBuffer& leafsOut);
-void ForestPredictYs(const Forest& forest, BufferCollection& data, const int numberOfindices, Float32MatrixBuffer& ysOut);
+void ForestPredictYs(const Forest& forest, BufferCollection& data, const int numberOfindices, Float32VectorBuffer& ysOut);
 int walkTree( const Tree& tree, int nodeId, BufferCollection& data, const int index, int& treeDepthOut );

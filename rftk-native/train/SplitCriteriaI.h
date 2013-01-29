@@ -1,5 +1,6 @@
 #pragma once
 
+#include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 
 enum SPLT_CRITERIA
@@ -17,10 +18,10 @@ public:
     virtual SplitCriteriaI* Clone() const=0;
 
     virtual SPLT_CRITERIA ShouldSplit(   int treeDepth,
-                                        const Float32MatrixBuffer& impurityValues,
+                                        const Float32VectorBuffer& impurityValues,
                                         const Float32MatrixBuffer& childCounts) const=0;
 
     virtual int BestSplit(  int treeDepth,
-                            const Float32MatrixBuffer& impurityValues,
+                            const Float32VectorBuffer& impurityValues,
                             const Float32MatrixBuffer& childCounts ) const=0;
 };

@@ -29,7 +29,7 @@ public:
     virtual int GetIntParamsDim() const;
 
     virtual void Extract( const BufferCollection& data,
-                            const Int32MatrixBuffer& sampleIndices,
+                            const Int32VectorBuffer& sampleIndices,
                             const Int32MatrixBuffer& intFeatureParams,
                             const Float32MatrixBuffer& floatFeatureParams,
                             Float32MatrixBuffer& featureValuesOUT) const; // #tests X #samples

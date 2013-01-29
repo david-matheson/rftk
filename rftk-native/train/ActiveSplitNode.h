@@ -25,21 +25,21 @@ public:
     ~ActiveSplitNodeFeatureSet();
 
     void ProcessData(   const BufferCollection& data,
-                        const Int32MatrixBuffer& sampleIndices,
+                        const Int32VectorBuffer& sampleIndices,
                         boost::mt19937& gen );
 
     void WriteImpurity( int groupId,
                         int outStartIndex,
-                        Float32MatrixBuffer& impuritiesOut,
-                        Float32MatrixBuffer& thresholdsOut,
+                        Float32VectorBuffer& impuritiesOut,
+                        Float32VectorBuffer& thresholdsOut,
                         Float32MatrixBuffer& childCountsOut,
                         Int32MatrixBuffer& featureIndicesOut );
 
     void SplitIndices(  const int featureIndex,
                         const BufferCollection& data,
-                        const Int32MatrixBuffer& sampleIndices,
-                        Int32MatrixBuffer& leftSampleIndicesOut,
-                        Int32MatrixBuffer& rightSampleIndicesOut );
+                        const Int32VectorBuffer& sampleIndices,
+                        Int32VectorBuffer& leftSampleIndicesOut,
+                        Int32VectorBuffer& rightSampleIndicesOut );
 
     void WriteToTree(   int index,
                         const int treeNodeIndex,
@@ -65,8 +65,8 @@ private:
     Float32MatrixBuffer mFloatParams;
 
     // Updated everytime ProcessData is called
-    Float32MatrixBuffer mImpurities;
-    Float32MatrixBuffer mThresholds;
+    Float32VectorBuffer mImpurities;
+    Float32VectorBuffer mThresholds;
     Float32MatrixBuffer mChildCounts;
     Float32MatrixBuffer mLeftYs;
     Float32MatrixBuffer mRightYs;
@@ -85,7 +85,7 @@ public:
     virtual ~ActiveSplitNode();
 
     void ProcessData(   const BufferCollection& data,
-                        const Int32MatrixBuffer& sampleIndices,
+                        const Int32VectorBuffer& sampleIndices,
                         boost::mt19937& gen );
 
     SPLT_CRITERIA ShouldSplit() { return mShouldSplit; }
@@ -102,9 +102,9 @@ public:
 
     // Data has to be passed in because ProcessData may not keep the data
     void SplitIndices(  const BufferCollection& data,
-                        const Int32MatrixBuffer& sampleIndices,
-                        Int32MatrixBuffer& leftSampleIndicesOut,
-                        Int32MatrixBuffer& rightSampleIndicesOut );
+                        const Int32VectorBuffer& sampleIndices,
+                        Int32VectorBuffer& leftSampleIndicesOut,
+                        Int32VectorBuffer& rightSampleIndicesOut );
 
 private:
     // Passed in (not owned)
@@ -119,8 +119,8 @@ private:
     int mBestFeatureIndex;
     SPLT_CRITERIA mShouldSplit;
 
-    Float32MatrixBuffer mImpurities;
-    Float32MatrixBuffer mThresholds;
+    Float32VectorBuffer mImpurities;
+    Float32VectorBuffer mThresholds;
     Float32MatrixBuffer mChildCounts;
     Int32MatrixBuffer mFeatureIndices;
 

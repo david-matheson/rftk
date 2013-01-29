@@ -59,8 +59,8 @@ ClassInfoGainHistogramsBestSplit::~ClassInfoGainHistogramsBestSplit()
 
 
 void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& data,
-                                                        Float32MatrixBuffer& impurityOut,
-                                                        Float32MatrixBuffer& thresholdOut,
+                                                        Float32VectorBuffer& impurityOut,
+                                                        Float32VectorBuffer& thresholdOut,
                                                         Float32MatrixBuffer& childCountsOut,
                                                         Float32MatrixBuffer& leftYsOut,
                                                         Float32MatrixBuffer& rightYsOut) const
@@ -80,13 +80,13 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& dat
     const int numberOfFeatures = histogramLeft.GetL();
 
     // Create new results buffer if they're not the right dimensions
-    if( impurityOut.GetM() != numberOfFeatures || impurityOut.GetN() != 1 )
+    if( impurityOut.GetN() != numberOfFeatures )
     {
-        impurityOut = Float32MatrixBuffer(numberOfFeatures, 1);
+        impurityOut = Float32VectorBuffer(numberOfFeatures);
     }
-    if( thresholdOut.GetM() != numberOfFeatures || thresholdOut.GetN() != 1 )
+    if( thresholdOut.GetN() != numberOfFeatures )
     {
-        thresholdOut = Float32MatrixBuffer(numberOfFeatures, 1);
+        thresholdOut = Float32VectorBuffer(numberOfFeatures);
     }
     if( childCountsOut.GetM() != numberOfFeatures || childCountsOut.GetN() != 1 )
     {
@@ -130,8 +130,8 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& dat
             {
                 bestGainInEntropy = (entropyStart - leftEntropy - rightEntropy);
                 // printf("New best entropy f=%d t=%d impurity=%0.2f leftWeight=%0.f rightWeight=%0.2f\n",  f, t, bestGainInEntropy, leftWeight, rightWeight);
-                impurityOut.Set(f, 0, bestGainInEntropy);
-                thresholdOut.Set(f, 0, thresholds.Get(f,t));
+                impurityOut.Set(f, bestGainInEntropy);
+                thresholdOut.Set(f, thresholds.Get(f,t));
                 childCountsOut.Set(f, 0, leftWeight);
                 childCountsOut.Set(f, 1, rightWeight);
 

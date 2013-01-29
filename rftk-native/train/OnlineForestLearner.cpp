@@ -20,7 +20,7 @@ OnlineForestLearner::OnlineForestLearner( const TrainConfigParams& trainConfigPa
 
 Forest OnlineForestLearner::GetForest() const { return mForest; }
 
-void OnlineForestLearner::Train(BufferCollection data, Int32MatrixBuffer indices, OnlineSamplingParams samplingParams )
+void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices, OnlineSamplingParams samplingParams )
 {
     boost::mt19937 gen( std::time(NULL) );
     boost::poisson_distribution<> poisson(1.0);
@@ -31,26 +31,26 @@ void OnlineForestLearner::Train(BufferCollection data, Int32MatrixBuffer indices
     {
         printf("OnlineForestLearner::Train tree=%d\n", treeIndex);
 
-        Float32MatrixBuffer weights(indices.GetM(),1);
+        Float32VectorBuffer weights(indices.GetN());
         if( samplingParams.mUsePoisson )
         {
-            for(int i=0; i<weights.GetM(); i++)
+            for(int i=0; i<weights.GetN(); i++)
             {
                 const float possionValue = static_cast<float>(var_poisson());
-                weights.Set(i,0, possionValue);
+                weights.Set(i,possionValue);
             }
         }
         else
         {
             weights.SetAll(1.0f);
         }
-        data.AddFloat32MatrixBuffer(SAMPLE_WEIGHTS, weights);
+        data.AddFloat32VectorBuffer(SAMPLE_WEIGHTS, weights);
 
         // Iterate over each sample (this cannot be farmed out to different threads)
         Tree& tree = mForest.mTrees[treeIndex];
-        for(int sampleIndex=0; sampleIndex<indices.GetM(); sampleIndex++)
+        for(int sampleIndex=0; sampleIndex<indices.GetN(); sampleIndex++)
         {
-            if( weights.Get(sampleIndex,0) < FLT_EPSILON )
+            if( weights.Get(sampleIndex) < FLT_EPSILON )
             {
                 continue;
             }
@@ -58,8 +58,8 @@ void OnlineForestLearner::Train(BufferCollection data, Int32MatrixBuffer indices
             int treeDepth = 0;
             const int nodeIndex = walkTree( tree, 0, data, sampleIndex, treeDepth );
 
-            Int32MatrixBuffer singleIndex(1,1);
-            singleIndex.Set(0,0, indices.Get(sampleIndex, 0));
+            Int32VectorBuffer singleIndex(1);
+            singleIndex.Set(0, indices.Get(sampleIndex));
 
             std::pair<int,int> treeNodeKey = std::make_pair(treeIndex, nodeIndex);
             if( mActiveNodes.find(treeNodeKey) == mActiveNodes.end() )

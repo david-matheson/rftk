@@ -32,6 +32,7 @@ public:
     T GetMin() const;
 
     void Append(const VectorBufferTemplate<T>& buffer);
+    VectorBufferTemplate<T> Slice(const VectorBufferTemplate<int32_t>& indices) const;
 
     void AsNumpy1dFloat32(float* outfloat1d, int n) const;
     void AsNumpy1dInt32(int* outint1d, int n) const;
@@ -188,6 +189,18 @@ void VectorBufferTemplate<T>::Append(const VectorBufferTemplate<T>& buffer)
     {
         Set(n+oldN, buffer.Get(n));
     }
+}
+
+template <class T>
+VectorBufferTemplate<T> VectorBufferTemplate<T>::Slice(const VectorBufferTemplate<int32_t>& indices) const
+{
+    VectorBufferTemplate<T> sliced(indices.GetN());
+    for(int i=0; i<indices.GetN(); i++)
+    {
+        int r = indices.Get(i);
+        sliced.Set(i, Get(r));
+    }
+    return sliced;
 }
 
 template <class T>

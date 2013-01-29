@@ -66,20 +66,19 @@ int AxisAlignedFeatureExtractor::GetFloatParamsDim() const { return 1; }
 int AxisAlignedFeatureExtractor::GetIntParamsDim() const { return 2; }
 
 void AxisAlignedFeatureExtractor::Extract(  const BufferCollection& data,
-                                            const Int32MatrixBuffer& sampleIndices,
+                                            const Int32VectorBuffer& sampleIndices,
                                             const Int32MatrixBuffer& intFeatureParams,
                                             const Float32MatrixBuffer& floatFeatureParams,
                                             Float32MatrixBuffer& featureValuesOUT) const// #features X #samples
 {
     // printf("AxisAlignedFeatureExtractor::Extract\n");
-    ASSERT_ARG_DIM_1D(sampleIndices.GetN(), 1)
     ASSERT_ARG_DIM_1D(intFeatureParams.GetM(), floatFeatureParams.GetM())
     ASSERT( data.HasFloat32MatrixBuffer(X_FLOAT_DATA) )
     ASSERT_ARG_DIM_1D(data.GetFloat32MatrixBuffer(X_FLOAT_DATA).GetN(), mNumberOfComponents)
 
     const Float32MatrixBuffer& Xs = data.GetFloat32MatrixBuffer(X_FLOAT_DATA);
 
-    const int numberOfSamples = sampleIndices.GetM();
+    const int numberOfSamples = sampleIndices.GetN();
     const int numberOfFeatures = intFeatureParams.GetM();
     const int numberOfDataPoints = Xs.GetM();
 
@@ -88,7 +87,7 @@ void AxisAlignedFeatureExtractor::Extract(  const BufferCollection& data,
     // Extract component features
     for(int s=0; s<numberOfSamples; s++)
     {
-        const int index = sampleIndices.Get(s, 0);
+        const int index = sampleIndices.Get(s);
         ASSERT_VALID_RANGE(index, 0, numberOfDataPoints)
 
         for(int t=0; t<numberOfFeatures; t++)

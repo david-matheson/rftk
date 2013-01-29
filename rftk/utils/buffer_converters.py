@@ -47,10 +47,14 @@ def as_numpy_array( buffer, flatten=False ):
     isInt32Tensor3Buffer = isinstance(buffer, buffers.Int32Tensor3Buffer)
     isFloatMatrixBuffer = isinstance(buffer, buffers.Float32MatrixBuffer) or isinstance(buffer, buffers.Float64MatrixBuffer)
     isIntMatrixBuffer = isinstance(buffer, buffers.Int32MatrixBuffer) or isinstance(buffer, buffers.Int64MatrixBuffer)
+    isFloatVectorBuffer = isinstance(buffer, buffers.Float32VectorBuffer) or isinstance(buffer, buffers.Float64VectorBuffer)
+    isIntVectorBuffer = isinstance(buffer, buffers.Int32VectorBuffer) or isinstance(buffer, buffers.Int64VectorBuffer)
 
-    assert(isFloat32Tensor3Buffer or isInt32Tensor3Buffer or isFloatMatrixBuffer or isIntMatrixBuffer)
+    assert(isFloat32Tensor3Buffer or isInt32Tensor3Buffer 
+        or isFloatMatrixBuffer or isIntMatrixBuffer
+        or isFloatVectorBuffer or isIntVectorBuffer)
 
-    if isFloat32Tensor3Buffer or isFloatMatrixBuffer:
+    if isFloat32Tensor3Buffer or isFloatMatrixBuffer or isFloatVectorBuffer:
         buffer_type = np.float32
     else:
         buffer_type = np.int32
@@ -72,6 +76,13 @@ def as_numpy_array( buffer, flatten=False ):
             buffer.AsNumpy2dInt32(result)
         if buffer.GetN() == 1 and flatten:
             result = result.flatten()
+
+    elif isFloatVectorBuffer or isIntVectorBuffer:
+        result = np.zeros(buffer.GetN(), dtype=buffer_type)
+        if isFloatVectorBuffer:
+            buffer.AsNumpy1dFloat32(result)
+        if isIntVectorBuffer:
+            buffer.AsNumpy1dInt32(result)
 
     return result
 

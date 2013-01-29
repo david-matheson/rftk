@@ -15,7 +15,7 @@ class TestAxisAlignedFeature(unittest.TestCase):
         bufferCollection = buffers.BufferCollection()
         bufferCollection.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, xs)
 
-        sample_indices = buffer_converters.as_matrix_buffer(np.array(range(2), dtype=np.int32))
+        sample_indices = buffers.Int32Vector(np.array(range(2), dtype=np.int32))
         int_feature_params = buffer_converters.as_matrix_buffer(np.array([[1,1],[1,0],[1,2],[1,0]], dtype=np.int32))
         float_feature_params = buffer_converters.as_matrix_buffer(np.array([0,0,0,0], dtype=np.float32))
         results_buffer = buffers.Float32MatrixBuffer()

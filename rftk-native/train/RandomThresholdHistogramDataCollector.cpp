@@ -26,15 +26,14 @@ RandomThresholdHistogramDataCollector::~RandomThresholdHistogramDataCollector()
 }
 
 void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& data,
-                                    const Int32MatrixBuffer& sampleIndices,
+                                    const Int32VectorBuffer& sampleIndices,
                                     const Float32MatrixBuffer& featureValues,
                                     boost::mt19937& gen )
 {
     // printf("RandomThresholdHistogramDataCollector::Collect\n");
 
-    ASSERT_ARG_DIM_1D(sampleIndices.GetN(), 1)
-    ASSERT_ARG_DIM_1D(sampleIndices.GetM(), featureValues.GetM())
-    ASSERT(data.HasInt32MatrixBuffer(CLASS_LABELS))
+    ASSERT_ARG_DIM_1D(sampleIndices.GetN(), featureValues.GetM())
+    ASSERT(data.HasInt32VectorBuffer(CLASS_LABELS))
 
     boost::bernoulli_distribution<> bernoulli(mProbabilityOfNullStream);
     boost::variate_generator<boost::mt19937&,boost::bernoulli_distribution<> > var_bernoulli(gen, bernoulli);
@@ -112,17 +111,17 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
             mData.AddFloat32Tensor3Buffer(HISTOGRAM_RIGHT, histogramRight);
         }
 
-        const Int32MatrixBuffer& classLabels = data.GetInt32MatrixBuffer(CLASS_LABELS).Slice(sampleIndices);
-        const Float32MatrixBuffer& sampleWeights = data.GetFloat32MatrixBuffer(SAMPLE_WEIGHTS).Slice(sampleIndices);
+        const Int32VectorBuffer& classLabels = data.GetInt32VectorBuffer(CLASS_LABELS).Slice(sampleIndices);
+        const Float32VectorBuffer& sampleWeights = data.GetFloat32VectorBuffer(SAMPLE_WEIGHTS).Slice(sampleIndices);
 
         Float32Tensor3Buffer& histogramLeft = mData.GetFloat32Tensor3Buffer(HISTOGRAM_LEFT);
         Float32Tensor3Buffer& histogramRight = mData.GetFloat32Tensor3Buffer(HISTOGRAM_RIGHT);
         Float32MatrixBuffer& thresholds = mData.GetFloat32MatrixBuffer(THRESHOLDS);
 
-        for(int i=0; i<sampleIndices.GetM(); i++)
+        for(int i=0; i<sampleIndices.GetN(); i++)
         {
-            const int classLabel = classLabels.Get(i,0);
-            const float weight = sampleWeights.Get(i,0);
+            const int classLabel = classLabels.Get(i);
+            const float weight = sampleWeights.Get(i);
             for(int f=0; f<featureValues.GetN(); f++)
             {
                 const float featureValue = featureValues.Get(i,f);
@@ -138,7 +137,7 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
             }
         }
 
-        mNumberOfCollectedSamples += sampleIndices.GetM();
+        mNumberOfCollectedSamples += sampleIndices.GetN();
     }
 }
 

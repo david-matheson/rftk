@@ -8,7 +8,7 @@ public:
     virtual FeatureExtractorI* Clone() const=0;
 
     virtual void Extract(const BufferCollection& data,
-                        const Int32MatrixBuffer& sampleIndices,
+                        const Int32VectorBuffer& sampleIndices,
                         const Int32MatrixBuffer& intFeatureParams,
                         const Float32MatrixBuffer& floatFeatureParams,
                         Float32MatrixBuffer& featureValuesOUT ) const=0;// #tests X #samples

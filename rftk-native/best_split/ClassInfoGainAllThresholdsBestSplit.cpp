@@ -57,36 +57,35 @@ ClassInfoGainAllThresholdsBestSplit::~ClassInfoGainAllThresholdsBestSplit()
 
 
 void ClassInfoGainAllThresholdsBestSplit::BestSplits(   const BufferCollection& data,
-                                                        Float32MatrixBuffer& impurityOut,
-                                                        Float32MatrixBuffer& thresholdOut,
+                                                        Float32VectorBuffer& impurityOut,
+                                                        Float32VectorBuffer& thresholdOut,
                                                         Float32MatrixBuffer& childCountsOut,
                                                         Float32MatrixBuffer& leftYsOut,
                                                         Float32MatrixBuffer& rightYsOut) const
 {
-    ASSERT( data.HasInt32MatrixBuffer(CLASS_LABELS) )
-    ASSERT( data.HasFloat32MatrixBuffer(SAMPLE_WEIGHTS) )
+    ASSERT( data.HasInt32VectorBuffer(CLASS_LABELS) )
+    ASSERT( data.HasFloat32VectorBuffer(SAMPLE_WEIGHTS) )
     ASSERT( data.HasFloat32MatrixBuffer(FEATURE_VALUES) )
 
-    const Int32MatrixBuffer& classLabels = data.GetInt32MatrixBuffer(CLASS_LABELS);
-    const Float32MatrixBuffer& sampleWeights = data.GetFloat32MatrixBuffer(SAMPLE_WEIGHTS);
+    const Int32VectorBuffer& classLabels = data.GetInt32VectorBuffer(CLASS_LABELS);
+    const Float32VectorBuffer& sampleWeights = data.GetFloat32VectorBuffer(SAMPLE_WEIGHTS);
     const Float32MatrixBuffer& featureValues = data.GetFloat32MatrixBuffer(FEATURE_VALUES).Transpose();
 
-    ASSERT_ARG_DIM_1D(classLabels.GetN(), 1)
-    ASSERT_ARG_DIM_1D(sampleWeights.GetN(), 1)
-    ASSERT_ARG_DIM_1D(classLabels.GetM(), sampleWeights.GetM())
+
+    ASSERT_ARG_DIM_1D(classLabels.GetN(), sampleWeights.GetN())
 
     const int numberSampleIndices = featureValues.GetN();
     const int numberOfFeatures = featureValues.GetM();
 
 
     // Create new results buffer if they're not the right dimensions
-    if( impurityOut.GetM() != numberOfFeatures || impurityOut.GetN() != 1 )
+    if( impurityOut.GetN() != numberOfFeatures )
     {
-        impurityOut = Float32MatrixBuffer(numberOfFeatures, 1);
+        impurityOut = Float32VectorBuffer(numberOfFeatures);
     }
-    if( thresholdOut.GetM() != numberOfFeatures || thresholdOut.GetN() != 1 )
+    if( thresholdOut.GetN() != numberOfFeatures )
     {
-        thresholdOut = Float32MatrixBuffer(numberOfFeatures, 1);
+        thresholdOut = Float32VectorBuffer(numberOfFeatures);
     }
     if( childCountsOut.GetM() != numberOfFeatures || childCountsOut.GetN() != 1 )
     {
@@ -107,8 +106,8 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   const BufferCollection& 
     float totalWeight = 0.0f;
     for(int i=0; i<numberSampleIndices; i++)
     {
-        const float weight = sampleWeights.Get(i, 0);
-        unsigned short classId = classLabels.Get(i, 0);
+        const float weight = sampleWeights.Get(i);
+        unsigned short classId = classLabels.Get(i);
         initialClassLabelCounts[classId] += weight;
         totalWeight += weight;
     }
@@ -173,8 +172,8 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   const BufferCollection& 
         for(int sortedIndex=0; sortedIndex<numberSampleIndices-1; sortedIndex++)
         {
             const int i = sorter.GetUnSortedIndex(sortedIndex);
-            const float weight = sampleWeights.Get(i, 0);
-            const int classId = classLabels.Get(i, 0);
+            const float weight = sampleWeights.Get(i);
+            const int classId = classLabels.Get(i);
 
             leftClassLabelCounts[classId] -= weight;
             rightClassLabelCounts[classId] += weight;
@@ -222,8 +221,8 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   const BufferCollection& 
             }
 
         }
-        impurityOut.Set(testIndex, 0, bestGainInEntropy);
-        thresholdOut.Set(testIndex, 0, bestThreshold);
+        impurityOut.Set(testIndex, bestGainInEntropy);
+        thresholdOut.Set(testIndex, bestThreshold);
         childCountsOut.Set(testIndex, 0, bestLeftWeight);
         childCountsOut.Set(testIndex, 1, bestRightWeight);
 

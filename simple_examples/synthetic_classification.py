@@ -68,9 +68,9 @@ if __name__ == "__main__":
 
         data = buffers.BufferCollection()
         data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(X_train))
-        data.AddInt32MatrixBuffer(buffers.CLASS_LABELS, buffer_converters.as_matrix_buffer(Y_train))
+        data.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffers.Int32Vector(Y_train))
         sampling_config = train.OfflineSamplingParams(x_m, True)
-        indices = buffer_converters.as_matrix_buffer( np.array(np.arange(x_m), dtype=np.int32) )
+        indices = buffers.Int32Vector( np.array(np.arange(x_m), dtype=np.int32) )
         full_forest_data = depth_first_learner.Train(data, indices, sampling_config, number_of_jobs)
         forest = predict_utils.MatrixForestPredictor(full_forest_data)
 

@@ -19,7 +19,7 @@ public:
                         int numberOfTrees,
                         int maxNumberOfNodes);
     TrainConfigParams( const TrainConfigParams& other );
-    TrainConfigParams& operator=( const TrainConfigParams& rhs );
+    TrainConfigParams & operator=( const TrainConfigParams& rhs );
     ~TrainConfigParams();
     void Free();
 
