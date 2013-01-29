@@ -25,24 +25,24 @@ Int64MatrixBuffer Int64Matrix(long long* long2d, int m, int n)
 
 // Old helper
 
-Float32MatrixBuffer vecBufferFloat(float* float1d, int m)
+Float32MatrixBuffer vecBufferFloat(float* float1d, int n)
 {
-    return Float32MatrixBuffer(float1d, m, 1);
+    return Float32MatrixBuffer(float1d, n, 1);
 }
 
-Float64MatrixBuffer vecBufferFloat64(double* double1d, int m)
+Float64MatrixBuffer vecBufferFloat64(double* double1d, int n)
 {
-    return Float64MatrixBuffer(double1d, m, 1);
+    return Float64MatrixBuffer(double1d, n, 1);
 }
 
-Int32MatrixBuffer vecBufferInt(int* int1d, int m)
+Int32MatrixBuffer vecBufferInt(int* int1d, int n)
 {
-    return Int32MatrixBuffer(int1d, m, 1);
+    return Int32MatrixBuffer(int1d, n, 1);
 }
 
-Int64MatrixBuffer vecBufferInt64(long long* long1d, int m)
+Int64MatrixBuffer vecBufferInt64(long long* long1d, int n)
 {
-    return Int64MatrixBuffer(long1d, m, 1);
+    return Int64MatrixBuffer(long1d, n, 1);
 }
 
 

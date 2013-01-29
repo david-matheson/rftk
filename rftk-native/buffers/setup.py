@@ -28,8 +28,9 @@ class my_install(install):
 if sys.platform == 'linux2':
     _buffers = Extension("_buffers",
                        ["buffers.i",
-                       "Tensor3Buffer.cpp",
+                       "VectorBuffer.cpp",
                        "MatrixBuffer.cpp",
+                       "Tensor3Buffer.cpp",
                        "BufferCollection.cpp"],
                        swig_opts=["-c++", "-I../assert_util"],
                        include_dirs = [numpy_include, "../assert_util"],
@@ -39,8 +40,9 @@ if sys.platform == 'linux2':
 elif sys.platform == 'darwin':
     _buffers = Extension("_buffers",
                        ["buffers.i",
-                       "Tensor3Buffer.cpp",
+                       "VectorBuffer.cpp",
                        "MatrixBuffer.cpp",
+                       "Tensor3Buffer.cpp",
                        "BufferCollection.cpp"],
                        swig_opts=["-c++", "-I../assert_util"],
                        include_dirs = [numpy_include, "../assert_util"],

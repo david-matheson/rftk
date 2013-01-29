@@ -69,7 +69,7 @@ MatrixBufferTemplate<T>::MatrixBufferTemplate(int m, int n)
 
 template <class T>
 MatrixBufferTemplate<T>::MatrixBufferTemplate(float* data, int m, int n)
-: mData( data, data + m*n )
+: mData( m*n )
 , mM(m)
 , mN(n)
 {
@@ -304,9 +304,9 @@ Float64MatrixBuffer Float64Matrix(double* double2d, int m, int n);
 Int32MatrixBuffer Int32Matrix(int* int2d, int m, int n);
 Int64MatrixBuffer Int64Matrix(long long* long2d, int m, int n);
 
-Float32MatrixBuffer vecBufferFloat(float* float1d, int m);
-Float64MatrixBuffer vecBufferFloat64(double* double1d, int m);
-Int32MatrixBuffer vecBufferInt(int* int1d, int m);
-Int64MatrixBuffer vecBufferInt64(long long* long1d, int m);
+Float32MatrixBuffer vecBufferFloat(float* float1d, int n);
+Float64MatrixBuffer vecBufferFloat64(double* double1d, int n);
+Int32MatrixBuffer vecBufferInt(int* int1d, int n);
+Int64MatrixBuffer vecBufferInt64(long long* long1d, int n);
 
 

@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 
+#include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "Tensor3Buffer.h"
 
@@ -15,10 +16,21 @@
 #define HISTOGRAM_RIGHT "histogram_Right"
 #define THRESHOLDS      "Thresholds"
 
-
 class BufferCollection
 {
 public:
+    bool HasFloat32VectorBuffer(std::string name) const;
+    void AddFloat32VectorBuffer(std::string name, const Float32VectorBuffer& data );
+    void AppendFloat32VectorBuffer(std::string name, const Float32VectorBuffer& data );
+    const Float32VectorBuffer& GetFloat32VectorBuffer(const std::string& name) const;
+    Float32VectorBuffer& GetFloat32VectorBuffer(const std::string& name);
+
+    bool HasInt32VectorBuffer(std::string name) const;
+    void AddInt32VectorBuffer(std::string name, const Int32VectorBuffer& data );
+    void AppendInt32VectorBuffer(std::string name, const Int32VectorBuffer& data );
+    const Int32VectorBuffer& GetInt32VectorBuffer(const std::string& name) const;
+    Int32VectorBuffer& GetInt32VectorBuffer(const std::string& name);
+
     bool HasFloat32MatrixBuffer(std::string name) const;
     void AddFloat32MatrixBuffer(std::string name, const Float32MatrixBuffer& data );
     void AppendVerticalFloat32MatrixBuffer(std::string name, const Float32MatrixBuffer& data );
@@ -42,8 +54,10 @@ public:
     Int32Tensor3Buffer& GetInt32Tensor3Buffer(std::string name);
 
 private:
-    std::map<std::string, Float32MatrixBuffer> mFloatMatrixBuffers;
-    std::map<std::string, Int32MatrixBuffer> mIntMatrixBuffers;
-    std::map<std::string, Float32Tensor3Buffer> mFloatImgBuffers;
-    std::map<std::string, Int32Tensor3Buffer> mIntImgBuffers;
+    std::map<std::string, Float32VectorBuffer> mFloat32VectorBuffers;
+    std::map<std::string, Int32VectorBuffer> mInt32VectorBuffers;
+    std::map<std::string, Float32MatrixBuffer> mFloat32MatrixBuffers;
+    std::map<std::string, Int32MatrixBuffer> mInt32MatrixBuffers;
+    std::map<std::string, Float32Tensor3Buffer> mFloat32Tensor3Buffers;
+    std::map<std::string, Int32Tensor3Buffer> mInt32Tensor3Buffers;
 };
