@@ -1,3 +1,4 @@
+#include "assert_util.h"
 #include "BufferCollection.h"
 
 bool BufferCollection::HasFloat32VectorBuffer(std::string name) const
@@ -24,11 +25,13 @@ void BufferCollection::AppendFloat32VectorBuffer(std::string name, const Float32
 
 const Float32VectorBuffer& BufferCollection::GetFloat32VectorBuffer(const std::string& name) const
 {
+    ASSERT(HasFloat32VectorBuffer(name))
     return mFloat32VectorBuffers.find(name)->second;
 }
 
 Float32VectorBuffer& BufferCollection::GetFloat32VectorBuffer(const std::string& name)
 {
+    ASSERT(HasFloat32VectorBuffer(name))
     return mFloat32VectorBuffers.find(name)->second;
 }
 
@@ -57,11 +60,13 @@ void BufferCollection::AppendInt32VectorBuffer(std::string name, const Int32Vect
 
 const Int32VectorBuffer& BufferCollection::GetInt32VectorBuffer(const std::string& name) const
 {
+    ASSERT(HasInt32VectorBuffer(name))
     return mInt32VectorBuffers.find(name)->second;
 }
 
 Int32VectorBuffer& BufferCollection::GetInt32VectorBuffer(const std::string& name)
 {
+    ASSERT(HasInt32VectorBuffer(name))
     return mInt32VectorBuffers.find(name)->second;
 }
 
@@ -89,11 +94,13 @@ void BufferCollection::AppendVerticalFloat32MatrixBuffer(std::string name, const
 
 const Float32MatrixBuffer& BufferCollection::GetFloat32MatrixBuffer(const std::string& name) const
 {
+    ASSERT(HasFloat32MatrixBuffer(name))
     return mFloat32MatrixBuffers.find(name)->second;
 }
 
 Float32MatrixBuffer& BufferCollection::GetFloat32MatrixBuffer(const std::string& name)
 {
+    ASSERT(HasFloat32MatrixBuffer(name))
     return mFloat32MatrixBuffers.find(name)->second;
 }
 
@@ -121,11 +128,13 @@ void BufferCollection::AppendVerticalInt32MatrixBuffer(std::string name, const I
 
 const Int32MatrixBuffer& BufferCollection::GetInt32MatrixBuffer(const std::string& name) const
 {
+    ASSERT(HasInt32MatrixBuffer(name))
     return mInt32MatrixBuffers.find(name)->second;
 }
 
 Int32MatrixBuffer& BufferCollection::GetInt32MatrixBuffer(const std::string& name)
 {
+    ASSERT(HasInt32MatrixBuffer(name))
     return mInt32MatrixBuffers.find(name)->second;
 }
 
@@ -141,11 +150,13 @@ void BufferCollection::AddFloat32Tensor3Buffer(std::string name, const Float32Te
 
 const Float32Tensor3Buffer& BufferCollection::GetFloat32Tensor3Buffer(std::string name) const
 {
+    ASSERT(HasFloat32Tensor3Buffer(name))
     return mFloat32Tensor3Buffers.find(name)->second;
 }
 
 Float32Tensor3Buffer& BufferCollection::GetFloat32Tensor3Buffer(std::string name)
 {
+    ASSERT(HasFloat32Tensor3Buffer(name))
     return mFloat32Tensor3Buffers.find(name)->second;
 }
 
@@ -161,10 +172,12 @@ void BufferCollection::AddInt32Tensor3Buffer(std::string name, const Int32Tensor
 
 const Int32Tensor3Buffer& BufferCollection::GetInt32Tensor3Buffer(std::string name) const
 {
+    ASSERT(HasInt32Tensor3Buffer(name))
     return mInt32Tensor3Buffers.find(name)->second;
 }
 
 Int32Tensor3Buffer& BufferCollection::GetInt32Tensor3Buffer(std::string name)
 {
+    ASSERT(HasInt32Tensor3Buffer(name))
     return mInt32Tensor3Buffers.find(name)->second;
 }
