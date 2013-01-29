@@ -56,12 +56,12 @@ def as_numpy_array( buffer, flatten=False ):
         buffer_type = np.int32
 
     if isFloat32Tensor3Buffer or isInt32Tensor3Buffer:
-        result = np.zeros((buffer.GetNumberOfImgs(), buffer.GetM(), buffer.GetN()), dtype=buffer_type)
+        result = np.zeros((buffer.GetL(), buffer.GetM(), buffer.GetN()), dtype=buffer_type)
         if isFloat32Tensor3Buffer:
             buffer.AsNumpy3dFloat32(result)
         if isInt32Tensor3Buffer:
             buffer.AsNumpy3dInt32(result)
-        if buffer.GetNumberOfImgs() == 1 and flatten:
+        if buffer.GetL() == 1 and flatten:
             result = result.reshape(buffer.GetM(), buffer.GetN)
 
     elif isFloatMatrixBuffer or isIntMatrixBuffer:

@@ -1,72 +1,212 @@
 #pragma once
 
-#include <tr1/memory>
 #include <vector>
+#include <iostream>
 
-class Float32Tensor3Buffer {
+#include "assert_util.h"
+
+template <class T>
+class Tensor3BufferTemplate {
 public:
-    Float32Tensor3Buffer() {}
-    Float32Tensor3Buffer(int numberOfImgs, int m, int n);
-    Float32Tensor3Buffer(float* data, int numberOfImgs, int m, int n);
-    Float32Tensor3Buffer(double* data, int numberOfImgs, int m, int n);
-    ~Float32Tensor3Buffer() {}
+    Tensor3BufferTemplate() {}
+    Tensor3BufferTemplate(int l, int m, int n);
+    Tensor3BufferTemplate(float* data, int l, int m, int n);
+    Tensor3BufferTemplate(double* data, int l, int m, int n);
+    Tensor3BufferTemplate(int* data, int l, int m, int n);
+    Tensor3BufferTemplate(long long* data, int l, int m, int n);
+    ~Tensor3BufferTemplate();
 
-    int GetNumberOfImgs() const { return mNumberOfImgs; }
-    int GetM() const { return mM; }
-    int GetN() const { return mN; }
+    int GetL() const;
+    int GetM() const;
+    int GetN() const;
 
-    void Set(int img, int m, int n, float value);
-    float Get(int img, int m, int n) const;
-    void SetUnsafe(int img, int m, int n, float value) { (*mData)[img*mM*mN + m*mN + n] = value; }
-    float GetUnsafe(int img, int m, int n) const { return (*mData)[img*mM*mN + m*mN + n]; }
-    // const float* GetDataRaw() const { return &mData[0]; }
-    // const float* GetImgDataRaw(int img) const { return &mData[img*mM*mN]; }
-    // void SetData(const float* data) { mData.assign(data, data + mNumberOfImgs*mM*mN); }
+    void Set(int l, int m, int n, T value);
+    T Get(int l, int m, int n) const;
+    void SetUnsafe(int l, int m, int n, T value);
+    T GetUnsafe(int l, int m, int n) const;
 
-    const float* GetRowPtrUnsafe(int img, int m) const { return &(*mData)[img*mM*mN + m*mN]; }
+    const T* GetRowPtrUnsafe(int l, int m) const;
 
-    Float32Tensor3Buffer SharedMemoryCopy() { return *this; }
-    void AsNumpy3dFloat32(float* outfloat3d, int l, int m, int n);
+    void AsNumpy3dFloat32(float* outfloat3d, int l, int m, int n) const;
+    void AsNumpy3dInt32(int* outint3d, int l, int m, int n) const;
 
     void Print() const;
 
-    std::tr1::shared_ptr< std::vector< float > > mData;
-    int mNumberOfImgs;
+private:
+    std::vector< T > mData;
+    int mL;
     int mM;
     int mN;
 };
 
+template <class T>
+Tensor3BufferTemplate<T>::Tensor3BufferTemplate(int l, int m, int n)
+: mData(l*m*n)
+, mL(l)
+, mM(m)
+, mN(n)
+{
+}
 
-class Int32Tensor3Buffer {
-public:
-    Int32Tensor3Buffer() {}
-    Int32Tensor3Buffer(int numberOfImgs, int m, int n);
-    Int32Tensor3Buffer(int* data, int numberOfImgs, int m, int n);
-    Int32Tensor3Buffer(long long* data, int numberOfImgs, int m, int n);
-    ~Int32Tensor3Buffer() {}
+template <class T>
+Tensor3BufferTemplate<T>::Tensor3BufferTemplate(float* data, int l, int m, int n)
+: mData(l*m*n)
+, mL(l)
+, mM(m)
+, mN(n)
+{
+    for(int i=0; i<l*m*n; i++)
+    {
+        mData[i] = static_cast<T>(data[i]);
+    }
+}
 
-    int GetNumberOfImgs() const { return mNumberOfImgs; }
-    int GetM() const { return mM; }
-    int GetN() const { return mN; }
+template <class T>
+Tensor3BufferTemplate<T>::Tensor3BufferTemplate(double* data, int l, int m, int n)
+: mData(l*m*n)
+, mL(l)
+, mM(m)
+, mN(n)
+{
+    for(int i=0; i<l*m*n; i++)
+    {
+        mData[i] = static_cast<T>(data[i]);
+    }
+}
 
-    void Set(int img, int m, int n, int value);
-    int Get(int img, int m, int n) const;
-    void SetUnsafe(int img, int m, int n, int value) { (*mData)[img*mM*mN + m*mN + n] = value; }
-    int GetUnsafe(int img, int m, int n) const { return (*mData)[img*mM*mN + m*mN + n]; }
-    // const int* GetDataRaw() const { return &mData[0]; }
-    // const int* GetImgDataRaw(int img) const { return &mData[img*mM*mN]; }
-    // void SetData(const int* data) { mData.assign(data, data + mNumberOfImgs*mM*mN); }
+template <class T>
+Tensor3BufferTemplate<T>::Tensor3BufferTemplate(int* data, int l, int m, int n)
+: mData(l*m*n)
+, mL(l)
+, mM(m)
+, mN(n)
+{
+    for(int i=0; i<l*m*n; i++)
+    {
+        mData[i] = static_cast<T>(data[i]);
+    }
+}
 
-    const int* GetRowPtrUnsafe(int img, int m) const { return &(*mData)[img*mM*mN + m*mN]; }
+template <class T>
+Tensor3BufferTemplate<T>::Tensor3BufferTemplate(long long* data, int l, int m, int n)
+: mData(l*m*n)
+, mL(l)
+, mM(m)
+, mN(n)
+{
+    for(int i=0; i<l*m*n; i++)
+    {
+        mData[i] = static_cast<T>(data[i]);
+    }
+}
 
-    Int32Tensor3Buffer SharedMemoryCopy() { return *this; }
-    void AsNumpy3dInt32(int* outint3d, int l, int m, int n);
+template <class T>
+Tensor3BufferTemplate<T>::~Tensor3BufferTemplate()
+{
+}
 
-    std::tr1::shared_ptr< std::vector< int > > mData;
-    int mNumberOfImgs;
-    int mM;
-    int mN;
-};
+template <class T>
+int Tensor3BufferTemplate<T>::GetL() const 
+{
+    return mL; 
+}
+
+template <class T>
+int Tensor3BufferTemplate<T>::GetM() const 
+{
+    return mM; 
+}
+
+template <class T>
+int Tensor3BufferTemplate<T>::GetN() const 
+{
+    return mN; 
+}
+
+template <class T>
+void Tensor3BufferTemplate<T>::Set(int l, int m, int n, T value)
+{
+    ASSERT_VALID_RANGE(l, 0, mL)
+    ASSERT_VALID_RANGE(m, 0, mM)
+    ASSERT_VALID_RANGE(n, 0, mN)
+    mData[l*mM*mN + m*mN + n] = value;
+}
+
+template <class T>
+T Tensor3BufferTemplate<T>::Get(int l, int m, int n) const
+{
+    ASSERT_VALID_RANGE(l, 0, mL)
+    ASSERT_VALID_RANGE(m, 0, mM)
+    ASSERT_VALID_RANGE(n, 0, mN)
+    return mData[l*mM*mN + m*mN + n];
+}
+
+template <class T>
+void Tensor3BufferTemplate<T>::SetUnsafe(int l, int m, int n, T value) 
+{
+    mData[l*mM*mN + m*mN + n] = value; 
+}
+
+template <class T>
+T Tensor3BufferTemplate<T>::GetUnsafe(int l, int m, int n) const 
+{
+    return mData[l*mM*mN + m*mN + n]; 
+}
+
+template <class T>
+const T* Tensor3BufferTemplate<T>::GetRowPtrUnsafe(int l, int m) const 
+{
+    ASSERT_VALID_RANGE(l, 0, mL)
+    ASSERT_VALID_RANGE(m, 0, mM)
+    return &mData[l*mM*mN + m*mN]; 
+}
+
+template <class T>
+void Tensor3BufferTemplate<T>::AsNumpy3dFloat32(float* outfloat3d, int l, int m, int n) const
+{
+    ASSERT_ARG_DIM_3D(l, m, n, mL, mM, mN)
+    for(int i=0; i<l*m*n; i++)
+    {
+        outfloat3d[i] = static_cast<float>(mData[i]);
+    }
+}
+
+template <class T>
+void Tensor3BufferTemplate<T>::AsNumpy3dInt32(int* outint3d, int l, int m, int n) const
+{
+    ASSERT_ARG_DIM_3D(l, m, n, mL, mM, mN)
+    for(int i=0; i<l*m*n; i++)
+    {
+        outint3d[i] = static_cast<int>(mData[i]);
+    }
+}
+
+template <class T>
+void Tensor3BufferTemplate<T>::Print() const
+{
+    std::cout << "[" << mL << " " << mM << " " << mN << "]" << std::endl;
+    std::cout << "[" << std::endl;
+    for(int l=0; l<mL; l++)
+    {
+        std::cout << "  [" << std::endl;
+        for(int m=0; m<mM; m++)
+        {
+            std::cout << "    [";
+            for(int n=0; n<mN; n++)
+            {
+                std::cout << Get(l,m,n) << " ";
+            }
+            std::cout << "]" << std::endl;
+        }
+        std::cout << "]" << std::endl;
+    }
+    std::cout << "]" << std::endl;
+}
+
+
+
+typedef Tensor3BufferTemplate<float> Float32Tensor3Buffer;
+typedef Tensor3BufferTemplate<int> Int32Tensor3Buffer;
 
 
 // Float32Tensor3Buffer Float32Tensor2(float* float2d, int m, int n);

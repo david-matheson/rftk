@@ -73,11 +73,11 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& dat
     const Float32Tensor3Buffer& histogramRight = data.GetFloat32Tensor3Buffer(HISTOGRAM_RIGHT);
     const Float32MatrixBuffer& thresholds = data.GetFloat32MatrixBuffer(THRESHOLDS);
 
-    ASSERT_ARG_DIM_3D(  histogramLeft.GetNumberOfImgs(), histogramLeft.GetM(), histogramLeft.GetN(),
-                        histogramRight.GetNumberOfImgs(), histogramRight.GetM(), histogramRight.GetN() )
+    ASSERT_ARG_DIM_3D(  histogramLeft.GetL(), histogramLeft.GetM(), histogramLeft.GetN(),
+                        histogramRight.GetL(), histogramRight.GetM(), histogramRight.GetN() )
     ASSERT_ARG_DIM_1D( histogramLeft.GetN(), mNumberOfClasses )
 
-    const int numberOfFeatures = histogramLeft.GetNumberOfImgs();
+    const int numberOfFeatures = histogramLeft.GetL();
 
     // Create new results buffer if they're not the right dimensions
     if( impurityOut.GetM() != numberOfFeatures || impurityOut.GetN() != 1 )
@@ -110,7 +110,7 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& dat
     const float totalWeight = sum(&initialClassLabelCounts[0], mNumberOfClasses);
     const float entropyStart = calculateDiscreteEntropy(&initialClassLabelCounts[0], mNumberOfClasses);
 
-    for(int f=0; f<histogramLeft.GetNumberOfImgs(); f++)
+    for(int f=0; f<histogramLeft.GetL(); f++)
     {
         float bestGainInEntropy = FLT_MIN;
 

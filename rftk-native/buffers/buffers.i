@@ -49,5 +49,6 @@
 %template(Int32MatrixBuffer) MatrixBufferTemplate<int>;
 %template(Int64MatrixBuffer) MatrixBufferTemplate<long long>;
 
-
+%template(Float32Tensor3Buffer) Tensor3BufferTemplate<float>;
+%template(Int32Tensor3Buffer) Tensor3BufferTemplate<int>;
 
