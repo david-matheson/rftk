@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
 
@@ -8,7 +10,11 @@
 
 class ClassInfoGainHistogramsBestSplit : public BestSplitI {
 public:
-    ClassInfoGainHistogramsBestSplit(int numberOfClasses);
+    ClassInfoGainHistogramsBestSplit( int numberOfClasses, 
+                                      const std::string& leftImpurityHistrogramBufferName,
+                                      const std::string& rightImpurityHistrogramBufferName,
+                                      const std::string& leftYsHistogramBufferName,
+                                      const std::string& rightYsHistrogramBufferName);
     virtual ~ClassInfoGainHistogramsBestSplit();
 
     virtual BestSplitI* Clone() const;
@@ -24,4 +30,8 @@ public:
 
 private:
   int mNumberOfClasses;
+  std::string mLeftImpurityHistrogramBufferName;
+  std::string mRightImpurityHistrogramBufferName;
+  std::string mLeftYsHistogramBufferName;
+  std::string mRightYsHistogramBufferName;
 };

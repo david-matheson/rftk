@@ -9,17 +9,18 @@
 #include "MatrixBuffer.h"
 #include "Tensor3Buffer.h"
 #include "BufferCollection.h"
-#include "NodeDataCollectorI.h"
+#include "RandomThresholdHistogramDataCollector.h"
 
 
 // Subsampling could live in here along with a max cap
-class RandomThresholdHistogramDataCollector : public NodeDataCollectorI
+class TwoStreamRandomThresholdHistogramDataCollector : public RandomThresholdHistogramDataCollector
 {
 public:
-    RandomThresholdHistogramDataCollector(  int numberOfClasses,
-                                            int numberOfThresholds,
-                                            float probabilityOfNullStream);
-    virtual ~RandomThresholdHistogramDataCollector();
+    TwoStreamRandomThresholdHistogramDataCollector(int numberOfClasses,
+                                                  int numberOfThresholds,
+                                                  float probabilityOfNullStream,
+                                                  float probabilityOfImpurityStream);
+    virtual ~TwoStreamRandomThresholdHistogramDataCollector();
 
     // Also copies/compacts weights, ys, etc
     virtual void Collect( const BufferCollection& data,
@@ -31,24 +32,23 @@ public:
     virtual const BufferCollection& GetCollectedData();
 
     virtual int GetNumberOfCollectedSamples();
-
-protected:
-    void UpdateThresholds(const Float32MatrixBuffer& featureValues);
 private:
     int mNumberOfThresholdSamples;
     int mNumberOfCollectedSamples;
     int mNumberOfClasses;
     int mNumberOfThresholds;
     float mProbabilityOfNullStream;
+    float mProbabilityOfImpurityStream;
     std::vector< std::set<float> > mCandidateThresholds;
     BufferCollection mData; // #features x #thresholds x #class
 };
 
-class RandomThresholdHistogramDataCollectorFactory : public NodeDataCollectorFactoryI
+class TwoStreamRandomThresholdHistogramDataCollectorFactory : public NodeDataCollectorFactoryI
 {
 public:
-    RandomThresholdHistogramDataCollectorFactory(int numberOfClasses, int numberOfThresholds, float probabilityOfNullStream);
-    virtual ~RandomThresholdHistogramDataCollectorFactory();
+    TwoStreamRandomThresholdHistogramDataCollectorFactory(int numberOfClasses, int numberOfThresholds, 
+                                                          float probabilityOfNullStream, float probabilityOfImpurityStream);
+    virtual ~TwoStreamRandomThresholdHistogramDataCollectorFactory();
     virtual NodeDataCollectorFactoryI* Clone() const;
     virtual NodeDataCollectorI* Create() const;
 
@@ -56,4 +56,5 @@ private:
     int mNumberOfClasses;
     int mNumberOfThresholds;
     float mProbabilityOfNullStream;
+    float mProbabilityOfImpurityStream;
 };

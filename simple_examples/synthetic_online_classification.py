@@ -40,7 +40,8 @@ if __name__ == "__main__":
     # node_data_collector = train.AllNodeDataCollectorFactory()
     # class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, y_dim)
     node_data_collector = train.RandomThresholdHistogramDataCollectorFactory(y_dim, 10, 0.7)
-    class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(y_dim)
+    class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(y_dim, 
+            buffers.HISTOGRAM_LEFT, buffers.HISTOGRAM_RIGHT, buffers.HISTOGRAM_LEFT, buffers.HISTOGRAM_RIGHT)
     # self.split_criteria = train.OnlineAlphaBetaSplitCriteria(   max_depth,
     #                                                             min_impurity,
     #                                                             min_samples_split)

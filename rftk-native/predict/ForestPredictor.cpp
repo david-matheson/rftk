@@ -18,7 +18,7 @@ void ForestPredictor::PredictLeafs(BufferCollection& data,  const int numberOfin
 
 void ForestPredictor::PredictYs(BufferCollection& data,  const int numberOfindices, Float32MatrixBuffer& ysOut)
 {
-    return ForestPredictYs(mForest, data, numberOfindices, ysOut);
+    ForestPredictYs(mForest, data, numberOfindices, ysOut);
 }
 
 void ForestPredictLeafs(const Forest& forest, BufferCollection& data, const int numberOfindices, Int32MatrixBuffer& leafsOut)

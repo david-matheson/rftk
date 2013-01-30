@@ -52,7 +52,8 @@ if __name__ == "__main__":
         # node_data_collector = train.AllNodeDataCollectorFactory()
         # class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, int(np.max(Y_train)) + 1)
         node_data_collector = train.RandomThresholdHistogramDataCollectorFactory(int(np.max(Y_train)) + 1, number_random_thresholds, 0)
-        class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(int(np.max(Y_train)) + 1)
+        class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(int(np.max(Y_train)) + 1, 
+            buffers.HISTOGRAM_LEFT, buffers.HISTOGRAM_RIGHT, buffers.HISTOGRAM_LEFT, buffers.HISTOGRAM_RIGHT)
         split_criteria = train.OfflineSplitCriteria( max_depth,
                                                     0.001,
                                                     min_samples_split,

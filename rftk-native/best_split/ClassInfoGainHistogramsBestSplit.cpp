@@ -37,8 +37,16 @@ float calculateDiscreteEntropy(const float* classHistogramCounts, int numberOfCl
 }
 
 
-ClassInfoGainHistogramsBestSplit::ClassInfoGainHistogramsBestSplit(int numberOfClasses)
+ClassInfoGainHistogramsBestSplit::ClassInfoGainHistogramsBestSplit(int numberOfClasses, 
+                                      const std::string& leftImpurityHistrogramBufferName,
+                                      const std::string& rightImpurityHistrogramBufferName,
+                                      const std::string& leftYsHistogramBufferName,
+                                      const std::string& rightYsHistrogramBufferName)
 : mNumberOfClasses(numberOfClasses)
+, mLeftImpurityHistrogramBufferName(leftImpurityHistrogramBufferName)
+, mRightImpurityHistrogramBufferName(rightImpurityHistrogramBufferName)
+, mLeftYsHistogramBufferName(leftYsHistogramBufferName)
+, mRightYsHistogramBufferName(rightYsHistrogramBufferName)
 {
 }
 
@@ -65,63 +73,56 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& dat
                                                         Float32MatrixBuffer& leftYsOut,
                                                         Float32MatrixBuffer& rightYsOut) const
 {
-    ASSERT( data.HasFloat32Tensor3Buffer(HISTOGRAM_LEFT) )
-    ASSERT( data.HasFloat32Tensor3Buffer(HISTOGRAM_RIGHT) )
+    ASSERT( data.HasFloat32Tensor3Buffer(mLeftImpurityHistrogramBufferName) )
+    ASSERT( data.HasFloat32Tensor3Buffer(mRightImpurityHistrogramBufferName) )
+    ASSERT( data.HasFloat32Tensor3Buffer(mLeftYsHistogramBufferName) )
+    ASSERT( data.HasFloat32Tensor3Buffer(mRightYsHistogramBufferName) )
     ASSERT( data.HasFloat32MatrixBuffer(THRESHOLDS) )
 
-    const Float32Tensor3Buffer& histogramLeft = data.GetFloat32Tensor3Buffer(HISTOGRAM_LEFT);
-    const Float32Tensor3Buffer& histogramRight = data.GetFloat32Tensor3Buffer(HISTOGRAM_RIGHT);
+    const Float32Tensor3Buffer& impurityHistogramLeft = data.GetFloat32Tensor3Buffer(mLeftImpurityHistrogramBufferName);
+    const Float32Tensor3Buffer& impurityHistogramRight = data.GetFloat32Tensor3Buffer(mRightImpurityHistrogramBufferName);
+    const Float32Tensor3Buffer& ysHistogramLeft = data.GetFloat32Tensor3Buffer(mLeftYsHistogramBufferName);
+    const Float32Tensor3Buffer& ysHistogramRight = data.GetFloat32Tensor3Buffer(mRightYsHistogramBufferName);
     const Float32MatrixBuffer& thresholds = data.GetFloat32MatrixBuffer(THRESHOLDS);
 
-    ASSERT_ARG_DIM_3D(  histogramLeft.GetL(), histogramLeft.GetM(), histogramLeft.GetN(),
-                        histogramRight.GetL(), histogramRight.GetM(), histogramRight.GetN() )
-    ASSERT_ARG_DIM_1D( histogramLeft.GetN(), mNumberOfClasses )
+    ASSERT_ARG_DIM_3D(  impurityHistogramLeft.GetL(), impurityHistogramLeft.GetM(), impurityHistogramLeft.GetN(),
+                        impurityHistogramRight.GetL(), impurityHistogramRight.GetM(), impurityHistogramRight.GetN() )
+    ASSERT_ARG_DIM_3D(  impurityHistogramLeft.GetL(), impurityHistogramLeft.GetM(), impurityHistogramLeft.GetN(),
+                        ysHistogramLeft.GetL(), ysHistogramLeft.GetM(), ysHistogramLeft.GetN() )    
+    ASSERT_ARG_DIM_3D(  impurityHistogramLeft.GetL(), impurityHistogramLeft.GetM(), impurityHistogramLeft.GetN(),
+                        ysHistogramRight.GetL(), ysHistogramRight.GetM(), ysHistogramRight.GetN() )  
+    ASSERT_ARG_DIM_1D( impurityHistogramLeft.GetN(), mNumberOfClasses )
 
-    const int numberOfFeatures = histogramLeft.GetL();
+    const int numberOfFeatures = impurityHistogramLeft.GetL();
 
     // Create new results buffer if they're not the right dimensions
-    if( impurityOut.GetN() != numberOfFeatures )
-    {
-        impurityOut = Float32VectorBuffer(numberOfFeatures);
-    }
-    if( thresholdOut.GetN() != numberOfFeatures )
-    {
-        thresholdOut = Float32VectorBuffer(numberOfFeatures);
-    }
-    if( childCountsOut.GetM() != numberOfFeatures || childCountsOut.GetN() != 1 )
-    {
-        childCountsOut = Float32MatrixBuffer(numberOfFeatures, 2);
-    }
-    if( leftYsOut.GetM() != numberOfFeatures || leftYsOut.GetN() != mNumberOfClasses )
-    {
-        leftYsOut = Float32MatrixBuffer(numberOfFeatures, mNumberOfClasses);
-    }
-    if( rightYsOut.GetM() != numberOfFeatures || rightYsOut.GetN() != mNumberOfClasses )
-    {
-        rightYsOut = Float32MatrixBuffer(numberOfFeatures, mNumberOfClasses);
-    }
+    impurityOut.Resize(numberOfFeatures);
+    thresholdOut.Resize(numberOfFeatures);
+    childCountsOut.Resize(numberOfFeatures, 2);
+    leftYsOut.Resize(numberOfFeatures, mNumberOfClasses);
+    rightYsOut.Resize(numberOfFeatures, mNumberOfClasses);
 
     std::vector<float> initialClassLabelCounts(mNumberOfClasses);
     for(int c=0; c<mNumberOfClasses; c++)
     {
-        initialClassLabelCounts[c] += histogramLeft.Get(0,0,c);
-        initialClassLabelCounts[c] += histogramRight.Get(0,0,c);
+        initialClassLabelCounts[c] += impurityHistogramLeft.Get(0,0,c);
+        initialClassLabelCounts[c] += impurityHistogramRight.Get(0,0,c);
     }
     const float totalWeight = sum(&initialClassLabelCounts[0], mNumberOfClasses);
     const float entropyStart = calculateDiscreteEntropy(&initialClassLabelCounts[0], mNumberOfClasses);
 
-    for(int f=0; f<histogramLeft.GetL(); f++)
+    for(int f=0; f<impurityHistogramLeft.GetL(); f++)
     {
         float bestGainInEntropy = FLT_MIN;
 
-        for(int t=0; t<histogramLeft.GetM(); t++)
+        for(int t=0; t<impurityHistogramLeft.GetM(); t++)
         {
-            const float* left = histogramLeft.GetRowPtrUnsafe(f,t);
+            const float* left = impurityHistogramLeft.GetRowPtrUnsafe(f,t);
             const float leftWeight = sum(left, mNumberOfClasses);
             const float leftRatio = (leftWeight > FLT_EPSILON) ? leftWeight / totalWeight : 0.0f;
             const float leftEntropy = leftRatio * calculateDiscreteEntropy(left, mNumberOfClasses);
 
-            const float* right = histogramRight.GetRowPtrUnsafe(f,t);
+            const float* right = impurityHistogramRight.GetRowPtrUnsafe(f,t);
             const float rightWeight = sum(right, mNumberOfClasses);
             const float rightRatio = (rightWeight > FLT_EPSILON) ? rightWeight / totalWeight : 0.0f;
             const float rightEntropy = rightRatio * calculateDiscreteEntropy(right, mNumberOfClasses);
@@ -135,10 +136,14 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& dat
                 childCountsOut.Set(f, 0, leftWeight);
                 childCountsOut.Set(f, 1, rightWeight);
 
+                const float* leftYs = ysHistogramLeft.GetRowPtrUnsafe(f,t);
+                const float leftYsTotal = sum(leftYs, mNumberOfClasses);
+                const float* rightYs = ysHistogramRight.GetRowPtrUnsafe(f,t);
+                const float rightYsTotal = sum(rightYs, mNumberOfClasses);
                 for(int c=0; c<mNumberOfClasses; c++)
                 {
-                    leftYsOut.Set(f, c, left[c] / leftWeight);
-                    rightYsOut.Set(f, c, right[c] / rightWeight);
+                    leftYsOut.Set(f, c, leftYs[c] / leftYsTotal);
+                    rightYsOut.Set(f, c, rightYs[c] / rightYsTotal);
                 }
             }
         }

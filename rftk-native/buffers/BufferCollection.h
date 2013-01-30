@@ -12,9 +12,13 @@
 #define SAMPLE_WEIGHTS  "SampleWeights"
 #define CLASS_LABELS    "ClassLabels"
 #define FEATURE_VALUES  "Feature_Values"
-#define HISTOGRAM_LEFT  "histogram_Left"
-#define HISTOGRAM_RIGHT "histogram_Right"
+#define HISTOGRAM_LEFT  "Histogram_Left"
+#define HISTOGRAM_RIGHT "Histogram_Right"
 #define THRESHOLDS      "Thresholds"
+#define IMPURITY_HISTOGRAM_LEFT   "Impurity_Histogram_Left"
+#define IMPURITY_HISTOGRAM_RIGHT  "Impurity_Histogram_Right"
+#define YS_HISTOGRAM_LEFT         "Ys_Histogram_Left"
+#define YS_HISTOGRAM_RIGHT        "Ys_Histogram_Right"
 
 class BufferCollection
 {
