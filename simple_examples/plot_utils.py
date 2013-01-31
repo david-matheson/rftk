@@ -35,7 +35,7 @@ def image_from_predictions(Y_hat, Y_probs, colors, shape):
     return img
 
 
-def grid_plot(predictor, X_train, Y_train, X_test, plot_filename):
+def grid_plot(predictor, X_train, Y_train, X_test, plot_filename, plot_scatter=False):
     grid_extend = [X_test[:,0].min(), X_test[:,0].max(), X_test[:,1].min(), X_test[:,1].max()]
     Ux, Uy = np.meshgrid(
             np.linspace(grid_extend[0], grid_extend[1]),
@@ -50,9 +50,10 @@ def grid_plot(predictor, X_train, Y_train, X_test, plot_filename):
     Y_hat = Y_probs.argmax(axis=1)
 
     plt.figure()
-    colors = np.array([[1,0,0], [0,1,0], [0,0,1]])
+    colors = np.array([[1,0,0], [0,1,0], [0,0,1], [1,1,0], [1,0,1]])
     img = image_from_predictions(Y_hat, Y_probs.max(axis=1), colors, Ux.shape)
     plt.imshow(img, extent=grid_extend, origin='lower')
-    # plt.scatter(X_train[:,0], X_train[:,1], c=colors_from_predictions(Y_train, colors))
+    if plot_scatter:
+        plt.scatter(X_train[:,0], X_train[:,1], c=colors_from_predictions(Y_train, colors))
     plt.savefig(plot_filename)
     plt.close()
