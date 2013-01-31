@@ -34,7 +34,6 @@ public:
 
 protected:
     void UpdateThresholds(const Float32MatrixBuffer& featureValues);
-private:
     int mNumberOfThresholdSamples;
     int mNumberOfCollectedSamples;
     int mNumberOfClasses;

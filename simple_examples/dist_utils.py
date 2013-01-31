@@ -54,7 +54,7 @@ def mog_2d_3class_example2():
     return MixtureOfGaussians(mixture, mus, covs)
 
 def mog_2d_5class_example1():
-    mixture = np.array([0.20, 0.34, 0.30, 0.15, 0.02])
+    mixture = np.array([0.20, 0.33, 0.30, 0.15, 0.02])
     mus = [np.array([2, 2]),    # r
             np.array([6, 2]),    # g
             np.array([4, 0]),    # b

@@ -26,7 +26,7 @@ if __name__ == "__main__":
     parser.add_argument('-m', '--max_epoch', default=1000, type=int, help='number of epochs')
     parser.add_argument('-r', '--split_rate', default=1.3, type=float, help='amount of extra data required at depth+1')
     parser.add_argument('-s', '--amount_of_data_to_split_first', default=10.0, type=float, help='amount of data required for first split')
-    parser.add_argument('-i', '--independent_impurity_and_ys', default=0, type=int, help='whether to use 2 streams')
+    parser.add_argument('-i', '--independent_impurity_and_ys', default=1, type=int, help='whether to use 2 streams')
     parser.add_argument('-pn', '--null_probability', default=0.5, type=float, help='probability that each tree ignores datapoint')
     parser.add_argument('-pi', '--impurity_probability', default=0.5, type=float, help='probability of impurity stream')
     parser.add_argument('-t', '--number_of_thresholds', default=10, type=int, help='number of thresholds')
@@ -74,13 +74,14 @@ if __name__ == "__main__":
         class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(y_dim,
                 buffers.HISTOGRAM_LEFT, buffers.HISTOGRAM_RIGHT, buffers.HISTOGRAM_LEFT, buffers.HISTOGRAM_RIGHT)
     else:
+        print "HERE"
         node_data_collector = train.TwoStreamRandomThresholdHistogramDataCollectorFactory(y_dim,
                                                                                             args.number_of_thresholds,
                                                                                             args.null_probability,
                                                                                             args.impurity_probability)
         class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(y_dim,
-                buffers.IMPURITY_HISTOGRAM_LEFT, buffers.YS_HISTOGRAM_RIGHT,
-                buffers.YS_HISTOGRAM_LEFT, buffers.HISTOGRAM_RIGHT)
+                buffers.IMPURITY_HISTOGRAM_LEFT, buffers.IMPURITY_HISTOGRAM_RIGHT,
+                buffers.YS_HISTOGRAM_LEFT, buffers.YS_HISTOGRAM_RIGHT)
 
     # self.split_criteria = train.OnlineAlphaBetaSplitCriteria(   max_depth,
     #                                                             min_impurity,

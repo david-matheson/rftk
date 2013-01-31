@@ -33,14 +33,7 @@ public:
 
     virtual int GetNumberOfCollectedSamples();
 private:
-    int mNumberOfThresholdSamples;
-    int mNumberOfCollectedSamples;
-    int mNumberOfClasses;
-    int mNumberOfThresholds;
-    float mProbabilityOfNullStream;
     float mProbabilityOfImpurityStream;
-    std::vector< std::set<float> > mCandidateThresholds;
-    BufferCollection mData; // #features x #thresholds x #class
 };
 
 class TwoStreamRandomThresholdHistogramDataCollectorFactory : public NodeDataCollectorFactoryI
