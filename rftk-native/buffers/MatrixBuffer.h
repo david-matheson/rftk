@@ -36,7 +36,7 @@ public:
 
     void AppendVertical(const MatrixBufferTemplate<T>& buffer);
     MatrixBufferTemplate<T> Transpose() const;
-    MatrixBufferTemplate<T> Slice(const MatrixBufferTemplate<int32_t>& indices) const;
+    MatrixBufferTemplate<T> Slice(const MatrixBufferTemplate<int>& indices) const;
     MatrixBufferTemplate<T> SliceRow(const int row) const;
 
     void AsNumpy2dFloat32(float* outfloat2d, int m, int n) const;
@@ -162,17 +162,17 @@ T MatrixBufferTemplate<T>::Get(int m, int n) const
 template <class T>
 void MatrixBufferTemplate<T>::SetUnsafe(int m, int n, T value)
 {
-    mData[m*mN + n] = value; 
+    mData[m*mN + n] = value;
 }
 
 template <class T>
-T MatrixBufferTemplate<T>::GetUnsafe(int m, int n) const 
+T MatrixBufferTemplate<T>::GetUnsafe(int m, int n) const
 {
-    return mData[ m*mN + n]; 
+    return mData[ m*mN + n];
 }
 
 template <class T>
-const T* MatrixBufferTemplate<T>::GetRowPtrUnsafe(int m) const 
+const T* MatrixBufferTemplate<T>::GetRowPtrUnsafe(int m) const
 {
     return &mData[m*mN];
 }
@@ -230,7 +230,7 @@ MatrixBufferTemplate<T> MatrixBufferTemplate<T>::Transpose() const
 }
 
 template <class T>
-MatrixBufferTemplate<T> MatrixBufferTemplate<T>::Slice(const MatrixBufferTemplate<int32_t>& indices) const
+MatrixBufferTemplate<T> MatrixBufferTemplate<T>::Slice(const MatrixBufferTemplate<int>& indices) const
 {
     MatrixBufferTemplate<T> sliced(indices.GetM(), mN);
     ASSERT_ARG_DIM_1D(indices.GetN(), 1)
