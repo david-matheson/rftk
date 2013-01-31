@@ -100,9 +100,12 @@ if __name__ == "__main__":
     sampling_config = train.OnlineSamplingParams(False, 1.0)
     online_learner = train.OnlineForestLearner(train_config)
 
+    total_samples = 0
+
     for epoch_id in range(1,args.max_epoch):
         print "Fitting epoch %d" % (epoch_id)
         epoch_per = epoch_id * epoch_id
+        total_samples += epoch_per
         X_train,Y_train = dist.sample(epoch_per)
         (x_m,_) = X_train.shape
 
@@ -121,8 +124,8 @@ if __name__ == "__main__":
         print "Synthetic (classification):"
         print "    Accuracy:", np.mean(Y_test == y_hat)
 
-        plot_utils.grid_plot(predict_forest, X_train, Y_train, X_test, "%s/synthetic_online_classification-%d.png" % (forest_plot_path, epoch_per))
-        plot_utils.grid_plot(predict_forest, X_train, Y_train, X_test, "%s/synthetic_online_classification-%d-scatter.png" % (forest_plot_path, epoch_per),plot_scatter=True)
+        plot_utils.grid_plot(predict_forest, X_train, Y_train, X_test, "%s/synthetic_online_classification-%d.png" % (forest_plot_path, total_samples))
+        plot_utils.grid_plot(predict_forest, X_train, Y_train, X_test, "%s/synthetic_online_classification-%d-scatter.png" % (forest_plot_path, total_samples),plot_scatter=True)
 
         online_forest_data = online_learner.GetForest()
 
@@ -130,4 +133,4 @@ if __name__ == "__main__":
             print tree_id
             single_tree_forest_data = forest_data.Forest([online_forest_data.GetTree(tree_id)])
             single_tree_forest_predictor = predict_utils.MatrixForestPredictor(single_tree_forest_data)
-            plot_utils.grid_plot(single_tree_forest_predictor, X_train, Y_train, X_test, "%s/synthetic_online_classification-%d-%d.png" % (trees_plot_path, epoch_per, tree_id))
+            plot_utils.grid_plot(single_tree_forest_predictor, X_train, Y_train, X_test, "%s/synthetic_online_classification-%d-%d.png" % (trees_plot_path, total_samples, tree_id))
