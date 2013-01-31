@@ -9,7 +9,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     dist = dist_utils.get_mog_dist(args.distribution)
-    n_per = 10000
+    n_per = 1000
 
     X_train,Y_train = dist.sample(n_per)
     X_test,Y_test = dist.sample(n_per)
