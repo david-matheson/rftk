@@ -40,6 +40,15 @@ class MixtureOfGaussians:
             y_probs[i,:] = y_probs[i,:] / np.sum(y_probs[i])
         return y_probs
 
+    def prob(self, xs):
+        # Again, there must be a better way of doing this
+        (number_of_datapoints, _) = xs.shape
+        y_probs = np.zeros((number_of_datapoints, self.number_classes))
+        for i in range(number_of_datapoints):
+            for c in range(self.number_classes):
+                y_probs[i,c] = self.mixture[c] * gaussian_pdf(self.mus[c], self.covs_det[c], self.covs_inv[c], xs[i])
+            y_probs[i,:] = y_probs[i,:]
+        return y_probs
 
 def mog_2d_3class_example1():
     mixture = np.array([0.33, 0.33, 0.34])
