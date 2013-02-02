@@ -77,7 +77,8 @@ int OnlineConsistentSplitCriteria::BestSplit(int treeDepth,
             const float leftCounts = childCounts.Get(i, 0);
             const float rightCounts = childCounts.Get(i, 1);
 
-            if (leftCounts + rightCounts > maxNumberOfSamples)
+            if ((leftCounts > minNumberOfSamples)
+                && (rightCounts > minNumberOfSamples))
             {
                 maxIndex = i;
             }
