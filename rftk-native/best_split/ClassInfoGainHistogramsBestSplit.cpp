@@ -37,7 +37,7 @@ float calculateDiscreteEntropy(const float* classHistogramCounts, int numberOfCl
 }
 
 
-ClassInfoGainHistogramsBestSplit::ClassInfoGainHistogramsBestSplit(int numberOfClasses, 
+ClassInfoGainHistogramsBestSplit::ClassInfoGainHistogramsBestSplit(int numberOfClasses,
                                       const std::string& leftImpurityHistrogramBufferName,
                                       const std::string& rightImpurityHistrogramBufferName,
                                       const std::string& leftYsHistogramBufferName,
@@ -88,9 +88,9 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& dat
     ASSERT_ARG_DIM_3D(  impurityHistogramLeft.GetL(), impurityHistogramLeft.GetM(), impurityHistogramLeft.GetN(),
                         impurityHistogramRight.GetL(), impurityHistogramRight.GetM(), impurityHistogramRight.GetN() )
     ASSERT_ARG_DIM_3D(  impurityHistogramLeft.GetL(), impurityHistogramLeft.GetM(), impurityHistogramLeft.GetN(),
-                        ysHistogramLeft.GetL(), ysHistogramLeft.GetM(), ysHistogramLeft.GetN() )    
+                        ysHistogramLeft.GetL(), ysHistogramLeft.GetM(), ysHistogramLeft.GetN() )
     ASSERT_ARG_DIM_3D(  impurityHistogramLeft.GetL(), impurityHistogramLeft.GetM(), impurityHistogramLeft.GetN(),
-                        ysHistogramRight.GetL(), ysHistogramRight.GetM(), ysHistogramRight.GetN() )  
+                        ysHistogramRight.GetL(), ysHistogramRight.GetM(), ysHistogramRight.GetN() )
     ASSERT_ARG_DIM_1D( impurityHistogramLeft.GetN(), mNumberOfClasses )
 
     const int numberOfFeatures = impurityHistogramLeft.GetL();
@@ -133,8 +133,6 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& dat
                 // printf("New best entropy f=%d t=%d impurity=%0.2f leftWeight=%0.f rightWeight=%0.2f\n",  f, t, bestGainInEntropy, leftWeight, rightWeight);
                 impurityOut.Set(f, bestGainInEntropy);
                 thresholdOut.Set(f, thresholds.Get(f,t));
-                childCountsOut.Set(f, 0, leftWeight);
-                childCountsOut.Set(f, 1, rightWeight);
 
                 const float* leftYs = ysHistogramLeft.GetRowPtrUnsafe(f,t);
                 const float leftYsTotal = sum(leftYs, mNumberOfClasses);
@@ -145,6 +143,9 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& dat
                     leftYsOut.Set(f, c, leftYs[c] / leftYsTotal);
                     rightYsOut.Set(f, c, rightYs[c] / rightYsTotal);
                 }
+
+                childCountsOut.Set(f, 0, leftYsTotal);
+                childCountsOut.Set(f, 1, rightYsTotal);
             }
         }
     }
