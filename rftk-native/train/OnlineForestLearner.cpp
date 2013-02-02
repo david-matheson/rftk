@@ -29,7 +29,7 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
     // Loop over trees could be farmed out to different jobs
     for(int treeIndex=0; treeIndex<mForest.mTrees.size(); treeIndex++)
     {
-        printf("OnlineForestLearner::Train tree=%d\n", treeIndex);
+        // printf("OnlineForestLearner::Train tree=%d\n", treeIndex);
 
         Float32VectorBuffer weights(indices.GetN());
         if( samplingParams.mUsePoisson )
@@ -91,6 +91,6 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
                 delete activeSplit;
             }
         }
-        printf("Tree=%d mLastNodeIndex=%d\n", treeIndex, tree.mLastNodeIndex);
+        // printf("Tree=%d mLastNodeIndex=%d\n", treeIndex, tree.mLastNodeIndex);
     }
 }
