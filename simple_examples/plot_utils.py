@@ -57,3 +57,33 @@ def grid_plot(predictor, X_train, Y_train, X_test, plot_filename, plot_scatter=F
         plt.scatter(X_train[:,0], X_train[:,1], c=colors_from_predictions(Y_train, colors))
     plt.savefig(plot_filename)
     plt.close()
+
+
+def plot_forest_and_tree_accuracy(max_range, samples_counts,
+    online_forest_accuracy, online_tree_accuracy,
+    bayes_accuracy, offline_forest_accuracy, plot_filename, start_index=4):
+
+    import matplotlib.pyplot as plt
+    bayes_points = np.zeros(max_range)
+    bayes_points.fill(bayes_accuracy)
+
+    print len(samples_counts[start_index:max_range])
+    print len(bayes_points[start_index:max_range])
+
+    plt.plot(samples_counts[start_index:max_range], bayes_points[start_index:max_range], '-', lw=2, color='g', label="Bayes estimator")
+
+    (_, number_of_trees) = online_tree_accuracy.shape
+    for t in range(number_of_trees):
+      plt.plot(samples_counts[start_index:], online_tree_accuracy[start_index:max_range,t], '-', lw=1, color='r')
+    plt.plot(samples_counts[start_index:], online_tree_accuracy[start_index:max_range,0], '-', lw=1, color='r', label="Online tree")
+
+    if offline_forest_accuracy is not None:
+        plt.plot(samples_counts[start_index:max_range], offline_forest_accuracy[start_index:max_range], '-', lw=2, color='grey', label="Offline rf")
+
+    plt.plot(samples_counts[start_index:max_range], online_forest_accuracy[start_index:max_range], '-', lw=2, color='b', label="Online rf")
+
+    # plt.xscale('log')
+    plt.legend(loc = (0.5, 0.2))
+
+    plt.savefig(plot_filename)
+    plt.show()
