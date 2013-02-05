@@ -37,8 +37,9 @@ if __name__ == "__main__":
                                                     n_jobs=sklearn_config.number_of_jobs)
             forest.fit(X_train, Y_train)
             y_probs = forest.predict_proba(X_test)
+            y_hat2 = forest.predict(X_test)
             y_hat = y_probs.argmax(axis=1)
-            accurracy = np.mean(Y_test == y_hat)
+            accurracy = np.mean(Y_test == y_hat2)
             print "%d %d %d: %0.5f" % (number_of_samples, number_of_passes, run_id, accurracy)
             forest_measurement = exp_measurement.SklearnForestMeasurement(data_config, sklearn_config,
                 number_of_samples, number_of_passes, accurracy)
