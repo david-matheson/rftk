@@ -26,7 +26,8 @@ public:
 
     void ProcessData(   const BufferCollection& data,
                         const Int32VectorBuffer& sampleIndices,
-                        boost::mt19937& gen );
+                        boost::mt19937& gen,
+                        const int minSamples );
 
     void WriteImpurity( int groupId,
                         int outStartIndex,

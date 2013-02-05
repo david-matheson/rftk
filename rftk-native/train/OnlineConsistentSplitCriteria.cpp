@@ -86,3 +86,9 @@ int OnlineConsistentSplitCriteria::BestSplit(int treeDepth,
     }
     return maxIndex;
 }
+
+int OnlineConsistentSplitCriteria::MinTotalSamples( int treeDepth ) const
+{
+    const float minNumberOfSamples = 2.0f * mMinNumberOfSamplesFirstSplit * pow(mGrowthRate, treeDepth);
+    return static_cast<int>(minNumberOfSamples);
+}

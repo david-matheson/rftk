@@ -37,7 +37,8 @@ ActiveSplitNodeFeatureSet::~ActiveSplitNodeFeatureSet()
 
 void ActiveSplitNodeFeatureSet::ProcessData(    const BufferCollection& data,
                                                 const Int32VectorBuffer& sampleIndices,
-                                                boost::mt19937& gen )
+                                                boost::mt19937& gen,
+                                                const int minSamples )
 {
     ASSERT_ARG_DIM_1D(mFloatParams.GetM(), mIntParams.GetM());
     ASSERT_ARG_DIM_1D(mImpurities.GetN(), mThresholds.GetN());
@@ -54,7 +55,7 @@ void ActiveSplitNodeFeatureSet::ProcessData(    const BufferCollection& data,
     // Calculate impurity and child ys
     BufferCollection nodeBufferCollection = mNodeDataCollector->GetCollectedData();
     // Todo: make it clearer that we only calculate best splits when stats have been collected
-    if( mNodeDataCollector->GetNumberOfCollectedSamples() > 0)
+    if( mNodeDataCollector->GetNumberOfCollectedSamples() > minSamples)
     {
         mBestSplitter->BestSplits( nodeBufferCollection,
                            mImpurities,
@@ -201,7 +202,7 @@ void ActiveSplitNode::ProcessData(  const BufferCollection& data,
     // printf("ActiveSplitNode::ProcessData\n");
     for(int i = 0; i < mActiveSplitNodeFeatureSets.size(); i++)
     {
-        mActiveSplitNodeFeatureSets[i].ProcessData(data, sampleIndices, gen);
+        mActiveSplitNodeFeatureSets[i].ProcessData(data, sampleIndices, gen, mSplitCriteria->MinTotalSamples(mTreeDepth));
     }
 
     // printf("ActiveSplitNode::ProcessData WriteImpurity\n");

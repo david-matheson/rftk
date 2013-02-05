@@ -64,3 +64,8 @@ int OfflineSplitCriteria::BestSplit(int treeDepth,
     }
     return maxIndex;
 }
+
+int OfflineSplitCriteria::MinTotalSamples( int treeDepth ) const
+{
+    return 0;
+}

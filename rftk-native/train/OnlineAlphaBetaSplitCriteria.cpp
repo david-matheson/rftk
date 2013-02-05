@@ -62,3 +62,8 @@ int OnlineAlphaBetaSplitCriteria::BestSplit(int treeDepth,
     }
     return maxIndex;
 }
+
+int OnlineAlphaBetaSplitCriteria::MinTotalSamples( int treeDepth ) const
+{
+    return mMinNumberOfSamples;
+}

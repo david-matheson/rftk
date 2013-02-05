@@ -24,4 +24,6 @@ public:
     virtual int BestSplit(  int treeDepth,
                             const Float32VectorBuffer& impurityValues,
                             const Float32MatrixBuffer& childCounts ) const=0;
+
+    virtual int MinTotalSamples( int treeDepth ) const=0;
 };
