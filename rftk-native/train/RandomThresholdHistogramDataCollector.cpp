@@ -110,7 +110,7 @@ void RandomThresholdHistogramDataCollector::UpdateThresholds(const Float32Matrix
                 }
             }
         }
-        mNumberOfThresholdSamples += featureValues.GetN();
+        mNumberOfThresholdSamples += featureValues.GetM();
         // Find the feature with the least number of unique samples
         int minSetSize = INT_MAX;
         for(int f=0; f<mCandidateThresholds.size(); f++)
@@ -122,7 +122,7 @@ void RandomThresholdHistogramDataCollector::UpdateThresholds(const Float32Matrix
         if(mNumberOfThresholdSamples > mNumberOfThresholds*1000)
         {
             printf("WARNING RandomThresholdHistogramDataCollector wanted %d thresholds \
-                    but only saw %d unique feature values", mNumberOfThresholds, minSetSize);
+                    but only saw %d unique feature values\n", mNumberOfThresholds, minSetSize);
             mNumberOfThresholds = minSetSize;
         }
         // Use sets to construct thresholds
