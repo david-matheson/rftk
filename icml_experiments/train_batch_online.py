@@ -81,7 +81,7 @@ if __name__ == "__main__":
                                                     class_infogain_best_split,
                                                     split_criteria,
                                                     online_config.number_of_trees,
-                                                    100000)
+                                                    1000)
             sampling_config = train.OnlineSamplingParams(False, 1.0)
 
             # Train online forest
@@ -97,14 +97,15 @@ if __name__ == "__main__":
                 number_of_samples, number_of_passes, accurracy)
             measurements.append(forest_measurement)
 
-            online_forest_data = online_learner.GetForest()
-            for tree_id in range(online_forest_data.GetNumberOfTrees()):
-                single_tree_forest_data = forest_data.Forest([online_forest_data.GetTree(tree_id)])
-                single_tree_forest_predictor = predict_utils.MatrixForestPredictor(single_tree_forest_data)
-                y_probs = single_tree_forest_predictor.predict_proba(X_test)
-                accurracy = np.mean(Y_test == y_probs.argmax(axis=1))
-                tree_measurement = exp_measurement.OnlineTreeMeasurement(data_config, online_config,
-                    number_of_samples, number_of_passes, accurracy, tree_id)
-                measurements.append(tree_measurement)
+            if online_config.measure_tree_accuracy:
+              online_forest_data = online_learner.GetForest()
+              for tree_id in range(online_forest_data.GetNumberOfTrees()):
+                  single_tree_forest_data = forest_data.Forest([online_forest_data.GetTree(tree_id)])
+                  single_tree_forest_predictor = predict_utils.MatrixForestPredictor(single_tree_forest_data)
+                  y_probs = single_tree_forest_predictor.predict_proba(X_test)
+                  accurracy = np.mean(Y_test == y_probs.argmax(axis=1))
+                  tree_measurement = exp_measurement.OnlineTreeMeasurement(data_config, online_config,
+                      number_of_samples, number_of_passes, accurracy, tree_id)
+                  measurements.append(tree_measurement)
 
         pickle.dump(measurements, open(out_measurements_filename, "wb"))

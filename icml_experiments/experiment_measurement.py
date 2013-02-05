@@ -18,3 +18,4 @@ class OnlineTreeMeasurement( ForestMeasurement ):
     def __init__(self, data_config, train_config, number_of_samples, number_of_passes, accuracy, tree_id):
         super(OnlineTreeMeasurement, self).__init__(data_config, train_config, number_of_samples, number_of_passes, accuracy)
         self.tree_id = tree_id
+
