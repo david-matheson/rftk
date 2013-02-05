@@ -6,7 +6,7 @@ import dist_utils
 
 
 def get_experiment_name():
-    return "5_class_mog"
+    return "usps"
 
 def get_data_config():
     return DataConfig()
@@ -22,22 +22,24 @@ def load_sklearn_data(file):
     data = sklearn_datasets.load_svmlight_file(file)
     X = np.array(data[0].todense(),  dtype=np.float32)
     Y = np.array( data[1], dtype=np.int32 )
+    print X.shape
     return X, Y
 
 class DataConfig(object):
     def __init__(self):
         self.data_file_train = "source_data/usps"
         self.data_file_test = "source_data/usps.t"
-        self.data_sizes = [20, 50, 100, 150, 250, 500, 1000, 2000, 5000]
-        self.number_of_passes_through_data = [1,3]
+        self.data_sizes = [20, 50, 100, 150, 250, 500, 1000, 2000, 5000, 7291]
+        self.number_of_passes_through_data = [1,3,5,10]
         self.number_of_runs = 3
         self.bayes_accuracy = 1.0
 
+        (self.X_train_org, self.Y_train_org) = load_sklearn_data(self.data_file_train)
+        (self.X_test_org, self.Y_test_org) = load_sklearn_data(self.data_file_test)
+
     def load_data(self, data_size, passes_through_data):
-        (X_train, Y_train) = load_sklearn_data(self.data_file_train)
-        (X_test, Y_test) = load_sklearn_data(self.data_file_test)
-        (X_train, Y_train) = dist_utils.generate_multi_pass_dataset(X_train, Y_train, data_size, passes_through_data)
-        return (X_train, Y_train, X_test, Y_test)
+        (X_train, Y_train) = dist_utils.generate_multi_pass_dataset(self.X_train_org, self.Y_train_org, data_size, passes_through_data)
+        return (X_train, Y_train, self.X_test_org, self.Y_test_org)
 
 
 class OnlineConfig(object):
@@ -59,7 +61,7 @@ class SklearnOfflineConfig(object):
     def __init__(self):
         self.criterion = "entropy"
         self.number_of_trees = 100
-        self.number_of_features = 1
+        self.number_of_features = 8
         self.max_depth = 1000
-        self.min_samples_split = 100
+        self.min_samples_split = 10
         self.number_of_jobs = 2
