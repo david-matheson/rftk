@@ -43,13 +43,13 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
         const int numberOfFeatures = featureValues.GetN();
         if( !mData.HasFloat32Tensor3Buffer(HISTOGRAM_LEFT) )
         {
-            mData.AddFloat32Tensor3Buffer(HISTOGRAM_LEFT, 
+            mData.AddFloat32Tensor3Buffer(HISTOGRAM_LEFT,
               Float32Tensor3Buffer(numberOfFeatures, mNumberOfThresholds, mNumberOfClasses));
         }
 
         if( !mData.HasFloat32Tensor3Buffer(HISTOGRAM_RIGHT) )
         {
-            mData.AddFloat32Tensor3Buffer(HISTOGRAM_RIGHT, 
+            mData.AddFloat32Tensor3Buffer(HISTOGRAM_RIGHT,
               Float32Tensor3Buffer(numberOfFeatures, mNumberOfThresholds, mNumberOfClasses));
         }
 
@@ -119,10 +119,9 @@ void RandomThresholdHistogramDataCollector::UpdateThresholds(const Float32Matrix
             minSetSize = std::min(minSetSize, static_cast<int>(set.size()));
         }
         // Incase there are less unique values than requested thresholds
-        if(mNumberOfThresholdSamples > mNumberOfThresholds*1000)
+        if(minSetSize < mNumberOfThresholds && mNumberOfThresholdSamples > mNumberOfThresholds*1000)
         {
-            printf("WARNING RandomThresholdHistogramDataCollector wanted %d thresholds \
-                    but only saw %d unique feature values\n", mNumberOfThresholds, minSetSize);
+            printf("WARNING RandomThresholdHistogramDataCollector wanted %d thresholds but only saw %d unique feature values\n", mNumberOfThresholds, minSetSize);
             mNumberOfThresholds = minSetSize;
         }
         // Use sets to construct thresholds
