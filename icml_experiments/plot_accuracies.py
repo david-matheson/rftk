@@ -12,6 +12,7 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--in_directory', help='directory of input measurements', required=True)
     parser.add_argument('-l', '--log_scale', type=int, help='use log scale', required=True)
     parser.add_argument('-s', '--plot_standard_deviation', type=int, default=1, help='whether to plot error bars')
+    parser.add_argument('-t', '--plot_trees', type=int, default=1, help='whether to plot trees')
     parser.add_argument('-p', '--plot_file', help='out plot', required=True)
     args = parser.parse_args()
 
@@ -26,4 +27,4 @@ if __name__ == "__main__":
         data_config.data_sizes, data_config.number_of_passes_through_data,
         measurements,
         plot_standard_deviation=(args.plot_standard_deviation != 0),
-        plot_trees=True, plot_sklearn=True, log_scale=(args.log_scale != 0), plot_filename=args.plot_file)
+        plot_trees=(args.plot_trees != 0), plot_sklearn=True, log_scale=(args.log_scale != 0), plot_filename=args.plot_file)
