@@ -44,12 +44,12 @@ public:
 
     void WriteToTree(   int index,
                         const int treeNodeIndex,
+                        const int leftTreeNodeIndex,
+                        const int rightTreeNodeIndex,
                         Float32MatrixBuffer& floatParamsOut,
                         Int32MatrixBuffer& intParamsOut,
-                        const int leftTreeNodeIndex,
-                        Float32MatrixBuffer& leftYsOut,
-                        const int rightTreeNodeIndex,
-                        Float32MatrixBuffer& rightYsOut );
+                        Float32VectorBuffer& countsOut,
+                        Float32MatrixBuffer& ysOut );
 
     int GetNumberFeatureCandidates() const { return mIntParams.GetM(); }
 
@@ -92,14 +92,14 @@ public:
     SPLT_CRITERIA ShouldSplit() { return mShouldSplit; }
 
     void WriteToTree(   const int treeNodeIndex,
+                        const int leftTreeNodeIndex,
+                        const int rightTreeNodeIndex,                                      
                         Int32MatrixBuffer& paths,
                         Float32MatrixBuffer& floatParams,
                         Int32MatrixBuffer& intParams,
-                        Int32MatrixBuffer& depth,
-                        const int leftTreeNodeIndex,
-                        Float32MatrixBuffer& leftYs,
-                        const int rightTreeNodeIndex,
-                        Float32MatrixBuffer& rightYs);
+                        Int32VectorBuffer& depth,
+                        Float32VectorBuffer& counts,
+                        Float32MatrixBuffer& ys);
 
     // Data has to be passed in because ProcessData may not keep the data
     void SplitIndices(  const BufferCollection& data,

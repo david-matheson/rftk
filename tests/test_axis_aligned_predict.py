@@ -25,15 +25,17 @@ class TestPredictWithAxisAligned(unittest.TestCase):
         int_params_1 = buffer_converters.as_matrix_buffer(np.array([[1,0],[1,1],[1,0],[1,0],[1,0]], dtype=np.int32))
         float_params_1 = buffer_converters.as_matrix_buffer(np.array([[2.2],[-5],[0],[0],[0]], dtype=np.float32))
         ys_1 = buffer_converters.as_matrix_buffer(np.array([[0,0,0],[0,0,0],[0.7,0.1,0.2],[0.3,0.3,0.4],[0.3,0.6,0.1]], dtype=np.float32))
-        depth_1 = buffer_converters.as_matrix_buffer(np.array([0, 1, 1, 2, 2], dtype=np.int32))
-        tree_1 = forest_data.Tree(path_1, int_params_1, float_params_1, depth_1, ys_1)
+        depth_1 = buffer_converters.as_vector_buffer(np.array([0, 1, 1, 2, 2], dtype=np.int32))
+        counts_1 = buffer_converters.as_vector_buffer(np.array([5, 5, 5, 5, 5], dtype=np.float32))
+        tree_1 = forest_data.Tree(path_1, int_params_1, float_params_1, depth_1, counts_1, ys_1)
 
         path_2 = buffer_converters.as_matrix_buffer(np.array([[1,2],[3,4],[-1,-1],[-1,-1],[-1,-1]], dtype=np.int32))
         int_params_2 = buffer_converters.as_matrix_buffer(np.array([[1,0],[1,0],[1,0],[1,0],[1,0]], dtype=np.int32))
         float_params_2 = buffer_converters.as_matrix_buffer(np.array([[5.0],[2.5],[0],[0],[0]], dtype=np.float32))
         ys_2 = buffer_converters.as_matrix_buffer(np.array([[0,0,0],[0,0,0],[0.8,0.1,0.1],[0.2,0.2,0.6],[0.2,0.7,0.1]], dtype=np.float32))
-        depth_2 = buffer_converters.as_matrix_buffer(np.array([0, 1, 1, 2, 2], dtype=np.int32))
-        tree_2 = forest_data.Tree(path_2, int_params_2, float_params_2, depth_2, ys_2)
+        depth_2 = buffer_converters.as_vector_buffer(np.array([0, 1, 1, 2, 2], dtype=np.int32))
+        counts_2 = buffer_converters.as_vector_buffer(np.array([5, 5, 5, 5, 5], dtype=np.float32))
+        tree_2 = forest_data.Tree(path_2, int_params_2, float_params_2, depth_2, counts_2, ys_2)
 
         forest = forest_data.Forest([tree_1, tree_2])
         return forest

@@ -22,6 +22,26 @@ def as_img_buffer( np_array ):
     else:
         raise Exception('asImgBuffer unknown type and ndim', np_array.dtype, np_array.ndim())
 
+def as_vector_buffer( np_array ):
+    if np_array.dtype == np.int32 and np_array.ndim == 1:
+        return buffers.Int32Vector( np_array )
+    elif np_array.dtype == np.float32 and np_array.ndim == 1:
+        return buffers.Float32Vector( np_array )
+    elif np_array.dtype == np.int64 and np_array.ndim == 1:
+        return buffers.Int64Vector( np_array )
+    elif np_array.dtype == np.float64 and np_array.ndim == 1:
+        return buffers.Float64Vector( np_array )
+    elif np_array.dtype == np.int32 and np_array.ndim == 2:
+        return buffers.Int32Vector( np_array.flatten() )
+    elif np_array.dtype == np.float32 and np_array.ndim == 2:
+        return buffers.Float32Vector( np_array.flatten() )
+    elif np_array.dtype == np.int64 and np_array.ndim == 2:
+        return buffers.Int64Vector( np_array.flatten() )
+    elif np_array.dtype == np.float64 and np_array.ndim == 2:
+        return buffers.Float64Vector( np_array.flatten() )
+    else:
+        raise Exception('as_vector_buffer unknown type and ndim', np_array.dtype, np_array.ndim())
+
 def as_matrix_buffer( np_array ):
     if np_array.dtype == np.int32 and np_array.ndim == 1:
         return buffers.vecBufferInt( np_array )

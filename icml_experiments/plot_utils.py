@@ -139,3 +139,58 @@ def plot_forest_and_tree_accuracy(bayes_accuracy, number_of_datapoints, number_o
     plt.legend(loc = (0.5, 0.2))
     plt.savefig(plot_filename)
     plt.show()
+
+
+def plot_depths(number_of_datapoints, number_of_passes_list, measurements, plot_standard_deviation, log_scale, plot_filename):
+
+    import matplotlib.pyplot as plt
+    import experiment_measurement as exm
+
+    for number_of_passes, line_type in zip(number_of_passes_list, ['-', '-.', '.-.', '--']):
+
+        means = np.zeros(len(number_of_datapoints))
+        stds = np.zeros(len(number_of_datapoints))
+
+        # plot online random forests
+        for i, sample_count in enumerate(number_of_datapoints):
+            filered_list = filter(lambda x: isinstance(x, exm.OnlineForestStatsMeasurement)
+                and x.number_of_samples == sample_count
+                and x.number_of_passes == number_of_passes, measurements)
+            depths = [x.average_depth for x in filered_list]
+            assert(len(depths) > 0)
+            means[i] = np.mean( depths )
+            stds[i] = np.std( depths )
+        plt.plot(number_of_datapoints, means, line_type, lw=2, color='b', label="orf min depth avg=%d" % number_of_passes)
+        if plot_standard_deviation:
+            plt.fill_between(number_of_datapoints, means-stds, means+stds, alpha=0.2, color='b')
+
+        for i, sample_count in enumerate(number_of_datapoints):
+            filered_list = filter(lambda x: isinstance(x, exm.OnlineForestStatsMeasurement)
+                and x.number_of_samples == sample_count
+                and x.number_of_passes == number_of_passes, measurements)
+            min_depths = [x.min_depth for x in filered_list]
+            assert(len(min_depths) > 0 )
+            means[i] = np.mean( min_depths )
+            stds[i] = np.std( min_depths )
+        plt.plot(number_of_datapoints, means, line_type, lw=2, color='b', label="orf min depth passes=%d" % number_of_passes)
+        if plot_standard_deviation:
+            plt.fill_between(number_of_datapoints, means-stds, means+stds, alpha=0.2, color='b')
+
+        for i, sample_count in enumerate(number_of_datapoints):
+            filered_list = filter(lambda x: isinstance(x, exm.OnlineForestStatsMeasurement)
+                and x.number_of_samples == sample_count
+                and x.number_of_passes == number_of_passes, measurements)
+            max_depths = [x.max_depth for x in filered_list]
+            assert( len(max_depths) > 0)
+            means[i] = np.mean( max_depths )
+            stds[i] = np.std( max_depths )
+        plt.plot(number_of_datapoints, means, line_type, lw=2, color='b', label="orf max depth passes=%d" % number_of_passes)
+        if plot_standard_deviation:
+            plt.fill_between(number_of_datapoints, means-stds, means+stds, alpha=0.2, color='b')
+
+    if log_scale:
+        plt.xscale('log')
+
+    plt.legend(loc = (0.5, 0.2))
+    plt.savefig(plot_filename)
+    plt.show()

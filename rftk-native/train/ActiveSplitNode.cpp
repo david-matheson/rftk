@@ -120,15 +120,13 @@ void ActiveSplitNodeFeatureSet::SplitIndices(   const int featureIndex,
 
 void ActiveSplitNodeFeatureSet::WriteToTree(int index,
                                             const int treeNodeIndex,
+                                            const int leftTreeNodeIndex,
+                                            const int rightTreeNodeIndex,
                                             Float32MatrixBuffer& floatParamsOut,
                                             Int32MatrixBuffer& intParamsOut,
-                                            const int leftTreeNodeIndex,
-                                            Float32MatrixBuffer& leftYsOut,
-                                            const int rightTreeNodeIndex,
-                                            Float32MatrixBuffer& rightYsOut )
+                                            Float32VectorBuffer& countsOut,
+                                            Float32MatrixBuffer& ysOut )
 {
-    // printf("ActiveSplitNodeFeatureSet::WriteToTree intparams\n");
-
     intParamsOut.Set(treeNodeIndex, 0, mFeatureExtractor->GetUID());
     for(int c = 1; c < mIntParams.GetN(); c++)
     {
@@ -136,32 +134,25 @@ void ActiveSplitNodeFeatureSet::WriteToTree(int index,
         intParamsOut.Set(treeNodeIndex, c, mIntParams.Get(index, c));
     }
 
-    // printf("ActiveSplitNodeFeatureSet::WriteToTree floatparms\n");
-
     floatParamsOut.Set(treeNodeIndex, 0, mThresholds.Get(index));
     for(int c = 1; c < mFloatParams.GetN(); c++)
     {
-        // Move slice copying functionality into MatrixBuffer
         floatParamsOut.Set(treeNodeIndex, c, mFloatParams.Get(index, c));
     }
 
-    // printf("ActiveSplitNodeFeatureSet::WriteToTree left leafs %d %d\n", leftTreeNodeIndex, index);
+    countsOut.Set(leftTreeNodeIndex, mChildCounts.Get(index, 0));
+    countsOut.Set(rightTreeNodeIndex, mChildCounts.Get(index, 1));
+
     for(int c = 0; c < mLeftYs.GetN(); c++)
     {
         // Move slice copying functionality into MatrixBuffer
-        leftYsOut.Set(leftTreeNodeIndex, c, mLeftYs.Get(index, c));
-        // printf("%0.2f ", leftYsOut.Get(leftTreeNodeIndex, c));
+        ysOut.Set(leftTreeNodeIndex, c, mLeftYs.Get(index, c));
     }
-    // printf("\n");
 
-    // printf("ActiveSplitNodeFeatureSet::WriteToTree right leafs %d %d\n", rightTreeNodeIndex, index);
     for(int c = 0; c < mRightYs.GetN(); c++)
     {
-        // Move slice copying functionality into MatrixBuffer
-        rightYsOut.Set(rightTreeNodeIndex, c, mRightYs.Get(index, c));
-        // printf("%0.2f ", rightYsOut.Get(rightTreeNodeIndex, c));
+        ysOut.Set(rightTreeNodeIndex, c, mRightYs.Get(index, c));
     }
-    // printf("\n");
 }
 
 ActiveSplitNode::ActiveSplitNode(const std::vector<FeatureExtractorI*> featureExtractors,
@@ -221,32 +212,34 @@ void ActiveSplitNode::ProcessData(  const BufferCollection& data,
 
 
 void ActiveSplitNode::WriteToTree(  const int treeNodeIndex,
+                                    const int leftTreeNodeIndex,
+                                    const int rightTreeNodeIndex,                                      
                                     Int32MatrixBuffer& paths,
                                     Float32MatrixBuffer& floatParams,
                                     Int32MatrixBuffer& intParams,
-                                    Int32MatrixBuffer& depth,
-                                    const int leftTreeNodeIndex,
-                                    Float32MatrixBuffer& leftYs,
-                                    const int rightTreeNodeIndex,
-                                    Float32MatrixBuffer& rightYs )
+                                    Int32VectorBuffer& depth,
+                                    Float32VectorBuffer& counts,
+                                    Float32MatrixBuffer& ys  )
 {
     ASSERT_VALID_RANGE(mBestFeatureIndex, 0, mImpurities.GetN())
 
     paths.Set(treeNodeIndex, 0, leftTreeNodeIndex);
     paths.Set(treeNodeIndex, 1, rightTreeNodeIndex);
-    depth.Set(treeNodeIndex, 0, mTreeDepth);
+    depth.Set(treeNodeIndex, mTreeDepth);
+    depth.Set(leftTreeNodeIndex, mTreeDepth+1);
+    depth.Set(rightTreeNodeIndex, mTreeDepth+1);
 
     const int featureSetIndex = mFeatureIndices.Get(mBestFeatureIndex, 0);
     const int featureSetOffsetIndex = mFeatureIndices.Get(mBestFeatureIndex, 1);
 
     mActiveSplitNodeFeatureSets[featureSetIndex].WriteToTree( featureSetOffsetIndex,
                                                                 treeNodeIndex,
+                                                                leftTreeNodeIndex,
+                                                                rightTreeNodeIndex,
                                                                 floatParams,
                                                                 intParams,
-                                                                leftTreeNodeIndex,
-                                                                leftYs,
-                                                                rightTreeNodeIndex,
-                                                                rightYs);
+                                                                counts,
+                                                                ys);
 }
 
 // Data has to be passed in because ProcessData may not keep the data
