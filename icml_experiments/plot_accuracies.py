@@ -27,4 +27,5 @@ if __name__ == "__main__":
         data_config.data_sizes, data_config.number_of_passes_through_data,
         measurements,
         plot_standard_deviation=(args.plot_standard_deviation != 0),
-        plot_trees=(args.plot_trees != 0), plot_sklearn=True, log_scale=(args.log_scale != 0), plot_filename=args.plot_file)
+        plot_trees=(args.plot_trees != 0), plot_sklearn=True, plot_offline=True,
+        log_scale=(args.log_scale != 0), plot_filename=args.plot_file)

@@ -61,7 +61,8 @@ def grid_plot(predictor, X_train, Y_train, X_test, plot_filename, plot_scatter=F
 
 
 def plot_forest_and_tree_accuracy(bayes_accuracy, number_of_datapoints, number_of_passes_list, measurements,
-                                plot_standard_deviation, plot_trees, plot_sklearn, log_scale, plot_filename):
+                                plot_standard_deviation, plot_trees, plot_sklearn, plot_offline,
+                                log_scale, plot_filename):
 
     import matplotlib.pyplot as plt
     import experiment_measurement as exm
@@ -71,7 +72,7 @@ def plot_forest_and_tree_accuracy(bayes_accuracy, number_of_datapoints, number_o
         bayes_points.fill(bayes_accuracy)
         plt.plot(number_of_datapoints, bayes_points, '-', lw=2, color='g', label="Bayes estimator")
 
-    for number_of_passes, line_type in zip(number_of_passes_list, ['-', '-.', '.-.']):
+    for number_of_passes, line_type in zip(number_of_passes_list, ['-', '-.', '.-.', '--']):
 
         means = np.zeros(len(number_of_datapoints))
         stds = np.zeros(len(number_of_datapoints))
@@ -104,6 +105,18 @@ def plot_forest_and_tree_accuracy(bayes_accuracy, number_of_datapoints, number_o
             if plot_standard_deviation:
                 plt.fill_between(number_of_datapoints, means-stds, means+stds, alpha=0.2, color='r')
 
+        if plot_offline:
+            for i, sample_count in enumerate(number_of_datapoints):
+                filered_list = filter(lambda x: isinstance(x, exm.OfflineForestMeasurement)
+                    and x.number_of_samples == sample_count
+                    and x.number_of_passes == number_of_passes, measurements)
+                values = [x.accuracy for x in filered_list]
+                assert(len(values) > 0)
+                means[i] = np.mean( values)
+                stds[i] = np.std( values )
+            plt.plot(number_of_datapoints, means, line_type, lw=1, color='green', label="Offline forest %d" % number_of_passes)
+            if plot_standard_deviation:
+                plt.fill_between(number_of_datapoints, means-stds, means+stds, alpha=0.2, color='green')
 
         # plot sklearn forests
         if plot_sklearn:
