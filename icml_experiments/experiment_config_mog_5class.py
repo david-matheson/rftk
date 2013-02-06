@@ -24,9 +24,9 @@ def get_online_sequential_config():
 class DataConfig(object):
     def __init__(self):
         self.pickle_data_file = "source_data/mog_5class_100000.pkl"
-        self.data_sizes = [10, 20, 50, 100, 150, 250, 500, 1000]#, 2000, 5000, 10000, 25000, 50000, 100000]
-        self.number_of_passes_through_data = [1,2, 5]
-        self.number_of_runs = 3
+        self.data_sizes = [10, 20, 50, 100, 150, 250, 500, 1000, 2000, 5000, 10000, 25000]#, 50000, 100000]
+        self.number_of_passes_through_data = [1,2,5]
+        self.number_of_runs = 50
         self.bayes_accuracy = 0.666
 
     def load_data(self, data_size, passes_through_data):
@@ -62,6 +62,23 @@ class OnlineSequentialConfig(object):
         self.impurity_probability = 0.5
         self.min_impurity_gain = 0.001
         self.measure_tree_accuracy = True
+        self.use_bootstrap = True
+
+class OfflineConfig(object):
+    def __init__(self):
+        self.number_of_trees = 100
+        self.number_of_features = 1
+        self.number_of_thresholds = 10
+        self.max_depth = 1000
+        self.min_samples_split = 100
+        self.use_two_streams = False
+        self.null_probability = 0.0
+        # self.impurity_probability = 0.5
+        self.min_impurity_gain = 0.001
+        self.measure_tree_accuracy = False
+        self.use_bootstrap = True
+        self.number_of_jobs = 2
+
 
 class SklearnOfflineConfig(object):
     def __init__(self):

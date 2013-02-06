@@ -14,6 +14,9 @@ def get_data_config():
 def get_online_config():
     return OnlineConfig()
 
+def get_offline_config():
+    return OfflineConfig()
+
 def get_sklearn_offline_config():
     return SklearnOfflineConfig()
 
@@ -29,8 +32,8 @@ class DataConfig(object):
     def __init__(self):
         self.data_file_train = "source_data/usps"
         self.data_file_test = "source_data/usps.t"
-        self.data_sizes = [20, 50, 100, 150, 250, 500, 1000, 2000, 5000, 7291]
-        self.number_of_passes_through_data = [1,3,5,10]
+        self.data_sizes = [20, 50, 100, 200, 500, 1000, 2000, 5000, 7291]
+        self.number_of_passes_through_data = [10,20]
         self.number_of_runs = 3
         self.bayes_accuracy = 1.0
 
@@ -56,6 +59,35 @@ class OnlineConfig(object):
         self.min_impurity_gain = 0.001
         self.measure_tree_accuracy = False
 
+
+class OnlineSequentialConfig(object):
+    def __init__(self):
+        self.number_of_trees = 100
+        self.number_of_features = 1
+        self.number_of_thresholds = 10
+        self.split_rate = 1.2
+        self.number_of_data_to_split_root = 2
+        self.number_of_data_to_force_split_root = 20
+        self.use_two_streams = True
+        self.null_probability = 0.5
+        self.impurity_probability = 0.5
+        self.min_impurity_gain = 0.001
+        self.measure_tree_accuracy = True
+
+class OfflineConfig(object):
+    def __init__(self):
+        self.number_of_trees = 100
+        self.number_of_features = 8
+        self.number_of_thresholds = 10
+        self.max_depth = 1000
+        self.min_samples_split = 10
+        self.use_two_streams = False
+        self.null_probability = 0.0
+        # self.impurity_probability = 0.5
+        self.min_impurity_gain = 0.001
+        self.measure_tree_accuracy = False
+        self.use_bootstrap = True
+        self.number_of_jobs = 2
 
 class SklearnOfflineConfig(object):
     def __init__(self):
