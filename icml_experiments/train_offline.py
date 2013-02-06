@@ -37,6 +37,11 @@ if __name__ == "__main__":
         (x_m,x_n) = X_train.shape
         y_dim = int(np.max(Y_train) + 1)
 
+        data = buffers.BufferCollection()
+        data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(X_train))
+        data.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffers.Int32Vector(Y_train))
+        sampling_config = train.OfflineSamplingParams(x_m, offline_config.use_bootstrap)
+        indices = buffers.Int32Vector( np.array(np.arange(x_m), dtype=np.int32) )
 
         for run_id in range(data_config.number_of_runs):
             offline_config = config.get_offline_config()
@@ -77,12 +82,6 @@ if __name__ == "__main__":
                                                     offline_config.number_of_trees,
                                                     1000)
             depth_first_learner = train.DepthFirstParallelForestLearner(train_config)
-
-            data = buffers.BufferCollection()
-            data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(X_train))
-            data.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffers.Int32Vector(Y_train))
-            sampling_config = train.OfflineSamplingParams(x_m, offline_config.use_bootstrap)
-            indices = buffers.Int32Vector( np.array(np.arange(x_m), dtype=np.int32) )
 
             full_forest_data = depth_first_learner.Train(data, indices, sampling_config, offline_config.number_of_jobs)
             forest = predict_utils.MatrixForestPredictor(full_forest_data)
