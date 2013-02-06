@@ -25,7 +25,7 @@ void AllNodeDataCollector::Collect( const BufferCollection& data,
         mData.AppendFloat32VectorBuffer(SAMPLE_WEIGHTS, sampleWeights);
     }
 
-    if( data.HasInt32MatrixBuffer(CLASS_LABELS) )
+    if( data.HasInt32VectorBuffer(CLASS_LABELS) )
     {
         const Int32VectorBuffer& classLabels = data.GetInt32VectorBuffer(CLASS_LABELS).Slice(sampleIndices);
         mData.AppendInt32VectorBuffer(CLASS_LABELS, classLabels);
