@@ -71,6 +71,7 @@ class OfflineConfig(object):
         self.number_of_thresholds = 10
         self.max_depth = 1000
         self.min_samples_split = 100
+        self.min_samples_leaf = 50
         self.use_two_streams = False
         self.null_probability = 0.0
         # self.impurity_probability = 0.5
@@ -87,4 +88,5 @@ class SklearnOfflineConfig(object):
         self.number_of_features = 1
         self.max_depth = 1000
         self.min_samples_split = 100
+        self.min_samples_leaf = 50
         self.number_of_jobs = 2

@@ -26,6 +26,7 @@ if __name__ == "__main__":
 
     config = __import__(args.config_file)
     data_config = config.get_data_config()
+    offline_config = config.get_offline_config()
 
     out_measurements_filename = ("experiment_data/%s-offline-measurements-%s.pkl") % (
                           config.get_experiment_name(),
@@ -44,26 +45,25 @@ if __name__ == "__main__":
         indices = buffers.Int32Vector( np.array(np.arange(x_m), dtype=np.int32) )
 
         for run_id in range(data_config.number_of_runs):
-            offline_config = config.get_offline_config()
 
             # feature_extractor = feature_extractors.RandomProjectionFeatureExtractor( offline_config.number_of_features, x_n, x_n)
             feature_extractor = feature_extractors.AxisAlignedFeatureExtractor( offline_config.number_of_features, x_n, True)
-            # node_data_collector = train.AllNodeDataCollectorFactory()
-            # class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, int(np.max(Y_train)) + 1)
-            if not offline_config.use_two_streams:
-                node_data_collector = train.RandomThresholdHistogramDataCollectorFactory(y_dim,
-                                                                                        offline_config.number_of_thresholds,
-                                                                                        offline_config.null_probability)
-                class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(y_dim,
-                        buffers.HISTOGRAM_LEFT, buffers.HISTOGRAM_RIGHT, buffers.HISTOGRAM_LEFT, buffers.HISTOGRAM_RIGHT)
-            else:
-                node_data_collector = train.TwoStreamRandomThresholdHistogramDataCollectorFactory(y_dim,
-                                                                                                    offline_config.number_of_thresholds,
-                                                                                                    offline_config.null_probability,
-                                                                                                    offline_config.impurity_probability)
-                class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(y_dim,
-                        buffers.IMPURITY_HISTOGRAM_LEFT, buffers.IMPURITY_HISTOGRAM_RIGHT,
-                        buffers.YS_HISTOGRAM_LEFT, buffers.YS_HISTOGRAM_RIGHT)
+            node_data_collector = train.AllNodeDataCollectorFactory()
+            class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, y_dim)
+            # if not offline_config.use_two_streams:
+            #     node_data_collector = train.RandomThresholdHistogramDataCollectorFactory(y_dim,
+            #                                                                             offline_config.number_of_thresholds,
+            #                                                                             offline_config.null_probability)
+            #     class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(y_dim,
+            #             buffers.HISTOGRAM_LEFT, buffers.HISTOGRAM_RIGHT, buffers.HISTOGRAM_LEFT, buffers.HISTOGRAM_RIGHT)
+            # else:
+            #     node_data_collector = train.TwoStreamRandomThresholdHistogramDataCollectorFactory(y_dim,
+            #                                                                                         offline_config.number_of_thresholds,
+            #                                                                                         offline_config.null_probability,
+            #                                                                                         offline_config.impurity_probability)
+            #     class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(y_dim,
+            #             buffers.IMPURITY_HISTOGRAM_LEFT, buffers.IMPURITY_HISTOGRAM_RIGHT,
+            #             buffers.YS_HISTOGRAM_LEFT, buffers.YS_HISTOGRAM_RIGHT)
 
             # self.split_criteria = train.OnlineAlphaBetaSplitCriteria(   max_depth,
             #                                                             min_impurity,
@@ -73,7 +73,7 @@ if __name__ == "__main__":
             #                                                             offline_config.number_of_data_to_split_root,
             #                                                             offline_config.number_of_data_to_force_split_root)
             split_criteria = train.OfflineSplitCriteria(  offline_config.max_depth, offline_config.min_impurity_gain,
-                                        offline_config.min_samples_split, offline_config.min_samples_split)
+                                        offline_config.min_samples_split, offline_config.min_samples_leaf)
             extractor_list = [feature_extractor]
             train_config = train.TrainConfigParams(extractor_list,
                                                     node_data_collector,

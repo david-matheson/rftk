@@ -34,6 +34,7 @@ if __name__ == "__main__":
                                                     n_estimators=sklearn_config.number_of_trees,
                                                     max_depth=sklearn_config.max_depth,
                                                     min_samples_split=sklearn_config.min_samples_split,
+                                                    min_samples_leaf=sklearn_config.min_samples_leaf,
                                                     n_jobs=sklearn_config.number_of_jobs)
             forest.fit(X_train, Y_train)
             y_probs = forest.predict_proba(X_test)
