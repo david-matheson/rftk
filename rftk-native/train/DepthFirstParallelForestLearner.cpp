@@ -148,9 +148,9 @@ void ProcessNode(   const TrainConfigParams& trainConfigParams,
         const int leftNode = treeOut->mLastNodeIndex;
         treeOut->mLastNodeIndex++;
         const int rightNode = treeOut->mLastNodeIndex;
-        activeSplit.WriteToTree(nodeIndex, treeOut->mPath, treeOut->mFloatFeatureParams, treeOut->mIntFeatureParams, treeOut->mDepths,
-                                leftNode, treeOut->mYs,
-                                rightNode, treeOut->mYs);
+        activeSplit.WriteToTree(nodeIndex, leftNode, rightNode, 
+                                treeOut->mPath, treeOut->mFloatFeatureParams, treeOut->mIntFeatureParams, 
+                                treeOut->mDepths, treeOut->mCounts, treeOut->mYs);
 
         Int32VectorBuffer leftIndices;
         Int32VectorBuffer rightIndices;

@@ -12,6 +12,7 @@ def as_predict_forest( tree_data_list ):
                                     buffer_converters.as_matrix_buffer(t.int_params),
                                     buffer_converters.as_matrix_buffer(t.float_params),
                                     buffer_converters.as_matrix_buffer(t.depth),
+                                    buffer_converters.as_matrix_buffer(t.counts),
                                     buffer_converters.as_matrix_buffer(t.ys)) for t in tree_data_list]
     predict_forest = forest_data.Forest(predict_trees)
     return predict_forest

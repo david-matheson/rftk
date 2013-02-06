@@ -82,9 +82,9 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
                 tree.mLastNodeIndex++;
                 const int rightNode = tree.mLastNodeIndex;
                 // Todo: Only updating Ys on split, should update Ys everytime
-                activeSplit->WriteToTree(nodeIndex, tree.mPath, tree.mFloatFeatureParams, tree.mIntFeatureParams, tree.mDepths,
-                                        leftNode, tree.mYs,
-                                        rightNode, tree.mYs);
+                activeSplit->WriteToTree(nodeIndex, leftNode, rightNode, 
+                                        tree.mPath, tree.mFloatFeatureParams, tree.mIntFeatureParams, 
+                                        tree.mDepths, tree.mCounts, tree.mYs);
 
                 // Remove split node
                 mActiveNodes.erase(treeNodeKey);

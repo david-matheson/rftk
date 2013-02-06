@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "assert_util.h"
 #include "Forest.h"
 
@@ -33,3 +35,15 @@ Tree Forest::GetTree(const int index) const
 {
     return mTrees[index];
 }
+
+ForestStats Forest::GetForestStats() const
+{
+    ForestStats stats;
+    for(int i=0; i<mTrees.size(); i++)
+    {
+        mTrees[i].GatherStats(stats);
+    }
+    return stats;
+}
+
+
