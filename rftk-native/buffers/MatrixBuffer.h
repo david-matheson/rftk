@@ -28,11 +28,15 @@ public:
     T Get(int m, int n) const;
     void SetUnsafe(int m, int n, T value);
     T GetUnsafe(int m, int n) const;
+    void Incr(int m, int n, T value);
 
     const T* GetRowPtrUnsafe(int m) const;
 
     T GetMax() const;
     T GetMin() const;
+
+    T SumRow(int m) const;
+    void NormalizeRow(int m);
 
     void AppendVertical(const MatrixBufferTemplate<T>& buffer);
     MatrixBufferTemplate<T> Transpose() const;
@@ -172,6 +176,12 @@ T MatrixBufferTemplate<T>::GetUnsafe(int m, int n) const
 }
 
 template <class T>
+void MatrixBufferTemplate<T>::Incr(int m, int n, T value)
+{
+    mData[ m*mN + n] += value;
+}
+
+template <class T>
 const T* MatrixBufferTemplate<T>::GetRowPtrUnsafe(int m) const
 {
     return &mData[m*mN];
@@ -197,6 +207,27 @@ T MatrixBufferTemplate<T>::GetMin() const
         min = (min < mData[i]) ? min : mData[i];
     }
     return min;
+}
+
+template <class T>
+T MatrixBufferTemplate<T>::SumRow(int m) const
+{
+    T sum = Get(m,0);
+    for(int c=1; c<mN; c++)
+    {
+        sum += Get(m,c);
+    }
+    return sum;
+}
+
+template <class T>
+void MatrixBufferTemplate<T>::NormalizeRow(int m)
+{
+    T sum = SumRow(m);
+    for(int c=0; c<mN; c++)
+    {
+        mData[ m*mN + c] /= sum;
+    }
 }
 
 template <class T>
