@@ -69,6 +69,9 @@ Tree::Tree( int maxNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int 
     ASSERT_ARG_DIM_1D(mPath.GetM(), mFloatFeatureParams.GetM())
     ASSERT_ARG_DIM_1D(mPath.GetM(), mYs.GetM())
 
+    //TODO: This needs to be changed for regression
+    mYs.SetAll(1.0f/static_cast<float>(mYs.GetN()));
+
     mPath.SetAll(-1);
 }
 
@@ -76,7 +79,7 @@ void Tree::GatherStats(ForestStats& stats) const
 {
     for(int nodeId=0; nodeId<mLastNodeIndex; nodeId++)
     {
-        const bool isLeaf = (mPath.Get(nodeId, 0) == -1 
+        const bool isLeaf = (mPath.Get(nodeId, 0) == -1
                              && mPath.Get(nodeId, 1) == -1);
         if( isLeaf )
         {
