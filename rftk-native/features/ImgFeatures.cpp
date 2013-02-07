@@ -29,28 +29,41 @@ int clampPixel(const int maxM, const int maxN, int* m, int *n)
 }
 
 
-float pixelDepthDelta(const float* depth, const int maxM, const int maxN, const int pixelM, const int pixelN,
-                        const float ux, const float uy, const float vx, const float vy)
+float pixelDepthDelta(const Float32Tensor3Buffer& depths, const int imgId, const int pixelM, const int pixelN,
+                      const float ux, const float uy, const float vx, const float vy)
 {
+    // printf("imgId=%d pixelM=%d pixelN=%d ux=%0.2f uy=%0.2f vx=%0.2f vy=%0.2f\n", imgId, pixelM, pixelN, ux, uy, vx, vy);
 
-    const float scaleByDepth = 2.0f / depth[pixelM*maxN + pixelN];
+    const float scaleByDepth = 2.0f / depths.Get(imgId, pixelM, pixelN);
 
     int mU = pixelM + (int)(scaleByDepth * ux);
     int nU = pixelN + (int)(scaleByDepth * uy);
     int mV = pixelM + (int)(scaleByDepth * vx);
     int nV = pixelN + (int)(scaleByDepth * vy);
 
-    const int clampedOffsetsU = clampPixel(maxM, maxN, &mU, &nU);
-    const int clampedOffsetsV = clampPixel(maxM, maxN, &mV, &nV);
+    const int clampedOffsetsU = clampPixel(depths.GetM(), depths.GetN(), &mU, &nU);
+    const int clampedOffsetsV = clampPixel(depths.GetM(), depths.GetN(), &mV, &nV);
 
-    float delta = depth[mU*maxN + nU] - depth[mV*maxN + nV];
+    float delta = depths.Get(imgId, mU, nU) - depths.Get(imgId, mV, nV);
     return delta;
 }
 
-bool pixelDepthDeltaTest(const float* depth, const int maxM, const int maxN, const int pixelM, const int pixelN,
-                        const float* offsets)
+bool pixelDepthDeltaTest(const Float32Tensor3Buffer& depths, 
+                          const Int32MatrixBuffer& pixelIndices,
+                          const int index,
+                          const Float32MatrixBuffer& offsets,
+                          const int nodeIndex)
 {
-    return (pixelDepthDelta(depth, maxM, maxN, pixelM, pixelN, offsets[1], offsets[2], offsets[3], offsets[4]) > offsets[0]);
+    const int imgId = pixelIndices.Get(index, 0);
+    const int pixelM = pixelIndices.Get(index, 1);
+    const int pixelN = pixelIndices.Get(index, 2);
+
+    const float ux = offsets.Get(nodeIndex, 1); 
+    const float uy = offsets.Get(nodeIndex, 2);
+    const float vx = offsets.Get(nodeIndex, 3);
+    const float vy = offsets.Get(nodeIndex, 4);
+
+    return (pixelDepthDelta(depths, imgId, pixelM, pixelN, ux, uy, vx, vy) > offsets.Get(nodeIndex, 0));
 }
 
 

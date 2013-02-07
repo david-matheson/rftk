@@ -2,7 +2,7 @@ import numpy as np
 import rftk.native.assert_util
 import rftk.native.buffers as buffers
 
-def as_img_buffer( np_array ):
+def as_tensor_buffer( np_array ):
     if np_array.dtype == np.int32 and np_array.ndim == 2:
         return buffers.Int32Tensor2( np_array )
     elif np_array.dtype == np.int32 and np_array.ndim == 3:

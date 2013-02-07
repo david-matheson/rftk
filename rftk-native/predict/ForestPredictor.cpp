@@ -3,6 +3,7 @@
 #include "assert_util.h"
 #include "MatrixBuffer.h"
 #include "FeatureTypes.h"
+#include "ImgFeatures.h"
 #include "Forest.h"
 #include "ForestPredictor.h"
 
@@ -121,7 +122,15 @@ int nextChild( const Tree& tree, int nodeId, BufferCollection& data, const int i
             }
             testResult = projectionValue > threshold;
             break;
-
+        }
+        case IMG_FEATURE_DEPTH_DELTA:
+        {
+            ASSERT( data.HasFloat32Tensor3Buffer(DEPTH_IMAGES) )
+            const Float32Tensor3Buffer& depths = data.GetFloat32Tensor3Buffer(DEPTH_IMAGES);
+            ASSERT( data.HasInt32MatrixBuffer(PIXEL_INDICES) )
+            const Int32MatrixBuffer& pixelIndices = data.GetInt32MatrixBuffer(PIXEL_INDICES);
+            testResult = pixelDepthDeltaTest(depths, pixelIndices, index, tree.mFloatFeatureParams, nodeId );
+            break;
         }
     }
     const int childDirection = testResult ? 0 : 1;
