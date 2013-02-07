@@ -90,9 +90,13 @@ if __name__ == "__main__":
             y_hat = y_probs.argmax(axis=1)
             accurracy = np.mean(Y_test == y_hat)
             print "%d %d %d: %0.5f" % (number_of_samples, number_of_passes, run_id, accurracy)
+
             forest_measurement = exp_measurement.OfflineForestMeasurement(data_config, offline_config,
                 number_of_samples, number_of_passes, accurracy)
             measurements.append(forest_measurement)
 
+            stat_measurement = exp_measurement.OfflineForestStatsMeasurement(data_config, sklearn_config,
+                number_of_samples, number_of_passes, full_forest_data)
+            measurements.append(stat_measurement)
 
         pickle.dump(measurements, open(out_measurements_filename, "wb"))

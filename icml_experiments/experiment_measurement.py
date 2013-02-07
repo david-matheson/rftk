@@ -33,6 +33,7 @@ class ForestStatsMeasurement(object):
         self.min_estimator_points = stats.mMinEstimatorPoints
         self.max_estimator_points = stats.mMaxEstimatorPoints
         self.average_estimator_points = stats.GetAverageEstimatorPoints()
+        self.total_estimator_points = stats.mTotalEstimatorPoints
 
 class OnlineForestStatsMeasurement(ForestStatsMeasurement):
     pass
