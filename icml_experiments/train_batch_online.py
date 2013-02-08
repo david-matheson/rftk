@@ -104,6 +104,10 @@ if __name__ == "__main__":
                 number_of_samples, number_of_passes, online_learner.GetForest().GetForestStats())
             measurements.append(stat_measurement)
 
+            # Print forest stats
+            forestStats = online_learner.GetForest().GetForestStats()
+            forestStats.Print()
+
             if online_config.measure_tree_accuracy:
               online_forest_data = online_learner.GetForest()
               for tree_id in range(online_forest_data.GetNumberOfTrees()):
