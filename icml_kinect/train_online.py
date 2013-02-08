@@ -16,6 +16,7 @@ import rftk.native.assert_util
 import rftk.native.bootstrap
 import rftk.native.buffers as buffers
 import rftk.native.forest_data as forest_data
+import rftk.native.features
 import rftk.native.feature_extractors as feature_extractors
 import rftk.native.best_split as best_splits
 import rftk.native.predict as predict
@@ -32,9 +33,9 @@ class KinectOnlineConfig(object):
         self.number_of_pixels_per_image = 1000
 
     def configure_online_learner(self):
-        number_of_trees = 100
-        number_of_features = 10
-        number_of_thresholds = 10
+        number_of_trees = 20
+        number_of_features = 1000
+        number_of_thresholds = 3
         y_dim = kinect_utils.number_of_body_parts
         null_probability = 0
         impurity_probability = 0.5

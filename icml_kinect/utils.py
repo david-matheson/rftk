@@ -1,8 +1,10 @@
 import numpy as np
+import matplotlib.pyplot as pl
 import OpenEXR
 import Imath
 import array
 import pickle
+import itertools
 
 import rftk.native.assert_util
 import rftk.native.bootstrap
@@ -182,7 +184,7 @@ def to_indices(image_id, where_ids):
     return indices
 
 def sample_pixels(depth, labels, number_datapoints):
-    indices_array = to_indices(0, np.where( labels != background ))
+    indices_array = to_indices(0, np.where(labels != background))
     np.random.shuffle(indices_array)
     m,n = indices_array.shape
     indices_array = indices_array[0:min(m,number_datapoints), :]
@@ -234,7 +236,8 @@ def reconstruct_label_image_min_probability_ushort(depth, labels, probabilities,
     return img
 
 
-def classify_pixels(depth_data, forest):
+def classify_pixels(depth, forest):
+    print "classify_pixels start"
     buffer_collection = buffers.BufferCollection()
     assert(depth.ndim == 2)
     m,n = depth.shape
@@ -242,17 +245,21 @@ def classify_pixels(depth_data, forest):
     # if depth.ndim == 3:
     #     l, m, n = depth.shape
     #     pixel_indices = np.array( list(itertools.product( range(l), range(m), range(n) )), dtype=np.int32 )
-    buffer_collection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, pixel_indices)
+    buffer_collection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, buffer_converters.as_matrix_buffer(pixel_indices))
     depth_buffer = buffer_converters.as_tensor_buffer(depth)
     buffer_collection.AddFloat32Tensor3Buffer(buffers.DEPTH_IMAGES, depth_buffer)
 
     yprobs_buffer = buffers.Float32MatrixBuffer()
-    forest_predictor.PredictYs(buffer_collection, m, yprobs_buffer)
+    forest_predictor = predict.ForestPredictor(forest)
+    print "classify_pixels predict start"
+    forest_predictor.PredictYs(buffer_collection, m*n, yprobs_buffer)
+    print "classify_pixels predict end"
     yprobs = buffer_converters.as_numpy_array(yprobs_buffer)
     (_, ydim) = yprobs.shape
-    img_yprobs = yprobs.reshape(yprobs, (m,n,ydim))
-    img_yhat = np.max(y_probs, axis=2)
-    return img_yhat, img_yprobs
+    img_yprobs = yprobs.reshape((m,n,ydim))
+    img_yhat = np.argmax(img_yprobs, axis=2)
+    print "classify_pixels end"
+    return img_yhat, img_yprobs.max(axis=2)
 
 
 def classification_accuracy(depthsIn, labelsIn, classificationTreesIn):
@@ -276,27 +283,28 @@ def classification_accuracy(depthsIn, labelsIn, classificationTreesIn):
 def plot_classification_imgs(figures_path, depths, ground_labels, forest):
     (numberOfImgs,_,_) = depths.shape
     for imgId in range(numberOfImgs):
-        labels, probs = classify_pixels(depths, forest)
+        print "Img %d of %d" % (imgId, numberOfImgs)
+        labels, probs = classify_pixels(depths[imgId,:,:], forest)
 
-        img = depth_data_utils.reconstructDepthImage(depths[imgId,:,:], ground_labels[imgId,:,:])
+        img = reconstruct_depth_image(depths[imgId,:,:], ground_labels[imgId,:,:])
         pl.imshow(img)
         pl.draw()
         pl.savefig(figures_path + "%d-depth.png" % (imgId))
         #pl.show()
 
-        img = bodyparts_data_utils.reconstructLabelImage(depths[imgId,:,:], ground_labels[imgId,:,:])
+        img = reconstruct_label_image(depths[imgId,:,:], ground_labels[imgId,:,:])
         pl.imshow(img)
         pl.draw()
         pl.savefig(figures_path + "%d-groundLabels.png" % (imgId))
         #pl.show()
 
-        img = reconstruct_label_image_min_probability_ushort(depth, labels, probs, 0.0)
+        img = reconstruct_label_image_min_probability_ushort(depths[imgId,:,:], labels, probs, 0.0)
         pl.imshow(img)
         pl.draw()
         pl.savefig(figures_path + "%d-predictedLabels.png" % (imgId))
         #pl.show()
 
-        img = reconstruct_label_image_min_probability_ushort(depth, labels, probs, 0.5)
+        img = reconstruct_label_image_min_probability_ushort(depths[imgId,:,:], labels, probs, 0.5)
         pl.imshow(img)
         pl.draw()
         pl.savefig(figures_path + "%d-predictedLabelsConfident.png" % (imgId))
