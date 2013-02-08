@@ -17,7 +17,6 @@ RandomThresholdHistogramDataCollector::RandomThresholdHistogramDataCollector(int
 , mNumberOfClasses(numberOfClasses)
 , mNumberOfThresholds(numberOfThresholds)
 , mProbabilityOfNullStream(probabilityOfNullStream)
-, mCandidateThresholds()
 {
 }
 
@@ -95,51 +94,25 @@ void RandomThresholdHistogramDataCollector::UpdateThresholds(const Float32Matrix
     {
         const int numberOfFeatures = featureValues.GetN();
 
-        if( mCandidateThresholds.size() != numberOfFeatures)
+        if( mThresholds.GetM() != numberOfFeatures)
         {
-            mCandidateThresholds.resize(numberOfFeatures);
+            mThresholds.Resize(numberOfFeatures, mNumberOfThresholds);
         }
-        for(unsigned int s=0; s<featureValues.GetM(); s++)
+
+
+        for(unsigned int s=0; s<featureValues.GetM() && mNumberOfThresholdSamples<mNumberOfThresholds; s++)
         {
             for(unsigned int f=0; f<featureValues.GetN(); f++)
             {
-                std::set<float>& set = mCandidateThresholds[f];
-                if(set.size() < mNumberOfThresholds)
-                {
-                    set.insert(featureValues.Get(s,f));
-                }
+                const float value = featureValues.Get(s,f);
+                mThresholds.Set(f, mNumberOfThresholdSamples, value);
             }
+            mNumberOfThresholdSamples++;
         }
-        mNumberOfThresholdSamples += featureValues.GetM();
-        // Find the feature with the least number of unique samples
-        int minSetSize = INT_MAX;
-        for(int f=0; f<mCandidateThresholds.size(); f++)
+
+        if(mNumberOfThresholdSamples >= mNumberOfThresholds)
         {
-            std::set<float>& set = mCandidateThresholds[f];
-            minSetSize = std::min(minSetSize, static_cast<int>(set.size()));
-        }
-        // Incase there are less unique values than requested thresholds
-        if(minSetSize < mNumberOfThresholds && mNumberOfThresholdSamples > mNumberOfThresholds*1000)
-        {
-            printf("WARNING RandomThresholdHistogramDataCollector wanted %d thresholds but only saw %d unique feature values\n", mNumberOfThresholds, minSetSize);
-            mNumberOfThresholds = minSetSize;
-        }
-        // Use sets to construct thresholds
-        if( minSetSize >= mNumberOfThresholds)
-        {
-            Float32MatrixBuffer thresholds(numberOfFeatures, mNumberOfThresholds);
-            for(int f=0; f<mCandidateThresholds.size(); f++)
-            {
-                std::set<float>& set =  mCandidateThresholds[f];
-                std::set<float>::iterator iter = set.begin();
-                for (int i=0; i < mNumberOfThresholds && iter != set.end(); ++i, ++iter)
-                {
-                    thresholds.Set(f,i, *iter);
-                }
-            }
-            // printf("RandomThresholdHistogramDataCollector::Collect() thresholds\n");
-            // thresholds.Print();
-            mData.AddFloat32MatrixBuffer(THRESHOLDS, thresholds);
+            mData.AddFloat32MatrixBuffer(THRESHOLDS, mThresholds);
         }
     }
 }

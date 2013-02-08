@@ -39,7 +39,7 @@ protected:
     int mNumberOfClasses;
     int mNumberOfThresholds;
     float mProbabilityOfNullStream;
-    std::vector< std::set<float> > mCandidateThresholds;
+    Float32MatrixBuffer mThresholds;
     BufferCollection mData; // #features x #thresholds x #class
 };
 
