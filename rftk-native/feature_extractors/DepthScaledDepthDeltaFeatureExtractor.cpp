@@ -53,10 +53,10 @@ Float32MatrixBuffer DepthScaledDepthDeltaFeatureExtractor::CreateFloatParams(con
 
     for(int i=0; i<numberOfFeatures; i++)
     {
-        floatParams.Set(i, 0, var_x_normal());
-        floatParams.Set(i, 1, var_y_normal());
-        floatParams.Set(i, 2, var_x_normal());
-        floatParams.Set(i, 3, var_y_normal());
+        floatParams.Set(i, 1, var_x_normal());
+        floatParams.Set(i, 2, var_y_normal());
+        floatParams.Set(i, 3, var_x_normal());
+        floatParams.Set(i, 4, var_y_normal());
     }
     return floatParams;
 }
@@ -109,10 +109,10 @@ void DepthScaledDepthDeltaFeatureExtractor::Extract(  const BufferCollection& da
 
         for(int t=0; t<numberOfFeatures; t++)
         {
-            const float um = floatFeatureParams.Get(t,0);
-            const float un = floatFeatureParams.Get(t,1);
-            const float vm = floatFeatureParams.Get(t,2);
-            const float vn = floatFeatureParams.Get(t,3);
+            const float um = floatFeatureParams.Get(t,1);
+            const float un = floatFeatureParams.Get(t,2);
+            const float vm = floatFeatureParams.Get(t,3);
+            const float vn = floatFeatureParams.Get(t,4);
             const float delta = pixelDepthDelta(depths, imgIndex, pixelM, pixelN, scaleM*um, scaleN*un, scaleM*vm, scaleN*vn);
             featureValuesOUT.Set(s, t, delta);
         }
