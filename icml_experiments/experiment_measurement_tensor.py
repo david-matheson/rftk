@@ -91,7 +91,7 @@ class MeasurementGrid(object):
     def __str__(self):
         strings = \
             ["---- MeasurementGrid ----",
-             "Measured values: {}".format(Measurement.MEASURED_VALUES) ] + \
+             "Measured values: {}".format(self.measurement_type.MEASURED_VALUES) ] + \
             ["Domain:"] + \
             ["  shape: {}".format(self.domain.shape)] + \
             ["  {}: {}".format(var, self.domain.extent[var])
