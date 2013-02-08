@@ -144,12 +144,12 @@ void ProcessNode(   const TrainConfigParams& trainConfigParams,
     activeSplit.ProcessData(data, indices, gen);
     if( activeSplit.ShouldSplit() == SPLT_CRITERIA_READY_TO_SPLIT )
     {
-        treeOut->mLastNodeIndex++;
         const int leftNode = treeOut->mLastNodeIndex;
         treeOut->mLastNodeIndex++;
         const int rightNode = treeOut->mLastNodeIndex;
-        activeSplit.WriteToTree(nodeIndex, leftNode, rightNode, 
-                                treeOut->mPath, treeOut->mFloatFeatureParams, treeOut->mIntFeatureParams, 
+        treeOut->mLastNodeIndex++;
+        activeSplit.WriteToTree(nodeIndex, leftNode, rightNode,
+                                treeOut->mPath, treeOut->mFloatFeatureParams, treeOut->mIntFeatureParams,
                                 treeOut->mDepths, treeOut->mCounts, treeOut->mYs);
 
         Int32VectorBuffer leftIndices;

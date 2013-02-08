@@ -1,13 +1,15 @@
-#include "assert_util.h"
+#include <stdio.h>
+#include <limits>
 
+#include "assert_util.h"
 #include "Tree.h"
 
 ForestStats::ForestStats()
 : mNumberOfLeafNodes(0)
-, mMinDepth(0)
+, mMinDepth(std::numeric_limits<int>::max())
 , mMaxDepth(0)
 , mTotalDepth(0)
-, mMinEstimatorPoints(0)
+, mMinEstimatorPoints(std::numeric_limits<int>::max())
 , mMaxEstimatorPoints(0)
 , mTotalEstimatorPoints(0)
 {}
@@ -33,6 +35,13 @@ float ForestStats::GetAverageEstimatorPoints() const
     return static_cast<float>(mTotalEstimatorPoints) / static_cast<float>(mNumberOfLeafNodes);
 }
 
+void ForestStats::Print() const
+{
+    printf("ForestStats: #leafs=%d min-depth=%d max-depth=%d avg-depth=%0.2f min-points=%d max-points=%d avg-points=%0.2f\n",
+        mNumberOfLeafNodes, mMinDepth, mMaxDepth, GetAverageDepth(),
+        mMinEstimatorPoints, mMaxEstimatorPoints, GetAverageEstimatorPoints());
+}
+
 Tree::Tree( const Int32MatrixBuffer& path,
             const Int32MatrixBuffer& intFeatureParams,
             const Float32MatrixBuffer& floatFeatureParams,
@@ -46,7 +55,7 @@ Tree::Tree( const Int32MatrixBuffer& path,
 , mCounts(counts)
 , mYs(ys)
 , mValid(true)
-, mLastNodeIndex(0)
+, mLastNodeIndex(1)
 {
     ASSERT_ARG_DIM_1D(mPath.GetM(), mIntFeatureParams.GetM())
     ASSERT_ARG_DIM_1D(mPath.GetM(), mFloatFeatureParams.GetM())
@@ -63,7 +72,7 @@ Tree::Tree( int maxNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int 
 , mCounts(maxNumberNodes)
 , mYs(maxNumberNodes, maxYsDim)
 , mValid(true)
-, mLastNodeIndex(0)
+, mLastNodeIndex(1)
 {
     ASSERT_ARG_DIM_1D(mPath.GetM(), mIntFeatureParams.GetM())
     ASSERT_ARG_DIM_1D(mPath.GetM(), mFloatFeatureParams.GetM())

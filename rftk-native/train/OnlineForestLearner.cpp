@@ -46,9 +46,6 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
         }
         data.AddFloat32VectorBuffer(SAMPLE_WEIGHTS, weights);
 
-
-
-
         // Iterate over each sample (this cannot be farmed out to different threads)
         Tree& tree = mForest.mTrees[treeIndex];
         for(int sampleIndex=0; sampleIndex<indices.GetN(); sampleIndex++)
@@ -88,10 +85,10 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
             if( activeSplit->ShouldSplit() == SPLT_CRITERIA_READY_TO_SPLIT )
             {
                 // printf("OnlineForestLearner::Train SPLIT tree=%d nodeIndex=%d treeDepth=%d\n", treeIndex, nodeIndex, treeDepth);
-                tree.mLastNodeIndex++;
                 const int leftNode = tree.mLastNodeIndex;
                 tree.mLastNodeIndex++;
                 const int rightNode = tree.mLastNodeIndex;
+                tree.mLastNodeIndex++;
                 // Todo: Only updating Ys on split, should update Ys everytime
                 activeSplit->WriteToTree(nodeIndex, leftNode, rightNode,
                                         tree.mPath, tree.mFloatFeatureParams, tree.mIntFeatureParams,

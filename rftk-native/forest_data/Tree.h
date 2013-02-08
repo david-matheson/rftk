@@ -10,6 +10,7 @@ public:
     void ProcessLeaf(int depth, int numberEstimatorPoints);
     float GetAverageDepth() const;
     float GetAverageEstimatorPoints() const;
+    void Print() const;
 
     int mNumberOfLeafNodes;
     int mMinDepth;
