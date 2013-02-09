@@ -184,12 +184,17 @@ def to_indices(image_id, where_ids):
     return indices
 
 def sample_pixels(depth, labels, number_datapoints):
-    indices_array = to_indices(0, np.where(labels != background))
-    np.random.shuffle(indices_array)
-    m,n = indices_array.shape
-    indices_array = indices_array[0:min(m,number_datapoints), :]
-    pixel_labels = labels[indices_array[:,1], indices_array[:,2]]
-    return indices_array, pixel_labels
+    indices_array_complete = np.zeros((number_datapoints, 3), dtype=np.int32)
+    data_points_per_label = number_datapoints / number_of_body_parts
+    for label in range(number_of_body_parts):
+        indices_array = to_indices(0, np.where(labels == label))
+        np.random.shuffle(indices_array)
+        m,n = indices_array.shape
+        indices_array = indices_array[0:min(m,data_points_per_label), :]
+        indices_array_complete[label*data_points_per_label:(label+1)*data_points_per_label,:] = indices_array
+    pixel_labels = labels[indices_array_complete[:,1], indices_array_complete[:,2]]
+
+    return indices_array_complete, pixel_labels
 
 
 # def build_closest_image(img, depth):
@@ -216,17 +221,17 @@ def reconstruct_label_image(depth, labels):
 
 
 # Reconstruct image from labels
-def reconstruct_label_image_ushort(depth, labels):
+def reconstruct_label_image_ushort(depth, labels, ground_labels):
     (M,N) = depth.shape
     img = np.ones((M, N, 3), dtype=np.uint8)
 
     for body_part in range(number_of_body_parts):
-        img[labels == body_part] =  np.array(colors[body_part], dtype=np.uint8)
+        img[(labels == body_part)] =  np.array(colors[body_part], dtype=np.uint8)
 
     return img
 
 # Reconstruct image from labels
-def reconstruct_label_image_min_probability_ushort(depth, labels, probabilities, min_probablity):
+def reconstruct_label_image_min_probability_ushort(depth, labels, ground_labels, probabilities, min_probablity):
     (M,N) = depth.shape
     img = np.ones((M, N, 3), dtype=np.uint8)
 
@@ -298,13 +303,13 @@ def plot_classification_imgs(figures_path, depths, ground_labels, forest):
         pl.savefig(figures_path + "%d-groundLabels.png" % (imgId))
         #pl.show()
 
-        img = reconstruct_label_image_min_probability_ushort(depths[imgId,:,:], labels, probs, 0.0)
+        img = reconstruct_label_image_min_probability_ushort(depths[imgId,:,:], labels, ground_labels[imgId,:,:], probs, 0.0)
         pl.imshow(img)
         pl.draw()
         pl.savefig(figures_path + "%d-predictedLabels.png" % (imgId))
         #pl.show()
 
-        img = reconstruct_label_image_min_probability_ushort(depths[imgId,:,:], labels, probs, 0.5)
+        img = reconstruct_label_image_min_probability_ushort(depths[imgId,:,:], labels, ground_labels[imgId,:,:], probs, 0.5)
         pl.imshow(img)
         pl.draw()
         pl.savefig(figures_path + "%d-predictedLabelsConfident.png" % (imgId))
