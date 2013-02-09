@@ -1,5 +1,6 @@
-#include "float.h"
+#include <stdio.h>
 #include <math.h>
+#include "float.h"
 
 #include "assert_util.h"
 #include "OnlineConsistentSplitCriteria.h"
@@ -31,10 +32,12 @@ SPLT_CRITERIA OnlineConsistentSplitCriteria::ShouldSplit(int treeDepth,
     ASSERT_ARG_DIM_1D(impurityValues.GetN(), childCounts.GetM())
     ASSERT_ARG_DIM_1D(childCounts.GetN(), 2)
 
+    const float maxNumberOfSamples = mMaxNumberOfSamplesFirstSplit * pow(mGrowthRate, treeDepth);
+
     const int bestSplit = BestSplit(treeDepth, impurityValues, childCounts);
     const bool shouldSplit = ((bestSplit >= 0) &&
                                 ((impurityValues.Get(bestSplit) > mMinImpurity)
-                                    || (childCounts.Get(bestSplit,0) + childCounts.Get(bestSplit,1) > mMaxNumberOfSamplesFirstSplit)));
+                                    || (childCounts.Get(bestSplit,0) + childCounts.Get(bestSplit,1) > maxNumberOfSamples)));
 
     return (shouldSplit) ?
                  SPLT_CRITERIA_READY_TO_SPLIT : SPLT_CRITERIA_MORE_DATA_REQUIRED;
@@ -48,16 +51,15 @@ int OnlineConsistentSplitCriteria::BestSplit(int treeDepth,
     ASSERT_ARG_DIM_1D(childCounts.GetN(), 2)
 
     const float minNumberOfSamples = mMinNumberOfSamplesFirstSplit * pow(mGrowthRate, treeDepth);
-    const float maxNumberOfSamples = mMaxNumberOfSamplesFirstSplit * pow(mGrowthRate, treeDepth);
+
+    const float totalPointsSeen = childCounts.Get(0,0) + childCounts.Get(0,1);
 
     int maxIndex = -1;
     float maxImpurity = FLT_MIN;
-    float maxCounts = 0;
     for(int i=0; i<impurityValues.GetN(); i++)
     {
         const float leftCounts = childCounts.Get(i, 0);
         const float rightCounts = childCounts.Get(i, 1);
-        maxCounts = ((leftCounts + rightCounts) > maxCounts) ? (leftCounts + rightCounts) : maxCounts;
 
         bool isBest = ((impurityValues.Get(i) > maxImpurity)
                 && (leftCounts > minNumberOfSamples)
@@ -69,21 +71,6 @@ int OnlineConsistentSplitCriteria::BestSplit(int treeDepth,
         }
     }
 
-    // Force a split if past the maximum number of samples
-    if(maxIndex == -1 && maxCounts > maxNumberOfSamples)
-    {
-        for(int i=0; i<impurityValues.GetN(); i++)
-        {
-            const float leftCounts = childCounts.Get(i, 0);
-            const float rightCounts = childCounts.Get(i, 1);
-
-            if ((leftCounts > minNumberOfSamples)
-                && (rightCounts > minNumberOfSamples))
-            {
-                maxIndex = i;
-            }
-        }
-    }
     return maxIndex;
 }
 

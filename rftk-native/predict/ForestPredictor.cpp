@@ -1,8 +1,11 @@
 #include <cstdio>
 
+#include <limits>
+
 #include "assert_util.h"
 #include "MatrixBuffer.h"
 #include "FeatureTypes.h"
+#include "ImgFeatures.h"
 #include "Forest.h"
 #include "ForestPredictor.h"
 
@@ -21,14 +24,16 @@ void ForestPredictor::PredictYs(BufferCollection& data,  const int numberOfindic
     ForestPredictYs(mForest, data, numberOfindices, ysOut);
 }
 
+// void ForestPredictor::PredictMaxYs(BufferCollection& data, const int numberOfindices, Int32VectorBuffer& maxYsOut)
+// {
+//     ForestPredictMaxYs(mForest, data, numberOfindices, maxYsOut);
+// }
+
 void ForestPredictLeafs(const Forest& forest, BufferCollection& data, const int numberOfindices, Int32MatrixBuffer& leafsOut)
 {
     const int numberOfTreesInForest = forest.mTrees.size();
     // Create new results buffer if it's not the right dimensions
-    if( leafsOut.GetM() != numberOfindices || leafsOut.GetN() != numberOfTreesInForest )
-    {
-        leafsOut = Int32MatrixBuffer(numberOfindices, numberOfTreesInForest);
-    }
+    leafsOut.Resize(numberOfindices, numberOfTreesInForest);
 
     for(int i=0; i<numberOfindices; i++)
     {
@@ -46,10 +51,7 @@ void ForestPredictYs(const Forest& forest, BufferCollection& data, const int num
     // Create new results buffer if it's not the right dimensions
     const int numberOfTreesInForest = forest.mTrees.size();
     const int yDim = forest.mTrees[0].mYs.GetN();
-    if( ysOut.GetM() != numberOfindices || ysOut.GetN() != yDim )
-    {
-        ysOut = Float32MatrixBuffer(numberOfindices, yDim);
-    }
+    ysOut.Resize(numberOfindices, yDim);
     // Reset predictions if the buffer is being reused
     ysOut.Zero();
 
@@ -59,13 +61,12 @@ void ForestPredictYs(const Forest& forest, BufferCollection& data, const int num
     Int32MatrixBuffer leafNodeIds = Int32MatrixBuffer(numberOfindices, forest.mTrees.size());
     ForestPredictLeafs(forest, data, numberOfindices, leafNodeIds);
 
-    float invNumberTrees = 1.0 / static_cast<float>(numberOfTreesInForest);
-
+    const float invNumberTrees = 1.0 / static_cast<float>(numberOfTreesInForest);
     for(int i=0; i<numberOfindices; i++)
     {
         for(int treeId=0; treeId<numberOfTreesInForest; treeId++)
         {
-            int leafNodeId = leafNodeIds.Get(i, treeId);
+            const int leafNodeId = leafNodeIds.Get(i, treeId);
             for(int c=0; c<yDim; c++)
             {
                 const float delta = forest.mTrees[treeId].mYs.Get(leafNodeId, c) * invNumberTrees;
@@ -75,6 +76,11 @@ void ForestPredictYs(const Forest& forest, BufferCollection& data, const int num
         }
     }
 }
+
+// void ForestPredictMaxYs(const Forest& forest, BufferCollection& data, const int numberOfindices, Int32VectorBuffer& maxYsOut)
+// {
+//     //Todo: implement
+// }
 
 int nextChild( const Tree& tree, int nodeId, BufferCollection& data, const int index );
 
@@ -121,7 +127,15 @@ int nextChild( const Tree& tree, int nodeId, BufferCollection& data, const int i
             }
             testResult = projectionValue > threshold;
             break;
-
+        }
+        case IMG_FEATURE_DEPTH_DELTA:
+        {
+            ASSERT( data.HasFloat32Tensor3Buffer(DEPTH_IMAGES) )
+            const Float32Tensor3Buffer& depths = data.GetFloat32Tensor3Buffer(DEPTH_IMAGES);
+            ASSERT( data.HasInt32MatrixBuffer(PIXEL_INDICES) )
+            const Int32MatrixBuffer& pixelIndices = data.GetInt32MatrixBuffer(PIXEL_INDICES);
+            testResult = pixelDepthDeltaTest(depths, pixelIndices, index, tree.mFloatFeatureParams, nodeId );
+            break;
         }
     }
     const int childDirection = testResult ? 0 : 1;

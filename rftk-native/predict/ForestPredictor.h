@@ -12,10 +12,12 @@ public:
 
     void PredictLeafs(BufferCollection& data, const int numberOfindices, Int32MatrixBuffer& leafsOut);
     void PredictYs(BufferCollection& data, const int numberOfindices, Float32MatrixBuffer& ysOut);
+    // void PredictMaxYs(BufferCollection& data, const int numberOfindices, Int32VectorBuffer& maxYsOut);
 
     Forest mForest;
 };
 
 void ForestPredictLeafs(const Forest& forest, BufferCollection& data, const int numberOfindices, Int32MatrixBuffer& leafsOut);
 void ForestPredictYs(const Forest& forest, BufferCollection& data, const int numberOfindices, Float32MatrixBuffer& ysOut);
+// void ForestPredictMaxYs(const Forest& forest, BufferCollection& data, const int numberOfindices, Int32VectorBuffer& maxYsOut);
 int walkTree( const Tree& tree, int nodeId, BufferCollection& data, const int index, int& treeDepthOut );

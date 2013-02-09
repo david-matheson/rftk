@@ -58,8 +58,14 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
             int treeDepth = 0;
             const int nodeIndex = walkTree( tree, 0, data, sampleIndex, treeDepth );
 
-            Int32VectorBuffer singleIndex(1);
-            singleIndex.Set(0, indices.Get(sampleIndex));
+            const Int32VectorBuffer& classLabels = data.GetInt32VectorBuffer(CLASS_LABELS);
+            const int classLabel = classLabels.Get(indices.Get(sampleIndex));
+            const float sampleWeight = weights.Get(indices.Get(sampleIndex));
+            tree.mCounts.Incr(nodeIndex, sampleWeight);
+            const float newEstimatorCounts = tree.mCounts.Get(nodeIndex);
+            const float incrAmount = sampleWeight / newEstimatorCounts;
+            tree.mYs.Incr(nodeIndex, classLabel, incrAmount);
+            tree.mYs.NormalizeRow(nodeIndex);
 
             std::pair<int,int> treeNodeKey = std::make_pair(treeIndex, nodeIndex);
             if( mActiveNodes.find(treeNodeKey) == mActiveNodes.end() )
@@ -72,18 +78,20 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
             }
 
             ActiveSplitNode* activeSplit = mActiveNodes[treeNodeKey];
+            Int32VectorBuffer singleIndex(1);
+            singleIndex.Set(0, indices.Get(sampleIndex));
             activeSplit->ProcessData(data, singleIndex, gen);
 
             if( activeSplit->ShouldSplit() == SPLT_CRITERIA_READY_TO_SPLIT )
             {
                 // printf("OnlineForestLearner::Train SPLIT tree=%d nodeIndex=%d treeDepth=%d\n", treeIndex, nodeIndex, treeDepth);
-                tree.mLastNodeIndex++;
                 const int leftNode = tree.mLastNodeIndex;
                 tree.mLastNodeIndex++;
                 const int rightNode = tree.mLastNodeIndex;
+                tree.mLastNodeIndex++;
                 // Todo: Only updating Ys on split, should update Ys everytime
-                activeSplit->WriteToTree(nodeIndex, leftNode, rightNode, 
-                                        tree.mPath, tree.mFloatFeatureParams, tree.mIntFeatureParams, 
+                activeSplit->WriteToTree(nodeIndex, leftNode, rightNode,
+                                        tree.mPath, tree.mFloatFeatureParams, tree.mIntFeatureParams,
                                         tree.mDepths, tree.mCounts, tree.mYs);
 
                 // Remove split node

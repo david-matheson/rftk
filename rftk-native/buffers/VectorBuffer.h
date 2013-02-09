@@ -28,6 +28,8 @@ public:
     void SetUnsafe(int n, T value);
     T GetUnsafe(int n) const;
 
+    void Incr(int n, T value);
+
     T GetMax() const;
     T GetMin() const;
 
@@ -155,6 +157,12 @@ template <class T>
 T VectorBufferTemplate<T>::GetUnsafe(int n) const
 {
     return mData[n];
+}
+
+template <class T>
+void VectorBufferTemplate<T>::Incr(int n, T value)
+{
+    mData[n] += value;
 }
 
 template <class T>

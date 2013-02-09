@@ -8,14 +8,14 @@ import rftk.utils.buffer_converters as buffer_converters
 class TestBufferConverters(unittest.TestCase):
 
     def convert_img_buffer_both_directions_helper(self, X, buffer_type):
-        buf = buffer_converters.as_img_buffer(X)
+        buf = buffer_converters.as_tensor_buffer(X)
         assert isinstance(buf, buffer_type)
         X_back = buffer_converters.as_numpy_array(buf)
         self.assertTrue((X == X_back).all())
 
     def img_buffer_flatten_helper(self, X, buffer_type):
         m,n = X.shape
-        img_buffer = buffer_converters.as_img_buffer(X)
+        img_buffer = buffer_converters.as_tensor_buffer(X)
         assert isinstance(img_buffer, buffer_type)
         X_back = buffer_converters.as_numpy_array(img_buffer)
         self.assertTrue((X.reshape(1,m,n) == X_back).all())

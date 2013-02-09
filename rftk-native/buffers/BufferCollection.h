@@ -20,6 +20,10 @@
 #define YS_HISTOGRAM_LEFT         "Ys_Histogram_Left"
 #define YS_HISTOGRAM_RIGHT        "Ys_Histogram_Right"
 
+#define PIXEL_INDICES   "PixelIndices"
+#define DEPTH_IMAGES    "DepthImages"
+#define OFFSET_SCALES   "OffsetScales"
+
 class BufferCollection
 {
 public:

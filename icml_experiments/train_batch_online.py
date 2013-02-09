@@ -36,16 +36,17 @@ if __name__ == "__main__":
 
     measurements = []
     for number_of_samples, number_of_passes in itertools.product(data_config.data_sizes, data_config.number_of_passes_through_data):
-        X_train, Y_train, X_test, Y_test = data_config.load_data(number_of_samples, number_of_passes)
-        (x_m,x_dim) = X_train.shape
-        y_dim = int(np.max(Y_train) + 1)
-
-        data = buffers.BufferCollection()
-        data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(X_train))
-        data.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffers.Int32Vector(Y_train))
-        indices = buffers.Int32Vector( np.array(np.arange(x_m), dtype=np.int32) )
-
         for run_id in range(data_config.number_of_runs):
+
+            X_train, Y_train, X_test, Y_test = data_config.load_data(number_of_samples, number_of_passes)
+            (x_m,x_dim) = X_train.shape
+            y_dim = int(np.max(Y_train) + 1)
+
+            data = buffers.BufferCollection()
+            data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(X_train))
+            data.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffers.Int32Vector(Y_train))
+            indices = buffers.Int32Vector( np.array(np.arange(x_m), dtype=np.int32) )
+
             online_config = config.get_online_config()
 
             # feature_extractor = feature_extractors.RandomProjectionFeatureExtractor( max_features, x_dim, x_dim, True)
@@ -91,6 +92,8 @@ if __name__ == "__main__":
             predict_forest = predict_utils.MatrixForestPredictor(online_learner.GetForest())
             y_probs = predict_forest.predict_proba(X_test)
             y_hat = y_probs.argmax(axis=1)
+            # print Y_test[(Y_test == y_hat)]
+            # print y_probs[(Y_test == y_hat), Y_test[(Y_test == y_hat)]]
             accurracy = np.mean(Y_test == y_hat)
             print "%d %d %d: %0.5f" % (number_of_samples, number_of_passes, run_id, accurracy)
             forest_measurement = exp_measurement.OnlineForestMeasurement(data_config, online_config,
@@ -100,6 +103,10 @@ if __name__ == "__main__":
             stat_measurement = exp_measurement.OnlineForestStatsMeasurement(data_config, online_config,
                 number_of_samples, number_of_passes, online_learner.GetForest().GetForestStats())
             measurements.append(stat_measurement)
+
+            # Print forest stats
+            forestStats = online_learner.GetForest().GetForestStats()
+            forestStats.Print()
 
             if online_config.measure_tree_accuracy:
               online_forest_data = online_learner.GetForest()

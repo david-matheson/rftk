@@ -82,6 +82,13 @@ def get_mog_dist(name):
 
 
 def generate_multi_pass_dataset(X_train, Y_train, data_size, number_of_passes_through_data):
+    (m,n) = X_train.shape
+    all_row_indices = range(m)
+    random.shuffle( all_row_indices )
+
+    X_train = X_train[all_row_indices, :]
+    Y_train = Y_train[all_row_indices]
+
     X_train = X_train[0:data_size,:]
     Y_train = Y_train[0:data_size]
 
