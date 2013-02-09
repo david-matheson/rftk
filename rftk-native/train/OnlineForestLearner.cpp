@@ -61,11 +61,18 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
             const Int32VectorBuffer& classLabels = data.GetInt32VectorBuffer(CLASS_LABELS);
             const int classLabel = classLabels.Get(indices.Get(sampleIndex));
             const float sampleWeight = weights.Get(indices.Get(sampleIndex));
+            const float oldN = tree.mCounts.Get(nodeIndex);
+            for(int c=0; c<tree.mYs.GetN(); c++)
+            {
+                float classCount = oldN * tree.mYs.Get(nodeIndex,c);
+                if( classLabel == c )
+                {
+                    classCount += sampleWeight;
+                }
+                const float cProbNew = classCount / (oldN + sampleWeight);
+                tree.mYs.Set(nodeIndex, c, cProbNew);
+            }
             tree.mCounts.Incr(nodeIndex, sampleWeight);
-            const float newEstimatorCounts = tree.mCounts.Get(nodeIndex);
-            const float incrAmount = sampleWeight / newEstimatorCounts;
-            tree.mYs.Incr(nodeIndex, classLabel, incrAmount);
-            tree.mYs.NormalizeRow(nodeIndex);
 
             std::pair<int,int> treeNodeKey = std::make_pair(treeIndex, nodeIndex);
             if( mActiveNodes.find(treeNodeKey) == mActiveNodes.end() )
