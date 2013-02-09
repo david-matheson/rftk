@@ -10,6 +10,7 @@ import rftk.native.assert_util
 import rftk.native.bootstrap
 import rftk.native.buffers as buffers
 import rftk.native.forest_data  as forest_data
+import rftk.native.features
 import rftk.native.feature_extractors as feature_extractors
 import rftk.native.best_split as best_splits
 import rftk.native.predict as predict
