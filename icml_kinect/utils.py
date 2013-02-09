@@ -151,7 +151,7 @@ def reconstruct_depth_image(depth, labels):
 # Find the closest label color
 # This is needed because blender does interpolation on texture color
 def find_closest(color):
-    minKey = -1
+    minKey = background
     minDist = 100000
     for key, value in colors.iteritems():
         diff = color*255.0 - value
