@@ -32,17 +32,17 @@ class KinectOnlineConfig(object):
     def __init__(self):
         self.number_of_pixels_per_image = 1000
 
-    def configure_online_learner(self):
+    def configure_online_learner(self, split_rate, number_datapoints_split_root):
         number_of_trees = 20
         number_of_features = 1000
         number_of_thresholds = 3
         y_dim = kinect_utils.number_of_body_parts
         null_probability = 0
         impurity_probability = 0.5
-        split_rate = 1.2
+        split_rate = split_rate
         min_impurity_gain = 0.0
-        number_of_data_to_split_root = 100
-        number_of_data_to_force_split_root = 10000
+        number_of_data_to_split_root = number_datapoints_split_root
+        number_of_data_to_force_split_root = 100 * number_datapoints_split_root
 
         sigma_x = 100
         sigma_y = 100
@@ -78,6 +78,8 @@ class KinectOnlineConfig(object):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build body part classification trees online')
     parser.add_argument('-i', '--pose_files_input_path', type=str, required=True)
+    parser.add_argument('-s', '--split_rate', type=float, required=True)
+    parser.add_argument('-r', '--number_datapoints_split_root', type=float, required=True)
     parser.add_argument('-p', '--poses_to_use_file', type=str, required=True)
     args = parser.parse_args()
 
@@ -85,13 +87,15 @@ if __name__ == "__main__":
     pose_filenames = poses_to_include_file.read().split('\n')
     poses_to_include_file.close()
 
-    online_run_folder = ("experiment_data/online-run-%s") % (
-                          str(datetime.now()).replace(':', '-').replace(' ', '-'))
+    online_run_folder = ("experiment_data/online-run-splitrate-%0.2f-splitroot-%0.2f-%s") % (
+                            args.split_rate,
+                            args.number_datapoints_split_root,
+                            str(datetime.now()).replace(':', '-').replace(' ', '-'))
     if not os.path.exists(online_run_folder):
         os.makedirs(online_run_folder)
 
     config = KinectOnlineConfig()
-    online_learner = config.configure_online_learner()
+    online_learner = config.configure_online_learner(args.split_rate, args.number_datapoints_split_root)
 
     run_info = {'pose_filenames': [], 'pixel_indices': [], 'offset_scales': []}
 
@@ -110,7 +114,7 @@ if __name__ == "__main__":
 
         # Randomly sample pixels and offset scales
         (number_of_datapoints, _) = pixel_indices.shape
-        offset_scales = np.ones((number_of_datapoints, 2), dtype=np.float32)
+        offset_scales = np.array(np.random.uniform(0.8, 1.2,number_of_datapoints), dtype=np.float32)
         datapoint_indices = np.array(np.arange(number_of_datapoints), dtype=np.int32)
 
         # Package buffers for learner
