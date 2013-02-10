@@ -201,9 +201,10 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   const BufferCollection& 
                 const float rightEntropy = (rightWeight / (leftWeight + rightWeight)) *
                                                 calculateDiscreteEntropy(&rightClassLabelCounts[0], &rightLogClassLabelCounts[0], mNumberOfClasses, rightWeight);
 
-                if( (entropyStart - leftEntropy - rightEntropy) > bestGainInEntropy)
+                const int j = sorter.GetUnSortedIndex(sortedIndex+1);
+                if( ((entropyStart - leftEntropy - rightEntropy) > bestGainInEntropy)
+                     && (featureValuesForTest[i] != featureValuesForTest[j]) )
                 {
-                    const int j = sorter.GetUnSortedIndex(sortedIndex+1);
                     bestGainInEntropy = (entropyStart - leftEntropy - rightEntropy);
                     bestThreshold = 0.5f * (featureValuesForTest[i] + featureValuesForTest[j]);
 
