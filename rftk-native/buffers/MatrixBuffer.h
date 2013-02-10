@@ -234,9 +234,8 @@ template <class T>
 void MatrixBufferTemplate<T>::AppendVertical(const MatrixBufferTemplate<T>& buffer)
 {
     ASSERT_ARG_DIM_1D(mN, buffer.GetN())
-    mData.resize((mM + buffer.GetM()) * mN);
     const int oldM = mM;
-    mM += buffer.GetM();
+    Resize(mM + buffer.GetM(), mN);
     for(int r=0; r<buffer.GetM(); r++)
     {
         for(int c=0; c<mN; c++)
