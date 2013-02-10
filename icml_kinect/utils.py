@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as pl
-import Imath
 import array
 import pickle
 import itertools
@@ -124,6 +123,7 @@ jointMirrorMap = {
 # Load depth data from an exr file
 def load_depth( filename ):
     import OpenEXR
+    import Imath
     fileH = OpenEXR.InputFile(filename)
 
     # Compute the size
