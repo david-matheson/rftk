@@ -190,10 +190,9 @@ T VectorBufferTemplate<T>::GetMin() const
 template <class T>
 void VectorBufferTemplate<T>::Append(const VectorBufferTemplate<T>& buffer)
 {
-    mData.resize(mN + buffer.GetN());
     const int oldN = mN;
-    mN += buffer.GetN();
-    for(int n=0; n<mN; n++)
+    Resize(mN + buffer.GetN());
+    for(int n=0; n<buffer.GetN(); n++)
     {
         Set(n+oldN, buffer.Get(n));
     }

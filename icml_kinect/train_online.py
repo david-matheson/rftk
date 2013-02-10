@@ -33,13 +33,13 @@ class KinectOnlineConfig(object):
         self.number_of_pixels_per_image = 1000
 
     def configure_online_learner(self, number_of_trees, split_rate, number_datapoints_split_root):
-        number_of_features = 1000
+        number_of_features = 500
         number_of_thresholds = 5
         y_dim = kinect_utils.number_of_body_parts
         null_probability = 0
         impurity_probability = 0.5
         split_rate = split_rate
-        min_impurity_gain = 0.0
+        min_impurity_gain = 0.1
         number_of_data_to_split_root = number_datapoints_split_root
         number_of_data_to_force_split_root = 100 * number_datapoints_split_root
 
@@ -77,17 +77,17 @@ class KinectOnlineConfig(object):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build body part classification trees online')
     parser.add_argument('-i', '--pose_files_input_path', type=str, required=True)
+    parser.add_argument('-p', '--poses_to_use_file', type=str, required=True)
     parser.add_argument('-t', '--number_of_trees', type=int, required=True)
     parser.add_argument('-s', '--split_rate', type=float, required=True)
     parser.add_argument('-r', '--number_datapoints_split_root', type=float, required=True)
-    parser.add_argument('-p', '--poses_to_use_file', type=str, required=True)
     args = parser.parse_args()
 
     poses_to_include_file = open(args.poses_to_use_file, 'r')
     pose_filenames = poses_to_include_file.read().split('\n')
     poses_to_include_file.close()
 
-    online_run_folder = ("experiment_data/online-run-tree-%d-splitrate-%0.2f-splitroot-%0.2f-%s") % (
+    online_run_folder = ("experiment_data/online-tree-%d-splitrate-%0.2f-splitroot-%0.2f-%s") % (
                             args.number_of_trees,
                             args.split_rate,
                             args.number_datapoints_split_root,
