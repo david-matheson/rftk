@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as pl
-import OpenEXR
 import Imath
 import array
 import pickle
@@ -124,6 +123,7 @@ jointMirrorMap = {
 
 # Load depth data from an exr file
 def load_depth( filename ):
+    import OpenEXR
     fileH = OpenEXR.InputFile(filename)
 
     # Compute the size
@@ -136,7 +136,7 @@ def load_depth( filename ):
 
     depth = np.fromstring(fileH.channel("Z", FLOAT), dtype = np.float32)
     depth.shape = (size[1], size[0]) # Numpy arrays are (row, col)
-    return depth
+    return depth / 1000.0
 
 # Reconstruct depth image
 def reconstruct_depth_image(depth, labels):
