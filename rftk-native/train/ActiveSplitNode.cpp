@@ -53,7 +53,7 @@ void ActiveSplitNodeFeatureSet::ProcessData(    const BufferCollection& data,
     mNodeDataCollector->Collect(data, sampleIndices, featureValues, gen);
 
     // Calculate impurity and child ys
-    BufferCollection nodeBufferCollection = mNodeDataCollector->GetCollectedData();
+    const BufferCollection& nodeBufferCollection = mNodeDataCollector->GetCollectedData();
     // Todo: make it clearer that we only calculate best splits when stats have been collected
     if( mNodeDataCollector->GetNumberOfCollectedSamples() > minSamples)
     {
