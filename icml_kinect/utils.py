@@ -187,13 +187,17 @@ def to_indices(image_id, where_ids):
 def sample_pixels(depth, labels, number_datapoints):
     indices_array_complete = np.zeros((number_datapoints, 3), dtype=np.int32)
     data_points_per_label = number_datapoints / number_of_body_parts
+    actual_number_datapoints = 0
     for label in range(number_of_body_parts):
         indices_array = to_indices(0, np.where(labels == label))
         np.random.shuffle(indices_array)
         m,n = indices_array.shape
-        indices_array = indices_array[0:min(m,data_points_per_label), :]
-        indices_array_complete[label*data_points_per_label:(label+1)*data_points_per_label,:] = indices_array
-    pixel_labels = labels[indices_array_complete[:,1], indices_array_complete[:,2]]
+        number_of_valid_datapoints = min(m,data_points_per_label)
+        indices_array = indices_array[0:number_of_valid_datapoints, :]
+        indices_array_complete[actual_number_datapoints:actual_number_datapoints + number_of_valid_datapoints, :] = indices_array
+        actual_number_datapoints += number_of_valid_datapoints
+    indices_array_complete = indices_array_complete[0:actual_number_datapoints, :]
+    pixel_labels = labels[indices_array_complete[:, 1], indices_array_complete[:, 2]]
 
     return indices_array_complete, pixel_labels
 
