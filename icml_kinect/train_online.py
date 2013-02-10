@@ -32,10 +32,9 @@ class KinectOnlineConfig(object):
     def __init__(self):
         self.number_of_pixels_per_image = 1000
 
-    def configure_online_learner(self, split_rate, number_datapoints_split_root):
-        number_of_trees = 20
+    def configure_online_learner(self, number_of_trees, split_rate, number_datapoints_split_root):
         number_of_features = 1000
-        number_of_thresholds = 3
+        number_of_thresholds = 5
         y_dim = kinect_utils.number_of_body_parts
         null_probability = 0
         impurity_probability = 0.5
@@ -44,8 +43,8 @@ class KinectOnlineConfig(object):
         number_of_data_to_split_root = number_datapoints_split_root
         number_of_data_to_force_split_root = 100 * number_datapoints_split_root
 
-        sigma_x = 100
-        sigma_y = 100
+        sigma_x = 200
+        sigma_y = 200
 
         feature_extractor = feature_extractors.DepthScaledDepthDeltaFeatureExtractor(sigma_x, sigma_y, number_of_features, True)
         node_data_collector = train.TwoStreamRandomThresholdHistogramDataCollectorFactory(y_dim,
@@ -78,6 +77,7 @@ class KinectOnlineConfig(object):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build body part classification trees online')
     parser.add_argument('-i', '--pose_files_input_path', type=str, required=True)
+    parser.add_argument('-t', '--number_of_trees', type=int, required=True)
     parser.add_argument('-s', '--split_rate', type=float, required=True)
     parser.add_argument('-r', '--number_datapoints_split_root', type=float, required=True)
     parser.add_argument('-p', '--poses_to_use_file', type=str, required=True)
@@ -87,7 +87,8 @@ if __name__ == "__main__":
     pose_filenames = poses_to_include_file.read().split('\n')
     poses_to_include_file.close()
 
-    online_run_folder = ("experiment_data/online-run-splitrate-%0.2f-splitroot-%0.2f-%s") % (
+    online_run_folder = ("experiment_data/online-run-tree-%d-splitrate-%0.2f-splitroot-%0.2f-%s") % (
+                            args.number_of_trees,
                             args.split_rate,
                             args.number_datapoints_split_root,
                             str(datetime.now()).replace(':', '-').replace(' ', '-'))
@@ -95,7 +96,9 @@ if __name__ == "__main__":
         os.makedirs(online_run_folder)
 
     config = KinectOnlineConfig()
-    online_learner = config.configure_online_learner(args.split_rate, args.number_datapoints_split_root)
+    online_learner = config.configure_online_learner( args.number_of_trees, 
+                                                      args.split_rate, 
+                                                      args.number_datapoints_split_root)
 
     run_info = {'pose_filenames': [], 'pixel_indices': [], 'offset_scales': []}
 
@@ -103,18 +106,15 @@ if __name__ == "__main__":
         print "Processing %d - %s" % (i, pose_filename)
 
         # Load single pose depth and class labels
-        depths = np.clip(kinect_utils.load_depth("%s%s.exr" % (args.pose_files_input_path, pose_filename)), 0.0, 6.0)
+        depth_pickle_file = "%s%s_depth.pkl" % (args.pose_files_input_path, pose_filename)
+        depths = pickle.load(open(depth_pickle_file,'rb'))  
         class_labels_pickle_file = "%s%s_classlabels.pkl" % (args.pose_files_input_path, pose_filename)
-        if not os.path.exists(class_labels_pickle_file):
-            class_labels_png = pl.imread("%s%s.png" % (args.pose_files_input_path, pose_filename))
-            class_labels = kinect_utils.image_labels(class_labels_png)
-            pickle.dump(class_labels, open(class_labels_pickle_file, 'wb'))
         labels = pickle.load(open(class_labels_pickle_file,'rb'))
         pixel_indices, pixel_labels = kinect_utils.sample_pixels(depths, labels, config.number_of_pixels_per_image)
 
         # Randomly sample pixels and offset scales
         (number_of_datapoints, _) = pixel_indices.shape
-        offset_scales = np.array(np.random.uniform(0.8, 1.2,number_of_datapoints), dtype=np.float32)
+        offset_scales = np.array(np.random.uniform(0.8, 1.2, (number_of_datapoints, 2)), dtype=np.float32)
         datapoint_indices = np.array(np.arange(number_of_datapoints), dtype=np.int32)
 
         # Package buffers for learner
