@@ -35,6 +35,7 @@ class SklearnOfflineConfig(object):
         self.criterion = "entropy"
         self.number_of_trees = 100
         self.number_of_jobs = 2
+        self.min_samples_leaf = 50
 
         self.number_of_features = int(params['number_of_features'])
         self.max_depth = int(params['max_depth'])
