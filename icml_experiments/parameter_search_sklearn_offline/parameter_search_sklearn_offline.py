@@ -30,22 +30,6 @@ class DataConfig(object):
         (X_train, Y_train) = dist_utils.generate_multi_pass_dataset(self.X_train_org, self.Y_train_org, data_size, passes_through_data)
         return (X_train, Y_train, self.X_test_org, self.Y_test_org)
 
-class OnlineConfig(object):
-    def __init__(self, params):
-        self.number_of_trees = 100
-        self.use_two_streams = True
-        self.measure_tree_accuracy = False
-
-        # can't have numpy types here
-        self.null_probability = float(params['null_probability'])
-        self.min_impurity_gain = float(params['min_impurity_gain'])
-        self.impurity_probability = float(params['impurity_probability'])
-        self.split_rate = float(params['split_rate'])
-        self.number_of_features = int(params['number_of_features'])
-        self.number_of_thresholds = int(params['number_of_thresholds'])
-        self.number_of_data_to_split_root = int(params['number_of_data_to_split_root'])
-        self.number_of_data_to_force_split_root = int(params['number_of_data_to_force_split_root'])
-        
 class SklearnOfflineConfig(object):
     def __init__(self, params):
         self.criterion = "entropy"
@@ -59,7 +43,6 @@ class SklearnOfflineConfig(object):
 class ExperimentConfig(object):
     def __init__(self, params):
         self.data_config = DataConfig(params)
-        #self.online_config = OnlineConfig(params)
         self.sklearn_offline_config = SklearnOfflineConfig(params)
     
     def get_experiment_name(self):
