@@ -25,3 +25,10 @@ variable {
   max: 100
 }
 
+variable {
+  name: "min_samples_leaf"
+  type: INT
+  size: 1
+  min: 1
+  max: 100
+}

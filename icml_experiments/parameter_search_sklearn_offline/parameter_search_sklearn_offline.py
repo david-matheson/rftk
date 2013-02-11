@@ -35,11 +35,11 @@ class SklearnOfflineConfig(object):
         self.criterion = "entropy"
         self.number_of_trees = 100
         self.number_of_jobs = 2
-        self.min_samples_leaf = 50
 
         self.number_of_features = int(params['number_of_features'])
         self.max_depth = int(params['max_depth'])
         self.min_samples_split = int(params['min_samples_split'])
+        self.min_samples_leaf = int(params['min_samples_leaf'])
 
 class ExperimentConfig(object):
     def __init__(self, params):
@@ -73,4 +73,4 @@ def main(job_id, params):
 # occurred.
 if __name__ == "__main__":
     train_sklearn_offline.run_experiment(ExperimentConfig({'number_of_features':
-        4, 'max_depth': 10, 'min_samples_split': 5}))
+        4, 'max_depth': 10, 'min_samples_split': 5, 'min_samples_leaf': 5}))
