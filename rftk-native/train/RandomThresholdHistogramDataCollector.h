@@ -33,13 +33,12 @@ public:
     virtual int GetNumberOfCollectedSamples();
 
 protected:
-    void UpdateThresholds(const Float32MatrixBuffer& featureValues);
-    int mNumberOfThresholdSamples;
+    bool AddThreshold(Float32MatrixBuffer& thresholds, Int32VectorBuffer& thresholdCounts, 
+                      const int featureIndex, const float featureValue);
     int mNumberOfCollectedSamples;
     int mNumberOfClasses;
     int mNumberOfThresholds;
     float mProbabilityOfNullStream;
-    Float32MatrixBuffer mThresholds;
     BufferCollection mData; // #features x #thresholds x #class
 };
 

@@ -26,6 +26,8 @@ public:
     T Get(int l, int m, int n) const;
     void SetUnsafe(int l, int m, int n, T value);
     T GetUnsafe(int l, int m, int n) const;
+    void Incr(int l, int m, int n, T value);
+
 
     const T* GetRowPtrUnsafe(int l, int m) const;
     void AppendSlice(const Tensor3BufferTemplate<T>& buffer);
@@ -166,6 +168,12 @@ template <class T>
 T Tensor3BufferTemplate<T>::GetUnsafe(int l, int m, int n) const 
 {
     return mData[l*mM*mN + m*mN + n]; 
+}
+
+template <class T>
+void Tensor3BufferTemplate<T>::Incr(int l, int m, int n, T value)
+{
+    mData[l*mM*mN + m*mN + n] += value; 
 }
 
 template <class T>
