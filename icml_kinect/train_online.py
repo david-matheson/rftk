@@ -33,15 +33,15 @@ class KinectOnlineConfig(object):
         self.number_of_pixels_per_image = 1000
 
     def configure_online_learner(self, number_of_trees, split_rate, number_datapoints_split_root):
-        number_of_features = 1000
-        number_of_thresholds = 5
+        number_of_features = 500
+        number_of_thresholds = 4
         y_dim = kinect_utils.number_of_body_parts
         null_probability = 0
         impurity_probability = 0.5
         split_rate = split_rate
         min_impurity_gain = 0.1
         number_of_data_to_split_root = number_datapoints_split_root
-        number_of_data_to_force_split_root = 100 * number_datapoints_split_root
+        number_of_data_to_force_split_root = 10 * number_datapoints_split_root
 
         sigma_x = 50
         sigma_y = 75
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     pose_filenames = poses_to_include_file.read().split('\n')
     poses_to_include_file.close()
 
-    online_run_folder = ("experiment_data_v2/online-tree-%d-splitrate-%0.2f-splitroot-%0.2f-evalperiod-%d-%s") % (
+    online_run_folder = ("experiment_data_v3/online-tree-%d-splitrate-%0.2f-splitroot-%0.2f-evalperiod-%d-%s") % (
                             args.number_of_trees,
                             args.split_rate,
                             args.number_datapoints_split_root,
