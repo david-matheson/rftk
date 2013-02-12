@@ -78,12 +78,14 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& dat
     ASSERT( data.HasFloat32Tensor3Buffer(mLeftYsHistogramBufferName) )
     ASSERT( data.HasFloat32Tensor3Buffer(mRightYsHistogramBufferName) )
     ASSERT( data.HasFloat32MatrixBuffer(THRESHOLDS) )
+    ASSERT( data.HasInt32VectorBuffer(THRESHOLD_COUNTS) )
 
     const Float32Tensor3Buffer& impurityHistogramLeft = data.GetFloat32Tensor3Buffer(mLeftImpurityHistrogramBufferName);
     const Float32Tensor3Buffer& impurityHistogramRight = data.GetFloat32Tensor3Buffer(mRightImpurityHistrogramBufferName);
     const Float32Tensor3Buffer& ysHistogramLeft = data.GetFloat32Tensor3Buffer(mLeftYsHistogramBufferName);
     const Float32Tensor3Buffer& ysHistogramRight = data.GetFloat32Tensor3Buffer(mRightYsHistogramBufferName);
     const Float32MatrixBuffer& thresholds = data.GetFloat32MatrixBuffer(THRESHOLDS);
+    const Int32VectorBuffer& thresholdCounts = data.GetInt32VectorBuffer(THRESHOLD_COUNTS);
 
     ASSERT_ARG_DIM_3D(  impurityHistogramLeft.GetL(), impurityHistogramLeft.GetM(), impurityHistogramLeft.GetN(),
                         impurityHistogramRight.GetL(), impurityHistogramRight.GetM(), impurityHistogramRight.GetN() )
@@ -92,6 +94,9 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& dat
     ASSERT_ARG_DIM_3D(  impurityHistogramLeft.GetL(), impurityHistogramLeft.GetM(), impurityHistogramLeft.GetN(),
                         ysHistogramRight.GetL(), ysHistogramRight.GetM(), ysHistogramRight.GetN() )
     ASSERT_ARG_DIM_1D( impurityHistogramLeft.GetN(), mNumberOfClasses )
+    ASSERT_ARG_DIM_1D( impurityHistogramLeft.GetL(), thresholds.GetM() )
+    ASSERT_ARG_DIM_1D( impurityHistogramLeft.GetM(), thresholds.GetN() )
+    ASSERT_ARG_DIM_1D( thresholds.GetM(), thresholdCounts.GetN() )
 
     const int numberOfFeatures = impurityHistogramLeft.GetL();
 
@@ -115,7 +120,7 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& dat
     {
         float bestGainInEntropy = FLT_MIN;
 
-        for(int t=0; t<impurityHistogramLeft.GetM(); t++)
+        for(int t=0; t<thresholdCounts.Get(f); t++)
         {
             const float* left = impurityHistogramLeft.GetRowPtrUnsafe(f,t);
             const float leftWeight = sum(left, mNumberOfClasses);
