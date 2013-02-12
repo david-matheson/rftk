@@ -33,7 +33,7 @@ class KinectOnlineConfig(object):
         self.number_of_pixels_per_image = 1000
 
     def configure_online_learner(self, number_of_trees, split_rate, number_datapoints_split_root):
-        number_of_features = 500
+        number_of_features = 1000
         number_of_thresholds = 5
         y_dim = kinect_utils.number_of_body_parts
         null_probability = 0
@@ -43,8 +43,8 @@ class KinectOnlineConfig(object):
         number_of_data_to_split_root = number_datapoints_split_root
         number_of_data_to_force_split_root = 100 * number_datapoints_split_root
 
-        sigma_x = 200
-        sigma_y = 200
+        sigma_x = 50
+        sigma_y = 75
 
         feature_extractor = feature_extractors.DepthScaledDepthDeltaFeatureExtractor(sigma_x, sigma_y, number_of_features, True)
         node_data_collector = train.TwoStreamRandomThresholdHistogramDataCollectorFactory(y_dim,
@@ -70,8 +70,8 @@ class KinectOnlineConfig(object):
         online_learner = train.OnlineForestLearner(train_config)
         return online_learner
 
-    def get_sampling_config(self):
-        return train.OnlineSamplingParams(False, 1.0)
+    def get_sampling_config(self, eval_split_period):
+        return train.OnlineSamplingParams(False, 1.0, eval_split_period)
 
 
 if __name__ == "__main__":
@@ -81,16 +81,18 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--number_of_trees', type=int, required=True)
     parser.add_argument('-s', '--split_rate', type=float, required=True)
     parser.add_argument('-r', '--number_datapoints_split_root', type=float, required=True)
+    parser.add_argument('-e', '--eval_split_period', type=int, required=True)
     args = parser.parse_args()
 
     poses_to_include_file = open(args.poses_to_use_file, 'r')
     pose_filenames = poses_to_include_file.read().split('\n')
     poses_to_include_file.close()
 
-    online_run_folder = ("experiment_data/online-tree-%d-splitrate-%0.2f-splitroot-%0.2f-%s") % (
+    online_run_folder = ("experiment_data_v2/online-tree-%d-splitrate-%0.2f-splitroot-%0.2f-evalperiod-%d-%s") % (
                             args.number_of_trees,
                             args.split_rate,
                             args.number_datapoints_split_root,
+                            args.eval_split_period,
                             str(datetime.now()).replace(':', '-').replace(' ', '-'))
     if not os.path.exists(online_run_folder):
         os.makedirs(online_run_folder)
@@ -103,7 +105,7 @@ if __name__ == "__main__":
     run_info = {'pose_filenames': [], 'pixel_indices': [], 'offset_scales': []}
 
     for i, pose_filename in enumerate(pose_filenames):
-        print "Processing %d - %s" % (i, pose_filename)
+        print "Processing %d - %s - %s" % (i, pose_filename, str(datetime.now()))
 
         # Load single pose depth and class labels
         depth_pickle_file = "%s%s_depth.pkl" % (args.pose_files_input_path, pose_filename)
@@ -125,17 +127,18 @@ if __name__ == "__main__":
         bufferCollection.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffer_converters.as_vector_buffer(pixel_labels))
 
         # Update learner
-        online_learner.Train(bufferCollection, buffers.Int32Vector(datapoint_indices), config.get_sampling_config())
+        online_learner.Train(bufferCollection, buffers.Int32Vector(datapoint_indices), config.get_sampling_config(args.eval_split_period))
 
         #pickle forest and data used for training
-        forest_pickle_filename = "%s/forest-%d.pkl" % (online_run_folder, i)
-        forest_utils.pickle_dump_native_forest(online_learner.GetForest(), forest_pickle_filename)
+        if i % 25 == 0:
+            forest_pickle_filename = "%s/forest-%d.pkl" % (online_run_folder, i)
+            forest_utils.pickle_dump_native_forest(online_learner.GetForest(), forest_pickle_filename)
 
-        run_info['pose_filenames'].append(pose_filename)
-        run_info['pixel_indices'].append(pixel_indices)
-        run_info['offset_scales'].append(offset_scales)
-        pickle.dump(run_info, open("%s/run_info.pkl" % (online_run_folder), 'wb'))
+            run_info['pose_filenames'].append(pose_filename)
+            run_info['pixel_indices'].append(pixel_indices)
+            run_info['offset_scales'].append(offset_scales)
+            pickle.dump(run_info, open("%s/run_info.pkl" % (online_run_folder), 'wb'))
 
-        # Print forest stats
-        forestStats = online_learner.GetForest().GetForestStats()
-        forestStats.Print()
+            # Print forest stats
+            forestStats = online_learner.GetForest().GetForestStats()
+            forestStats.Print()

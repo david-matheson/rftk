@@ -135,11 +135,13 @@ void ProcessNode(   const TrainConfigParams& trainConfigParams,
                     Tree* treeOut)
 {
     // printf("DepthFirstParallelForestLearner::ProcessNode depth=%d\n", treeDepth);
+    const int evalSplitPeriod = 1;
     ActiveSplitNode activeSplit = ActiveSplitNode(  trainConfigParams.mFeatureExtractors,
                                                     trainConfigParams.mNodeDataCollectorFactory,
                                                     trainConfigParams.mBestSplit,
                                                     trainConfigParams.mSplitCriteria,
-                                                    treeDepth);
+                                                    treeDepth,
+                                                    evalSplitPeriod);
 
     activeSplit.ProcessData(data, indices, gen);
     if( activeSplit.ShouldSplit() == SPLT_CRITERIA_READY_TO_SPLIT )
