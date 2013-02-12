@@ -102,21 +102,27 @@ void ActiveSplitNodeFeatureSet::SplitIndices(   const int featureIndex,
 {
     // Extract feature values
     Float32MatrixBuffer featureValues;
-    mFeatureExtractor->Extract(data, sampleIndices, mIntParams, mFloatParams, featureValues);
+    mFeatureExtractor->Extract(data, sampleIndices, mIntParams.SliceRow(featureIndex), mFloatParams.SliceRow(featureIndex), featureValues);
 
-    ASSERT_ARG_DIM_1D(sampleIndices.GetN(), featureValues.GetM());
+    ASSERT_ARG_DIM_1D(sampleIndices.GetN(), featureValues.GetM())
+    ASSERT_ARG_DIM_1D(featureValues.GetN(), 1)
+
     const float threshold = mThresholds.Get(featureIndex);
-
     std::vector<int> leftIndices;
     std::vector<int> rightIndices;
 
     for(int i=0; i<sampleIndices.GetN(); i++)
     {
-        const float featureValue = featureValues.Get(i, featureIndex);
+        const float featureValue = featureValues.Get(i, 0);
         const int sampleIndex = sampleIndices.Get(i);
-        std::vector<int>& leftOrRightIndices =
-                    (featureValue >= threshold) ? leftIndices : rightIndices;
-        leftOrRightIndices.push_back(sampleIndex);
+        if( featureValue >= threshold )
+        {
+            leftIndices.push_back(sampleIndex);
+        }
+        else
+        {
+            rightIndices.push_back(sampleIndex);
+        }
     }
 
     leftSampleIndicesOut = Int32VectorBuffer(&leftIndices[0], leftIndices.size());
