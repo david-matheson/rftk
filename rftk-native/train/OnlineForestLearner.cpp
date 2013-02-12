@@ -81,7 +81,8 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
                                                                 mTrainConfigParams.mNodeDataCollectorFactory,
                                                                 mTrainConfigParams.mBestSplit,
                                                                 mTrainConfigParams.mSplitCriteria,
-                                                                treeDepth);
+                                                                treeDepth,
+                                                                samplingParams.mEvalSplitPeriod);
             }
 
             ActiveSplitNode* activeSplit = mActiveNodes[treeNodeKey];
