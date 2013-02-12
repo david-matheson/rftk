@@ -23,12 +23,7 @@ import rftk.utils.forest as forest_utils
 import dist_utils
 import experiment_measurement as exp_measurement
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Online Random Forest Training')
-    parser.add_argument('-c', '--config_file', help='experiment config file', required=True)
-    args = parser.parse_args()
-
-    config = __import__(args.config_file)
+def run_experiment(config):
     data_config = config.get_data_config()
 
     out_measurements_filename = ("experiment_data/%s-online-measurements-%s.pkl") % (
@@ -121,3 +116,16 @@ if __name__ == "__main__":
                   measurements.append(tree_measurement)
 
         pickle.dump(measurements, open(out_measurements_filename, "wb"))
+
+    return measurements
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Online Random Forest Training')
+    parser.add_argument('-c', '--config_file', help='experiment config file', required=True)
+    args = parser.parse_args()
+
+    config = __import__(args.config_file)
+
+    measurements = run_experiment(config)
+

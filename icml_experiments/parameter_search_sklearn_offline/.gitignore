@@ -1,0 +1,6 @@
+*.txt
+*.lock
+*.csv
+jobs/
+output/
+
