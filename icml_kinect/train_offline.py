@@ -33,14 +33,14 @@ class KinectOfflineConfig(object):
         self.number_of_pixels_per_image = 1000
 
     def configure_offline_learner(self, number_of_trees):
-        number_of_features = 500
+        number_of_features = 1000
         y_dim = kinect_utils.number_of_body_parts
         min_impurity_gain = 0.1
         max_depth = 30
         min_samples_split = 20
         min_samples_leaf = 10
-        sigma_x = 200
-        sigma_y = 200
+        sigma_x = 50
+        sigma_y = 75
 
         feature_extractor = feature_extractors.DepthScaledDepthDeltaFeatureExtractor(sigma_x, sigma_y, number_of_features, True)
         node_data_collector = train.AllNodeDataCollectorFactory()
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--number_of_trees', type=int, required=True)
     args = parser.parse_args()
 
-    offline_run_folder = ("experiment_data/offline-tree-%d-n-%d-%s") % (
+    offline_run_folder = ("experiment_data_v2/offline-tree-%d-n-%d-%s") % (
                             args.number_of_trees,
                             args.number_of_images,
                             str(datetime.now()).replace(':', '-').replace(' ', '-'))
@@ -140,5 +140,5 @@ if __name__ == "__main__":
     forestStats.Print()
 
     #pickle forest and data used for training
-    forest_pickle_filename = "%s/forest-%d.pkl" % (offline_run_folder, number_of_datapoints)
+    forest_pickle_filename = "%s/forest-%d.pkl" % (offline_run_folder, args.number_of_images)
     forest_utils.pickle_dump_native_forest(forest, forest_pickle_filename)
