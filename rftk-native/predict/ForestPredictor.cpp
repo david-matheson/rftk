@@ -55,18 +55,13 @@ void ForestPredictYs(const Forest& forest, BufferCollection& data, const int num
     // Reset predictions if the buffer is being reused
     ysOut.Zero();
 
-
-    // Create a temp buffer for leaf node id (this requires all leaf node ids to be stored in memory)
-    // If the number of indices (ie number of rows in x) is to large this might be an issue
-    Int32MatrixBuffer leafNodeIds = Int32MatrixBuffer(numberOfindices, forest.mTrees.size());
-    ForestPredictLeafs(forest, data, numberOfindices, leafNodeIds);
-
     const float invNumberTrees = 1.0 / static_cast<float>(numberOfTreesInForest);
     for(int i=0; i<numberOfindices; i++)
     {
         for(int treeId=0; treeId<numberOfTreesInForest; treeId++)
         {
-            const int leafNodeId = leafNodeIds.Get(i, treeId);
+            int treeDepthOut = 0;
+            const int leafNodeId = walkTree(forest.mTrees[treeId], 0, data, i, treeDepthOut);
             for(int c=0; c<yDim; c++)
             {
                 const float delta = forest.mTrees[treeId].mYs.Get(leafNodeId, c) * invNumberTrees;

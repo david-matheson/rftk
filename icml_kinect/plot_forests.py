@@ -20,23 +20,72 @@ import rftk.utils.forest as forest_utils
 
 import utils as kinect_utils
 
+def load_data(pose_path, list_of_poses):
+    concat = False
+    for i, pose_filename in enumerate(list_of_poses):
+        print "Loading %d - %s" % (i, pose_filename)
+
+        # Load single pose depth and class labels
+        depths = pickle.load(open("%s%s_depth.pkl" % (pose_path, pose_filename), 'rb'))
+        labels = pickle.load(open("%s%s_classlabels.pkl" % (pose_path, pose_filename), 'rb'))
+
+        depths = depths
+
+        depths_buffer = buffer_converters.as_tensor_buffer(depths)
+        labels_buffer = buffer_converters.as_tensor_buffer(labels)
+
+        if concat:
+            complete_depths_buffer.AppendSlice(depths_buffer)
+            complete_labels_buffer.AppendSlice(labels_buffer)
+        else:
+            complete_depths_buffer = depths_buffer
+            complete_labels_buffer = labels_buffer
+            concat = True
+
+    assert(complete_depths_buffer.GetL() == complete_labels_buffer.GetL())
+    assert(complete_depths_buffer.GetM() == complete_labels_buffer.GetM())
+    assert(complete_depths_buffer.GetN() == complete_labels_buffer.GetN())
+
+    return complete_depths_buffer, complete_labels_buffer
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Highlight words')
-    parser.add_argument('-i', '--ground_truth_in_path', type=str, required=True)
+    parser.add_argument('-i', '--pose_files_input_path', type=str, required=True)
+    parser.add_argument('-p', '--poses_to_use_file', type=str, required=True)
+    parser.add_argument('-n', '--number_of_images', type=int, required=True)
     parser.add_argument('-f', '--forest_input_path', type=str, required=True)
+    parser.add_argument('-l', '--list_of_forest_ids', type=str, required=True)
     parser.add_argument('-o', '--out_path', type=str, required=True)
     args = parser.parse_args()
 
-    depths = pickle.load(open(args.ground_truth_in_path+"depths.pkl",'rb'))
-    labels = pickle.load(open(args.ground_truth_in_path+"labels.pkl",'rb'))
-    (numberOfImages, depthM, depthN) = depths.shape
+    forest_ids = eval(args.list_of_forest_ids)
+    print forest_ids
+
+    poses_to_include_file = open(args.poses_to_use_file, 'r')
+    pose_filenames = poses_to_include_file.read().split('\n')
+    poses_to_include_file.close()
+
+    depths_buffer, labels_buffer = load_data(args.pose_files_input_path,
+                                            pose_filenames[0:args.number_of_images])
+
+    depths = buffer_converters.as_numpy_array(depths_buffer)
+    print depths[(depths < 5) & (depths > 2)]
+    labels = buffer_converters.as_numpy_array(labels_buffer)
 
     # Load forest
-    forest_id = 2
-    forest_pickle_filename = "%s/forest-%d.pkl" % (args.forest_input_path, forest_id)
-    forest = forest_utils.pickle_load_native_forest(forest_pickle_filename)
+    for forest_id in forest_ids:
+        forest_pickle_filename = "%s/forest-%d.pkl" % (args.forest_input_path, forest_id)
+        forest = forest_utils.pickle_load_native_forest(forest_pickle_filename)
 
-    kinect_utils.plot_classification_imgs(args.out_path, depths, labels, forest)
-    accuracy = kinect_utils.classification_accuracy(depths, labels, forest)
-    print accuracy
+        # for tree_id in range(forest.GetNumberOfTrees()):
+        #     print "f_params %d" % tree_id
+        #     forest.GetTree(tree_id).mFloatFeatureParams.Print() 
+
+        # for tree_id in range(forest.GetNumberOfTrees()):
+        #     print "i_params %d" % tree_id
+        #     forest.GetTree(tree_id).mIntFeatureParams.Print()
+
+        kinect_utils.plot_classification_imgs(args.out_path, depths, labels, forest)
+        accuracy = kinect_utils.classification_accuracy(depths, labels, forest)
+        print accuracy
