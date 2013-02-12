@@ -136,7 +136,7 @@ def load_depth( filename ):
 
     depth = np.fromstring(fileH.channel("Z", FLOAT), dtype = np.float32)
     depth.shape = (size[1], size[0]) # Numpy arrays are (row, col)
-    return depth / 1000.0
+    return depth / 10
 
 # Reconstruct depth image
 def reconstruct_depth_image(depth, labels):
