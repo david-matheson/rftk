@@ -33,18 +33,26 @@ class KinectOfflineConfig(object):
         self.number_of_pixels_per_image = 1000
 
     def configure_offline_learner(self, number_of_trees):
-        number_of_features = 1000
+        number_of_features = 5000
         y_dim = kinect_utils.number_of_body_parts
-        min_impurity_gain = 0.1
+        min_impurity_gain = 0.01
         max_depth = 30
-        min_samples_split = 20
-        min_samples_leaf = 10
-        sigma_x = 50
+        min_samples_split = 10
+        min_samples_leaf = 5
+        sigma_x = 75
         sigma_y = 75
 
         feature_extractor = feature_extractors.DepthScaledDepthDeltaFeatureExtractor(sigma_x, sigma_y, number_of_features, True)
         node_data_collector = train.AllNodeDataCollectorFactory()
         class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, y_dim)
+
+        # node_data_collector = train.TwoStreamRandomThresholdHistogramDataCollectorFactory(y_dim,
+        #                                                                                     4,
+        #                                                                                     0,
+        #                                                                                     0.5)
+        # class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(y_dim,
+        #         buffers.IMPURITY_HISTOGRAM_LEFT, buffers.IMPURITY_HISTOGRAM_RIGHT,
+        #         buffers.YS_HISTOGRAM_LEFT, buffers.YS_HISTOGRAM_RIGHT)
 
         split_criteria = train.OfflineSplitCriteria(max_depth, min_impurity_gain,
                                                     min_samples_split, min_samples_leaf)
@@ -72,6 +80,7 @@ def load_data(pose_path, list_of_poses, number_of_pixels_per_image):
         depths = pickle.load(open("%s%s_depth.pkl" % (pose_path, pose_filename), 'rb'))
         labels = pickle.load(open("%s%s_classlabels.pkl" % (pose_path, pose_filename), 'rb'))
         pixel_indices, pixel_labels = kinect_utils.sample_pixels(depths, labels, config.number_of_pixels_per_image)
+        pixel_indices[:,0] = i
 
         depths_buffer = buffer_converters.as_tensor_buffer(depths)
         pixel_labels_buffer = buffer_converters.as_vector_buffer(pixel_labels)
@@ -99,7 +108,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--number_of_trees', type=int, required=True)
     args = parser.parse_args()
 
-    offline_run_folder = ("experiment_data_v2/offline-tree-%d-n-%d-%s") % (
+    offline_run_folder = ("experiment_data_v4/offline-tree-%d-n-%d-%s") % (
                             args.number_of_trees,
                             args.number_of_images,
                             str(datetime.now()).replace(':', '-').replace(' ', '-'))
@@ -131,7 +140,7 @@ if __name__ == "__main__":
     # Update learner
     offline_learner = config.configure_offline_learner(args.number_of_trees)
     sampling_config = config.get_sampling_config(number_of_datapoints)
-    number_of_jobs = 10
+    number_of_jobs = 2
     forest = offline_learner.Train(bufferCollection, buffers.Int32Vector(datapoint_indices), sampling_config, number_of_jobs)
 
     # Print forest stats
@@ -140,5 +149,5 @@ if __name__ == "__main__":
     forestStats.Print()
 
     #pickle forest and data used for training
-    forest_pickle_filename = "%s/forest-%d.pkl" % (offline_run_folder, args.number_of_images)
+    forest_pickle_filename = "%s/forest-0-%d.pkl" % (offline_run_folder, args.number_of_images)
     forest_utils.pickle_dump_native_forest(forest, forest_pickle_filename)
