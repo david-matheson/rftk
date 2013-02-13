@@ -55,7 +55,7 @@ Tree::Tree( const Int32MatrixBuffer& path,
 , mCounts(counts)
 , mYs(ys)
 , mValid(true)
-, mLastNodeIndex(1)
+, mLastNodeIndex(mPath.GetM())
 {
     ASSERT_ARG_DIM_1D(mPath.GetM(), mIntFeatureParams.GetM())
     ASSERT_ARG_DIM_1D(mPath.GetM(), mFloatFeatureParams.GetM())
@@ -86,7 +86,7 @@ Tree::Tree( int maxNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int 
 
 void Tree::GatherStats(ForestStats& stats) const
 {
-    for(int nodeId=0; nodeId<mLastNodeIndex; nodeId++)
+    for(int nodeId=0; nodeId<mLastNodeIndex-1; nodeId++)
     {
         const bool isLeaf = (mPath.Get(nodeId, 0) == -1
                              && mPath.Get(nodeId, 1) == -1);
@@ -94,6 +94,7 @@ void Tree::GatherStats(ForestStats& stats) const
         {
             const int depth = mDepths.Get(nodeId);
             const int numberEstimatorSamples = static_cast<int>(mCounts.Get(nodeId));
+            // printf("Tree::GatherStats %d %d %d\n", nodeId, depth, numberEstimatorSamples);
             stats.ProcessLeaf(depth, numberEstimatorSamples);
         }
     }
