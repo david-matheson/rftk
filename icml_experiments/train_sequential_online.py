@@ -68,10 +68,12 @@ if __name__ == "__main__":
     # self.split_criteria = train.OnlineAlphaBetaSplitCriteria(   max_depth,
     #                                                             min_impurity,
     #                                                             min_samples_split)
+    max_tree_depth = 1000
     split_criteria = train.OnlineConsistentSplitCriteria(  online_config.split_rate,
                                                                 online_config.min_impurity_gain,
                                                                 online_config.number_of_data_to_split_root,
-                                                                online_config.number_of_data_to_force_split_root)
+                                                                online_config.number_of_data_to_force_split_root,
+                                                                max_tree_depth)
     extractor_list = [feature_extractor]
     train_config = train.TrainConfigParams(extractor_list,
                                             node_data_collector,

@@ -60,10 +60,12 @@ def run_experiment(experiment_config, run_config):
     # self.split_criteria = train.OnlineAlphaBetaSplitCriteria(   max_depth,
     #                                                             min_impurity,
     #                                                             min_samples_split)
+    max_tree_depth = 1000
     split_criteria = train.OnlineConsistentSplitCriteria(  run_config.split_rate,
                                                                 run_config.min_impurity_gain,
                                                                 run_config.number_of_data_to_split_root,
-                                                                run_config.number_of_data_to_force_split_root)
+                                                                run_config.number_of_data_to_force_split_root,
+                                                                max_tree_depth)
 
     extractor_list = [feature_extractor]
     train_config = train.TrainConfigParams(extractor_list,
@@ -113,7 +115,7 @@ def run_experiment(experiment_config, run_config):
 
 
 
-    
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Online Random Forest Training')
@@ -152,7 +154,7 @@ if __name__ == "__main__":
                 exp_measurement.MeasurementGrid(
                     configuration_domain,
                     exp_measurement.AccuracyMeasurement))
-    
+
     for position, forest_measurement, tree_measurements in job_results:
         forest_measurement_grid.record_at(position, forest_measurement)
 
