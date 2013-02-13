@@ -70,17 +70,24 @@ if __name__ == "__main__":
                                             pose_filenames[0:args.number_of_images])
 
     depths = buffer_converters.as_numpy_array(depths_buffer)
-    print depths[(depths < 5) & (depths > 2)]
     labels = buffer_converters.as_numpy_array(labels_buffer)
 
     # Load forest
-    for forest_id in forest_ids:
-        forest_pickle_filename = "%s/forest-%d.pkl" % (args.forest_input_path, forest_id)
+    for (pass_id, forest_id) in forest_ids:
+        forest_pickle_filename = "%s/forest-%d-%d.pkl" % (args.forest_input_path, pass_id, forest_id)
+        out_pickle_filename = "%s/accuracy-%d-%d.pkl" % (args.forest_input_path, pass_id, forest_id)
         forest = forest_utils.pickle_load_native_forest(forest_pickle_filename)
+
+        forest_stats = forest.GetForestStats()
+        forest_stats.Print()
+
+        # for tree_id in range(forest.GetNumberOfTrees()):
+        #     print "path %d" % tree_id
+        #     forest.GetTree(tree_id).mPath.Print()
 
         # for tree_id in range(forest.GetNumberOfTrees()):
         #     print "f_params %d" % tree_id
-        #     forest.GetTree(tree_id).mFloatFeatureParams.Print() 
+        #     forest.GetTree(tree_id).mFloatFeatureParams.Print()
 
         # for tree_id in range(forest.GetNumberOfTrees()):
         #     print "i_params %d" % tree_id
@@ -89,3 +96,4 @@ if __name__ == "__main__":
         kinect_utils.plot_classification_imgs(args.out_path, depths, labels, forest)
         accuracy = kinect_utils.classification_accuracy(depths, labels, forest)
         print accuracy
+        pickle.dump(accuracy, file(out_pickle_filename, 'wb'))
