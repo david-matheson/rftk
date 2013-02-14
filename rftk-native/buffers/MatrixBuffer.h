@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "assert_util.h"
+#include "VectorBuffer.h"
 
 template <class T>
 class MatrixBufferTemplate {
@@ -40,7 +41,7 @@ public:
 
     void AppendVertical(const MatrixBufferTemplate<T>& buffer);
     MatrixBufferTemplate<T> Transpose() const;
-    MatrixBufferTemplate<T> Slice(const MatrixBufferTemplate<int>& indices) const;
+    MatrixBufferTemplate<T> Slice(const VectorBufferTemplate<int>& indices) const;
     MatrixBufferTemplate<T> SliceRow(const int row) const;
 
     void AsNumpy2dFloat32(float* outfloat2d, int m, int n) const;
@@ -234,9 +235,8 @@ template <class T>
 void MatrixBufferTemplate<T>::AppendVertical(const MatrixBufferTemplate<T>& buffer)
 {
     ASSERT_ARG_DIM_1D(mN, buffer.GetN())
-    mData.resize((mM + buffer.GetM()) * mN);
     const int oldM = mM;
-    mM += buffer.GetM();
+    Resize(mM + buffer.GetM(), mN);
     for(int r=0; r<buffer.GetM(); r++)
     {
         for(int c=0; c<mN; c++)
@@ -261,13 +261,13 @@ MatrixBufferTemplate<T> MatrixBufferTemplate<T>::Transpose() const
 }
 
 template <class T>
-MatrixBufferTemplate<T> MatrixBufferTemplate<T>::Slice(const MatrixBufferTemplate<int>& indices) const
+MatrixBufferTemplate<T> MatrixBufferTemplate<T>::Slice(const VectorBufferTemplate<int>& indices) const
 {
-    MatrixBufferTemplate<T> sliced(indices.GetM(), mN);
+    MatrixBufferTemplate<T> sliced(indices.GetN(), mM);
     ASSERT_ARG_DIM_1D(indices.GetN(), 1)
-    for(int i=0; i<indices.GetM(); i++)
+    for(int i=0; i<indices.GetN(); i++)
     {
-        int r = indices.Get(i,0);
+        int r = indices.Get(i);
         for(int c=0; c<mN; c++)
         {
             sliced.Set(i, c, Get(r, c));

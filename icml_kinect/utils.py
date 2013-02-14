@@ -1,7 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as pl
-import OpenEXR
-import Imath
 import array
 import pickle
 import itertools
@@ -10,6 +8,7 @@ import rftk.native.assert_util
 import rftk.native.bootstrap
 import rftk.native.buffers as buffers
 import rftk.native.forest_data  as forest_data
+import rftk.native.features
 import rftk.native.feature_extractors as feature_extractors
 import rftk.native.best_split as best_splits
 import rftk.native.predict as predict
@@ -123,6 +122,8 @@ jointMirrorMap = {
 
 # Load depth data from an exr file
 def load_depth( filename ):
+    import OpenEXR
+    import Imath
     fileH = OpenEXR.InputFile(filename)
 
     # Compute the size
@@ -135,7 +136,7 @@ def load_depth( filename ):
 
     depth = np.fromstring(fileH.channel("Z", FLOAT), dtype = np.float32)
     depth.shape = (size[1], size[0]) # Numpy arrays are (row, col)
-    return depth
+    return depth / 10
 
 # Reconstruct depth image
 def reconstruct_depth_image(depth, labels):
@@ -151,7 +152,7 @@ def reconstruct_depth_image(depth, labels):
 # Find the closest label color
 # This is needed because blender does interpolation on texture color
 def find_closest(color):
-    minKey = -1
+    minKey = background
     minDist = 100000
     for key, value in colors.iteritems():
         diff = color*255.0 - value
@@ -186,13 +187,17 @@ def to_indices(image_id, where_ids):
 def sample_pixels(depth, labels, number_datapoints):
     indices_array_complete = np.zeros((number_datapoints, 3), dtype=np.int32)
     data_points_per_label = number_datapoints / number_of_body_parts
+    actual_number_datapoints = 0
     for label in range(number_of_body_parts):
         indices_array = to_indices(0, np.where(labels == label))
         np.random.shuffle(indices_array)
         m,n = indices_array.shape
-        indices_array = indices_array[0:min(m,data_points_per_label), :]
-        indices_array_complete[label*data_points_per_label:(label+1)*data_points_per_label,:] = indices_array
-    pixel_labels = labels[indices_array_complete[:,1], indices_array_complete[:,2]]
+        number_of_valid_datapoints = min(m,data_points_per_label)
+        indices_array = indices_array[0:number_of_valid_datapoints, :]
+        indices_array_complete[actual_number_datapoints:actual_number_datapoints + number_of_valid_datapoints, :] = indices_array
+        actual_number_datapoints += number_of_valid_datapoints
+    indices_array_complete = indices_array_complete[0:actual_number_datapoints, :]
+    pixel_labels = labels[indices_array_complete[:, 1], indices_array_complete[:, 2]]
 
     return indices_array_complete, pixel_labels
 
@@ -242,46 +247,84 @@ def reconstruct_label_image_min_probability_ushort(depth, labels, ground_labels,
 
 
 def classify_pixels(depth, forest):
-    print "classify_pixels start"
     buffer_collection = buffers.BufferCollection()
     assert(depth.ndim == 2)
     m,n = depth.shape
     pixel_indices = np.array( list(itertools.product( np.zeros(1), range(m), range(n) )), dtype=np.int32 )
-    # if depth.ndim == 3:
-    #     l, m, n = depth.shape
-    #     pixel_indices = np.array( list(itertools.product( range(l), range(m), range(n) )), dtype=np.int32 )
     buffer_collection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, buffer_converters.as_matrix_buffer(pixel_indices))
     depth_buffer = buffer_converters.as_tensor_buffer(depth)
     buffer_collection.AddFloat32Tensor3Buffer(buffers.DEPTH_IMAGES, depth_buffer)
 
     yprobs_buffer = buffers.Float32MatrixBuffer()
     forest_predictor = predict.ForestPredictor(forest)
-    print "classify_pixels predict start"
     forest_predictor.PredictYs(buffer_collection, m*n, yprobs_buffer)
-    print "classify_pixels predict end"
     yprobs = buffer_converters.as_numpy_array(yprobs_buffer)
     (_, ydim) = yprobs.shape
     img_yprobs = yprobs.reshape((m,n,ydim))
     img_yhat = np.argmax(img_yprobs, axis=2)
-    print "classify_pixels end"
     return img_yhat, img_yprobs.max(axis=2)
 
+def classify_body_pixels(depth, ground_labels, forest):
+    buffer_collection = buffers.BufferCollection()
+    assert(depth.ndim == 2)
+    m,n = depth.shape
+    pixel_indices = to_indices(0, np.where(ground_labels != background))
+    (number_of_non_background_pixels,_) = pixel_indices.shape
+    buffer_collection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, buffer_converters.as_matrix_buffer(pixel_indices))
+    buffer_collection.AddFloat32Tensor3Buffer(buffers.DEPTH_IMAGES, buffer_converters.as_tensor_buffer(depth))
 
-def classification_accuracy(depthsIn, labelsIn, classificationTreesIn):
-    incorrectClassificationCount = 0
-    nonBackgroundCount = 0
-    background = 19
+    forest_predictor = predict.ForestPredictor(forest)
+    yprobs_buffer = buffers.Float32MatrixBuffer()
+    forest_predictor.PredictYs(buffer_collection, number_of_non_background_pixels, yprobs_buffer)
+    yprobs = buffer_converters.as_numpy_array(yprobs_buffer)
+    (_, ydim) = yprobs.shape
+    img_yprobs = np.zeros((m,n), dtype=np.float32)
+    img_yprobs[ground_labels != background].shape
+    yprobs.max(axis=1).shape
+    img_yprobs[ground_labels != background] = yprobs.max(axis=1)
+    img_yhat = np.zeros((m,n), dtype=np.int32)
+    img_yhat[ground_labels != background] = np.argmax(yprobs, axis=1)
+
+    return img_yhat, img_yprobs
+
+classificationTreesGlobal = None
+depthsGlobal = None
+labelsGlobal = None
+
+def classification_accuracy_image(imgId):
+    global classificationTreesGlobal
+    global depthsGlobal
+    global labelsGlobal
+
+    (numberOfImgs,_,_) = depthsGlobal.shape
+    print "Img %d of %d" % (imgId, numberOfImgs)
+    groundTruthLabels = labelsGlobal[imgId,:,:]
+    (m,n) = groundTruthLabels.shape
+    pred_labels, pred_probs = classify_body_pixels(depthsGlobal[imgId,:,:], labelsGlobal[imgId,:,:], classificationTreesGlobal)
+
+    incorrectClassificationCount = np.sum((groundTruthLabels != pred_labels) & (groundTruthLabels != background))
+    nonBackgroundCount = np.sum(groundTruthLabels != background)
+    return (incorrectClassificationCount, nonBackgroundCount)
+
+def classification_accuracy(depthsIn, labelsIn, classificationTreesIn, number_of_jobs=4):
+    from joblib import Parallel, delayed
+    global classificationTreesGlobal
+    global depthsGlobal
+    global labelsGlobal
+
+    classificationTreesGlobal = classificationTreesIn
+    depthsGlobal = depthsIn
+    labelsGlobal = labelsIn
 
     (numberOfImgs,_,_) = depthsIn.shape
+    incorrectClassificationCount = 0
+    nonBackgroundCount = 0
 
-    for imgId in range(numberOfImgs):
-        print "Img %d of %d" % (imgId, numberOfImgs)
-        groundTruthLabels = labelsIn[imgId,:,:]
-        (m,n) = groundTruthLabels.shape
-        pred_labels, pred_probs = classify_pixels(depthsIn[imgId,:,:], classificationTreesIn)
+    counts = Parallel(n_jobs=10)(delayed(classification_accuracy_image)(imgId)
+      for imgId in range(numberOfImgs))
 
-        incorrectClassificationCount = incorrectClassificationCount + np.sum((groundTruthLabels != pred_labels) & (groundTruthLabels != background))
-        nonBackgroundCount = nonBackgroundCount + np.sum( groundTruthLabels != background )
+    incorrectClassificationCount = sum([x[0] for x in counts])
+    nonBackgroundCount = sum([x[1] for x in counts])
 
     return float(nonBackgroundCount - incorrectClassificationCount) / float(nonBackgroundCount)
 
@@ -289,7 +332,7 @@ def plot_classification_imgs(figures_path, depths, ground_labels, forest):
     (numberOfImgs,_,_) = depths.shape
     for imgId in range(numberOfImgs):
         print "Img %d of %d" % (imgId, numberOfImgs)
-        labels, probs = classify_pixels(depths[imgId,:,:], forest)
+        labels, probs = classify_body_pixels(depths[imgId,:,:], ground_labels[imgId,:,:], forest)
 
         img = reconstruct_depth_image(depths[imgId,:,:], ground_labels[imgId,:,:])
         pl.imshow(img)

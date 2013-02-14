@@ -20,7 +20,8 @@ class ActiveSplitNodeFeatureSet
 public:
     ActiveSplitNodeFeatureSet(  const FeatureExtractorI* featureExtractor,
                                 NodeDataCollectorI* nodeDataCollector,
-                                const BestSplitI* bestSplitter );
+                                const BestSplitI* bestSplitter,
+                                const int evalSplitPeriod );
 
     ~ActiveSplitNodeFeatureSet();
 
@@ -61,6 +62,9 @@ private:
     // Passed in but owned by this class
     std::tr1::shared_ptr<NodeDataCollectorI> mNodeDataCollector;
 
+    int mEvalSplitPeriod;
+    int mNumberSamplesToEvalSplit;
+
     // Created on construction
     Int32MatrixBuffer mIntParams;
     Float32MatrixBuffer mFloatParams;
@@ -81,7 +85,8 @@ public:
                     const NodeDataCollectorFactoryI* nodeDataCollectorFactory,
                     const BestSplitI* bestSplit,
                     const SplitCriteriaI* splitCriteria,
-                    const int treeDepth );
+                    const int treeDepth,
+                    const int evalSplitPeriod );
 
     virtual ~ActiveSplitNode();
 

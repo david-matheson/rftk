@@ -9,11 +9,13 @@
 OnlineConsistentSplitCriteria::OnlineConsistentSplitCriteria(float growthRate,
                                                             float minImpurity,
                                                             float minNumberOfSamplesFirstSplit,
-                                                            float maxNumberOfSamplesFirstSplit)
+                                                            float maxNumberOfSamplesFirstSplit,
+                                                            int maxDepth)
 : mGrowthRate(growthRate)
 , mMinImpurity(minImpurity)
 , mMinNumberOfSamplesFirstSplit(minNumberOfSamplesFirstSplit)
 , mMaxNumberOfSamplesFirstSplit(maxNumberOfSamplesFirstSplit)
+, mMaxDepth(maxDepth)
 {}
 
 OnlineConsistentSplitCriteria::~OnlineConsistentSplitCriteria()
@@ -36,6 +38,7 @@ SPLT_CRITERIA OnlineConsistentSplitCriteria::ShouldSplit(int treeDepth,
 
     const int bestSplit = BestSplit(treeDepth, impurityValues, childCounts);
     const bool shouldSplit = ((bestSplit >= 0) &&
+                                (treeDepth < mMaxDepth) &&
                                 ((impurityValues.Get(bestSplit) > mMinImpurity)
                                     || (childCounts.Get(bestSplit,0) + childCounts.Get(bestSplit,1) > maxNumberOfSamples)));
 
@@ -51,8 +54,6 @@ int OnlineConsistentSplitCriteria::BestSplit(int treeDepth,
     ASSERT_ARG_DIM_1D(childCounts.GetN(), 2)
 
     const float minNumberOfSamples = mMinNumberOfSamplesFirstSplit * pow(mGrowthRate, treeDepth);
-
-    const float totalPointsSeen = childCounts.Get(0,0) + childCounts.Get(0,1);
 
     int maxIndex = -1;
     float maxImpurity = FLT_MIN;

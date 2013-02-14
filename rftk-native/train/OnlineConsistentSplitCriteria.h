@@ -11,7 +11,8 @@ public:
     OnlineConsistentSplitCriteria(  float growthRate,
                                     float minImpurity,
                                     float minNumberOfSamplesFirstSplit,
-                                    float maxNumberOfSamplesFirstSplit);
+                                    float maxNumberOfSamplesFirstSplit,
+                                    int maxDepth);
     virtual ~OnlineConsistentSplitCriteria();
     virtual SplitCriteriaI* Clone() const;
 
@@ -29,4 +30,5 @@ private:
     const float mMinImpurity;
     const float mMinNumberOfSamplesFirstSplit;
     const float mMaxNumberOfSamplesFirstSplit;
+    const int mMaxDepth;
 };

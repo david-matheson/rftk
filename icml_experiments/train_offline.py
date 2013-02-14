@@ -8,6 +8,7 @@ import rftk.native.assert_util
 import rftk.native.bootstrap
 import rftk.native.buffers as buffers
 import rftk.native.forest_data as forest_data
+import rftk.native.features
 import rftk.native.feature_extractors as feature_extractors
 import rftk.native.best_split as best_splits
 import rftk.native.predict as predict
@@ -95,8 +96,8 @@ if __name__ == "__main__":
                 number_of_samples, number_of_passes, accurracy)
             measurements.append(forest_measurement)
 
-            stat_measurement = exp_measurement.OfflineForestStatsMeasurement(data_config, sklearn_config,
-                number_of_samples, number_of_passes, full_forest_data)
+            stat_measurement = exp_measurement.OfflineForestStatsMeasurement(data_config, offline_config,
+                number_of_samples, number_of_passes, full_forest_data.GetForestStats())
             measurements.append(stat_measurement)
 
         pickle.dump(measurements, open(out_measurements_filename, "wb"))

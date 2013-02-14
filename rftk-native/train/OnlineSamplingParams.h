@@ -3,11 +3,13 @@
 class OnlineSamplingParams
 {
 public:
-    OnlineSamplingParams(const bool usePoisson, const float lambda)
+    OnlineSamplingParams(const bool usePoisson, const float lambda, const int evalSplitPeriod=1)
     : mUsePoisson(usePoisson)
     , mLambda(lambda)
+    , mEvalSplitPeriod(evalSplitPeriod)
     {}
 
-    bool mUsePoisson;
-    float mLambda;
+    const bool mUsePoisson;
+    const float mLambda;
+    const int mEvalSplitPeriod;
 };

@@ -1,0 +1,124 @@
+import numpy as np
+import matplotlib.pyplot as pl
+import cPickle as pickle
+from datetime import datetime
+import argparse
+import os
+
+import rftk.native.assert_util
+import rftk.native.bootstrap
+import rftk.native.buffers as buffers
+import rftk.native.forest_data as forest_data
+import rftk.native.features
+import rftk.native.feature_extractors as feature_extractors
+import rftk.native.best_split as best_splits
+import rftk.native.predict as predict
+import rftk.native.train as train
+
+import rftk.utils.buffer_converters as buffer_converters
+import rftk.utils.forest as forest_utils
+
+import utils as kinect_utils
+
+
+
+def load_data(pose_path, list_of_poses):
+    concat = False
+    for i, pose_filename in enumerate(list_of_poses):
+        print "Loading %d - %s" % (i, pose_filename)
+
+        # Load single pose depth and class labels
+        depths = pickle.load(open("%s%s_depth.pkl" % (pose_path, pose_filename), 'rb'))
+        labels = pickle.load(open("%s%s_classlabels.pkl" % (pose_path, pose_filename), 'rb'))
+
+        depths = depths
+
+        depths_buffer = buffer_converters.as_tensor_buffer(depths)
+        labels_buffer = buffer_converters.as_tensor_buffer(labels)
+
+        if concat:
+            complete_depths_buffer.AppendSlice(depths_buffer)
+            complete_labels_buffer.AppendSlice(labels_buffer)
+        else:
+            complete_depths_buffer = depths_buffer
+            complete_labels_buffer = labels_buffer
+            concat = True
+
+    assert(complete_depths_buffer.GetL() == complete_labels_buffer.GetL())
+    assert(complete_depths_buffer.GetM() == complete_labels_buffer.GetM())
+    assert(complete_depths_buffer.GetN() == complete_labels_buffer.GetN())
+
+    return complete_depths_buffer, complete_labels_buffer
+
+
+
+def eval_accuracies(depths_buffer, labels_buffer, list_of_forest_and_accuracy_files):
+    accuracies = np.zeros(len(list_of_forest_and_accuracy_files))
+    for i, (forest_file, accuracy_file) in enumerate(list_of_forest_and_accuracy_files):
+        if not os.path.exists(accuracy_file):
+            depths = buffer_converters.as_numpy_array(depths_buffer)
+            labels = buffer_converters.as_numpy_array(labels_buffer)
+            forest = forest_utils.pickle_load_native_forest(forest_file)
+            accuracy = kinect_utils.classification_accuracy(depths, labels, forest, 8)
+            pickle.dump(accuracy, file(accuracy_file, 'wb'))
+        accuracies[i] = pickle.load(file(accuracy_file, 'rb'))
+    print accuracies
+    return accuracies
+
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Plot forests accuracy on test set')
+    parser.add_argument('-i', '--pose_files_input_path', type=str, required=True)
+    parser.add_argument('-p', '--poses_to_use_file', type=str, required=True)
+    parser.add_argument('-n', '--number_of_images', type=int, required=True)
+    parser.add_argument('-o', '--out_file', type=str, required=True)
+    args = parser.parse_args()
+
+    poses_to_include_file = open(args.poses_to_use_file, 'r')
+    pose_filenames = poses_to_include_file.read().split('\n')
+    poses_to_include_file.close()
+
+    depths_buffer, labels_buffer = load_data(args.pose_files_input_path,
+                                            pose_filenames[0:args.number_of_images])
+
+    online_one_pass_accuracy = eval_accuracies(depths_buffer, labels_buffer,
+                            [(  '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-09-57.733963/forest-1-20.pkl',
+                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-09-57.733963/accuracy-1-20.pkl'),
+                            (  '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-56-06.293295/forest-1-95.pkl',
+                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-56-06.293295/accuracy-1-95.pkl'),
+                            (  '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-56-53.142276/forest-1-495.pkl',
+                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-56-53.142276/accuracy-1-495.pkl'),
+                            (   '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-50-05.667646/forest-1-995.pkl',
+                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-50-05.667646/accuracy-1-995.pkl')
+
+                            ])
+
+
+
+    online_multi_pass_accuracy = eval_accuracies(depths_buffer, labels_buffer,
+                            [(  '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-09-57.733963/forest-4-20.pkl',
+                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-09-57.733963/accuracy-4-20.pkl'),
+                            (  '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-56-06.293295/forest-2-95.pkl',
+                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-56-06.293295/accuracy-2-95.pkl'),
+                            (  '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-56-53.142276/forest-3-405.pkl',
+                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-56-53.142276/accuracy-3-405.pkl'),
+                            (   '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-50-05.667646/forest-4-985.pkl',
+                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-50-05.667646/accuracy-4-985.pkl')
+                            ])
+
+    offline_accuracy = eval_accuracies(depths_buffer, labels_buffer,
+                            [(  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-25-2013-02-12-22-17-28.589374/forest-1-25.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-25-2013-02-12-22-17-28.589374/accuracy-1-25.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-100-2013-02-12-22-47-33.357779/forest-1-100.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-100-2013-02-12-22-47-33.357779/accuracy-1-100.pkl'),
+                             (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-500-2013-02-13-01-48-35.758347/forest-1-500.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-500-2013-02-13-01-48-35.758347/accuracy-1-500.pkl'),
+                             (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-1000-2013-02-12-22-18-43.251212/forest-1-1000.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-1000-2013-02-12-22-18-43.251212/accuracy-1-1000.pkl')
+                            ])
+
+
+    results = {'number_of_data': np.array([25, 100, 500, 1000]), 'online_one_pass':online_one_pass_accuracy, 'online_multi_pass':online_multi_pass_accuracy, 'offline':offline_accuracy}
+    print results
+    pickle.dump(results, file(args.out_file, 'wb'))

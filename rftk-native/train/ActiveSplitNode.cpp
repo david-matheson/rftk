@@ -13,10 +13,13 @@
 
 ActiveSplitNodeFeatureSet::ActiveSplitNodeFeatureSet(  const FeatureExtractorI* featureExtractor,
                                                         NodeDataCollectorI* nodeDataCollector,
-                                                        const BestSplitI* bestSplitter )
+                                                        const BestSplitI* bestSplitter,
+                                                        const int evalSplitPeriod )
 : mFeatureExtractor(featureExtractor)
-, mNodeDataCollector(nodeDataCollector)
 , mBestSplitter(bestSplitter)
+, mNodeDataCollector(nodeDataCollector)
+, mEvalSplitPeriod(evalSplitPeriod)
+, mNumberSamplesToEvalSplit(evalSplitPeriod)
 {
     const int numberOfFeatures = featureExtractor->GetNumberOfFeatures();
     mFloatParams = featureExtractor->CreateFloatParams(numberOfFeatures);
@@ -53,9 +56,10 @@ void ActiveSplitNodeFeatureSet::ProcessData(    const BufferCollection& data,
     mNodeDataCollector->Collect(data, sampleIndices, featureValues, gen);
 
     // Calculate impurity and child ys
-    BufferCollection nodeBufferCollection = mNodeDataCollector->GetCollectedData();
+    mNumberSamplesToEvalSplit -= sampleIndices.GetN();
+    const BufferCollection& nodeBufferCollection = mNodeDataCollector->GetCollectedData();
     // Todo: make it clearer that we only calculate best splits when stats have been collected
-    if( mNodeDataCollector->GetNumberOfCollectedSamples() > minSamples)
+    if( mNumberSamplesToEvalSplit <= 0 && mNodeDataCollector->GetNumberOfCollectedSamples() > minSamples)
     {
         mBestSplitter->BestSplits( nodeBufferCollection,
                            mImpurities,
@@ -63,6 +67,7 @@ void ActiveSplitNodeFeatureSet::ProcessData(    const BufferCollection& data,
                            mChildCounts,
                            mLeftYs,
                            mRightYs );
+        mNumberSamplesToEvalSplit = mEvalSplitPeriod;
     }
 }
 
@@ -97,21 +102,27 @@ void ActiveSplitNodeFeatureSet::SplitIndices(   const int featureIndex,
 {
     // Extract feature values
     Float32MatrixBuffer featureValues;
-    mFeatureExtractor->Extract(data, sampleIndices, mIntParams, mFloatParams, featureValues);
+    mFeatureExtractor->Extract(data, sampleIndices, mIntParams.SliceRow(featureIndex), mFloatParams.SliceRow(featureIndex), featureValues);
 
-    ASSERT_ARG_DIM_1D(sampleIndices.GetN(), featureValues.GetM());
+    ASSERT_ARG_DIM_1D(sampleIndices.GetN(), featureValues.GetM())
+    ASSERT_ARG_DIM_1D(featureValues.GetN(), 1)
+
     const float threshold = mThresholds.Get(featureIndex);
-
     std::vector<int> leftIndices;
     std::vector<int> rightIndices;
 
     for(int i=0; i<sampleIndices.GetN(); i++)
     {
-        const float featureValue = featureValues.Get(i, featureIndex);
+        const float featureValue = featureValues.Get(i, 0);
         const int sampleIndex = sampleIndices.Get(i);
-        std::vector<int>& leftOrRightIndices =
-                    (featureValue >= threshold) ? leftIndices : rightIndices;
-        leftOrRightIndices.push_back(sampleIndex);
+        if( featureValue >= threshold )
+        {
+            leftIndices.push_back(sampleIndex);
+        }
+        else
+        {
+            rightIndices.push_back(sampleIndex);
+        }
     }
 
     leftSampleIndicesOut = Int32VectorBuffer(&leftIndices[0], leftIndices.size());
@@ -159,7 +170,8 @@ ActiveSplitNode::ActiveSplitNode(const std::vector<FeatureExtractorI*> featureEx
                 const NodeDataCollectorFactoryI* nodeDataCollectorFactory,
                 const BestSplitI* bestSplit,
                 const SplitCriteriaI* splitCriteria,
-                const int treeDepth )
+                const int treeDepth,
+                const int evalSplitPeriod )
 : mSplitCriteria(splitCriteria)
 , mTreeDepth(treeDepth)
 , mBestFeatureIndex(-1)
@@ -171,7 +183,8 @@ ActiveSplitNode::ActiveSplitNode(const std::vector<FeatureExtractorI*> featureEx
         //setup mActiveSplitNodeFeatureSets
         ActiveSplitNodeFeatureSet a = ActiveSplitNodeFeatureSet(   featureExtractors[i],
                                                                     nodeDataCollectorFactory->Create(),
-                                                                    bestSplit);
+                                                                    bestSplit,
+                                                                    evalSplitPeriod);
         mActiveSplitNodeFeatureSets.push_back(a);
         numberOfFeatureCandidates += a.GetNumberFeatureCandidates();
     }
