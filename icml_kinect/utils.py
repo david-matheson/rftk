@@ -287,23 +287,44 @@ def classify_body_pixels(depth, ground_labels, forest):
 
     return img_yhat, img_yprobs
 
+classificationTreesGlobal = None
+depthsGlobal = None
+labelsGlobal = None
 
+def classification_accuracy_image(imgId):
+    global classificationTreesGlobal
+    global depthsGlobal
+    global labelsGlobal
 
-def classification_accuracy(depthsIn, labelsIn, classificationTreesIn):
-    incorrectClassificationCount = 0
-    nonBackgroundCount = 0
-    background = 19
+    (numberOfImgs,_,_) = depthsGlobal.shape
+    print "Img %d of %d" % (imgId, numberOfImgs)
+    groundTruthLabels = labelsGlobal[imgId,:,:]
+    (m,n) = groundTruthLabels.shape
+    pred_labels, pred_probs = classify_body_pixels(depthsGlobal[imgId,:,:], labelsGlobal[imgId,:,:], classificationTreesGlobal)
+
+    incorrectClassificationCount = np.sum((groundTruthLabels != pred_labels) & (groundTruthLabels != background))
+    nonBackgroundCount = np.sum(groundTruthLabels != background)
+    return (incorrectClassificationCount, nonBackgroundCount)
+
+def classification_accuracy(depthsIn, labelsIn, classificationTreesIn, number_of_jobs=4):
+    from joblib import Parallel, delayed
+    global classificationTreesGlobal
+    global depthsGlobal
+    global labelsGlobal
+
+    classificationTreesGlobal = classificationTreesIn
+    depthsGlobal = depthsIn
+    labelsGlobal = labelsIn
 
     (numberOfImgs,_,_) = depthsIn.shape
+    incorrectClassificationCount = 0
+    nonBackgroundCount = 0
 
-    for imgId in range(numberOfImgs):
-        print "Img %d of %d" % (imgId, numberOfImgs)
-        groundTruthLabels = labelsIn[imgId,:,:]
-        (m,n) = groundTruthLabels.shape
-        pred_labels, pred_probs = classify_body_pixels(depthsIn[imgId,:,:], labelsIn[imgId,:,:], classificationTreesIn)
+    counts = Parallel(n_jobs=10)(delayed(classification_accuracy_image)(imgId)
+      for imgId in range(numberOfImgs))
 
-        incorrectClassificationCount = incorrectClassificationCount + np.sum((groundTruthLabels != pred_labels) & (groundTruthLabels != background))
-        nonBackgroundCount = nonBackgroundCount + np.sum( groundTruthLabels != background )
+    incorrectClassificationCount = sum([x[0] for x in counts])
+    nonBackgroundCount = sum([x[1] for x in counts])
 
     return float(nonBackgroundCount - incorrectClassificationCount) / float(nonBackgroundCount)
 

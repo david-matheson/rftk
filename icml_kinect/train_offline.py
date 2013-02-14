@@ -149,5 +149,5 @@ if __name__ == "__main__":
     forestStats.Print()
 
     #pickle forest and data used for training
-    forest_pickle_filename = "%s/forest-0-%d.pkl" % (offline_run_folder, args.number_of_images)
+    forest_pickle_filename = "%s/forest-1-%d.pkl" % (offline_run_folder, args.number_of_images)
     forest_utils.pickle_dump_native_forest(forest, forest_pickle_filename)

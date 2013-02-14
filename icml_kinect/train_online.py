@@ -96,8 +96,10 @@ if __name__ == "__main__":
     pose_filenames = pose_filenames[0:args.number_of_images]
 
 
-    online_run_folder = ("experiment_data_v4/online-tree-%d-splitrate-%0.2f-splitroot-%0.2f-evalperiod-%d-%s") % (
+    online_run_folder = ("experiment_data_v5/online-tree-%d-n-%d-m-%d-splitrate-%0.2f-splitroot-%0.2f-evalperiod-%d-%s") % (
                             args.number_of_trees,
+                            args.number_of_images,
+                            args.number_of_passes_through_data,
                             args.split_rate,
                             args.number_datapoints_split_root,
                             args.eval_split_period,
@@ -141,8 +143,8 @@ if __name__ == "__main__":
             online_learner.Train(bufferCollection, buffers.Int32Vector(datapoint_indices), config.get_sampling_config(args.eval_split_period))
 
             #pickle forest and data used for training
-            if i % 5 == 0:
-                forest_pickle_filename = "%s/forest-%d-%d.pkl" % (online_run_folder, pass_id+1, i)
+            if i+1 % 5 == 0:
+                forest_pickle_filename = "%s/forest-%d-%d.pkl" % (online_run_folder, pass_id, i+1)
                 forest_utils.pickle_dump_native_forest(online_learner.GetForest(), forest_pickle_filename)
 
                 run_info['pose_filenames'].append(pose_filename)

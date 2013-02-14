@@ -50,7 +50,7 @@ def load_data(pose_path, list_of_poses):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Highlight words')
+    parser = argparse.ArgumentParser(description='Deterime forest accuracy on test set')
     parser.add_argument('-i', '--pose_files_input_path', type=str, required=True)
     parser.add_argument('-p', '--poses_to_use_file', type=str, required=True)
     parser.add_argument('-n', '--number_of_images', type=int, required=True)
@@ -93,7 +93,7 @@ if __name__ == "__main__":
         #     print "i_params %d" % tree_id
         #     forest.GetTree(tree_id).mIntFeatureParams.Print()
 
-        kinect_utils.plot_classification_imgs(args.out_path, depths, labels, forest)
+        #kinect_utils.plot_classification_imgs(args.out_path, depths, labels, forest)
         accuracy = kinect_utils.classification_accuracy(depths, labels, forest)
         print accuracy
         pickle.dump(accuracy, file(out_pickle_filename, 'wb'))
