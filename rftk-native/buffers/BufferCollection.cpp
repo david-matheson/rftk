@@ -181,3 +181,9 @@ Int32Tensor3Buffer& BufferCollection::GetInt32Tensor3Buffer(std::string name)
     ASSERT(HasInt32Tensor3Buffer(name))
     return mInt32Tensor3Buffers.find(name)->second;
 }
+
+bool BufferCollection::HasBuffer(std::string name) const
+{
+    return (mBuffers.find(name) != mBuffers.end());
+}
+
