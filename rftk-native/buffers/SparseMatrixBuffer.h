@@ -245,7 +245,8 @@ T SparseMatrixBufferTemplate<T>::SumRow(int m) const
     size_t valIndexBegin = mRowPtr[m];
     size_t valIndexEnd = mRowPtr[m+1];
 
-    return std::accumulate(mValues.begin() + valIndexBegin, mValues.begin() + valIndexEnd, T(0));
+    //return std::accumulate(mValues.begin() + valIndexBegin, mValues.begin() + valIndexEnd, T(0));
+    return std::accumulate(&mValues[valIndexBegin], &mValues[valIndexEnd], T(0));
 }
 
 
@@ -357,8 +358,8 @@ bool SparseMatrixBufferTemplate<T>::operator==(SparseMatrixBufferTemplate<T> con
     same &= (mValues == other.mValues);
     same &= (mCol == other.mCol);
     same &= (mRowPtr == other.mRowPtr);
-    same &= mM == other.mM;
-    same &= mN == other.mN;
+    same &= (mM == other.mM);
+    same &= (mN == other.mN);
     return same;
 }
 
