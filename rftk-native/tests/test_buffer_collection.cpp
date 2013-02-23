@@ -46,6 +46,23 @@ bool test_GetBuffer_doesnt_copy()
     return success;
 }
 
+bool test_AppendBuffer()
+{
+    BufferCollection collection;
+    MatrixBufferTemplate<double> mb1 = CreateExampleMatrix<double>();
+    MatrixBufferTemplate<double> mb2 = CreateExampleMatrix<double>();
+    collection.AddBuffer("double", mb1);
+    collection.AppendBuffer("double", mb2);
+
+    MatrixBufferTemplate<double> mb3 = CreateExampleMatrix<double>();
+    MatrixBufferTemplate<double> mb4 = CreateExampleMatrix<double>();
+    mb3.Append(mb4);
+
+    MatrixBufferTemplate<double>& mb_result = collection.GetBuffer<MatrixBufferTemplate<double> >("double");
+    double const* begin = mb3.GetRowPtrUnsafe(0);
+    return std::equal(begin, begin + mb3.GetM()*mb3.GetN(), mb_result.GetRowPtrUnsafe(0));
+}
+
 int main() {
     bool all_success = true;
 
@@ -53,6 +70,7 @@ int main() {
     RUN_TEST(test_AddBuffer);
     RUN_TEST(test_GetBuffer);
     RUN_TEST(test_GetBuffer_doesnt_copy);
+    RUN_TEST(test_AppendBuffer);
 
     return !all_success;
 }

@@ -166,6 +166,8 @@ public:
     template<typename BufferType>
     void AddBuffer(std::string name, BufferType& data);
     template<typename BufferType>
+    void AppendBuffer(std::string name, BufferType& buffer);
+    template<typename BufferType>
     BufferType const& GetBuffer(std::string name) const;
     template<typename BufferType>
     BufferType& GetBuffer(std::string name);
@@ -189,6 +191,17 @@ template<typename BufferType>
 void BufferCollection::AddBuffer(std::string name, BufferType& buffer)
 {
     mBuffers[name] = detail::AnyBuffer(buffer);
+}
+
+template<typename BufferType>
+void BufferCollection::AppendBuffer(std::string name, BufferType& buffer)
+{
+    if (!HasBuffer(name)) {
+        AddBuffer(name, buffer);
+    }
+    else {
+        mBuffers[name].GetBuffer<BufferType>().Append(buffer);
+    }
 }
 
 template<typename BufferType>
