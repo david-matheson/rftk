@@ -80,7 +80,7 @@ void BufferCollection::AddFloat32MatrixBuffer(std::string name, const Float32Mat
     mFloat32MatrixBuffers[name] = data;
 }
 
-void BufferCollection::AppendVerticalFloat32MatrixBuffer(std::string name, const Float32MatrixBuffer& data )
+void BufferCollection::AppendFloat32MatrixBuffer(std::string name, const Float32MatrixBuffer& data )
 {
     if( !HasFloat32MatrixBuffer(name) )
     {
@@ -88,7 +88,7 @@ void BufferCollection::AppendVerticalFloat32MatrixBuffer(std::string name, const
     }
     else
     {
-        mFloat32MatrixBuffers[name].AppendVertical(data);
+        mFloat32MatrixBuffers[name].Append(data);
     }
 }
 
@@ -114,7 +114,7 @@ void BufferCollection::AddInt32MatrixBuffer(std::string name, const Int32MatrixB
     mInt32MatrixBuffers[name] = data;
 }
 
-void BufferCollection::AppendVerticalInt32MatrixBuffer(std::string name, const Int32MatrixBuffer& data )
+void BufferCollection::AppendInt32MatrixBuffer(std::string name, const Int32MatrixBuffer& data )
 {
     if( !HasInt32MatrixBuffer(name) )
     {
@@ -122,7 +122,7 @@ void BufferCollection::AppendVerticalInt32MatrixBuffer(std::string name, const I
     }
     else
     {
-        mInt32MatrixBuffers[name].AppendVertical(data);
+        mInt32MatrixBuffers[name].Append(data);
     }
 }
 

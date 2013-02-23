@@ -175,12 +175,12 @@ bool test_GetM_GetN() {
 }
 
 
-bool test_AppendVertical() {
+bool test_Append() {
 
     SparseMatrixBufferTemplate<long> smb1 = CreateExampleSparseMatrix<long>();
     SparseMatrixBufferTemplate<long> smb2 = CreateExampleSparseMatrix<long>();
 
-    smb1.AppendVertical(smb2);
+    smb1.Append(smb2);
 
     std::string result = smb1.ToString();
 
@@ -201,13 +201,13 @@ bool test_AppendVertical() {
 
 }
 
-bool test_AppendVertical_append_to_empty() {
+bool test_Append_append_to_empty() {
     SparseMatrixBufferTemplate<double> smb;
 
     double data[] = {0,0,0, 1, 0, 1, 0, 0, 1};
     SparseMatrixBufferTemplate<double> expected(&data[0], 1, length_of(data));
 
-    smb.AppendVertical(expected);
+    smb.Append(expected);
 
     return smb == expected;
 }
@@ -278,7 +278,7 @@ bool test_Slice() {
 
     SparseMatrixBufferTemplate<double> expectedSliced;
     for (int i=0; i<indices.GetN(); ++i) {
-        expectedSliced.AppendVertical(smb.SliceRow(indices.Get(i)));
+        expectedSliced.Append(smb.SliceRow(indices.Get(i)));
     }
 
     return sliced == expectedSliced;
@@ -299,8 +299,8 @@ int main() {
     RUN_TEST(test_GetMin_nonnegative);
     RUN_TEST(test_GetMin_withnegative);
     RUN_TEST(test_GetM_GetN);
-    RUN_TEST(test_AppendVertical);
-    RUN_TEST(test_AppendVertical_append_to_empty);
+    RUN_TEST(test_Append);
+    RUN_TEST(test_Append_append_to_empty);
     RUN_TEST(test_SliceRow);
     RUN_TEST(test_ConstructFromDense);
     RUN_TEST(test_equals);

@@ -39,7 +39,7 @@ public:
     T SumRow(int m) const;
     void NormalizeRow(int m);
 
-    void AppendVertical(const MatrixBufferTemplate<T>& buffer);
+    void Append(const MatrixBufferTemplate<T>& buffer);
     MatrixBufferTemplate<T> Transpose() const;
     MatrixBufferTemplate<T> Slice(const VectorBufferTemplate<int>& indices) const;
     MatrixBufferTemplate<T> SliceRow(const int row) const;
@@ -232,7 +232,7 @@ void MatrixBufferTemplate<T>::NormalizeRow(int m)
 }
 
 template <class T>
-void MatrixBufferTemplate<T>::AppendVertical(const MatrixBufferTemplate<T>& buffer)
+void MatrixBufferTemplate<T>::Append(const MatrixBufferTemplate<T>& buffer)
 {
     ASSERT_ARG_DIM_1D(mN, buffer.GetN())
     const int oldM = mM;

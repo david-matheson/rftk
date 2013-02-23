@@ -17,7 +17,7 @@ void AllNodeDataCollector::Collect( const BufferCollection& data,
 {
     ASSERT_ARG_DIM_1D(sampleIndices.GetN(), featureValues.GetM())
 
-    mData.AppendVerticalFloat32MatrixBuffer(FEATURE_VALUES, featureValues);
+    mData.AppendFloat32MatrixBuffer(FEATURE_VALUES, featureValues);
 
     if( data.HasFloat32VectorBuffer(SAMPLE_WEIGHTS) )
     {

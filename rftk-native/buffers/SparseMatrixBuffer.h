@@ -52,7 +52,7 @@ public:
     T SumRow(int m) const;
     void NormalizeRow(int m);
 
-    void AppendVertical(const SparseMatrixBufferTemplate<T>& buffer);
+    void Append(const SparseMatrixBufferTemplate<T>& buffer);
     SparseMatrixBufferTemplate<T> Slice(const VectorBufferTemplate<int>& indices) const;
     SparseMatrixBufferTemplate<T> SliceRow(int row) const;
 
@@ -269,7 +269,7 @@ void SparseMatrixBufferTemplate<T>::NormalizeRow(int m)
 }
 
 template<typename T>
-void SparseMatrixBufferTemplate<T>::AppendVertical(const SparseMatrixBufferTemplate<T>& other)
+void SparseMatrixBufferTemplate<T>::Append(const SparseMatrixBufferTemplate<T>& other)
 {
     ASSERT(mN == other.GetN() || mN == 0);
 

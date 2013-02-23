@@ -141,13 +141,13 @@ public:
 
     bool HasFloat32MatrixBuffer(std::string name) const;
     void AddFloat32MatrixBuffer(std::string name, const Float32MatrixBuffer& data );
-    void AppendVerticalFloat32MatrixBuffer(std::string name, const Float32MatrixBuffer& data );
+    void AppendFloat32MatrixBuffer(std::string name, const Float32MatrixBuffer& data );
     const Float32MatrixBuffer& GetFloat32MatrixBuffer(const std::string& name) const;
     Float32MatrixBuffer& GetFloat32MatrixBuffer(const std::string& name);
 
     bool HasInt32MatrixBuffer(std::string name) const;
     void AddInt32MatrixBuffer(std::string name, const Int32MatrixBuffer& data );
-    void AppendVerticalInt32MatrixBuffer(std::string name, const Int32MatrixBuffer& data );
+    void AppendInt32MatrixBuffer(std::string name, const Int32MatrixBuffer& data );
     const Int32MatrixBuffer& GetInt32MatrixBuffer(const std::string& name) const;
     Int32MatrixBuffer& GetInt32MatrixBuffer(const std::string& name);
 
