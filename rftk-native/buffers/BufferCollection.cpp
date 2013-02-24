@@ -1,186 +1,40 @@
 #include "assert_util.h"
 #include "BufferCollection.h"
 
-bool BufferCollection::HasFloat32VectorBuffer(std::string name) const
-{
-    return (mFloat32VectorBuffers.find(name) != mFloat32VectorBuffers.end());
+// HasBUFFER_TYPE function makes sure that if there is a buffer with the name
+// you're asking for then it is of the type you are requesting.  The old
+// interface would allow two buffers with the same name but different types ot
+// co-exist.  I don't think we were using that feature, but hopefully this check
+// will catch any instances where we are (if they exist).
+#define DEFINE_BUFFER_LEGACY_INTERFACE_FOR_TYPE(BUFFER_TYPE) \
+bool BufferCollection::Has ## BUFFER_TYPE(std::string name) const \
+{ \
+    ASSERT(!(HasBuffer(name) && !HasBuffer<BUFFER_TYPE>(name))); \
+    return HasBuffer(name); \
+} \
+void BufferCollection::Add ## BUFFER_TYPE(std::string name, BUFFER_TYPE const& data ) \
+{ \
+    AddBuffer<BUFFER_TYPE>(name, data); \
+} \
+void BufferCollection::Append ## BUFFER_TYPE(std::string name, BUFFER_TYPE const& data ) \
+{ \
+    AppendBuffer<BUFFER_TYPE>(name, data); \
+} \
+const BUFFER_TYPE& BufferCollection::Get ## BUFFER_TYPE(const std::string& name) const \
+{ \
+    return GetBuffer<BUFFER_TYPE>(name); \
+} \
+BUFFER_TYPE& BufferCollection::Get ## BUFFER_TYPE(const std::string& name) \
+{ \
+    return GetBuffer<BUFFER_TYPE>(name); \
 }
 
-void BufferCollection::AddFloat32VectorBuffer(std::string name, const Float32VectorBuffer& data )
-{
-    mFloat32VectorBuffers[name] = data;
-}
-
-void BufferCollection::AppendFloat32VectorBuffer(std::string name, const Float32VectorBuffer& data )
-{
-    if( !HasFloat32VectorBuffer(name) )
-    {
-        mFloat32VectorBuffers[name] = data;
-    }
-    else
-    {
-        mFloat32VectorBuffers[name].Append(data);
-    }
-}
-
-const Float32VectorBuffer& BufferCollection::GetFloat32VectorBuffer(const std::string& name) const
-{
-    ASSERT(HasFloat32VectorBuffer(name))
-    return mFloat32VectorBuffers.find(name)->second;
-}
-
-Float32VectorBuffer& BufferCollection::GetFloat32VectorBuffer(const std::string& name)
-{
-    ASSERT(HasFloat32VectorBuffer(name))
-    return mFloat32VectorBuffers.find(name)->second;
-}
-
-
-bool BufferCollection::HasInt32VectorBuffer(std::string name) const
-{
-    return (mInt32VectorBuffers.find(name) != mInt32VectorBuffers.end());
-}
-
-void BufferCollection::AddInt32VectorBuffer(std::string name, const Int32VectorBuffer& data )
-{
-    mInt32VectorBuffers[name] = data;
-}
-
-void BufferCollection::AppendInt32VectorBuffer(std::string name, const Int32VectorBuffer& data )
-{
-    if( !HasInt32VectorBuffer(name) )
-    {
-        mInt32VectorBuffers[name] = data;
-    }
-    else
-    {
-        mInt32VectorBuffers[name].Append(data);
-    }
-}
-
-const Int32VectorBuffer& BufferCollection::GetInt32VectorBuffer(const std::string& name) const
-{
-    ASSERT(HasInt32VectorBuffer(name))
-    return mInt32VectorBuffers.find(name)->second;
-}
-
-Int32VectorBuffer& BufferCollection::GetInt32VectorBuffer(const std::string& name)
-{
-    ASSERT(HasInt32VectorBuffer(name))
-    return mInt32VectorBuffers.find(name)->second;
-}
-
-bool BufferCollection::HasFloat32MatrixBuffer(std::string name) const
-{
-    return (mFloat32MatrixBuffers.find(name) != mFloat32MatrixBuffers.end());
-}
-
-void BufferCollection::AddFloat32MatrixBuffer(std::string name, const Float32MatrixBuffer& data )
-{
-    mFloat32MatrixBuffers[name] = data;
-}
-
-void BufferCollection::AppendFloat32MatrixBuffer(std::string name, const Float32MatrixBuffer& data )
-{
-    if( !HasFloat32MatrixBuffer(name) )
-    {
-        mFloat32MatrixBuffers[name] = data;
-    }
-    else
-    {
-        mFloat32MatrixBuffers[name].Append(data);
-    }
-}
-
-const Float32MatrixBuffer& BufferCollection::GetFloat32MatrixBuffer(const std::string& name) const
-{
-    ASSERT(HasFloat32MatrixBuffer(name))
-    return mFloat32MatrixBuffers.find(name)->second;
-}
-
-Float32MatrixBuffer& BufferCollection::GetFloat32MatrixBuffer(const std::string& name)
-{
-    ASSERT(HasFloat32MatrixBuffer(name))
-    return mFloat32MatrixBuffers.find(name)->second;
-}
-
-bool BufferCollection::HasInt32MatrixBuffer(std::string name) const
-{
-    return (mInt32MatrixBuffers.find(name) != mInt32MatrixBuffers.end());
-}
-
-void BufferCollection::AddInt32MatrixBuffer(std::string name, const Int32MatrixBuffer& data )
-{
-    mInt32MatrixBuffers[name] = data;
-}
-
-void BufferCollection::AppendInt32MatrixBuffer(std::string name, const Int32MatrixBuffer& data )
-{
-    if( !HasInt32MatrixBuffer(name) )
-    {
-        mInt32MatrixBuffers[name] = data;
-    }
-    else
-    {
-        mInt32MatrixBuffers[name].Append(data);
-    }
-}
-
-const Int32MatrixBuffer& BufferCollection::GetInt32MatrixBuffer(const std::string& name) const
-{
-    ASSERT(HasInt32MatrixBuffer(name))
-    return mInt32MatrixBuffers.find(name)->second;
-}
-
-Int32MatrixBuffer& BufferCollection::GetInt32MatrixBuffer(const std::string& name)
-{
-    ASSERT(HasInt32MatrixBuffer(name))
-    return mInt32MatrixBuffers.find(name)->second;
-}
-
-bool BufferCollection::HasFloat32Tensor3Buffer(std::string name) const
-{
-    return (mFloat32Tensor3Buffers.find(name) != mFloat32Tensor3Buffers.end());
-}
-
-void BufferCollection::AddFloat32Tensor3Buffer(std::string name, const Float32Tensor3Buffer& data )
-{
-    mFloat32Tensor3Buffers[name] = data;
-}
-
-const Float32Tensor3Buffer& BufferCollection::GetFloat32Tensor3Buffer(std::string name) const
-{
-    ASSERT(HasFloat32Tensor3Buffer(name))
-    return mFloat32Tensor3Buffers.find(name)->second;
-}
-
-Float32Tensor3Buffer& BufferCollection::GetFloat32Tensor3Buffer(std::string name)
-{
-    ASSERT(HasFloat32Tensor3Buffer(name))
-    return mFloat32Tensor3Buffers.find(name)->second;
-}
-
-bool BufferCollection::HasInt32Tensor3Buffer(std::string name) const
-{
-    return (mInt32Tensor3Buffers.find(name) != mInt32Tensor3Buffers.end());
-}
-
-void BufferCollection::AddInt32Tensor3Buffer(std::string name, const Int32Tensor3Buffer& data )
-{
-    mInt32Tensor3Buffers[name] = data;
-}
-
-const Int32Tensor3Buffer& BufferCollection::GetInt32Tensor3Buffer(std::string name) const
-{
-    ASSERT(HasInt32Tensor3Buffer(name))
-    return mInt32Tensor3Buffers.find(name)->second;
-}
-
-Int32Tensor3Buffer& BufferCollection::GetInt32Tensor3Buffer(std::string name)
-{
-    ASSERT(HasInt32Tensor3Buffer(name))
-    return mInt32Tensor3Buffers.find(name)->second;
-}
+DEFINE_BUFFER_LEGACY_INTERFACE_FOR_TYPE(Float32VectorBuffer)
+DEFINE_BUFFER_LEGACY_INTERFACE_FOR_TYPE(Int32VectorBuffer)
+DEFINE_BUFFER_LEGACY_INTERFACE_FOR_TYPE(Float32MatrixBuffer)
+DEFINE_BUFFER_LEGACY_INTERFACE_FOR_TYPE(Int32MatrixBuffer)
+DEFINE_BUFFER_LEGACY_INTERFACE_FOR_TYPE(Float32Tensor3Buffer)
+DEFINE_BUFFER_LEGACY_INTERFACE_FOR_TYPE(Int32Tensor3Buffer)
 
 bool BufferCollection::HasBuffer(std::string name) const
 {

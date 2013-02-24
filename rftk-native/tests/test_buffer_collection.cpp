@@ -36,13 +36,15 @@ bool test_GetBuffer_doesnt_copy()
     BufferCollection collection;
     MatrixBufferTemplate<double> mb = CreateExampleMatrix<double>();
     collection.AddBuffer("double", mb);
-    MatrixBufferTemplate<double>& mb2 = collection.GetBuffer<MatrixBufferTemplate<double> >("double");
 
-    mb.Set(0,0,100.0);
+    MatrixBufferTemplate<double>& mb_get1 = collection.GetBuffer<MatrixBufferTemplate<double> >("double");
+    MatrixBufferTemplate<double>& mb_get2 = collection.GetBuffer<MatrixBufferTemplate<double> >("double");
+
+    mb_get1.Set(0,0,100.0);
 
     bool success = true;
-    success &= (mb2.Get(0, 0) == mb.Get(0,0));
-    success &= (&mb2 == &mb);
+    success &= (&mb_get1 == &mb_get2);
+    success &= (mb_get1.Get(0, 0) == mb_get2.Get(0, 0));
     return success;
 }
 
