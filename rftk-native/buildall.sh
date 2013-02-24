@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 cd $PYTHONPATH/rftk-native/assert_util
 python setup.py build_ext --swig=swig2.0 --inplace -f rftkinstall
 cd $PYTHONPATH/rftk-native/bootstrap
