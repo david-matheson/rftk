@@ -47,6 +47,7 @@ public:
     void AsNumpy2dFloat32(float* outfloat2d, int m, int n) const;
     void AsNumpy2dInt32(int* outint2d, int m, int n) const;
 
+    bool operator==(MatrixBufferTemplate<T> const& other) const;
 
     void Print() const;
 
@@ -306,6 +307,16 @@ void MatrixBufferTemplate<T>::AsNumpy2dInt32(int* outint2d, int m, int n) const
     {
         outint2d[i] = static_cast<int>(mData[i]);
     }
+}
+
+template<class T>
+bool MatrixBufferTemplate<T>::operator==(MatrixBufferTemplate<T> const& other) const
+{
+    if (GetM() != other.GetM() || GetN() != other.GetN()) {
+        return false;
+    }
+
+    return std::equal(mData.begin(), mData.end(), other.mData.begin());
 }
 
 template <class T>
