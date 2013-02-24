@@ -27,8 +27,7 @@ bool test_GetBuffer()
     collection.AddBuffer("double", mb);
     MatrixBufferTemplate<double>& mb2 = collection.GetBuffer<MatrixBufferTemplate<double> >("double");
 
-    double const* begin = mb.GetRowPtrUnsafe(0);
-    return std::equal(begin, begin + mb.GetM()*mb.GetN(), mb2.GetRowPtrUnsafe(0));
+    return mb == mb2;
 }
 
 bool test_GetBuffer_doesnt_copy()
@@ -61,8 +60,7 @@ bool test_AppendBuffer()
     mb3.Append(mb4);
 
     MatrixBufferTemplate<double>& mb_result = collection.GetBuffer<MatrixBufferTemplate<double> >("double");
-    double const* begin = mb3.GetRowPtrUnsafe(0);
-    return std::equal(begin, begin + mb3.GetM()*mb3.GetN(), mb_result.GetRowPtrUnsafe(0));
+    return mb_result == mb3;
 }
 
 int main() {
