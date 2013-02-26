@@ -38,6 +38,9 @@ def image_from_predictions(Y_hat, Y_probs, colors, shape):
 
 def grid_plot(predictor, X_train, Y_train, X_test, plot_filename, plot_scatter=False):
     grid_extend = [X_test[:,0].min(), X_test[:,0].max(), X_test[:,1].min(), X_test[:,1].max()]
+    # hack so all plots are aligned
+    # grid_extend = [-4, 14, -6, 8]
+    # grid_extend = [-4, 6, -4, 4]
     Ux, Uy = np.meshgrid(
             np.linspace(grid_extend[0], grid_extend[1]),
             np.linspace(grid_extend[2], grid_extend[3]),
@@ -50,13 +53,13 @@ def grid_plot(predictor, X_train, Y_train, X_test, plot_filename, plot_scatter=F
     Y_probs = predictor.predict_proba(X_grid)
     Y_hat = Y_probs.argmax(axis=1)
 
-    plt.figure()
+    plt.figure(frameon=False)
     colors = np.array([[1,0,0], [0,1,0], [0,0,1], [1,1,0], [1,0,1]])
     img = image_from_predictions(Y_hat, Y_probs.max(axis=1), colors, Ux.shape)
     plt.imshow(img, extent=grid_extend, origin='lower')
     if plot_scatter:
         plt.scatter(X_train[:,0], X_train[:,1], c=colors_from_predictions(Y_train, colors))
-    plt.savefig(plot_filename)
+    plt.savefig(plot_filename, bbox_inches='tight', pad_inches=0)
     plt.close()
 
 
