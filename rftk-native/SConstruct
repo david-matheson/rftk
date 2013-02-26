@@ -1,0 +1,130 @@
+import distutils.sysconfig
+
+#TODOS
+# 1) treat c++ warnings as errors
+# 2) create debug and release configurations
+
+install_path = '#../rftk/native'
+
+
+env = Environment(SWIGFLAGS=['-python', '-c++'],
+                  CPPPATH=[distutils.sysconfig.get_python_inc()],
+                  SHLIBPREFIX="")
+env.Append(LIBPATH=['.'])
+env.Append(RPATH=['.', env.GetBuildPath(install_path)])
+
+
+###############################################################################
+# assert_utils shared lib
+assert_utils_sharedlib = env.SharedLibrary(target='_assert_util',
+                                            source=[Glob('assert_util/*.cpp'), 'assert_util/assert_util.i'])
+env.Alias('assert_util', assert_utils_sharedlib)
+# All of the following shared libs have access to the assert_util header/swig files
+env.Append(SWIGFLAGS=['-Iassert_util'])
+env.Append(CPPPATH=['assert_util'])
+
+
+###############################################################################
+# bootstrap shared lib
+bootstrap_sharedlib = env.SharedLibrary(target='_bootstrap',
+                                        source=[Glob('bootstrap/*.cpp'), 'bootstrap/bootstrap.i'],
+                                        LIBS=[assert_utils_sharedlib])
+env.Alias('bootstrap', bootstrap_sharedlib)
+
+
+###############################################################################
+# buffers shared lib
+buffers_sharedlib = env.SharedLibrary(target='_buffers',
+                                        source=[Glob('buffers/*.cpp'), 'buffers/buffers.i'],
+                                        LIBS=[assert_utils_sharedlib])
+env.Alias('buffers', buffers_sharedlib)
+# All of the following shared libs have access to the buffer header/swig files
+env.Append(SWIGFLAGS=['-Ibuffers'])
+env.Append(CPPPATH=['buffers'])
+
+
+###############################################################################
+# best split shared lib
+best_split_env = env.Clone()
+best_split_env.Append(SWIGFLAGS=['-Ibootstrap'])
+best_split_env.Append(CPPPATH=['bootstrap'])
+best_split_sharedlib = best_split_env.SharedLibrary(target='_best_split',
+                                        source=[Glob('best_split/*.cpp'), 'best_split/best_split.i'],
+                                        LIBS=[assert_utils_sharedlib, buffers_sharedlib, bootstrap_sharedlib])
+env.Alias('best_split', best_split_sharedlib)
+
+
+###############################################################################
+# forest data shared lib
+forest_data_sharedlib = env.SharedLibrary(target='_forest_data',
+                                        source=[Glob('forest_data/*.cpp'), 'forest_data/forest_data.i'],
+                                        LIBS=[assert_utils_sharedlib, buffers_sharedlib])
+env.Alias('forest_data', forest_data_sharedlib)
+
+
+###############################################################################
+# features shared lib
+features_sharedlib = env.SharedLibrary(target='_features',
+                                        source=[Glob('features/*.cpp'), 'features/features.i'],
+                                        LIBS=[assert_utils_sharedlib, buffers_sharedlib])
+env.Alias('features', features_sharedlib)
+
+
+###############################################################################
+# feature extractors shared lib
+feature_extractor_env = env.Clone()
+feature_extractor_env.Append(SWIGFLAGS=['-Ibootstrap', '-Ifeatures'])
+feature_extractor_env.Append(CPPPATH=['bootstrap', 'features'])
+feature_extractors_sharedlib = feature_extractor_env.SharedLibrary(target='_feature_extractors',
+                                        source=[Glob('feature_extractors/*.cpp'), 'feature_extractors/feature_extractors.i'],
+                                        LIBS=[assert_utils_sharedlib, buffers_sharedlib,
+                                            bootstrap_sharedlib, features_sharedlib])
+env.Alias('feature_extractors', feature_extractors_sharedlib)
+
+
+###############################################################################
+# predict shared lib
+predict_env = env.Clone()
+predict_env.Append(SWIGFLAGS=['-Iforest_data', '-Ifeatures'])
+predict_env.Append(CPPPATH=['forest_data', 'features'])
+predict_sharedlib = predict_env.SharedLibrary(target='_predict',
+                                        source=[Glob('predict/*.cpp'), 'predict/predict.i'],
+                                        LIBS=[assert_utils_sharedlib, buffers_sharedlib,
+                                            forest_data_sharedlib, features_sharedlib])
+env.Alias('predict', predict_sharedlib)
+
+
+###############################################################################
+# train shared lib
+train_env = env.Clone()
+train_env.Append(SWIGFLAGS=['-Ibootstrap', '-Ibest_split', '-Iforest_data', '-Ifeature_extractors', '-Ipredict'])
+train_env.Append(CPPPATH=['bootstrap', 'best_split', 'forest_data', 'feature_extractors', 'predict'])
+train_sharedlib = train_env.SharedLibrary(target='_train',
+                                        source=[Glob('train/*.cpp'), 'train/train.i'],
+                                        LIBS=[assert_utils_sharedlib, buffers_sharedlib,
+                                        bootstrap_sharedlib, best_split_sharedlib,
+                                        forest_data_sharedlib, feature_extractors_sharedlib,
+                                        predict_sharedlib])
+env.Alias('train', train_sharedlib)
+
+# Install shared libraries and python wrappers
+env.Install(install_path, [assert_utils_sharedlib,
+                            'assert_util/assert_util.py',
+                            bootstrap_sharedlib,
+                            'bootstrap/bootstrap.py',
+                            buffers_sharedlib,
+                            'buffers/buffers.py',
+                            best_split_sharedlib,
+                            'best_split/best_split.py',
+                            forest_data_sharedlib,
+                            'forest_data/forest_data.py',
+                            features_sharedlib,
+                            'features/features.py',
+                            feature_extractors_sharedlib,
+                            'feature_extractors/feature_extractors.py',
+                            predict_sharedlib,
+                            'predict/predict.py',
+                            train_sharedlib,
+                            'train/train.py'])
+env.Alias('install', install_path)
+
