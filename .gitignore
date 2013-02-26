@@ -7,9 +7,12 @@
 *.png
 *.swp
 *.o
+*.os
+*.cc
 *_wrap.c
 *_wrap.cpp
 *backup
 *.swn
 *.swo
 *.html
+*.dblite
