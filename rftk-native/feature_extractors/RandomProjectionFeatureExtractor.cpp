@@ -101,7 +101,6 @@ void RandomProjectionFeatureExtractor::Extract(  const BufferCollection& data,
 
     const int numberOfSamples = sampleIndices.GetN();
     const int numberOfFeatures = intFeatureParams.GetM();
-    const int numberOfDataPoints = Xs.GetM();
 
     featureValuesOUT.Resize(numberOfSamples, numberOfFeatures);
 
@@ -109,7 +108,7 @@ void RandomProjectionFeatureExtractor::Extract(  const BufferCollection& data,
     for(int s=0; s<numberOfSamples; s++)
     {
         const int index = sampleIndices.Get(s);
-        ASSERT_VALID_RANGE(index, 0, numberOfDataPoints)
+        ASSERT_VALID_RANGE(index, 0, Xs.GetM())
 
         for(int f=0; f<numberOfFeatures; f++)
         {
