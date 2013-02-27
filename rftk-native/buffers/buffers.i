@@ -59,14 +59,7 @@
 %template(Int32VectorBuffer) VectorBufferTemplate<int>;
 %template(Int64VectorBuffer) VectorBufferTemplate<long long>;
 
-
-%include "SparseMatrixBuffer.h"
-
-%template(Float32SparseMatrixBuffer) SparseMatrixBufferTemplate<float>;
-%template(Float64SparseMatrixBuffer) SparseMatrixBufferTemplate<double>;
-%template(Int32SparseMatrixBuffer) SparseMatrixBufferTemplate<int>;
-%template(Int64SparseMatrixBuffer) SparseMatrixBufferTemplate<long long>;
-
+/* Sparse matrix buffers */
 %pythoncode %{
 import scipy.sparse
 
@@ -82,15 +75,26 @@ def process_args_for_sparse_wrapper(*args):
     return (S.data, S.indices, S.indptr, S.shape[0], S.shape[1])
 %}
 
-%pythonprepend Float32SparseMatrix(float*, int, int*, int, int*, int, int, int) %{
+%define DECLARE_WRAPPER_FOR_SPARSE_TYPE(ctype, function_name)
+%apply (ctype* IN_ARRAY1, int DIM1) {(ctype* values, int n_values)}
+%apply (int* IN_ARRAY1, int DIM1) {
+    (int* col, int n_col),
+    (int* rowPtr, int n_rowPtr)
+    }
+%pythonprepend function_name(ctype*, int, int*, int, int*, int, int, int) %{
     args = process_args_for_sparse_wrapper(*args)
 %}
-%pythonprepend Float64SparseMatrix(double*, int, int*, int, int*, int, int, int) %{
-    args = process_args_for_sparse_wrapper(*args)
-%}
-%pythonprepend Int32SparseMatrix(int*, int, int*, int, int*, int, int, int) %{
-    args = process_args_for_sparse_wrapper(*args)
-%}
-%pythonprepend Int64SparseMatrix(long long*, int, int*, int, int*, int, int, int) %{
-    args = process_args_for_sparse_wrapper(*args)
-%}
+%enddef
+
+DECLARE_WRAPPER_FOR_SPARSE_TYPE(float, Float32SparseMatrix)
+DECLARE_WRAPPER_FOR_SPARSE_TYPE(double, Float64SparseMatrix)
+DECLARE_WRAPPER_FOR_SPARSE_TYPE(int, Int32SparseMatrix)
+DECLARE_WRAPPER_FOR_SPARSE_TYPE(long long, Int64SparseMatrix)
+
+%include "SparseMatrixBuffer.h"
+
+%template(Float32SparseMatrixBuffer) SparseMatrixBufferTemplate<float>;
+%template(Float64SparseMatrixBuffer) SparseMatrixBufferTemplate<double>;
+%template(Int32SparseMatrixBuffer) SparseMatrixBufferTemplate<int>;
+%template(Int64SparseMatrixBuffer) SparseMatrixBufferTemplate<long long>;
+
