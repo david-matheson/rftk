@@ -17,20 +17,18 @@ ActiveSplitNodeFeatureSet::ActiveSplitNodeFeatureSet(  const FeatureExtractorI* 
                                                         const int evalSplitPeriod )
 : mFeatureExtractor(featureExtractor)
 , mBestSplitter(bestSplitter)
+, mNumberOfFeatures(featureExtractor->GetNumberOfFeatures())
 , mNodeDataCollector(nodeDataCollector)
 , mEvalSplitPeriod(evalSplitPeriod)
 , mNumberSamplesToEvalSplit(evalSplitPeriod)
-, mIntParams(0,0)
-, mFloatParams(0,0)
-, mImpurities(featureExtractor->GetNumberOfFeatures())
-, mThresholds(featureExtractor->GetNumberOfFeatures())
-, mChildCounts(featureExtractor->GetNumberOfFeatures(), 2)
-, mLeftYs(featureExtractor->GetNumberOfFeatures(), bestSplitter->GetYDim() + 1)
-, mRightYs(featureExtractor->GetNumberOfFeatures(), bestSplitter->GetYDim() + 1)
+, mIntParams(featureExtractor->CreateIntParams(mNumberOfFeatures))
+, mFloatParams(featureExtractor->CreateFloatParams(mNumberOfFeatures))
+, mImpurities(mNumberOfFeatures)
+, mThresholds(mNumberOfFeatures)
+, mChildCounts(mNumberOfFeatures, 2)
+, mLeftYs(mNumberOfFeatures, bestSplitter->GetYDim() + 1)
+, mRightYs(mNumberOfFeatures, bestSplitter->GetYDim() + 1)
 {
-    const int numberOfFeatures = featureExtractor->GetNumberOfFeatures();
-    mFloatParams = featureExtractor->CreateFloatParams(numberOfFeatures);
-    mIntParams = featureExtractor->CreateIntParams(numberOfFeatures);
     ASSERT_ARG_DIM_1D(mFloatParams.GetM(), mIntParams.GetM());
 }
 
@@ -38,6 +36,7 @@ ActiveSplitNodeFeatureSet::ActiveSplitNodeFeatureSet(  const FeatureExtractorI* 
 ActiveSplitNodeFeatureSet::ActiveSplitNodeFeatureSet( const ActiveSplitNodeFeatureSet& other )
 : mFeatureExtractor(other.mFeatureExtractor)
 , mBestSplitter(other.mBestSplitter)
+, mNumberOfFeatures(other.mNumberOfFeatures)
 , mNodeDataCollector(other.mNodeDataCollector)
 , mEvalSplitPeriod(other.mEvalSplitPeriod)
 , mNumberSamplesToEvalSplit(other.mNumberSamplesToEvalSplit)
@@ -51,11 +50,15 @@ ActiveSplitNodeFeatureSet::ActiveSplitNodeFeatureSet( const ActiveSplitNodeFeatu
 {
 }
 
+ActiveSplitNodeFeatureSet::~ActiveSplitNodeFeatureSet()
+{
+}
 
 ActiveSplitNodeFeatureSet& ActiveSplitNodeFeatureSet::operator=( const ActiveSplitNodeFeatureSet& rhs )
 {
     mFeatureExtractor = rhs.mFeatureExtractor;
     mBestSplitter = rhs.mBestSplitter;
+    mNumberOfFeatures = rhs.mNumberOfFeatures;
     mNodeDataCollector = rhs.mNodeDataCollector;
     mEvalSplitPeriod = rhs.mEvalSplitPeriod;
     mNumberSamplesToEvalSplit = rhs.mNumberSamplesToEvalSplit;

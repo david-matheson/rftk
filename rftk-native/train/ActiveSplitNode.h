@@ -61,6 +61,7 @@ private:
     // Passed in (not owned)
     const FeatureExtractorI* mFeatureExtractor;
     const BestSplitI* mBestSplitter;
+    int mNumberOfFeatures;
 
     // Passed in but owned by this class
     std::tr1::shared_ptr<NodeDataCollectorI> mNodeDataCollector;
