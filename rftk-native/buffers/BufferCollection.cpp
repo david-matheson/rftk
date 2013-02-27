@@ -1,6 +1,16 @@
 #include "assert_util.h"
 #include "BufferCollection.h"
 
+BufferCollection::BufferCollection()
+: mFloat32VectorBuffers()
+, mInt32VectorBuffers()
+, mFloat32MatrixBuffers()
+, mInt32MatrixBuffers()
+, mFloat32Tensor3Buffers()
+, mInt32Tensor3Buffers()
+{
+}
+
 bool BufferCollection::HasFloat32VectorBuffer(std::string name) const
 {
     return (mFloat32VectorBuffers.find(name) != mFloat32VectorBuffers.end());

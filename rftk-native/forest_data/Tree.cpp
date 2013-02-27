@@ -42,6 +42,17 @@ void ForestStats::Print() const
         mMinEstimatorPoints, mMaxEstimatorPoints, GetAverageEstimatorPoints());
 }
 
+Tree::Tree()
+: mPath(0,0)
+, mIntFeatureParams(0,0)
+, mFloatFeatureParams(0,0)
+, mCounts(0)
+, mDepths(0)
+, mYs(0,0)
+, mLastNodeIndex(0)
+, mValid(false)
+{}
+
 Tree::Tree( const Int32MatrixBuffer& path,
             const Int32MatrixBuffer& intFeatureParams,
             const Float32MatrixBuffer& floatFeatureParams,
@@ -51,11 +62,11 @@ Tree::Tree( const Int32MatrixBuffer& path,
 : mPath(path)
 , mIntFeatureParams(intFeatureParams)
 , mFloatFeatureParams(floatFeatureParams)
-, mDepths(depths)
 , mCounts(counts)
+, mDepths(depths)
 , mYs(ys)
-, mValid(true)
 , mLastNodeIndex(mPath.GetM())
+, mValid(true)
 {
     ASSERT_ARG_DIM_1D(mPath.GetM(), mIntFeatureParams.GetM())
     ASSERT_ARG_DIM_1D(mPath.GetM(), mFloatFeatureParams.GetM())
@@ -68,11 +79,11 @@ Tree::Tree( int maxNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int 
 : mPath(maxNumberNodes, 2)
 , mIntFeatureParams(maxNumberNodes, maxIntParamsDim)
 , mFloatFeatureParams(maxNumberNodes, maxFloatParamsDim)
-, mDepths(maxNumberNodes)
 , mCounts(maxNumberNodes)
+, mDepths(maxNumberNodes)
 , mYs(maxNumberNodes, maxYsDim)
-, mValid(true)
 , mLastNodeIndex(1)
+, mValid(true)
 {
     ASSERT_ARG_DIM_1D(mPath.GetM(), mIntFeatureParams.GetM())
     ASSERT_ARG_DIM_1D(mPath.GetM(), mFloatFeatureParams.GetM())

@@ -7,7 +7,7 @@
 class Forest
 {
 public:
-    Forest() {}
+    Forest();
     Forest( const std::vector<Tree>& trees );
     Forest( const int numberOfTrees );
     Forest( int numberOfTrees,

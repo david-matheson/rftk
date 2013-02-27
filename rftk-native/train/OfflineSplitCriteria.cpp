@@ -3,8 +3,8 @@
 #include "assert_util.h"
 #include "OfflineSplitCriteria.h"
 
-OfflineSplitCriteria::OfflineSplitCriteria( int maxDepth, 
-                                            float minImpurity, 
+OfflineSplitCriteria::OfflineSplitCriteria( int maxDepth,
+                                            float minImpurity,
                                             float minSampleCounts,
                                             float minChildSampleCounts)
 : mMaxDepth(maxDepth)
@@ -31,7 +31,7 @@ SPLT_CRITERIA OfflineSplitCriteria::ShouldSplit(int treeDepth,
 
     const int bestSplit = BestSplit(treeDepth, impurityValues, childCounts);
     const bool shouldSplit = (bestSplit >= 0
-                            && treeDepth < mMaxDepth 
+                            && treeDepth < mMaxDepth
                             && impurityValues.Get(bestSplit) > mMinImpurity);
 
     return (shouldSplit) ?
@@ -42,6 +42,7 @@ int OfflineSplitCriteria::BestSplit(int treeDepth,
                                     const Float32VectorBuffer& impurityValues,
                                     const Float32MatrixBuffer& childCounts ) const
 {
+    (void) treeDepth; // Suppress the unused warning because treeDepth is part of the interface
     ASSERT_ARG_DIM_1D(impurityValues.GetN(), childCounts.GetM())
     ASSERT_ARG_DIM_1D(childCounts.GetN(), 2)
 
@@ -53,7 +54,7 @@ int OfflineSplitCriteria::BestSplit(int treeDepth,
         const float rightCounts = childCounts.Get(i, 1);
 
         bool isBest = ((impurityValues.Get(i) > maxImpurity)
-                && ((leftCounts+rightCounts) > mMinSampleCounts) 
+                && ((leftCounts+rightCounts) > mMinSampleCounts)
                 && (leftCounts > mMinChildSampleCounts)
                 && (rightCounts > mMinChildSampleCounts));
         if (isBest)
@@ -67,5 +68,6 @@ int OfflineSplitCriteria::BestSplit(int treeDepth,
 
 int OfflineSplitCriteria::MinTotalSamples( int treeDepth ) const
 {
+    (void) treeDepth; // Suppress the unused warning because treeDepth is part of the interface
     return 0;
 }

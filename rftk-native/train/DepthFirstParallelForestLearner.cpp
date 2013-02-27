@@ -64,6 +64,7 @@ Forest DepthFirstParallelForestLearner::Train(  BufferCollection& data,
         threadVec[job]->join();
     }
 #else
+    (void) numberOfJobs; // Suppress the unused warning because numberOfJobs is used in USE_BOOST_THREAD
     TrainTrees(data, indices, mTrainConfigParams, samplingParams, 0, 1, forest);
 #endif
     Forest result = *forest;
@@ -111,7 +112,7 @@ void TrainTree(     BufferCollection& data,
 
     Float32VectorBuffer weights(samplingParams.mNumberOfSamples);
     std::vector<int> sampledIndices;
-    for(int i=0; i<counts.size(); i++)
+    for(unsigned int i=0; i<counts.size(); i++)
     {
         if( counts[i] > 0 )
         {

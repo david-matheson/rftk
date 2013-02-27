@@ -28,6 +28,8 @@
 class BufferCollection
 {
 public:
+    BufferCollection();
+
     bool HasFloat32VectorBuffer(std::string name) const;
     void AddFloat32VectorBuffer(std::string name, const Float32VectorBuffer& data );
     void AppendFloat32VectorBuffer(std::string name, const Float32VectorBuffer& data );

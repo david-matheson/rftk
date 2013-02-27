@@ -3,6 +3,7 @@
 
 
 AllNodeDataCollector::AllNodeDataCollector()
+: mData()
 {
 }
 
@@ -15,6 +16,7 @@ void AllNodeDataCollector::Collect( const BufferCollection& data,
                                     const Float32MatrixBuffer& featureValues,
                                     boost::mt19937& gen )
 {
+    (void) gen; // Suppress the unused warning because gen is part of the interface
     ASSERT_ARG_DIM_1D(sampleIndices.GetN(), featureValues.GetM())
 
     mData.AppendVerticalFloat32MatrixBuffer(FEATURE_VALUES, featureValues);

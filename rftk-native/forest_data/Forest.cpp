@@ -3,6 +3,11 @@
 #include "assert_util.h"
 #include "Forest.h"
 
+Forest::Forest()
+: mTrees(0)
+{
+}
+
 Forest::Forest( const std::vector<Tree>& trees )
 : mTrees(trees)
 {
@@ -18,10 +23,11 @@ Forest::Forest( int numberOfTrees,
                 int maxIntParamsDim,
                 int maxFloatParamsDim,
                 int maxYsDim )
+: mTrees(numberOfTrees)
 {
     for(int i=0; i<numberOfTrees; i++)
     {
-        mTrees.push_back(Tree(maxNumberNodes, maxIntParamsDim, maxFloatParamsDim, maxYsDim));
+        mTrees[i] = Tree(maxNumberNodes, maxIntParamsDim, maxFloatParamsDim, maxYsDim);
     }
 }
 
@@ -39,7 +45,7 @@ Tree Forest::GetTree(const int index) const
 ForestStats Forest::GetForestStats() const
 {
     ForestStats stats;
-    for(int i=0; i<mTrees.size(); i++)
+    for(unsigned int i=0; i<mTrees.size(); i++)
     {
         mTrees[i].GatherStats(stats);
     }
