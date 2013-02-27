@@ -37,7 +37,6 @@ def ignore_on_darwin(env_warnings, l):
 
 def build_swig_module(env, non_swig_warnings, module_name, include_depends, link_depends):
     env_with_depends = env.Clone()
-    print ['-I%s' % x for x in include_depends]
     env_with_depends.Append(SWIGFLAGS=['-I%s' % x for x in include_depends], CPPPATH=include_depends)
     swig_objs = env_with_depends.SharedObject('%s/%s.i' % (module_name, module_name))
     env_with_warnings = env_with_depends.Clone()
@@ -48,7 +47,7 @@ def build_swig_module(env, non_swig_warnings, module_name, include_depends, link
     env_with_warnings.Alias(module_name, shared_lib)
     return shared_lib
 
-non_swig_warnings = ['-Wall', '-Wextra', '-Weffc++']
+non_swig_warnings = ['-Wall', '-Wextra', '-Weffc++', '-Werror']
 
 ###############################################################################
 # assert_utils shared lib
