@@ -1,26 +1,31 @@
 import distutils.sysconfig
 import numpy
 
-#TODOS
-# 1) treat c++ warnings as errors
-# 2) create debug and release configurations
+###############################################################################
+# setup variant specific params
+Import('install_path')
+Import('variant')
+if variant == 'debug':
+    ccflags = ['-g', '-O0']
+    cppdefines = {'ENABLE_EXCEPTIONS': 1}
+elif variant == 'release':
+    ccflags = ['-O3']
+    cppdefines = {'ENABLE_EXCEPTIONS': 0}
 
 ###############################################################################
-install_path = '#../rftk/native'
-
 try:
     numpy_include = numpy.get_include()
 except AttributeError:
     numpy_include = numpy.get_numpy_include()
 
-# CCFLAGS=['-O0', '-g']
-# '-Werror',
+###############################################################################
 env = Environment(SWIGFLAGS=['-python', '-c++', '-Werror', '-w490', '-w362'],
                   CPPPATH=[distutils.sysconfig.get_python_inc(), numpy_include],
                   SHLIBPREFIX='',
-                  CCFLAGS=['-O3'],
+                  CCFLAGS=ccflags,
+                  CPPDEFINES=cppdefines,
                   LIBPATH=['.'],
-                  RPATH=['.', GetBuildPath(install_path)])
+                  RPATH=['.', install_path])
 
 if env['PLATFORM'] == 'darwin':
     env['SHLINKFLAGS'] = '-bundle -flat_namespace -undefined suppress'
@@ -35,16 +40,16 @@ def ignore_on_darwin(env_warnings, l):
     return l
 
 
-def build_swig_module(env, non_swig_warnings, module_name, include_depends, link_depends):
+def build_swig_module(env, non_swig_warnings, variant_name, module_name, include_depends, link_depends):
     env_with_depends = env.Clone()
-    env_with_depends.Append(SWIGFLAGS=['-I%s' % x for x in include_depends], CPPPATH=include_depends)
+    env_with_depends.Append(SWIGFLAGS=['-Irftk-native/%s' % x for x in include_depends], CPPPATH=include_depends)
     swig_objs = env_with_depends.SharedObject('%s/%s.i' % (module_name, module_name))
     env_with_warnings = env_with_depends.Clone()
     env_with_warnings.Append(CCFLAGS=non_swig_warnings)
     shared_lib = env_with_warnings.SharedLibrary(target=('_%s' % module_name),
                                         source=[Glob('%s/*.cpp' % module_name)] + swig_objs,
                                         LIBS=ignore_on_darwin(env_with_warnings, link_depends))
-    env_with_warnings.Alias(module_name, shared_lib)
+    env_with_warnings.Alias('%s-%s' % (module_name, variant_name), shared_lib)
     return shared_lib
 
 non_swig_warnings = ['-Wall', '-Wextra', '-Weffc++', '-Werror']
@@ -53,6 +58,7 @@ non_swig_warnings = ['-Wall', '-Wextra', '-Weffc++', '-Werror']
 # assert_utils shared lib
 assert_utils_sharedlib = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
+                                        variant_name=variant,
                                         module_name='assert_util',
                                         include_depends=[],
                                         link_depends=[])
@@ -62,6 +68,7 @@ assert_utils_sharedlib = build_swig_module(env=env,
 # bootstrap shared lib
 bootstrap_sharedlib = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
+                                        variant_name=variant,
                                         module_name='bootstrap',
                                         include_depends=['assert_util'],
                                         link_depends=[assert_utils_sharedlib])
@@ -71,6 +78,7 @@ bootstrap_sharedlib = build_swig_module(env=env,
 # buffers shared lib
 buffers_sharedlib = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
+                                        variant_name=variant,
                                         module_name='buffers',
                                         include_depends=['assert_util'],
                                         link_depends=[assert_utils_sharedlib])
@@ -80,6 +88,7 @@ buffers_sharedlib = build_swig_module(env=env,
 # best split shared lib
 best_split_sharedlib = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
+                                        variant_name=variant,
                                         module_name='best_split',
                                         include_depends=['assert_util', 'bootstrap', 'buffers'],
                                         link_depends=[assert_utils_sharedlib, bootstrap_sharedlib, buffers_sharedlib])
@@ -89,6 +98,7 @@ best_split_sharedlib = build_swig_module(env=env,
 # forest data shared lib
 forest_data_sharedlib = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
+                                        variant_name=variant,
                                         module_name='forest_data',
                                         include_depends=['assert_util', 'buffers'],
                                         link_depends=[assert_utils_sharedlib, buffers_sharedlib])
@@ -98,6 +108,7 @@ forest_data_sharedlib = build_swig_module(env=env,
 # features shared lib
 features_sharedlib = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
+                                        variant_name=variant,
                                         module_name='features',
                                         include_depends=['assert_util', 'buffers'],
                                         link_depends=[assert_utils_sharedlib, buffers_sharedlib])
@@ -107,6 +118,7 @@ features_sharedlib = build_swig_module(env=env,
 # feature extractors shared lib
 feature_extractors_sharedlib = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
+                                        variant_name=variant,
                                         module_name='feature_extractors',
                                         include_depends=['assert_util', 'bootstrap', 'buffers', 'features'],
                                         link_depends=[assert_utils_sharedlib, bootstrap_sharedlib, buffers_sharedlib, features_sharedlib])
@@ -116,6 +128,7 @@ feature_extractors_sharedlib = build_swig_module(env=env,
 # predict shared lib
 predict_sharedlib = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
+                                        variant_name=variant,
                                         module_name='predict',
                                         include_depends=['assert_util', 'buffers', 'forest_data', 'features'],
                                         link_depends=[assert_utils_sharedlib, buffers_sharedlib, forest_data_sharedlib, features_sharedlib])
@@ -126,6 +139,7 @@ predict_sharedlib = build_swig_module(env=env,
 # train shared lib
 train_sharedlib = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
+                                        variant_name=variant,
                                         module_name='train',
                                         include_depends=['assert_util', 'buffers',
                                                         'bootstrap', 'best_split',
@@ -137,7 +151,7 @@ train_sharedlib = build_swig_module(env=env,
                                                     predict_sharedlib])
 
 # Install shared libraries and python wrappers
-env.Install(install_path, [assert_utils_sharedlib,
+env.Install(install_path, source=[assert_utils_sharedlib,
                             'assert_util/assert_util.py',
                             bootstrap_sharedlib,
                             'bootstrap/bootstrap.py',
@@ -155,4 +169,4 @@ env.Install(install_path, [assert_utils_sharedlib,
                             'predict/predict.py',
                             train_sharedlib,
                             'train/train.py'])
-env.Alias('install', install_path)
+env.Alias('install-%s'%variant, install_path)

@@ -1,7 +1,7 @@
 #pragma once
 
 // Turning off exceptions will break some tests
-#define ENABLE_EXCEPTIONS 1
+// #define ENABLE_EXCEPTIONS 1 (defined in SConscript)
 
 #if ENABLE_EXCEPTIONS
 
