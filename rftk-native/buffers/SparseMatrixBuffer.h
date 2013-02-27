@@ -40,7 +40,6 @@ public:
     int GetM() const { return mM; }
     int GetN() const { return mN; }
 
-    void Set(int m, int n, T value);
     T Get(int m, int n) const {
         T const* val = priv_valueAt(m, n);
         return val ? *val : T(0);
