@@ -180,7 +180,7 @@ void SparseMatrixBufferTemplate<T>::Zero()
     // http://www.cplusplus.com/reference/vector/vector/clear/
     std::vector<T>().swap(mValues);
     std::vector<int>().swap(mCol);
-    std::vector<int>().swap(mRowPtr);
+    std::vector<int>(mM+1, T(0)).swap(mRowPtr);
 }
 
 
