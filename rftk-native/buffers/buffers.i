@@ -3,6 +3,7 @@
     #define SWIG_FILE_WITH_INIT
     #include "VectorBuffer.h"
     #include "MatrixBuffer.h"
+    #include "SparseMatrixBuffer.h"
     #include "Tensor3Buffer.h"
     #include "BufferCollection.h"
 %}
@@ -57,3 +58,39 @@
 %template(Float64VectorBuffer) VectorBufferTemplate<double>;
 %template(Int32VectorBuffer) VectorBufferTemplate<int>;
 %template(Int64VectorBuffer) VectorBufferTemplate<long long>;
+
+
+%include "SparseMatrixBuffer.h"
+
+%template(Float32SparseMatrixBuffer) SparseMatrixBufferTemplate<float>;
+%template(Float64SparseMatrixBuffer) SparseMatrixBufferTemplate<double>;
+%template(Int32SparseMatrixBuffer) SparseMatrixBufferTemplate<int>;
+%template(Int64SparseMatrixBuffer) SparseMatrixBufferTemplate<long long>;
+
+%pythoncode %{
+import scipy.sparse
+
+def process_args_for_sparse_wrapper(*args):
+    assert len(args) == 1
+    S = args[0]
+    if not scipy.sparse.issparse(S):
+        raise TypeError("Must provide a sparse matrix.")
+
+    if not scipy.sparse.isspmatrix_csr(S):
+        S = S.tocsr()
+
+    return (S.data, S.indices, S.indptr, S.shape[0], S.shape[1])
+%}
+
+%pythonprepend Float32SparseMatrix(float*, int, int*, int, int*, int, int, int) %{
+    args = process_args_for_sparse_wrapper(*args)
+%}
+%pythonprepend Float64SparseMatrix(double*, int, int*, int, int*, int, int, int) %{
+    args = process_args_for_sparse_wrapper(*args)
+%}
+%pythonprepend Int32SparseMatrix(int*, int, int*, int, int*, int, int, int) %{
+    args = process_args_for_sparse_wrapper(*args)
+%}
+%pythonprepend Int64SparseMatrix(long long*, int, int*, int, int*, int, int, int) %{
+    args = process_args_for_sparse_wrapper(*args)
+%}

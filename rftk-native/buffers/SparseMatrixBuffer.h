@@ -27,8 +27,8 @@ public:
 public:
     SparseMatrixBufferTemplate();
     SparseMatrixBufferTemplate(int m, int n);
-    SparseMatrixBufferTemplate(T const* values, int nV, size_t const* col, int nC, size_t const* rowPtr, int nRP, int m, int n);
-    SparseMatrixBufferTemplate(std::vector<T> const& values, std::vector<size_t> const& col, std::vector<size_t> const& rowPtr, int m, int n);
+    SparseMatrixBufferTemplate(T const* values, int nV, int const* col, int nC, int const* rowPtr, int nRP, int m, int n);
+    SparseMatrixBufferTemplate(std::vector<T> const& values, std::vector<int> const& col, std::vector<int> const& rowPtr, int m, int n);
     SparseMatrixBufferTemplate(T const* values, int m, int n); // construct fom dense data
     explicit SparseMatrixBufferTemplate(DenseType const& dense);
     
@@ -82,12 +82,12 @@ private:
 
 private:
     std::vector<T> mValues;
-    std::vector<size_t> mCol;
+    std::vector<int> mCol;
     // mRowPtr has mM + 1 entries.  The last entry is the index at
     // which the next row (which doesn't exist) would begin.  Storing
     // this simplifies some of the calculations near the endge of the
     // array.
-    std::vector<size_t> mRowPtr;
+    std::vector<int> mRowPtr;
     int mM;
     int mN;
 };
@@ -115,7 +115,7 @@ SparseMatrixBufferTemplate<T>::SparseMatrixBufferTemplate(int m, int n)
 }
 
 template<typename T>
-SparseMatrixBufferTemplate<T>::SparseMatrixBufferTemplate(T const* values, int nV, size_t const* col, int nC, size_t const* rowPtr, int nRP, int m, int n)
+SparseMatrixBufferTemplate<T>::SparseMatrixBufferTemplate(T const* values, int nV, int const* col, int nC, int const* rowPtr, int nRP, int m, int n)
     : mValues(values, values + nV)
     , mCol(col, col + nC)
     , mRowPtr(rowPtr, rowPtr + nRP)
@@ -125,7 +125,7 @@ SparseMatrixBufferTemplate<T>::SparseMatrixBufferTemplate(T const* values, int n
 }
 
 template<typename T>
-SparseMatrixBufferTemplate<T>::SparseMatrixBufferTemplate(std::vector<T> const& values, std::vector<size_t> const& col, std::vector<size_t> const& rowPtr, int m, int n)
+SparseMatrixBufferTemplate<T>::SparseMatrixBufferTemplate(std::vector<T> const& values, std::vector<int> const& col, std::vector<int> const& rowPtr, int m, int n)
     : mValues(values)
     , mCol(col)
     , mRowPtr(rowPtr)
@@ -159,7 +159,7 @@ void SparseMatrixBufferTemplate<T>::priv_initFromDensePointer(T const* values, i
     mRowPtr.clear();
 
     T zero(0);
-    size_t elementCounter = 0;
+    int elementCounter = 0;
     for (int i=0; i<m; ++i) {
         mRowPtr.push_back(elementCounter);
         for (int j=0; j<n; ++j) {
@@ -180,8 +180,8 @@ void SparseMatrixBufferTemplate<T>::Zero()
     // clear and discard memory
     // http://www.cplusplus.com/reference/vector/vector/clear/
     std::vector<T>().swap(mValues);
-    std::vector<size_t>().swap(mCol);
-    std::vector<size_t>().swap(mRowPtr);
+    std::vector<int>().swap(mCol);
+    std::vector<int>().swap(mRowPtr);
 }
 
 
@@ -191,16 +191,16 @@ T const* SparseMatrixBufferTemplate<T>::priv_valueAtConst(int m, int n) const
     ASSERT_VALID_RANGE(m, 0, mM);
     ASSERT_VALID_RANGE(n, 0, mN);
 
-    size_t colIndexBegin = mRowPtr[m];
-    size_t colIndexEnd = mRowPtr[m+1];
+    int colIndexBegin = mRowPtr[m];
+    int colIndexEnd = mRowPtr[m+1];
 
     // (m, :) is zero
     if (colIndexBegin == colIndexEnd) {
         return static_cast<T const*>(0);
     }
 
-    std::vector<size_t>::const_iterator colIter = std::lower_bound(mCol.begin() + colIndexBegin, mCol.begin() + colIndexEnd, n);
-    size_t valIndex = colIter - mCol.begin();
+    std::vector<int>::const_iterator colIter = std::lower_bound(mCol.begin() + colIndexBegin, mCol.begin() + colIndexEnd, n);
+    int valIndex = colIter - mCol.begin();
 
     // (m, n) is zero
     if (mCol[valIndex] != n) {
@@ -242,8 +242,8 @@ T SparseMatrixBufferTemplate<T>::SumRow(int m) const
 {
     ASSERT_VALID_RANGE(m, 0, mM);
     
-    size_t valIndexBegin = mRowPtr[m];
-    size_t valIndexEnd = mRowPtr[m+1];
+    int valIndexBegin = mRowPtr[m];
+    int valIndexEnd = mRowPtr[m+1];
 
     //return std::accumulate(mValues.begin() + valIndexBegin, mValues.begin() + valIndexEnd, T(0));
     return std::accumulate(&mValues[valIndexBegin], &mValues[valIndexEnd], T(0));
@@ -255,8 +255,8 @@ void SparseMatrixBufferTemplate<T>::NormalizeRow(int m)
 {
     ASSERT_VALID_RANGE(m, 0, mM);
 
-    size_t valIndexBegin = mRowPtr[m];
-    size_t valIndexEnd = mRowPtr[m+1];
+    int valIndexBegin = mRowPtr[m];
+    int valIndexEnd = mRowPtr[m+1];
 
     T Z = SumRow(m);
 
@@ -264,7 +264,7 @@ void SparseMatrixBufferTemplate<T>::NormalizeRow(int m)
     if (Z != 0) {
         using namespace boost::lambda;
         std::transform(&mValues[valIndexBegin], &mValues[valIndexEnd],
-                       &mValues[valIndexBegin], _1 / Z);
+                       &mValues[valIndexBegin], ret<T>(_1 / Z));
     }
 }
 
@@ -292,7 +292,7 @@ void SparseMatrixBufferTemplate<T>::Append(const SparseMatrixBufferTemplate<T>& 
     mRowPtr.reserve(mRowPtr.size() + other.mRowPtr.size());
 
     // copy the row indices, offsetting them to be after the rows of this matrix
-    size_t base = mRowPtr.back();
+    int base = mRowPtr.back();
     using namespace boost::lambda;
     // We already have the index where the next row will start in
     // mRowPtr so don't copy the first element of other.mRowPtr.
@@ -313,13 +313,13 @@ SparseMatrixBufferTemplate<T> SparseMatrixBufferTemplate<T>::Slice(const VectorB
     sliced.mM = indices.GetN();
     sliced.mN = mN;
 
-    size_t elementCount = 0;
+    int elementCount = 0;
     for (int i=0; i<indices.GetN(); ++i) {
         int index = indices.Get(i);
         ASSERT_VALID_RANGE(index, 0, mM);
 
-        size_t rowBegin = mRowPtr[index];
-        size_t rowEnd = mRowPtr[index+1];
+        int rowBegin = mRowPtr[index];
+        int rowEnd = mRowPtr[index+1];
 
         sliced.mRowPtr.push_back(elementCount);
         elementCount += rowEnd - rowBegin;
@@ -338,10 +338,10 @@ SparseMatrixBufferTemplate<T> SparseMatrixBufferTemplate<T>::SliceRow(int m) con
 {
     ASSERT_VALID_RANGE(m, 0, mM);
 
-    size_t indexBegin = mRowPtr[m];
-    size_t indexEnd = mRowPtr[m+1];
+    int indexBegin = mRowPtr[m];
+    int indexEnd = mRowPtr[m+1];
 
-    size_t newRowPtr[] = {0, indexEnd - indexBegin};
+    int newRowPtr[] = {0, indexEnd - indexBegin};
     SparseMatrixBufferTemplate<T> sliced
         (&mValues[indexBegin], indexEnd - indexBegin,
          &mCol[indexBegin], indexEnd - indexBegin,
@@ -395,8 +395,19 @@ void SparseMatrixBufferTemplate<T>::PrintInternalContents() const
     std::cout << "mValues: ";
     std::copy(mValues.begin(), mValues.end(), std::ostream_iterator<T>(std::cout, " "));
     std::cout << "\nmCol: ";
-    std::copy(mCol.begin(), mCol.end(), std::ostream_iterator<size_t>(std::cout, " "));
+    std::copy(mCol.begin(), mCol.end(), std::ostream_iterator<int>(std::cout, " "));
     std::cout << "\nmRowPtr: ";
-    std::copy(mRowPtr.begin(), mRowPtr.end(), std::ostream_iterator<size_t>(std::cout, " "));
+    std::copy(mRowPtr.begin(), mRowPtr.end(), std::ostream_iterator<int>(std::cout, " "));
     std::cout << std::endl;
 }
+
+
+typedef SparseMatrixBufferTemplate<float> Float32SparseMatrixBuffer;
+typedef SparseMatrixBufferTemplate<double> Float64SparseMatrixBuffer;
+typedef SparseMatrixBufferTemplate<int> Int32SparseMatrixBuffer;
+typedef SparseMatrixBufferTemplate<long long> Int64SparseMatrixBuffer;
+
+Float32SparseMatrixBuffer Float32SparseMatrix(float* values, int n_values, int* col, int n_col, int* rowPtr, int n_rowPtr, int n, int m);
+Float64SparseMatrixBuffer Float64SparseMatrix(double* values, int n_values, int* col, int n_col, int* rowPtr, int n_rowPtr, int n, int m);
+Int32SparseMatrixBuffer Int32SparseMatrix(int* values, int n_values, int* col, int n_col, int* rowPtr, int n_rowPtr, int n, int m);
+Int64SparseMatrixBuffer Int64SparseMatrix(long long* values, int n_values, int* col, int n_col, int* rowPtr, int n_rowPtr, int n, int m);

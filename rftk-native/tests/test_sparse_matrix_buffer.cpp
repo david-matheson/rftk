@@ -23,8 +23,8 @@ SparseMatrixBufferTemplate<T> CreateExampleSparseMatrix()
     // .. .. .. .. 75 .. 77 78 
     // .. .. .. .. .. .. 87 88 
 
-    size_t rowPtr[] = {0,0,3,6,9,12,13,16,19,21};
-    size_t col[] = {0,1,3,1,2,4,0,2,3,1,4,5,4,4,5,6,4,6,7,6,7};
+    int rowPtr[] = {0,0,3,6,9,12,13,16,19,21};
+    int col[] = {0,1,3,1,2,4,0,2,3,1,4,5,4,4,5,6,4,6,7,6,7};
     T val[] = {11,12,14,22,23,25,31,33,34,42,45,46,55,65,66,67,75,77,78,87,88};
 
     SparseMatrixBufferTemplate<T>
@@ -47,8 +47,8 @@ bool test_get_with_empty_row() {
     // .. 11 ..
     // .. .. ..
 
-    size_t rowPtr[] = {0, 0, 1, 1};
-    size_t col[] = {1};
+    int rowPtr[] = {0, 0, 1, 1};
+    int col[] = {1};
     int val[] = {11};
 
     SparseMatrixBufferTemplate<int>
@@ -135,8 +135,8 @@ bool test_GetMax_nonpositive() {
     // .. -1 -3
     // .. .. ..
 
-    size_t rowPtr[] = {0, 0, 1, 2};
-    size_t col[] = {1, 2};
+    int rowPtr[] = {0, 0, 1, 2};
+    int col[] = {1, 2};
     double val[] = {-1, -3};
 
     SparseMatrixBufferTemplate<double>
@@ -158,8 +158,8 @@ bool test_GetMin_withnegative() {
     // .. 11 -3
     // .. .. ..
 
-    size_t rowPtr[] = {0, 0, 1, 2};
-    size_t col[] = {1, 2};
+    int rowPtr[] = {0, 0, 1, 2};
+    int col[] = {1, 2};
     int val[] = {11, -3};
 
     SparseMatrixBufferTemplate<int>
