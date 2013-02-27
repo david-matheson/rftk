@@ -80,7 +80,7 @@ if __name__ == "__main__":
                                             class_infogain_best_split,
                                             split_criteria,
                                             online_config.number_of_trees,
-                                            1000)
+                                            200000)
     sampling_config = train.OnlineSamplingParams(False, 1.0)
 
     # Create online learner
@@ -128,6 +128,9 @@ if __name__ == "__main__":
           # pickle online forest for later evaluation
           forest_pickle_filename = "%s/forest-%d.pkl" % (forest_path, number_of_samples)
           forest_utils.pickle_dump_native_forest(online_learner.GetForest(), forest_pickle_filename)
+
+        stats = online_learner.GetForest().GetForestStats()
+        stats.Print()
 
     # pickle measurements for plotting
     pickle.dump(measurements, open(out_measurements_filename, "wb"))
