@@ -1,11 +1,11 @@
 import distutils.sysconfig
 import numpy
 
-
 #TODOS
 # 1) treat c++ warnings as errors
 # 2) create debug and release configurations
 
+###############################################################################
 install_path = '#../rftk/native'
 
 try:
@@ -14,114 +14,128 @@ except AttributeError:
     numpy_include = numpy.get_numpy_include()
 
 # CCFLAGS=['-O0', '-g']
-env = Environment(SWIGFLAGS=['-python', '-c++'],
+# '-Werror',
+env = Environment(SWIGFLAGS=['-python', '-c++', '-Werror', '-w490', '-w362'],
                   CPPPATH=[distutils.sysconfig.get_python_inc(), numpy_include],
                   SHLIBPREFIX='',
-                  CCFLAGS=['-O3'])
-env.Append(LIBPATH=['.'])
-env.Append(RPATH=['.', env.GetBuildPath(install_path)])
+                  CCFLAGS=['-O3'],
+                  LIBPATH=['.'],
+                  RPATH=['.', GetBuildPath(install_path)])
 
 if env['PLATFORM'] == 'darwin':
-  env['SHLINKFLAGS'] = '-bundle -flat_namespace -undefined suppress'
-  env['SHLIBSUFFIX'] = '.so'
+    env['SHLINKFLAGS'] = '-bundle -flat_namespace -undefined suppress'
+    env['SHLIBSUFFIX'] = '.so'
 
-def ignore_on_darwin(env, l): 
-  if env['PLATFORM'] == 'darwin':
-    l = []
-  return l
+
+###############################################################################
+# helpers to reduce code duplication
+def ignore_on_darwin(env_warnings, l):
+    if env_warnings['PLATFORM'] == 'darwin':
+        l = []
+    return l
+
+
+def build_swig_module(env, non_swig_warnings, module_name, include_depends, link_depends):
+    env_with_depends = env.Clone()
+    print ['-I%s' % x for x in include_depends]
+    env_with_depends.Append(SWIGFLAGS=['-I%s' % x for x in include_depends], CPPPATH=include_depends)
+    swig_objs = env_with_depends.SharedObject('%s/%s.i' % (module_name, module_name))
+    env_with_warnings = env_with_depends.Clone()
+    env_with_warnings.Append(CCFLAGS=non_swig_warnings)
+    shared_lib = env_with_warnings.SharedLibrary(target=('_%s' % module_name),
+                                        source=[Glob('%s/*.cpp' % module_name)] + swig_objs,
+                                        LIBS=ignore_on_darwin(env_with_warnings, link_depends))
+    env_with_warnings.Alias(module_name, shared_lib)
+    return shared_lib
+
+non_swig_warnings = ['-Wall', '-Wextra', '-Weffc++']
 
 ###############################################################################
 # assert_utils shared lib
-assert_utils_sharedlib = env.SharedLibrary(target='_assert_util',
-                                            source=[Glob('assert_util/*.cpp'), 'assert_util/assert_util.i'])
-env.Alias('assert_util', assert_utils_sharedlib)
-# All of the following shared libs have access to the assert_util header/swig files
-env.Append(SWIGFLAGS=['-Iassert_util'])
-env.Append(CPPPATH=['assert_util'])
+assert_utils_sharedlib = build_swig_module(env=env,
+                                        non_swig_warnings=non_swig_warnings,
+                                        module_name='assert_util',
+                                        include_depends=[],
+                                        link_depends=[])
 
 
 ###############################################################################
 # bootstrap shared lib
-bootstrap_sharedlib = env.SharedLibrary(target='_bootstrap',
-                                        source=[Glob('bootstrap/*.cpp'), 'bootstrap/bootstrap.i'],
-                                        LIBS=ignore_on_darwin(env, [assert_utils_sharedlib]))
-env.Alias('bootstrap', bootstrap_sharedlib)
+bootstrap_sharedlib = build_swig_module(env=env,
+                                        non_swig_warnings=non_swig_warnings,
+                                        module_name='bootstrap',
+                                        include_depends=['assert_util'],
+                                        link_depends=[assert_utils_sharedlib])
 
 
 ###############################################################################
 # buffers shared lib
-buffers_sharedlib = env.SharedLibrary(target='_buffers',
-                                        source=[Glob('buffers/*.cpp'), 'buffers/buffers.i'],
-                                        LIBS=ignore_on_darwin(env, [assert_utils_sharedlib]))
-env.Alias('buffers', buffers_sharedlib)
-# All of the following shared libs have access to the buffer header/swig files
-env.Append(SWIGFLAGS=['-Ibuffers'])
-env.Append(CPPPATH=['buffers'])
+buffers_sharedlib = build_swig_module(env=env,
+                                        non_swig_warnings=non_swig_warnings,
+                                        module_name='buffers',
+                                        include_depends=['assert_util'],
+                                        link_depends=[assert_utils_sharedlib])
 
 
 ###############################################################################
 # best split shared lib
-best_split_env = env.Clone()
-best_split_env.Append(SWIGFLAGS=['-Ibootstrap'])
-best_split_env.Append(CPPPATH=['bootstrap'])
-best_split_sharedlib = best_split_env.SharedLibrary(target='_best_split',
-                                        source=[Glob('best_split/*.cpp'), 'best_split/best_split.i'],
-                                        LIBS=ignore_on_darwin(env, [assert_utils_sharedlib, buffers_sharedlib, bootstrap_sharedlib]))
-env.Alias('best_split', best_split_sharedlib)
+best_split_sharedlib = build_swig_module(env=env,
+                                        non_swig_warnings=non_swig_warnings,
+                                        module_name='best_split',
+                                        include_depends=['assert_util', 'bootstrap', 'buffers'],
+                                        link_depends=[assert_utils_sharedlib, bootstrap_sharedlib, buffers_sharedlib])
 
 
 ###############################################################################
 # forest data shared lib
-forest_data_sharedlib = env.SharedLibrary(target='_forest_data',
-                                        source=[Glob('forest_data/*.cpp'), 'forest_data/forest_data.i'],
-                                        LIBS=ignore_on_darwin(env, [assert_utils_sharedlib, buffers_sharedlib]))
-env.Alias('forest_data', forest_data_sharedlib)
+forest_data_sharedlib = build_swig_module(env=env,
+                                        non_swig_warnings=non_swig_warnings,
+                                        module_name='forest_data',
+                                        include_depends=['assert_util', 'buffers'],
+                                        link_depends=[assert_utils_sharedlib, buffers_sharedlib])
 
 
 ###############################################################################
 # features shared lib
-features_sharedlib = env.SharedLibrary(target='_features',
-                                        source=[Glob('features/*.cpp'), 'features/features.i'],
-                                        LIBS=ignore_on_darwin(env, [assert_utils_sharedlib, buffers_sharedlib]))
-env.Alias('features', features_sharedlib)
+features_sharedlib = build_swig_module(env=env,
+                                        non_swig_warnings=non_swig_warnings,
+                                        module_name='features',
+                                        include_depends=['assert_util', 'buffers'],
+                                        link_depends=[assert_utils_sharedlib, buffers_sharedlib])
 
 
 ###############################################################################
 # feature extractors shared lib
-feature_extractor_env = env.Clone()
-feature_extractor_env.Append(SWIGFLAGS=['-Ibootstrap', '-Ifeatures'])
-feature_extractor_env.Append(CPPPATH=['bootstrap', 'features'])
-feature_extractors_sharedlib = feature_extractor_env.SharedLibrary(target='_feature_extractors',
-                                        source=[Glob('feature_extractors/*.cpp'), 'feature_extractors/feature_extractors.i'],
-                                        LIBS=ignore_on_darwin(env, [assert_utils_sharedlib, buffers_sharedlib,
-                                                                    bootstrap_sharedlib, features_sharedlib]))
-env.Alias('feature_extractors', feature_extractors_sharedlib)
+feature_extractors_sharedlib = build_swig_module(env=env,
+                                        non_swig_warnings=non_swig_warnings,
+                                        module_name='feature_extractors',
+                                        include_depends=['assert_util', 'bootstrap', 'buffers', 'features'],
+                                        link_depends=[assert_utils_sharedlib, bootstrap_sharedlib, buffers_sharedlib, features_sharedlib])
 
 
 ###############################################################################
 # predict shared lib
-predict_env = env.Clone()
-predict_env.Append(SWIGFLAGS=['-Iforest_data', '-Ifeatures'])
-predict_env.Append(CPPPATH=['forest_data', 'features'])
-predict_sharedlib = predict_env.SharedLibrary(target='_predict',
-                                        source=[Glob('predict/*.cpp'), 'predict/predict.i'],
-                                        LIBS=ignore_on_darwin(env, [assert_utils_sharedlib, buffers_sharedlib,
-                                                                    forest_data_sharedlib, features_sharedlib]))
-env.Alias('predict', predict_sharedlib)
+predict_sharedlib = build_swig_module(env=env,
+                                        non_swig_warnings=non_swig_warnings,
+                                        module_name='predict',
+                                        include_depends=['assert_util', 'buffers', 'forest_data', 'features'],
+                                        link_depends=[assert_utils_sharedlib, buffers_sharedlib, forest_data_sharedlib, features_sharedlib])
+
 
 
 ###############################################################################
 # train shared lib
-train_env = env.Clone()
-train_env.Append(SWIGFLAGS=['-Ibootstrap', '-Ibest_split', '-Iforest_data', '-Ifeature_extractors', '-Ipredict'])
-train_env.Append(CPPPATH=['bootstrap', 'best_split', 'forest_data', 'feature_extractors', 'predict'])
-train_sharedlib = train_env.SharedLibrary(target='_train',
-                                        source=[Glob('train/*.cpp'), 'train/train.i'],
-                                        LIBS=ignore_on_darwin(env, [assert_utils_sharedlib, buffers_sharedlib,
-                                                                    bootstrap_sharedlib, best_split_sharedlib,
-                                                                    forest_data_sharedlib, feature_extractors_sharedlib,
-                                                                    predict_sharedlib]))
-env.Alias('train', train_sharedlib)
+train_sharedlib = build_swig_module(env=env,
+                                        non_swig_warnings=non_swig_warnings,
+                                        module_name='train',
+                                        include_depends=['assert_util', 'buffers',
+                                                        'bootstrap', 'best_split',
+                                                        'forest_data', 'feature_extractors',
+                                                        'predict'],
+                                        link_depends=[assert_utils_sharedlib, buffers_sharedlib,
+                                                    bootstrap_sharedlib, best_split_sharedlib,
+                                                    forest_data_sharedlib, feature_extractors_sharedlib,
+                                                    predict_sharedlib])
 
 # Install shared libraries and python wrappers
 env.Install(install_path, [assert_utils_sharedlib,
@@ -143,4 +157,3 @@ env.Install(install_path, [assert_utils_sharedlib,
                             train_sharedlib,
                             'train/train.py'])
 env.Alias('install', install_path)
-
