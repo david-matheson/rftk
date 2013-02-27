@@ -246,6 +246,23 @@ bool test_ConstructFromDense()
     return result == expected;
 }
 
+bool test_ColumnIndexOnePastTheEndBug()
+{
+    double values[] = {
+        1, 0,
+        0, 1,
+    };
+    MatrixBufferTemplate<double> mb(&values[0], 2, 2);
+    SparseMatrixBufferTemplate<double> result(mb);
+
+    std::string expected =
+        "1 .. \n"
+        ".. 1 \n"
+        ;
+
+    return result.ToString() == expected;
+}
+
 bool test_equals()
 {
     double data1[] = {
@@ -303,6 +320,7 @@ int main() {
     RUN_TEST(test_Append_append_to_empty);
     RUN_TEST(test_SliceRow);
     RUN_TEST(test_ConstructFromDense);
+    RUN_TEST(test_ColumnIndexOnePastTheEndBug);
     RUN_TEST(test_equals);
     RUN_TEST(test_Slice);
 

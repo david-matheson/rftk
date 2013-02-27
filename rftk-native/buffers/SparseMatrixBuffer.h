@@ -198,11 +198,17 @@ T const* SparseMatrixBufferTemplate<T>::priv_valueAtConst(int m, int n) const
         return static_cast<T const*>(0);
     }
 
-    std::vector<int>::const_iterator colIter = std::lower_bound(mCol.begin() + colIndexBegin, mCol.begin() + colIndexEnd, n);
-    int valIndex = colIter - mCol.begin();
+    int const* colIter = std::lower_bound(&mCol[colIndexBegin], &mCol[colIndexEnd], n);
+    int valIndex = colIter - &mCol[0];
+    //std::vector<int>::const_iterator colIter = std::lower_bound(&mCol[colIndexBegin], &mCol[colIndexEnd], n);
+    //int valIndex = colIter - mCol.begin();
 
     // (m, n) is zero
-    if (mCol[valIndex] != n) {
+    // std::lower_bound returns one-past-the-end of the search range when
+    // everything is less than the query.  We check for this explicitly because
+    // if the first non-zero in row m+1 is in column n then the second check
+    // won't catch it. (e.g, this happens with an identity matrix).
+    if (valIndex == colIndexEnd || mCol[valIndex] != n) {
         return static_cast<T const*>(0);
     }
 
@@ -410,3 +416,4 @@ Float32SparseMatrixBuffer Float32SparseMatrix(float* values, int n_values, int* 
 Float64SparseMatrixBuffer Float64SparseMatrix(double* values, int n_values, int* col, int n_col, int* rowPtr, int n_rowPtr, int n, int m);
 Int32SparseMatrixBuffer Int32SparseMatrix(int* values, int n_values, int* col, int n_col, int* rowPtr, int n_rowPtr, int n, int m);
 Int64SparseMatrixBuffer Int64SparseMatrix(long long* values, int n_values, int* col, int n_col, int* rowPtr, int n_rowPtr, int n, int m);
+
