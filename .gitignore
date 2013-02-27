@@ -16,3 +16,5 @@
 *.swo
 *.html
 *.dblite
+build
+rftk/native
