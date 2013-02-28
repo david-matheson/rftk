@@ -41,7 +41,7 @@ int OnlineAlphaBetaSplitCriteria::BestSplit(int treeDepth,
                                     const Float32VectorBuffer& impurityValues,
                                     const Float32MatrixBuffer& childCounts ) const
 {
-    (void) treeDepth; // Suppress the unused warning because treeDepth is part of the interface
+    UNUSED_PARAM(treeDepth) // Suppress the unused warning because treeDepth is part of the interface
     ASSERT_ARG_DIM_1D(impurityValues.GetN(), childCounts.GetM())
     ASSERT_ARG_DIM_1D(impurityValues.GetN(), 1)
     ASSERT_ARG_DIM_1D(childCounts.GetN(), 2)
@@ -66,6 +66,6 @@ int OnlineAlphaBetaSplitCriteria::BestSplit(int treeDepth,
 
 int OnlineAlphaBetaSplitCriteria::MinTotalSamples( int treeDepth ) const
 {
-    (void) treeDepth; // Suppress the unused warning because treeDepth is part of the interface
+    UNUSED_PARAM(treeDepth) // Suppress the unused warning because treeDepth is part of the interface
     return mMinNumberOfSamples;
 }

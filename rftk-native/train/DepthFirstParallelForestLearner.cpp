@@ -64,7 +64,7 @@ Forest DepthFirstParallelForestLearner::Train(  BufferCollection& data,
         threadVec[job]->join();
     }
 #else
-    (void) numberOfJobs; // Suppress the unused warning because numberOfJobs is used in USE_BOOST_THREAD
+    UNUSED_PARAM(numberOfJobs) // Suppress the unused warning because numberOfJobs is used in USE_BOOST_THREAD
     TrainTrees(data, indices, mTrainConfigParams, samplingParams, 0, 1, forest);
 #endif
     Forest result = *forest;

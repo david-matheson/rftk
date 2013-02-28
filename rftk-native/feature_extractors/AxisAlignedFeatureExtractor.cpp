@@ -72,7 +72,7 @@ void AxisAlignedFeatureExtractor::Extract(  const BufferCollection& data,
                                             Float32MatrixBuffer& featureValuesOUT) const// #features X #samples
 {
     // printf("AxisAlignedFeatureExtractor::Extract\n");
-    (void) floatFeatureParams; // Suppress the unused warning because floatFeatureParams is part of the interface
+    UNUSED_PARAM(floatFeatureParams) // Suppress the unused warning because floatFeatureParams is part of the interface
     ASSERT_ARG_DIM_1D(intFeatureParams.GetM(), floatFeatureParams.GetM())
     ASSERT( data.HasFloat32MatrixBuffer(X_FLOAT_DATA) )
     ASSERT_ARG_DIM_1D(data.GetFloat32MatrixBuffer(X_FLOAT_DATA).GetN(), mNumberOfComponents)
