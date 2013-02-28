@@ -18,6 +18,16 @@ OnlineForestLearner::OnlineForestLearner( const TrainConfigParams& trainConfigPa
             mTrainConfigParams.GetYDim())
 {}
 
+OnlineForestLearner::~OnlineForestLearner()
+{
+    typedef std::map< std::pair<int, int>, ActiveSplitNode* >::iterator it_type;
+    for(it_type iterator = mActiveNodes.begin(); iterator != mActiveNodes.end(); ++iterator) 
+    {
+        delete iterator->second;
+        iterator->second = NULL;
+    }
+}
+
 Forest OnlineForestLearner::GetForest() const { return mForest; }
 
 void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices, OnlineSamplingParams samplingParams )
