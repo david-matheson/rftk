@@ -16,6 +16,7 @@ RandomThresholdHistogramDataCollector::RandomThresholdHistogramDataCollector(int
 , mNumberOfClasses(numberOfClasses)
 , mNumberOfThresholds(numberOfThresholds)
 , mProbabilityOfNullStream(probabilityOfNullStream)
+, mData()
 {
 }
 
@@ -49,13 +50,13 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
 
     if ( !mData.HasFloat32MatrixBuffer(THRESHOLDS) )
     {
-        mData.AddFloat32MatrixBuffer(THRESHOLDS, 
+        mData.AddFloat32MatrixBuffer(THRESHOLDS,
           Float32MatrixBuffer(numberOfFeatures, mNumberOfThresholds));
     }
 
     if ( !mData.HasInt32VectorBuffer(THRESHOLD_COUNTS) )
     {
-        mData.AddInt32VectorBuffer(THRESHOLD_COUNTS, 
+        mData.AddInt32VectorBuffer(THRESHOLD_COUNTS,
           Int32VectorBuffer(numberOfFeatures));
     }
 
@@ -107,7 +108,7 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
     mNumberOfCollectedSamples += sampleIndices.GetN();
 }
 
-bool RandomThresholdHistogramDataCollector::AddThreshold(Float32MatrixBuffer& thresholds, Int32VectorBuffer& thresholdCounts, 
+bool RandomThresholdHistogramDataCollector::AddThreshold(Float32MatrixBuffer& thresholds, Int32VectorBuffer& thresholdCounts,
                                                         const int featureIndex, const float featureValue)
 {
     const int currentNumberOfThresholds = thresholdCounts.Get(featureIndex);

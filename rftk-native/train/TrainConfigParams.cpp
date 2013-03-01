@@ -9,36 +9,28 @@ TrainConfigParams::TrainConfigParams(  std::vector<FeatureExtractorI*> featureEx
                     SplitCriteriaI* splitCriteria,
                     int numberOfTrees,
                     int maxNumberOfNodes)
-: mNodeDataCollectorFactory(nodeDataCollectorFactory->Clone())
+: mFeatureExtractors(0)
+, mNodeDataCollectorFactory(nodeDataCollectorFactory->Clone())
 , mBestSplit(bestSplit->Clone())
 , mSplitCriteria(splitCriteria->Clone())
 , mNumberOfTrees(numberOfTrees)
 , mMaxNumberOfNodes(maxNumberOfNodes)
 {
-    for(int i=0; i<featureExtractors.size(); i++)
+    for(unsigned int i=0; i<featureExtractors.size(); i++)
     {
         mFeatureExtractors.push_back( featureExtractors[i]->Clone() );
     }
-    
-    // printf("TrainConfigParams %d %d %d %d %d ", mNodeDataCollectorFactory, mBestSplit, mSplitCriteria,
-    //     mNumberOfTrees, mMaxNumberOfNodes);
-
-    // for(int i=0; i<mFeatureExtractors.size(); i++)
-    // {
-    //     printf("%d ", mFeatureExtractors[i]);
-    // }
-    // printf("\n");
-
 }
 
 TrainConfigParams::TrainConfigParams( const TrainConfigParams& other )
-: mNodeDataCollectorFactory(other.mNodeDataCollectorFactory->Clone())
+: mFeatureExtractors(0)
+, mNodeDataCollectorFactory(other.mNodeDataCollectorFactory->Clone())
 , mBestSplit(other.mBestSplit->Clone())
 , mSplitCriteria(other.mSplitCriteria->Clone())
 , mNumberOfTrees(other.mNumberOfTrees)
 , mMaxNumberOfNodes(other.mMaxNumberOfNodes)
 {
-    for(int i=0; i<other.mFeatureExtractors.size(); i++)
+    for(unsigned int i=0; i<other.mFeatureExtractors.size(); i++)
     {
         mFeatureExtractors.push_back( other.mFeatureExtractors[i]->Clone() );
     }
@@ -48,7 +40,7 @@ TrainConfigParams& TrainConfigParams::operator=( const TrainConfigParams& rhs )
 {
     Free();
 
-    for(int i=0; i<rhs.mFeatureExtractors.size(); i++)
+    for(unsigned int i=0; i<rhs.mFeatureExtractors.size(); i++)
     {
         mFeatureExtractors.push_back( rhs.mFeatureExtractors[i]->Clone() );
     }
@@ -58,6 +50,7 @@ TrainConfigParams& TrainConfigParams::operator=( const TrainConfigParams& rhs )
     mSplitCriteria = rhs.mSplitCriteria->Clone();
     mNumberOfTrees = rhs.mNumberOfTrees;
     mMaxNumberOfNodes = rhs.mMaxNumberOfNodes;
+    return *this;
 }
 
 TrainConfigParams::~TrainConfigParams()
@@ -73,7 +66,7 @@ void TrainConfigParams::Free()
     mBestSplit = NULL;
     delete mSplitCriteria;
     mSplitCriteria = NULL;
-    for(int i=0; i<mFeatureExtractors.size(); i++)
+    for(unsigned int i=0; i<mFeatureExtractors.size(); i++)
     {
         delete mFeatureExtractors[i];
         mFeatureExtractors[i] = NULL;
@@ -85,7 +78,7 @@ void TrainConfigParams::Free()
 int TrainConfigParams::GetIntParamsMaxDim() const
 {
     int maxDim = 0;
-    for(int i=0; i<mFeatureExtractors.size(); i++)
+    for(unsigned int i=0; i<mFeatureExtractors.size(); i++)
     {
         maxDim = (maxDim >= mFeatureExtractors[i]->GetIntParamsDim()) ? maxDim : mFeatureExtractors[i]->GetIntParamsDim();
     }
@@ -95,7 +88,7 @@ int TrainConfigParams::GetIntParamsMaxDim() const
 int TrainConfigParams::GetFloatParamsMaxDim() const
 {
     int maxDim = 0;
-    for(int i=0; i<mFeatureExtractors.size(); i++)
+    for(unsigned int i=0; i<mFeatureExtractors.size(); i++)
     {
         maxDim = (maxDim >= mFeatureExtractors[i]->GetFloatParamsDim()) ? maxDim : mFeatureExtractors[i]->GetFloatParamsDim();
     }

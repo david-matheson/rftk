@@ -44,7 +44,6 @@ public:
 
 private:
     std::vector< T > mData;
-    int mM;
     int mN;
 };
 
@@ -114,7 +113,7 @@ VectorBufferTemplate<T>::~VectorBufferTemplate()
 template <class T>
 void VectorBufferTemplate<T>::Resize( int n)
 {
-    if(n > mData.size())
+    if(static_cast<size_t>(n) > mData.size())
     {
         mData.resize(n);
     }

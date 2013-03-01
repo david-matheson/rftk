@@ -4,8 +4,8 @@
 #include "OnlineAlphaBetaSplitCriteria.h"
 
 
-OnlineAlphaBetaSplitCriteria::OnlineAlphaBetaSplitCriteria( int maxDepth, 
-                                                            float minImpurity, 
+OnlineAlphaBetaSplitCriteria::OnlineAlphaBetaSplitCriteria( int maxDepth,
+                                                            float minImpurity,
                                                             float minNumberOfSamples )
 : mMaxDepth(maxDepth)
 , mMinImpurity(minImpurity)
@@ -30,7 +30,7 @@ SPLT_CRITERIA OnlineAlphaBetaSplitCriteria::ShouldSplit(int treeDepth,
 
     const int bestSplit = BestSplit(treeDepth, impurityValues, childCounts);
     const bool shouldSplit = (bestSplit >= 0
-                            && treeDepth < mMaxDepth 
+                            && treeDepth < mMaxDepth
                             && impurityValues.Get(bestSplit) > mMinImpurity);
 
     return (shouldSplit) ?
@@ -41,6 +41,7 @@ int OnlineAlphaBetaSplitCriteria::BestSplit(int treeDepth,
                                     const Float32VectorBuffer& impurityValues,
                                     const Float32MatrixBuffer& childCounts ) const
 {
+    UNUSED_PARAM(treeDepth) // Suppress the unused warning because treeDepth is part of the interface
     ASSERT_ARG_DIM_1D(impurityValues.GetN(), childCounts.GetM())
     ASSERT_ARG_DIM_1D(impurityValues.GetN(), 1)
     ASSERT_ARG_DIM_1D(childCounts.GetN(), 2)
@@ -65,5 +66,6 @@ int OnlineAlphaBetaSplitCriteria::BestSplit(int treeDepth,
 
 int OnlineAlphaBetaSplitCriteria::MinTotalSamples( int treeDepth ) const
 {
+    UNUSED_PARAM(treeDepth) // Suppress the unused warning because treeDepth is part of the interface
     return mMinNumberOfSamples;
 }

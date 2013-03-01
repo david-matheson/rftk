@@ -5,6 +5,7 @@
 
 class FeatureExtractorI {
 public:
+    virtual ~FeatureExtractorI() {}
     virtual FeatureExtractorI* Clone() const=0;
 
     virtual void Extract(const BufferCollection& data,

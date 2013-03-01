@@ -13,7 +13,7 @@
 class AxisAlignedFeatureExtractor : public FeatureExtractorI {
 public:
     AxisAlignedFeatureExtractor(int numberOfFeatures, int numberOfComponents, bool usePoisson = false);
-    ~AxisAlignedFeatureExtractor();
+    virtual ~AxisAlignedFeatureExtractor();
     virtual FeatureExtractorI* Clone() const;
 
     virtual int GetUID() const { return VEC_FEATURE_AXIS_ALIGNED; }

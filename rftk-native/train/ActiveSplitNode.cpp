@@ -17,26 +17,61 @@ ActiveSplitNodeFeatureSet::ActiveSplitNodeFeatureSet(  const FeatureExtractorI* 
                                                         const int evalSplitPeriod )
 : mFeatureExtractor(featureExtractor)
 , mBestSplitter(bestSplitter)
+, mNumberOfFeatures(featureExtractor->GetNumberOfFeatures())
 , mNodeDataCollector(nodeDataCollector)
 , mEvalSplitPeriod(evalSplitPeriod)
 , mNumberSamplesToEvalSplit(evalSplitPeriod)
+, mIntParams(featureExtractor->CreateIntParams(mNumberOfFeatures))
+, mFloatParams(featureExtractor->CreateFloatParams(mNumberOfFeatures))
+, mImpurities(mNumberOfFeatures)
+, mThresholds(mNumberOfFeatures)
+, mChildCounts(mNumberOfFeatures, 2)
+, mLeftYs(mNumberOfFeatures, bestSplitter->GetYDim() + 1)
+, mRightYs(mNumberOfFeatures, bestSplitter->GetYDim() + 1)
 {
-    const int numberOfFeatures = featureExtractor->GetNumberOfFeatures();
-    mFloatParams = featureExtractor->CreateFloatParams(numberOfFeatures);
-    mIntParams = featureExtractor->CreateIntParams(numberOfFeatures);
     ASSERT_ARG_DIM_1D(mFloatParams.GetM(), mIntParams.GetM());
+}
 
-    const int numberOfCandidateFeatures = mFloatParams.GetM();
-    mImpurities = Float32VectorBuffer(numberOfCandidateFeatures);
-    mThresholds = Float32VectorBuffer(numberOfCandidateFeatures);
-    mChildCounts = Float32MatrixBuffer(numberOfCandidateFeatures, 2);
-    mLeftYs = Float32MatrixBuffer(numberOfCandidateFeatures, bestSplitter->GetYDim() + 1);
-    mRightYs = Float32MatrixBuffer(numberOfCandidateFeatures, bestSplitter->GetYDim() + 1);
+
+ActiveSplitNodeFeatureSet::ActiveSplitNodeFeatureSet( const ActiveSplitNodeFeatureSet& other )
+: mFeatureExtractor(other.mFeatureExtractor)
+, mBestSplitter(other.mBestSplitter)
+, mNumberOfFeatures(other.mNumberOfFeatures)
+, mNodeDataCollector(other.mNodeDataCollector)
+, mEvalSplitPeriod(other.mEvalSplitPeriod)
+, mNumberSamplesToEvalSplit(other.mNumberSamplesToEvalSplit)
+, mIntParams(other.mIntParams)
+, mFloatParams(other.mFloatParams)
+, mImpurities(other.mImpurities)
+, mThresholds(other.mThresholds)
+, mChildCounts(other.mChildCounts)
+, mLeftYs(other.mLeftYs)
+, mRightYs(other.mRightYs)
+{
 }
 
 ActiveSplitNodeFeatureSet::~ActiveSplitNodeFeatureSet()
 {
 }
+
+ActiveSplitNodeFeatureSet& ActiveSplitNodeFeatureSet::operator=( const ActiveSplitNodeFeatureSet& rhs )
+{
+    mFeatureExtractor = rhs.mFeatureExtractor;
+    mBestSplitter = rhs.mBestSplitter;
+    mNumberOfFeatures = rhs.mNumberOfFeatures;
+    mNodeDataCollector = rhs.mNodeDataCollector;
+    mEvalSplitPeriod = rhs.mEvalSplitPeriod;
+    mNumberSamplesToEvalSplit = rhs.mNumberSamplesToEvalSplit;
+    mIntParams = rhs.mIntParams;
+    mFloatParams = rhs.mFloatParams;
+    mImpurities = rhs.mImpurities;
+    mThresholds = rhs.mThresholds;
+    mChildCounts = rhs.mChildCounts;
+    mLeftYs = rhs.mLeftYs;
+    mRightYs = rhs.mRightYs;
+    return *this;
+}
+
 
 void ActiveSplitNodeFeatureSet::ProcessData(    const BufferCollection& data,
                                                 const Int32VectorBuffer& sampleIndices,
@@ -174,11 +209,16 @@ ActiveSplitNode::ActiveSplitNode(const std::vector<FeatureExtractorI*> featureEx
                 const int evalSplitPeriod )
 : mSplitCriteria(splitCriteria)
 , mTreeDepth(treeDepth)
+, mActiveSplitNodeFeatureSets()
 , mBestFeatureIndex(-1)
 , mShouldSplit(SPLT_CRITERIA_MORE_DATA_REQUIRED)
+, mImpurities(0)
+, mThresholds(0)
+, mChildCounts(0,0)
+, mFeatureIndices(0,0)
 {
     int numberOfFeatureCandidates = 0;
-    for(int i = 0; i < featureExtractors.size(); i++)
+    for(unsigned int i = 0; i < featureExtractors.size(); i++)
     {
         //setup mActiveSplitNodeFeatureSets
         ActiveSplitNodeFeatureSet a = ActiveSplitNodeFeatureSet(   featureExtractors[i],
@@ -198,35 +238,30 @@ ActiveSplitNode::~ActiveSplitNode()
 {
 }
 
-
 void ActiveSplitNode::ProcessData(  const BufferCollection& data,
                                     const Int32VectorBuffer& sampleIndices,
                                     boost::mt19937& gen )
 {
-    // printf("ActiveSplitNode::ProcessData\n");
-    for(int i = 0; i < mActiveSplitNodeFeatureSets.size(); i++)
+    for(unsigned int i = 0; i < mActiveSplitNodeFeatureSets.size(); i++)
     {
         mActiveSplitNodeFeatureSets[i].ProcessData(data, sampleIndices, gen, mSplitCriteria->MinTotalSamples(mTreeDepth));
     }
 
-    // printf("ActiveSplitNode::ProcessData WriteImpurity\n");
     int startIndex = 0;
-    for(int i = 0; i < mActiveSplitNodeFeatureSets.size(); i++)
+    for(unsigned int i = 0; i < mActiveSplitNodeFeatureSets.size(); i++)
     {
         mActiveSplitNodeFeatureSets[i].WriteImpurity(startIndex, i-startIndex, mImpurities, mThresholds, mChildCounts, mFeatureIndices);
         startIndex += mActiveSplitNodeFeatureSets[i].GetNumberFeatureCandidates();
     }
 
-    // printf("ActiveSplitNode::ProcessData BestSplit\n");
     mBestFeatureIndex = mSplitCriteria->BestSplit(mTreeDepth, mImpurities, mChildCounts);
     mShouldSplit = mSplitCriteria->ShouldSplit(mTreeDepth, mImpurities, mChildCounts);
-    // printf("ActiveSplitNode::ProcessData BestSplit Result %d %d\n", mBestFeatureIndex, mShouldSplit);
 }
 
 
 void ActiveSplitNode::WriteToTree(  const int treeNodeIndex,
                                     const int leftTreeNodeIndex,
-                                    const int rightTreeNodeIndex,                                      
+                                    const int rightTreeNodeIndex,
                                     Int32MatrixBuffer& paths,
                                     Float32MatrixBuffer& floatParams,
                                     Int32MatrixBuffer& intParams,

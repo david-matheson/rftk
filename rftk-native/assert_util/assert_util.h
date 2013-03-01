@@ -1,7 +1,12 @@
 #pragma once
 
+// Consider moving UNUSED_PARAM to a different header
+#ifndef UNUSED_PARAM
+#define UNUSED_PARAM(variable) (void)variable;
+#endif
+
 // Turning off exceptions will break some tests
-#define ENABLE_EXCEPTIONS 1
+// #define ENABLE_EXCEPTIONS 1 (defined in SConscript)
 
 #if ENABLE_EXCEPTIONS
 
