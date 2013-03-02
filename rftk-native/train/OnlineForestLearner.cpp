@@ -16,7 +16,18 @@ OnlineForestLearner::OnlineForestLearner( const TrainConfigParams& trainConfigPa
             mTrainConfigParams.GetIntParamsMaxDim(),
             mTrainConfigParams.GetFloatParamsMaxDim(),
             mTrainConfigParams.GetYDim())
+, mActiveNodes()
 {}
+
+OnlineForestLearner::~OnlineForestLearner()
+{
+    typedef std::map< std::pair<int, int>, ActiveSplitNode* >::iterator it_type;
+    for(it_type iterator = mActiveNodes.begin(); iterator != mActiveNodes.end(); ++iterator) 
+    {
+        delete iterator->second;
+        iterator->second = NULL;
+    }
+}
 
 Forest OnlineForestLearner::GetForest() const { return mForest; }
 
@@ -27,7 +38,7 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
     boost::variate_generator<boost::mt19937&,boost::poisson_distribution<> > var_poisson(gen, poisson);
 
     // Loop over trees could be farmed out to different jobs
-    for(int treeIndex=0; treeIndex<mForest.mTrees.size(); treeIndex++)
+    for(unsigned int treeIndex=0; treeIndex<mForest.mTrees.size(); treeIndex++)
     {
         // printf("OnlineForestLearner::Train tree=%d\n", treeIndex);
 

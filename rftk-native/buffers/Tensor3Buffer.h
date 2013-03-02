@@ -8,7 +8,7 @@
 template <class T>
 class Tensor3BufferTemplate {
 public:
-    Tensor3BufferTemplate() {}
+    Tensor3BufferTemplate();
     Tensor3BufferTemplate(int l, int m, int n);
     Tensor3BufferTemplate(float* data, int l, int m, int n);
     Tensor3BufferTemplate(double* data, int l, int m, int n);
@@ -43,6 +43,15 @@ private:
     int mM;
     int mN;
 };
+
+template <class T>
+Tensor3BufferTemplate<T>::Tensor3BufferTemplate()
+: mData()
+, mL(0)
+, mM(0)
+, mN(0)
+{
+}
 
 template <class T>
 Tensor3BufferTemplate<T>::Tensor3BufferTemplate(int l, int m, int n)
@@ -113,7 +122,7 @@ Tensor3BufferTemplate<T>::~Tensor3BufferTemplate()
 template <class T>
 void Tensor3BufferTemplate<T>::Resize(int l, int m, int n)
 {
-    if(l*m*n > mData.size())
+    if(static_cast<size_t>(l*m*n) > mData.size())
     {
         mData.resize(l*m*n);
     }
@@ -123,21 +132,21 @@ void Tensor3BufferTemplate<T>::Resize(int l, int m, int n)
 }
 
 template <class T>
-int Tensor3BufferTemplate<T>::GetL() const 
+int Tensor3BufferTemplate<T>::GetL() const
 {
-    return mL; 
+    return mL;
 }
 
 template <class T>
-int Tensor3BufferTemplate<T>::GetM() const 
+int Tensor3BufferTemplate<T>::GetM() const
 {
-    return mM; 
+    return mM;
 }
 
 template <class T>
-int Tensor3BufferTemplate<T>::GetN() const 
+int Tensor3BufferTemplate<T>::GetN() const
 {
-    return mN; 
+    return mN;
 }
 
 template <class T>
@@ -159,29 +168,29 @@ T Tensor3BufferTemplate<T>::Get(int l, int m, int n) const
 }
 
 template <class T>
-void Tensor3BufferTemplate<T>::SetUnsafe(int l, int m, int n, T value) 
+void Tensor3BufferTemplate<T>::SetUnsafe(int l, int m, int n, T value)
 {
-    mData[l*mM*mN + m*mN + n] = value; 
+    mData[l*mM*mN + m*mN + n] = value;
 }
 
 template <class T>
-T Tensor3BufferTemplate<T>::GetUnsafe(int l, int m, int n) const 
+T Tensor3BufferTemplate<T>::GetUnsafe(int l, int m, int n) const
 {
-    return mData[l*mM*mN + m*mN + n]; 
+    return mData[l*mM*mN + m*mN + n];
 }
 
 template <class T>
 void Tensor3BufferTemplate<T>::Incr(int l, int m, int n, T value)
 {
-    mData[l*mM*mN + m*mN + n] += value; 
+    mData[l*mM*mN + m*mN + n] += value;
 }
 
 template <class T>
-const T* Tensor3BufferTemplate<T>::GetRowPtrUnsafe(int l, int m) const 
+const T* Tensor3BufferTemplate<T>::GetRowPtrUnsafe(int l, int m) const
 {
     ASSERT_VALID_RANGE(l, 0, mL)
     ASSERT_VALID_RANGE(m, 0, mM)
-    return &mData[l*mM*mN + m*mN]; 
+    return &mData[l*mM*mN + m*mN];
 }
 
 template <class T>

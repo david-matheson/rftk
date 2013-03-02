@@ -30,6 +30,8 @@
 class BufferCollection
 {
 public:
+    BufferCollection();
+
 #define DECLARE_BUFFER_LEGACY_INTERFACE_FOR_TYPE(BUFFER_TYPE) \
 bool Has ## BUFFER_TYPE(std::string name) const; \
 void Add ## BUFFER_TYPE(std::string name, BUFFER_TYPE const& data ); \

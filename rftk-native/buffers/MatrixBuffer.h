@@ -129,7 +129,7 @@ MatrixBufferTemplate<T>::~MatrixBufferTemplate()
 template <class T>
 void MatrixBufferTemplate<T>::Resize(int m, int n)
 {
-    if(m*n > mData.size())
+    if(static_cast<size_t>(m*n) > mData.size())
     {
         mData.resize(m*n);
     }

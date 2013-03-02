@@ -33,36 +33,27 @@ class KinectOnlineConfig(object):
     def __init__(self):
         self.number_of_pixels_per_image = 1000
 
-    def configure_online_learner(self, number_of_trees, split_rate, number_datapoints_split_root):
+    def configure_online_learner(self, number_of_trees, min_samples_split):
         number_of_features = 500
         number_of_thresholds = 4
         y_dim = kinect_utils.number_of_body_parts
-        null_probability = 0
-        impurity_probability = 0.5
-        split_rate = split_rate
-        number_of_data_to_split_root = number_datapoints_split_root
-        number_of_data_to_force_split_root = 10 * number_datapoints_split_root
+        min_samples_split = min_samples_split
         min_impurity_gain = 0.01
         max_tree_depth = 12
 
         sigma_x = 75
         sigma_y = 75
 
-        feature_extractor = feature_extractors.DepthScaledDepthDeltaFeatureExtractor(sigma_x, sigma_y, number_of_features, True)
-        node_data_collector = train.TwoStreamRandomThresholdHistogramDataCollectorFactory(y_dim,
-                                                                                            number_of_thresholds,
-                                                                                            null_probability,
-                                                                                            impurity_probability)
-
+        feature_extractor = feature_extractors.DepthScaledDepthDeltaFeatureExtractor(sigma_x, sigma_y, number_of_features, False)
+        node_data_collector = train.RandomThresholdHistogramDataCollectorFactory(y_dim,
+                                                                                number_of_thresholds,
+                                                                                0)
         class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(y_dim,
-                buffers.IMPURITY_HISTOGRAM_LEFT, buffers.IMPURITY_HISTOGRAM_RIGHT,
-                buffers.YS_HISTOGRAM_LEFT, buffers.YS_HISTOGRAM_RIGHT)
+                buffers.HISTOGRAM_LEFT, buffers.HISTOGRAM_RIGHT, buffers.HISTOGRAM_LEFT, buffers.HISTOGRAM_RIGHT)
 
-        split_criteria = train.OnlineConsistentSplitCriteria(split_rate,
-                                                            min_impurity_gain,
-                                                            number_of_data_to_split_root,
-                                                            number_of_data_to_force_split_root,
-                                                            max_tree_depth)
+        split_criteria = train.OnlineAlphaBetaSplitCriteria(   max_tree_depth,
+                                                                    min_impurity_gain,
+                                                                    min_samples_split)
 
         extractor_list = [feature_extractor]
         train_config = train.TrainConfigParams(extractor_list,
@@ -75,7 +66,7 @@ class KinectOnlineConfig(object):
         return online_learner
 
     def get_sampling_config(self, eval_split_period):
-        return train.OnlineSamplingParams(False, 1.0, eval_split_period)
+        return train.OnlineSamplingParams(True, 1.0, eval_split_period)
 
 
 if __name__ == "__main__":
@@ -85,8 +76,7 @@ if __name__ == "__main__":
     parser.add_argument('-n', '--number_of_images', type=int, required=True)
     parser.add_argument('-m', '--number_of_passes_through_data', type=int, required=True)
     parser.add_argument('-t', '--number_of_trees', type=int, required=True)
-    parser.add_argument('-s', '--split_rate', type=float, required=True)
-    parser.add_argument('-r', '--number_datapoints_split_root', type=float, required=True)
+    parser.add_argument('-s', '--min_samples_split', type=int, required=True)
     parser.add_argument('-e', '--eval_split_period', type=int, required=True)
     args = parser.parse_args()
 
@@ -96,12 +86,11 @@ if __name__ == "__main__":
     pose_filenames = pose_filenames[0:args.number_of_images]
 
 
-    online_run_folder = ("experiment_data_v5/online-tree-%d-n-%d-m-%d-splitrate-%0.2f-splitroot-%0.2f-evalperiod-%d-%s") % (
+    online_run_folder = ("experiment_data_v5/online-alphabeta-tree-%d-n-%d-m-%d-min_samples_split-%d-evalperiod-%d-%s") % (
                             args.number_of_trees,
                             args.number_of_images,
                             args.number_of_passes_through_data,
-                            args.split_rate,
-                            args.number_datapoints_split_root,
+                            args.min_samples_split,
                             args.eval_split_period,
                             str(datetime.now()).replace(':', '-').replace(' ', '-'))
     if not os.path.exists(online_run_folder):
@@ -109,8 +98,7 @@ if __name__ == "__main__":
 
     config = KinectOnlineConfig()
     online_learner = config.configure_online_learner( args.number_of_trees,
-                                                      args.split_rate,
-                                                      args.number_datapoints_split_root)
+                                                      args.min_samples_split)
 
     run_info = {'pose_filenames': [], 'pixel_indices': [], 'offset_scales': []}
 

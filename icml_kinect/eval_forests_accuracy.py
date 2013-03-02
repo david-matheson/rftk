@@ -83,28 +83,56 @@ if __name__ == "__main__":
                                             pose_filenames[0:args.number_of_images])
 
     online_one_pass_accuracy = eval_accuracies(depths_buffer, labels_buffer,
-                            [(  '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-09-57.733963/forest-1-20.pkl',
-                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-09-57.733963/accuracy-1-20.pkl'),
-                            (  '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-56-06.293295/forest-1-95.pkl',
-                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-56-06.293295/accuracy-1-95.pkl'),
-                            (  '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-56-53.142276/forest-1-495.pkl',
-                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-56-53.142276/accuracy-1-495.pkl'),
-                            (   '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-50-05.667646/forest-1-995.pkl',
-                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-50-05.667646/accuracy-1-995.pkl')
-
+                            [(  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-25-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-42-57.133029/forest-0-25.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-25-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-42-57.133029/accuracy-0-25.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-100-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-35.062241/forest-0-100.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-100-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-35.062241/accuracy-0-100.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-200-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-38.353385/forest-0-200.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-200-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-38.353385/accuracy-0-200.pkl'),
+                            (   '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-500-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-40.748752/forest-0-500.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-500-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-40.748752/accuracy-0-500.pkl'),
+                            (   '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-1000-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-43.905509/forest-0-1000.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-1000-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-43.905509/accuracy-0-1000.pkl')
                             ])
 
 
-
     online_multi_pass_accuracy = eval_accuracies(depths_buffer, labels_buffer,
-                            [(  '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-09-57.733963/forest-4-20.pkl',
-                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-09-57.733963/accuracy-4-20.pkl'),
-                            (  '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-56-06.293295/forest-2-95.pkl',
-                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.10-splitroot-25.00-evalperiod-20-2013-02-13-01-56-06.293295/accuracy-2-95.pkl'),
-                            (  '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-56-53.142276/forest-3-405.pkl',
-                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-56-53.142276/accuracy-3-405.pkl'),
-                            (   '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-50-05.667646/forest-4-985.pkl',
-                                '/home/davidm/projects/orcinus/experiment_data_v4_old/online-tree-25-splitrate-1.20-splitroot-25.00-evalperiod-20-2013-02-13-04-50-05.667646/accuracy-4-985.pkl')
+                            [(  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-25-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-42-57.133029/forest-9-25.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-25-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-42-57.133029/accuracy-9-25.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-100-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-35.062241/forest-9-100.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-100-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-35.062241/accuracy-9-100.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-200-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-38.353385/forest-9-200.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-200-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-38.353385/accuracy-9-200.pkl'),
+                            (   '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-500-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-40.748752/forest-9-500.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-500-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-40.748752/accuracy-9-500.pkl'),
+                            (   '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-1000-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-43.905509/forest-0-1000.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-tree-25-n-1000-m-10-splitrate-1.20-splitroot-1000.00-evalperiod-100-2013-02-13-18-43-43.905509/accuracy-0-1000.pkl')
+                            ])
+
+    alpha_online_one_pass_accuracy = eval_accuracies(depths_buffer, labels_buffer,
+                            [(  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-25-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-16-21.011147/forest-0-25.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-25-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-16-21.011147/accuracy-0-25.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-100-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-17-16.618084/forest-0-100.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-100-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-17-16.618084/accuracy-0-100.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-200-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-36-30.393757/forest-0-200.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-200-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-36-30.393757/accuracy-0-200.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-200-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-36-30.393757/forest-0-200.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-200-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-36-30.393757/accuracy-0-200.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-200-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-36-30.393757/forest-0-200.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-200-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-36-30.393757/accuracy-0-200.pkl')
+                            ])
+
+    alpha_online_multi_pass_accuracy = eval_accuracies(depths_buffer, labels_buffer,
+                            [(  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-25-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-16-21.011147/forest-9-25.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-25-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-16-21.011147/accuracy-9-25.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-100-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-17-16.618084/forest-9-100.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-100-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-17-16.618084/accuracy-9-100.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-200-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-36-30.393757/forest-9-200.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-200-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-36-30.393757/accuracy-9-200.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-200-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-36-30.393757/forest-9-200.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-200-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-36-30.393757/accuracy-9-200.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-200-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-36-30.393757/forest-9-200.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5/online-alphabeta-tree-25-n-200-m-10-min_samples_split-2000-evalperiod-100-2013-02-13-21-36-30.393757/accuracy-9-200.pkl')
                             ])
 
     offline_accuracy = eval_accuracies(depths_buffer, labels_buffer,
@@ -112,6 +140,8 @@ if __name__ == "__main__":
                                 '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-25-2013-02-12-22-17-28.589374/accuracy-1-25.pkl'),
                             (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-100-2013-02-12-22-47-33.357779/forest-1-100.pkl',
                                 '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-100-2013-02-12-22-47-33.357779/accuracy-1-100.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-200-2013-02-12-23-42-24.780385/forest-1-200.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-200-2013-02-12-23-42-24.780385/accuracy-1-200.pkl'),
                              (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-500-2013-02-13-01-48-35.758347/forest-1-500.pkl',
                                 '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-500-2013-02-13-01-48-35.758347/accuracy-1-500.pkl'),
                              (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-1000-2013-02-12-22-18-43.251212/forest-1-1000.pkl',
@@ -119,6 +149,7 @@ if __name__ == "__main__":
                             ])
 
 
-    results = {'number_of_data': np.array([25, 100, 500, 1000]), 'online_one_pass':online_one_pass_accuracy, 'online_multi_pass':online_multi_pass_accuracy, 'offline':offline_accuracy}
+    results = {'number_of_data': np.array([25, 100, 200, 500, 1000]), 'online_one_pass':online_one_pass_accuracy, 'online_multi_pass':online_multi_pass_accuracy,
+                'offline':offline_accuracy, 'alpha_online_one_pass_accuracy':alpha_online_one_pass_accuracy, 'alpha_online_multi_pass_accuracy':alpha_online_multi_pass_accuracy}
     print results
     pickle.dump(results, file(args.out_file, 'wb'))

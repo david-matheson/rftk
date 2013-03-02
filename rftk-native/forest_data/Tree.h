@@ -24,10 +24,7 @@ public:
 class Tree
 {
 public:
-    Tree()     //default for stl vector
-    : mLastNodeIndex(0)
-    , mValid(false) {}
-
+    Tree();     //default for stl vector
     Tree(   const Int32MatrixBuffer& path,
             const Int32MatrixBuffer& intFeatureParams,
             const Float32MatrixBuffer& floatFeatureParams,

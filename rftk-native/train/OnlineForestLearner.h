@@ -15,6 +15,7 @@ class OnlineForestLearner
 public:
 
     OnlineForestLearner( const TrainConfigParams& trainConfigParams );
+    ~OnlineForestLearner();
 
     Forest GetForest() const;
 

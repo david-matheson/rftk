@@ -1,6 +1,11 @@
 #include "assert_util.h"
 #include "BufferCollection.h"
 
+BufferCollection::BufferCollection()
+    : mBuffers()
+{
+}
+
 // HasBUFFER_TYPE function makes sure that if there is a buffer with the name
 // you're asking for then it is of the type you are requesting.  The old
 // interface would allow two buffers with the same name but different types ot

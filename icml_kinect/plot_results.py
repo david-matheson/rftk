@@ -12,6 +12,8 @@ if __name__ == "__main__":
     results = pickle.load(file(args.in_results_file, 'rb'))
     plt.plot(results['number_of_data'], results['online_one_pass'], '-', lw=2, color='b', label='online_one_pass')
     plt.plot(results['number_of_data'], results['online_multi_pass'], '-', lw=2, color='g', label='online_multi_pass')
+    plt.plot(results['number_of_data'], results['alpha_online_one_pass_accuracy'], '-.', lw=2, color='b', label='ab_online_one_pass_accuracy')
+    plt.plot(results['number_of_data'], results['alpha_online_multi_pass_accuracy'], '-.', lw=2, color='g', label='ab_online_multi_pass_accuracy')
     plt.plot(results['number_of_data'], results['offline'], '-', lw=2, color='r', label='offline')
 
     plt.title('Kinect Online vs Offline')

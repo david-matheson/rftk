@@ -107,6 +107,7 @@ Extract(const BufferCollection& data,
         const Float32MatrixBuffer& floatFeatureParams,
         Float32MatrixBuffer& featureValuesOUT) const// #features X #samples
 {
+    UNUSED_PARAM(floatFeatureParams);
     ASSERT_ARG_DIM_1D(intFeatureParams.GetM(), floatFeatureParams.GetM());
     ASSERT(data.HasBuffer(X_FLOAT_DATA));
     ASSERT_ARG_DIM_1D(data.GetBuffer<XFloatBufferType>(X_FLOAT_DATA).GetN(), mNumberOfComponents);
@@ -115,7 +116,6 @@ Extract(const BufferCollection& data,
 
     const int numberOfSamples = sampleIndices.GetN();
     const int numberOfFeatures = intFeatureParams.GetM();
-    const int numberOfDataPoints = Xs.GetM();
 
     featureValuesOUT.Resize(numberOfSamples, numberOfFeatures);
 
@@ -123,7 +123,7 @@ Extract(const BufferCollection& data,
     for(int s=0; s<numberOfSamples; s++)
     {
         const int index = sampleIndices.Get(s);
-        ASSERT_VALID_RANGE(index, 0, numberOfDataPoints)
+        ASSERT_VALID_RANGE(index, 0, Xs.GetM());
 
         for(int t=0; t<numberOfFeatures; t++)
         {

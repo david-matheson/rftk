@@ -25,6 +25,9 @@ public:
 
     ~ActiveSplitNodeFeatureSet();
 
+    ActiveSplitNodeFeatureSet( const ActiveSplitNodeFeatureSet& other );
+    ActiveSplitNodeFeatureSet& operator=( const ActiveSplitNodeFeatureSet& rhs );
+
     void ProcessData(   const BufferCollection& data,
                         const Int32VectorBuffer& sampleIndices,
                         boost::mt19937& gen,
@@ -58,6 +61,7 @@ private:
     // Passed in (not owned)
     const FeatureExtractorI* mFeatureExtractor;
     const BestSplitI* mBestSplitter;
+    int mNumberOfFeatures;
 
     // Passed in but owned by this class
     std::tr1::shared_ptr<NodeDataCollectorI> mNodeDataCollector;
@@ -90,6 +94,9 @@ public:
 
     virtual ~ActiveSplitNode();
 
+
+
+
     void ProcessData(   const BufferCollection& data,
                         const Int32VectorBuffer& sampleIndices,
                         boost::mt19937& gen );
@@ -98,7 +105,7 @@ public:
 
     void WriteToTree(   const int treeNodeIndex,
                         const int leftTreeNodeIndex,
-                        const int rightTreeNodeIndex,                                      
+                        const int rightTreeNodeIndex,
                         Int32MatrixBuffer& paths,
                         Float32MatrixBuffer& floatParams,
                         Int32MatrixBuffer& intParams,
@@ -113,6 +120,9 @@ public:
                         Int32VectorBuffer& rightSampleIndicesOut );
 
 private:
+    ActiveSplitNode( const ActiveSplitNode& other );
+    ActiveSplitNode& operator=( const ActiveSplitNode& rhs );
+
     // Passed in (not owned)
     const SplitCriteriaI* mSplitCriteria;
     const int mTreeDepth;

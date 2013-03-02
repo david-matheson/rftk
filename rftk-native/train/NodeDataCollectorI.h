@@ -12,7 +12,7 @@ class NodeDataCollectorI
 {
 public:
     NodeDataCollectorI() {} //Needed by swig for pseudo abstract base classes
-    virtual ~NodeDataCollectorI() {} //Needed by swig for pseudo abstract base classes
+    virtual ~NodeDataCollectorI() {}; //Needed by swig for pseudo abstract base classes
 
     // Also copies/compacts weights, ys, etc
     virtual void Collect( const BufferCollection& data,
@@ -29,6 +29,7 @@ public:
 class NodeDataCollectorFactoryI
 {
 public:
+    virtual ~NodeDataCollectorFactoryI() {};
     virtual NodeDataCollectorFactoryI* Clone() const=0;
     virtual NodeDataCollectorI* Create() const=0;
 };
