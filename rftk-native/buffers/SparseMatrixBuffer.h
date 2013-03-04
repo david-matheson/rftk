@@ -209,8 +209,6 @@ T const* SparseMatrixBufferTemplate<T>::priv_valueAtConst(int m, int n) const
 
     int const* colIter = std::lower_bound(&mCol[colIndexBegin], &mCol[colIndexEnd], n);
     int valIndex = colIter - &mCol[0];
-    //std::vector<int>::const_iterator colIter = std::lower_bound(&mCol[colIndexBegin], &mCol[colIndexEnd], n);
-    //int valIndex = colIter - mCol.begin();
 
     // (m, n) is zero
     // std::lower_bound returns one-past-the-end of the search range when
@@ -265,7 +263,6 @@ T SparseMatrixBufferTemplate<T>::SumRow(int m) const
     int valIndexBegin = mRowPtr[m];
     int valIndexEnd = mRowPtr[m+1];
 
-    //return std::accumulate(mValues.begin() + valIndexBegin, mValues.begin() + valIndexEnd, T(0));
     return std::accumulate(&mValues[valIndexBegin], &mValues[valIndexEnd], T(0));
 }
 
