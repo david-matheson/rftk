@@ -29,7 +29,15 @@ public:
     SparseMatrixBufferTemplate(int m, int n);
     SparseMatrixBufferTemplate(T const* values, int nV, int const* col, int nC, int const* rowPtr, int nRP, int m, int n);
     SparseMatrixBufferTemplate(std::vector<T> const& values, std::vector<int> const& col, std::vector<int> const& rowPtr, int m, int n);
-    SparseMatrixBufferTemplate(T const* values, int m, int n); // construct fom dense data
+    /**
+     * These two constructors build a sparse matrix from dense data.
+     * These functions check for value[i] == T(0) to determine zeros,
+     * so very small but not-quite-zero floating point values will not
+     * be dropped.
+     * 
+     * Make sure your zeros are really zeros.
+     */
+    SparseMatrixBufferTemplate(T const* values, int m, int n);
     explicit SparseMatrixBufferTemplate(DenseType const& dense);
     
 
