@@ -184,7 +184,8 @@ void SparseMatrixBufferTemplate<T>::priv_initFromDensePointer(T const* values, i
 template<typename T>
 void SparseMatrixBufferTemplate<T>::Zero()
 {
-    // clear and discard memory
+    // Clear and discard memory.
+    // Swap forces reallocation.
     // http://www.cplusplus.com/reference/vector/vector/clear/
     std::vector<T>().swap(mValues);
     std::vector<int>().swap(mCol);
