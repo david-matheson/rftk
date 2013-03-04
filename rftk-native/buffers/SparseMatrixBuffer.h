@@ -230,7 +230,10 @@ T SparseMatrixBufferTemplate<T>::GetMax() const
 {
     T maxVal = *std::max_element(mValues.begin(), mValues.end());
 
-    if (maxVal < T(0) && mValues.size() < mM*mN) {
+    // If maxVal < T(0) then T(0) is actually the maximum value in the
+    // array, unless there are no holes, in which case maxVal is the
+    // real maximum value.
+    if (maxVal < T(0) && mValues.size() != mM*mN) {
         return T(0);
     }
     else {
@@ -243,7 +246,10 @@ T SparseMatrixBufferTemplate<T>::GetMin() const
 {
     T minVal = *std::min_element(mValues.begin(), mValues.end());
     
-    if (minVal > T(0) && mValues.size() < mM*mN) {
+    // If minVal > T(0) then T(0) is actually the minimum value in the
+    // array, unless there are no holes, in which case minVal is the
+    // real minimum value.
+    if (minVal > T(0) && mValues.size() != mM*mN) {
         return T(0);
     }
     else {
