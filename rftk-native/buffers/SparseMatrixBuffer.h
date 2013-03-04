@@ -84,7 +84,7 @@ private:
     std::vector<int> mCol;
     // mRowPtr has mM + 1 entries.  The last entry is the index at
     // which the next row (which doesn't exist) would begin.  Storing
-    // this simplifies some of the calculations near the endge of the
+    // this simplifies some of the calculations near the end of the
     // array.
     std::vector<int> mRowPtr;
     int mM;
