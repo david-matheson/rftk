@@ -39,7 +39,7 @@ public:
     T SumRow(int m) const;
     void NormalizeRow(int m);
 
-    void AppendVertical(const MatrixBufferTemplate<T>& buffer);
+    void Append(const MatrixBufferTemplate<T>& buffer);
     MatrixBufferTemplate<T> Transpose() const;
     MatrixBufferTemplate<T> Slice(const VectorBufferTemplate<int>& indices) const;
     MatrixBufferTemplate<T> SliceRow(const int row) const;
@@ -47,6 +47,7 @@ public:
     void AsNumpy2dFloat32(float* outfloat2d, int m, int n) const;
     void AsNumpy2dInt32(int* outint2d, int m, int n) const;
 
+    bool operator==(MatrixBufferTemplate<T> const& other) const;
 
     void Print() const;
 
@@ -232,7 +233,7 @@ void MatrixBufferTemplate<T>::NormalizeRow(int m)
 }
 
 template <class T>
-void MatrixBufferTemplate<T>::AppendVertical(const MatrixBufferTemplate<T>& buffer)
+void MatrixBufferTemplate<T>::Append(const MatrixBufferTemplate<T>& buffer)
 {
     ASSERT_ARG_DIM_1D(mN, buffer.GetN())
     const int oldM = mM;
@@ -306,6 +307,16 @@ void MatrixBufferTemplate<T>::AsNumpy2dInt32(int* outint2d, int m, int n) const
     {
         outint2d[i] = static_cast<int>(mData[i]);
     }
+}
+
+template<class T>
+bool MatrixBufferTemplate<T>::operator==(MatrixBufferTemplate<T> const& other) const
+{
+    if (GetM() != other.GetM() || GetN() != other.GetN()) {
+        return false;
+    }
+
+    return std::equal(mData.begin(), mData.end(), other.mData.begin());
 }
 
 template <class T>
