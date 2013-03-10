@@ -4,25 +4,34 @@
 #include <ctime>
 #include <cfloat>
 #include <cstdio>
+#include <iostream>
 
 #include "BufferCollection.h"
 #include "ForestPredictor.h"
 #include "OnlineForestLearner.h"
 
-OnlineForestLearner::OnlineForestLearner( const TrainConfigParams& trainConfigParams )
+OnlineForestLearner::OnlineForestLearner( const TrainConfigParams& trainConfigParams,
+                                          const OnlineSamplingParams& samplingParams, 
+                                          const unsigned int maxFrontierSize
+ )
 : mTrainConfigParams(trainConfigParams)
+, mOnlineSamplingParams(samplingParams)
+, mMaxFrontierSize(maxFrontierSize)
 , mForest(  mTrainConfigParams.mNumberOfTrees,
             mTrainConfigParams.mMaxNumberOfNodes,
             mTrainConfigParams.GetIntParamsMaxDim(),
             mTrainConfigParams.GetFloatParamsMaxDim(),
             mTrainConfigParams.GetYDim())
-, mActiveNodes()
+, mQueuedFrontierLeaves()
+, mActiveFrontierLeaves()
+, mNumberOfDatapointsProcessedByTree(mTrainConfigParams.mNumberOfTrees)
+, mNumberOfDatapointsProcessedByTreeWhenNodeCreated()
 {}
 
 OnlineForestLearner::~OnlineForestLearner()
 {
     typedef std::map< std::pair<int, int>, ActiveSplitNode* >::iterator it_type;
-    for(it_type iterator = mActiveNodes.begin(); iterator != mActiveNodes.end(); ++iterator) 
+    for(it_type iterator = mActiveFrontierLeaves.begin(); iterator != mActiveFrontierLeaves.end(); ++iterator) 
     {
         delete iterator->second;
         iterator->second = NULL;
@@ -31,47 +40,41 @@ OnlineForestLearner::~OnlineForestLearner()
 
 Forest OnlineForestLearner::GetForest() const { return mForest; }
 
-void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices, OnlineSamplingParams samplingParams )
+void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices )
 {
     boost::mt19937 gen( std::time(NULL) );
     boost::poisson_distribution<> poisson(1.0);
     boost::variate_generator<boost::mt19937&,boost::poisson_distribution<> > var_poisson(gen, poisson);
 
-    // Loop over trees could be farmed out to different jobs
-    for(unsigned int treeIndex=0; treeIndex<mForest.mTrees.size(); treeIndex++)
+    // Setup the buffer for the weights
+    Float32VectorBuffer weights(indices.GetN());
+    data.AddFloat32VectorBuffer(SAMPLE_WEIGHTS, weights);
+
+    for(int sampleIndex=0; sampleIndex<indices.GetN(); sampleIndex++)
     {
-        // printf("OnlineForestLearner::Train tree=%d\n", treeIndex);
-
-        Float32VectorBuffer weights(indices.GetN());
-        if( samplingParams.mUsePoisson )
+        for(unsigned int treeIndex=0; treeIndex<mForest.mTrees.size(); treeIndex++)
         {
-            for(int i=0; i<weights.GetN(); i++)
+            Tree& tree = mForest.mTrees[treeIndex];
+            float sampleWeight = 1.0f;
+            if( mOnlineSamplingParams.mUsePoisson )
             {
-                const float possionValue = static_cast<float>(var_poisson());
-                weights.Set(i,possionValue);
+                sampleWeight = static_cast<float>(var_poisson());
             }
-        }
-        else
-        {
-            weights.SetAll(1.0f);
-        }
-        data.AddFloat32VectorBuffer(SAMPLE_WEIGHTS, weights);
 
-        // Iterate over each sample (this cannot be farmed out to different threads)
-        Tree& tree = mForest.mTrees[treeIndex];
-        for(int sampleIndex=0; sampleIndex<indices.GetN(); sampleIndex++)
-        {
-            if( weights.Get(sampleIndex) < FLT_EPSILON )
+            if( sampleWeight < FLT_EPSILON )
             {
                 continue;
             }
+
+            mNumberOfDatapointsProcessedByTree[treeIndex]++;
 
             int treeDepth = 0;
             const int nodeIndex = walkTree( tree, 0, data, sampleIndex, treeDepth );
 
             const Int32VectorBuffer& classLabels = data.GetInt32VectorBuffer(CLASS_LABELS);
             const int classLabel = classLabels.Get(indices.Get(sampleIndex));
-            const float sampleWeight = weights.Get(indices.Get(sampleIndex));
+
+            // Update class histogram (this needs to be extended to support regression)
             const float oldN = tree.mCounts.Get(nodeIndex);
             for(int c=0; c<tree.mYs.GetN(); c++)
             {
@@ -83,41 +86,99 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
                 const float cProbNew = classCount / (oldN + sampleWeight);
                 tree.mYs.Set(nodeIndex, c, cProbNew);
             }
+
             tree.mCounts.Incr(nodeIndex, sampleWeight);
 
             std::pair<int,int> treeNodeKey = std::make_pair(treeIndex, nodeIndex);
-            if( mActiveNodes.find(treeNodeKey) == mActiveNodes.end() )
+            const bool inQueueFrontier = mQueuedFrontierLeaves.find(treeNodeKey) != mQueuedFrontierLeaves.end();   
+            const bool inActiveFrontier = mActiveFrontierLeaves.find(treeNodeKey) != mActiveFrontierLeaves.end();         
+
+            // If leaf is not active or in the queue then add it to the queue
+            // This should only happen for the root node because the split logic adds the children to the queu
+            if( !inQueueFrontier && !inActiveFrontier )
             {
-                mActiveNodes[treeNodeKey] = new ActiveSplitNode( mTrainConfigParams.mFeatureExtractors,
+                mNumberOfDatapointsProcessedByTreeWhenNodeCreated[treeNodeKey] = 0;
+                mQueuedFrontierLeaves.insert(treeNodeKey);
+            }
+
+            // Add a new active split to the frontier when there is space and there is a candidate in the queue
+            // Choose the next candidate with the high probability of error 
+            // (this needs to be extended to support regression)
+            while( mActiveFrontierLeaves.size() < mMaxFrontierSize && mQueuedFrontierLeaves.size() > 0 )
+            {
+                // Find node in queue with hprobability of improvement
+                float maxProbabilityOfError = 0.0;
+                std::pair<int, int> maxProbabilityOfErrorTreeNodeKey = *mQueuedFrontierLeaves.begin();
+                typedef std::set< std::pair<int, int> >::iterator it_type;
+                for(it_type iter = mQueuedFrontierLeaves.begin(); iter != mQueuedFrontierLeaves.end(); ++iter) 
+                {
+                    const Tree& nodeTree = mForest.mTrees[iter->first];
+                    const long long lifeOfNode = mNumberOfDatapointsProcessedByTree[iter->first] - mNumberOfDatapointsProcessedByTreeWhenNodeCreated[*iter];
+                    const float dataPointsToReachNode = nodeTree.mCounts.Get(iter->second);
+                    const float probOfNode = dataPointsToReachNode / static_cast<float>(lifeOfNode);  
+                    const float* ys = nodeTree.mYs.GetRowPtrUnsafe(iter->second);
+                    const float probOfErrorForNode = 1.0f - *std::max_element(ys, ys + nodeTree.mYs.GetN());
+                    const float probabilityOfError = probOfNode * probOfErrorForNode;
+
+                    if( probabilityOfError > maxProbabilityOfError )
+                    {
+                        maxProbabilityOfError = probabilityOfError;
+                        maxProbabilityOfErrorTreeNodeKey = *iter;
+                    }
+                }
+
+                const int maxProbabilityNodeDepth = mForest.mTrees[maxProbabilityOfErrorTreeNodeKey.first].mDepths.Get(maxProbabilityOfErrorTreeNodeKey.second);
+                mQueuedFrontierLeaves.erase(maxProbabilityOfErrorTreeNodeKey);
+                mActiveFrontierLeaves[maxProbabilityOfErrorTreeNodeKey] = new ActiveSplitNode( mTrainConfigParams.mFeatureExtractors,
                                                                 mTrainConfigParams.mNodeDataCollectorFactory,
                                                                 mTrainConfigParams.mBestSplit,
                                                                 mTrainConfigParams.mSplitCriteria,
-                                                                treeDepth,
-                                                                samplingParams.mEvalSplitPeriod);
+                                                                maxProbabilityNodeDepth,
+                                                                mOnlineSamplingParams.mEvalSplitPeriod);
             }
 
-            ActiveSplitNode* activeSplit = mActiveNodes[treeNodeKey];
-            Int32VectorBuffer singleIndex(1);
-            singleIndex.Set(0, indices.Get(sampleIndex));
-            activeSplit->ProcessData(data, singleIndex, gen);
-
-            if( activeSplit->ShouldSplit() == SPLT_CRITERIA_READY_TO_SPLIT )
+            // Update split
+            if( mActiveFrontierLeaves.find(treeNodeKey) != mActiveFrontierLeaves.end() )
             {
-                // printf("OnlineForestLearner::Train SPLIT tree=%d nodeIndex=%d treeDepth=%d\n", treeIndex, nodeIndex, treeDepth);
-                const int leftNode = tree.mLastNodeIndex;
-                tree.mLastNodeIndex++;
-                const int rightNode = tree.mLastNodeIndex;
-                tree.mLastNodeIndex++;
-                // Todo: Only updating Ys on split, should update Ys everytime
-                activeSplit->WriteToTree(nodeIndex, leftNode, rightNode,
-                                        tree.mPath, tree.mFloatFeatureParams, tree.mIntFeatureParams,
-                                        tree.mDepths, tree.mCounts, tree.mYs);
+                ActiveSplitNode* activeSplit = mActiveFrontierLeaves[treeNodeKey];
+                Int32VectorBuffer singleIndex(1);
+                singleIndex.Set(0, indices.Get(sampleIndex));
 
-                // Remove split node
-                mActiveNodes.erase(treeNodeKey);
-                delete activeSplit;
+                Float32VectorBuffer& weights = data.GetFloat32VectorBuffer(SAMPLE_WEIGHTS);
+                weights.Set(sampleIndex, sampleWeight);
+                activeSplit->ProcessData(data, singleIndex, gen);
+
+                // Split the node
+                if( activeSplit->ShouldSplit() == SPLT_CRITERIA_READY_TO_SPLIT )
+                {
+                    const int leftNode = tree.mLastNodeIndex;
+                    tree.mLastNodeIndex++;
+                    const int rightNode = tree.mLastNodeIndex;
+                    tree.mLastNodeIndex++;
+                    activeSplit->WriteToTree(nodeIndex, leftNode, rightNode,
+                                            tree.mPath, tree.mFloatFeatureParams, tree.mIntFeatureParams,
+                                            tree.mDepths, tree.mCounts, tree.mYs);
+
+                    // Remove split node
+                    mActiveFrontierLeaves.erase(treeNodeKey);
+                    delete activeSplit;
+
+                    // Compute the number of datapoints when the parent started estimating the split
+                    // Because the two streams can 'leak' points the actual start time is estimated
+                    // from the parents probability of receiving a datapoint and the condition probability
+                    // of the datapoint going left or right.  Hopefully this can be simplified
+                    const float probOfParent = tree.mCounts.Get(nodeIndex) / static_cast<float>(mNumberOfDatapointsProcessedByTree[treeIndex] - mNumberOfDatapointsProcessedByTreeWhenNodeCreated[treeNodeKey]);
+                    const float probOfLeft = tree.mCounts.Get(leftNode) / (tree.mCounts.Get(leftNode) + tree.mCounts.Get(rightNode));
+                    const float leftTotalDatapointsToMaintainProbEst = tree.mCounts.Get(leftNode) / (probOfParent * probOfLeft);
+                    mNumberOfDatapointsProcessedByTreeWhenNodeCreated[std::make_pair(treeIndex, leftNode) ] = mNumberOfDatapointsProcessedByTree[treeIndex] - leftTotalDatapointsToMaintainProbEst;
+                    mQueuedFrontierLeaves.insert( std::make_pair(treeIndex, leftNode) );
+
+                    const float probOfRight = tree.mCounts.Get(rightNode) / (tree.mCounts.Get(leftNode) + tree.mCounts.Get(rightNode));
+                    const float rightTotalDatapointsToMaintainProbEst = tree.mCounts.Get(rightNode) / (probOfParent * probOfRight);
+                    mNumberOfDatapointsProcessedByTreeWhenNodeCreated[std::make_pair(treeIndex, rightNode) ] = mNumberOfDatapointsProcessedByTree[treeIndex] - rightTotalDatapointsToMaintainProbEst;
+                    mQueuedFrontierLeaves.insert( std::make_pair(treeIndex, rightNode) );
+                }
             }
         }
-        // printf("Tree=%d mLastNodeIndex=%d\n", treeIndex, tree.mLastNodeIndex);
     }
 }

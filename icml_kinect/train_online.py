@@ -33,7 +33,7 @@ class KinectOnlineConfig(object):
     def __init__(self):
         self.number_of_pixels_per_image = 1000
 
-    def configure_online_learner(self, number_of_trees, split_rate, number_datapoints_split_root):
+    def configure_online_learner(self, number_of_trees, split_rate, number_datapoints_split_root, eval_split_period):
         number_of_features = 500
         number_of_thresholds = 4
         y_dim = kinect_utils.number_of_body_parts
@@ -64,18 +64,21 @@ class KinectOnlineConfig(object):
                                                             number_of_data_to_force_split_root,
                                                             max_tree_depth)
 
+        max_number_of_nodes = 100000
+        max_number_of_node_in_frontier = 1000
+
         extractor_list = [feature_extractor]
         train_config = train.TrainConfigParams(extractor_list,
                                                 node_data_collector,
                                                 class_infogain_best_split,
                                                 split_criteria,
                                                 number_of_trees,
-                                                100000)
-        online_learner = train.OnlineForestLearner(train_config)
+                                                max_number_of_nodes)
+        sampling_config = train.OnlineSamplingParams(False, 1.0, eval_split_period)
+        online_learner = train.OnlineForestLearner(train_config, sampling_config, max_number_of_node_in_frontier)
         return online_learner
 
-    def get_sampling_config(self, eval_split_period):
-        return train.OnlineSamplingParams(False, 1.0, eval_split_period)
+
 
 
 if __name__ == "__main__":
@@ -110,7 +113,8 @@ if __name__ == "__main__":
     config = KinectOnlineConfig()
     online_learner = config.configure_online_learner( args.number_of_trees,
                                                       args.split_rate,
-                                                      args.number_datapoints_split_root)
+                                                      args.number_datapoints_split_root,
+                                                      args.eval_split_period)
 
     run_info = {'pose_filenames': [], 'pixel_indices': [], 'offset_scales': []}
 
@@ -140,7 +144,7 @@ if __name__ == "__main__":
             bufferCollection.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffer_converters.as_vector_buffer(pixel_labels))
 
             # Update learner
-            online_learner.Train(bufferCollection, buffers.Int32Vector(datapoint_indices), config.get_sampling_config(args.eval_split_period))
+            online_learner.Train(bufferCollection, buffers.Int32Vector(datapoint_indices))
 
             #pickle forest and data used for training
             if (i+1) % 5 == 0:
