@@ -30,7 +30,7 @@ public:
 
 
     const T* GetRowPtrUnsafe(int l, int m) const;
-    void AppendSlice(const Tensor3BufferTemplate<T>& buffer);
+    void Append(const Tensor3BufferTemplate<T>& buffer);
 
     void AsNumpy3dFloat32(float* outfloat3d, int l, int m, int n) const;
     void AsNumpy3dInt32(int* outint3d, int l, int m, int n) const;
@@ -122,7 +122,7 @@ Tensor3BufferTemplate<T>::~Tensor3BufferTemplate()
 template <class T>
 void Tensor3BufferTemplate<T>::Resize(int l, int m, int n)
 {
-    if(l*m*n > mData.size())
+    if(static_cast<size_t>(l*m*n) > mData.size())
     {
         mData.resize(l*m*n);
     }
@@ -194,7 +194,7 @@ const T* Tensor3BufferTemplate<T>::GetRowPtrUnsafe(int l, int m) const
 }
 
 template <class T>
-void Tensor3BufferTemplate<T>::AppendSlice(const Tensor3BufferTemplate<T>& buffer)
+void Tensor3BufferTemplate<T>::Append(const Tensor3BufferTemplate<T>& buffer)
 {
     ASSERT_ARG_DIM_2D(mM, mN, buffer.GetM(), buffer.GetN())
     const int oldL = mL;

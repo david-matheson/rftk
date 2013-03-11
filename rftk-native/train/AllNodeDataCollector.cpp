@@ -19,7 +19,7 @@ void AllNodeDataCollector::Collect( const BufferCollection& data,
     UNUSED_PARAM(gen) // Suppress the unused warning because gen is part of the interface
     ASSERT_ARG_DIM_1D(sampleIndices.GetN(), featureValues.GetM())
 
-    mData.AppendVerticalFloat32MatrixBuffer(FEATURE_VALUES, featureValues);
+    mData.AppendFloat32MatrixBuffer(FEATURE_VALUES, featureValues);
 
     if( data.HasFloat32VectorBuffer(SAMPLE_WEIGHTS) )
     {

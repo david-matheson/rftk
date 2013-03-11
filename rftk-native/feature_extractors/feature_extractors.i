@@ -2,8 +2,6 @@
 %{
     #define SWIG_FILE_WITH_INIT
     #include "FeatureExtractorI.h"
-    #include "AxisAlignedFeatureExtractor.h"
-    #include "RandomProjectionFeatureExtractor.h"
     #include "DepthScaledDepthDeltaFeatureExtractor.h"
     #include "DepthScaledEntangledYsFeatureExtractor.h"
 %}
@@ -13,9 +11,8 @@
 %import "buffers.i"
 
 %include "FeatureExtractorI.h"
-%include "AxisAlignedFeatureExtractor.h"
-%include "RandomProjectionFeatureExtractor.h"
 %include "DepthScaledDepthDeltaFeatureExtractor.h"
 %include "DepthScaledEntangledYsFeatureExtractor.h"
 
-
+%include "AxisAlignedFeatureExtractor.i"
+%include "RandomProjectionFeatureExtractor.i"
