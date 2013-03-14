@@ -11,6 +11,7 @@ ProbabilityOfErrorFrontierQueue::ProbabilityOfErrorFrontierQueue(const int numbe
     // Add the root node for all trees
     for(int treeIndex=0; treeIndex<numberOfTrees; treeIndex++)
     {
+        mNumberDatapointsPerTree[treeIndex] = 0;
         std::pair<int,int> treeNodeKey = std::make_pair(treeIndex, 0);
         mNumberDatapointsOnNodeCreation[treeNodeKey] = 0;
         mQueuedFrontierLeaves.insert(treeNodeKey);
@@ -19,7 +20,7 @@ ProbabilityOfErrorFrontierQueue::ProbabilityOfErrorFrontierQueue(const int numbe
 
 bool ProbabilityOfErrorFrontierQueue::IsEmpty() const
 {
-    return (mQueuedFrontierLeaves.size() > 0);
+    return (mQueuedFrontierLeaves.size() <= 0);
 }
 
 void ProbabilityOfErrorFrontierQueue::IncrDatapoints(const int treeIndex, long long count)
