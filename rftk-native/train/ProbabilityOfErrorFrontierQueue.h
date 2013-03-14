@@ -10,7 +10,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // This implements the priority queue for adding leafs to the fringe based on
-// expected probability of of error.  This is taken from
+// expected probability of error.  This is taken from
 //
 // Domingos, Pedro, and Geoff Hulten. "Mining high-speed data streams."
 // Proceedings of the sixth ACM SIGKDD international conference on Knowledge
