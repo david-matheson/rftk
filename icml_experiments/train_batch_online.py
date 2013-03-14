@@ -46,7 +46,7 @@ def run_experiment(config):
             online_config = config.get_online_config()
 
             # feature_extractor = feature_extractors.RandomProjectionFeatureExtractor( max_features, x_dim, x_dim, True)
-            feature_extractor = feature_extractors.AxisAlignedFeatureExtractor( online_config.number_of_features, x_dim, True)
+            feature_extractor = feature_extractors.Float32AxisAlignedFeatureExtractor( online_config.number_of_features, x_dim, True)
             # node_data_collector = train.AllNodeDataCollectorFactory()
             # class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, y_dim)
             if not online_config.use_two_streams:
