@@ -21,152 +21,137 @@ except AttributeError:
 ###############################################################################
 env = Environment(SWIGFLAGS=['-python', '-c++', '-Werror', '-w490', '-w362'],
                   CPPPATH=[distutils.sysconfig.get_python_inc(), numpy_include],
-                  SHLIBPREFIX='',
                   CCFLAGS=ccflags,
                   CPPDEFINES=cppdefines,
-                  LIBPATH=['.'],
-                  RPATH=['.', install_path])
-
-if env['PLATFORM'] == 'darwin':
-    env['SHLINKFLAGS'] = '-bundle -flat_namespace -undefined suppress'
-    env['SHLIBSUFFIX'] = '.so'
-
-
-###############################################################################
-# helpers to reduce code duplication
-def ignore_on_darwin(env_warnings, l):
-    if env_warnings['PLATFORM'] == 'darwin':
-        l = []
-    return l
-
-
-def build_swig_module(env, non_swig_warnings, variant_name, module_name, include_depends, link_depends):
-    env_with_depends = env.Clone()
-    env_with_depends.Append(SWIGFLAGS=['-Irftk-native/%s' % x for x in include_depends], CPPPATH=include_depends)
-    swig_objs = env_with_depends.SharedObject('%s/%s.i' % (module_name, module_name))
-    env_with_warnings = env_with_depends.Clone()
-    env_with_warnings.Append(CCFLAGS=non_swig_warnings)
-    shared_lib = env_with_warnings.SharedLibrary(target=('_%s' % module_name),
-                                        source=[Glob('%s/*.cpp' % module_name)] + swig_objs,
-                                        LIBS=ignore_on_darwin(env_with_warnings, link_depends))
-    env_with_warnings.Alias('%s-%s' % (module_name, variant_name), shared_lib)
-    return shared_lib
-
+                  LIBPATH=[Dir('.').abspath],
+                  RPATH=[Dir(install_path).abspath]
+                  )
 non_swig_warnings = ['-Wall', '-Wextra', '-Weffc++', '-Werror']
 
 ###############################################################################
+def build_swig_module(env, non_swig_warnings, variant_name, module_name, depends):
+    env_module = env.Clone()
+
+    if env_module['PLATFORM'] == 'darwin':
+        env_module['SHLINKFLAGS'] = '-dynamiclib -install_name %s/lib%s.dylib' % (Dir(install_path).abspath, module_name)
+
+    env_module.Append(CCFLAGS=non_swig_warnings, CPPPATH=depends)
+    shared_lib = env_module.SharedLibrary(target=module_name,
+                                        source=[Glob('%s/*.cpp' % module_name)],
+                                        LIBS=depends)
+
+    env_python_wrapper = env.Clone()
+    env_python_wrapper.Append(CPPPATH=depends,
+                            SWIGFLAGS=['-I%s/%s' % (Dir('.').abspath, x) for x in depends])
+    env_python_wrapper['SHLIBPREFIX'] = ''
+
+    if env_python_wrapper['PLATFORM'] == 'darwin':
+        env_python_wrapper['SHLINKFLAGS'] = '-bundle -flat_namespace -undefined suppress'
+        env_python_wrapper['SHLIBSUFFIX'] = '.so'
+
+    python_lib = env_python_wrapper.SharedLibrary(target=('_%s' % module_name),
+                                        source=['%s/%s.i' % (module_name, module_name)],
+                                        LIBS=module_name)
+    env_python_wrapper.Alias('%s-%s' % (module_name, variant_name), python_lib)
+
+    [Depends(shared_lib, d) for d in depends]
+    Depends(python_lib, Glob('%s/*.i' % module_name))
+    Depends(python_lib, shared_lib)
+    Depends('%s/%s.py', python_lib)
+
+    return shared_lib, python_lib, '%s/%s.py' % (module_name, module_name)
+
+
+
+files_to_install = []
+###############################################################################
 # assert_utils shared lib
-assert_utils_sharedlib = build_swig_module(env=env,
+assert_utils_sharedlib, assert_utils_pylib, assert_utils_py = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
                                         variant_name=variant,
                                         module_name='assert_util',
-                                        include_depends=[],
-                                        link_depends=[])
+                                        depends=[])
+files_to_install.extend([assert_utils_sharedlib, assert_utils_pylib, assert_utils_py])
 
 
 ###############################################################################
 # bootstrap shared lib
-bootstrap_sharedlib = build_swig_module(env=env,
+bootstrap_sharedlib, bootstrap_pylib, bootstrap_py = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
                                         variant_name=variant,
                                         module_name='bootstrap',
-                                        include_depends=['assert_util'],
-                                        link_depends=[assert_utils_sharedlib])
+                                        depends=['assert_util'])
+files_to_install.extend([bootstrap_sharedlib, bootstrap_pylib, bootstrap_py])
 
 
 ###############################################################################
 # buffers shared lib
-buffers_sharedlib = build_swig_module(env=env,
+buffers_sharedlib, buffers_pylib, buffers_py = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
                                         variant_name=variant,
                                         module_name='buffers',
-                                        include_depends=['assert_util'],
-                                        link_depends=[assert_utils_sharedlib])
+                                        depends=['assert_util'])
+files_to_install.extend([buffers_sharedlib, buffers_pylib, buffers_py])
 
 
 ###############################################################################
 # best split shared lib
-best_split_sharedlib = build_swig_module(env=env,
+best_split_sharedlib, best_split_pyib, best_split_py = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
                                         variant_name=variant,
                                         module_name='best_split',
-                                        include_depends=['assert_util', 'bootstrap', 'buffers'],
-                                        link_depends=[assert_utils_sharedlib, bootstrap_sharedlib, buffers_sharedlib])
-
+                                        depends=['assert_util', 'bootstrap', 'buffers'])
+files_to_install.extend([best_split_sharedlib, best_split_pyib, best_split_py])
 
 ###############################################################################
 # forest data shared lib
-forest_data_sharedlib = build_swig_module(env=env,
+forest_data_sharedlib, forest_data_pylib, forest_data_py = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
                                         variant_name=variant,
                                         module_name='forest_data',
-                                        include_depends=['assert_util', 'buffers'],
-                                        link_depends=[assert_utils_sharedlib, buffers_sharedlib])
-
+                                        depends=['assert_util', 'buffers'])
+files_to_install.extend([forest_data_sharedlib, forest_data_pylib, forest_data_py])
 
 ###############################################################################
 # features shared lib
-features_sharedlib = build_swig_module(env=env,
+features_sharedlib, features_pylib, features_py = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
                                         variant_name=variant,
                                         module_name='features',
-                                        include_depends=['assert_util', 'buffers'],
-                                        link_depends=[assert_utils_sharedlib, buffers_sharedlib])
-
+                                        depends=['assert_util', 'buffers'])
+files_to_install.extend([features_sharedlib, features_pylib, features_py])
 
 ###############################################################################
 # feature extractors shared lib
-feature_extractors_sharedlib = build_swig_module(env=env,
+feature_extractors_sharedlib, feature_extractors_pylib, feature_extractors_py = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
                                         variant_name=variant,
                                         module_name='feature_extractors',
-                                        include_depends=['assert_util', 'bootstrap', 'buffers', 'features'],
-                                        link_depends=[assert_utils_sharedlib, bootstrap_sharedlib, buffers_sharedlib, features_sharedlib])
-
+                                        depends=['assert_util', 'bootstrap', 'buffers', 'features'])
+files_to_install.extend([feature_extractors_sharedlib, feature_extractors_pylib, feature_extractors_py])
 
 ###############################################################################
 # predict shared lib
-predict_sharedlib = build_swig_module(env=env,
+predict_sharedlib, predict_pylib, predict_py = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
                                         variant_name=variant,
                                         module_name='predict',
-                                        include_depends=['assert_util', 'buffers', 'forest_data', 'features'],
-                                        link_depends=[assert_utils_sharedlib, buffers_sharedlib, forest_data_sharedlib, features_sharedlib])
-
+                                        depends=['assert_util', 'buffers', 'forest_data', 'features'])
+files_to_install.extend([predict_sharedlib, predict_pylib, predict_py])
 
 
 ###############################################################################
 # train shared lib
-train_sharedlib = build_swig_module(env=env,
+train_sharedlib, train_pylib, train_py = build_swig_module(env=env,
                                         non_swig_warnings=non_swig_warnings,
                                         variant_name=variant,
                                         module_name='train',
-                                        include_depends=['assert_util', 'buffers',
+                                        depends=['assert_util', 'buffers',
                                                         'bootstrap', 'best_split',
                                                         'forest_data', 'feature_extractors',
-                                                        'predict'],
-                                        link_depends=[assert_utils_sharedlib, buffers_sharedlib,
-                                                    bootstrap_sharedlib, best_split_sharedlib,
-                                                    forest_data_sharedlib, feature_extractors_sharedlib,
-                                                    predict_sharedlib])
+                                                        'predict'])
+files_to_install.extend([train_sharedlib, train_pylib, train_py])
 
 # Install shared libraries and python wrappers
-env.Install(install_path, source=[assert_utils_sharedlib,
-                            'assert_util/assert_util.py',
-                            bootstrap_sharedlib,
-                            'bootstrap/bootstrap.py',
-                            buffers_sharedlib,
-                            'buffers/buffers.py',
-                            best_split_sharedlib,
-                            'best_split/best_split.py',
-                            forest_data_sharedlib,
-                            'forest_data/forest_data.py',
-                            features_sharedlib,
-                            'features/features.py',
-                            feature_extractors_sharedlib,
-                            'feature_extractors/feature_extractors.py',
-                            predict_sharedlib,
-                            'predict/predict.py',
-                            train_sharedlib,
-                            'train/train.py'])
+env.Install(install_path, source=files_to_install)
 env.Alias('install-%s'%variant, install_path)
