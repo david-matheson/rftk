@@ -84,7 +84,7 @@ if __name__ == "__main__":
     sampling_config = train.OnlineSamplingParams(False, 1.0)
 
     # Create online learner
-    online_learner = train.OnlineForestLearner(train_config)
+    online_learner = train.OnlineForestLearner(train_config, sampling_config, 10000)
 
     measurements = []
     samples_seen = 0
@@ -101,7 +101,7 @@ if __name__ == "__main__":
         indices = buffers.Int32Vector( np.array(np.arange(x_m), dtype=np.int32) )
 
         # Train online forest
-        online_learner.Train(data, indices, sampling_config)
+        online_learner.Train(data, indices)
 
         # print "predict"
         predict_forest = predict_utils.MatrixForestPredictor(online_learner.GetForest())
