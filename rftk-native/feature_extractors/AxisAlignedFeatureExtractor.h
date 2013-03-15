@@ -2,6 +2,7 @@
 
 #include <boost/random.hpp>
 #include <boost/random/mersenne_twister.hpp>
+#include <ctime>
 
 #include "bootstrap.h"
 #include "MatrixBuffer.h"
@@ -27,7 +28,7 @@ public:
     virtual int GetFloatParamsDim() const;
     virtual int GetIntParamsDim() const;
 
-    
+
     virtual void Extract(const BufferCollection& data,
                          const Int32VectorBuffer& sampleIndices,
                          const Int32MatrixBuffer& intFeatureParams,
