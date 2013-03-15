@@ -21,7 +21,6 @@ except AttributeError:
 ###############################################################################
 env = Environment(SWIGFLAGS=['-python', '-c++', '-Werror', '-w490', '-w362'],
                   CPPPATH=[distutils.sysconfig.get_python_inc(), numpy_include],
-                  SHLIBPREFIX='',
                   CCFLAGS=ccflags,
                   CPPDEFINES=cppdefines,
                   LIBPATH=[Dir('.').abspath],
@@ -31,32 +30,35 @@ non_swig_warnings = ['-Wall', '-Wextra', '-Weffc++', '-Werror']
 
 ###############################################################################
 def build_swig_module(env, non_swig_warnings, variant_name, module_name, depends):
-    env_with_warnings = env.Clone()
+    env_module = env.Clone()
 
-    if env_with_warnings['PLATFORM'] == 'darwin':
-        install_dylib_path_abspath = '-install_name %s/lib%s.dylib' % (Dir(install_path).abspath, module_name)
-        env_with_warnings['SHLINKFLAGS'] = '-dynamiclib %s' % install_dylib_path_abspath
+    if env_module['PLATFORM'] == 'darwin':
+        env_module['SHLINKFLAGS'] = '-dynamiclib -install_name %s/lib%s.dylib' % (Dir(install_path).abspath, module_name)
 
-    env_with_warnings.Append(CCFLAGS=non_swig_warnings, CPPPATH=depends)
-    shared_lib = env_with_warnings.SharedLibrary(target=('lib%s' % module_name),
+    env_module.Append(CCFLAGS=non_swig_warnings, CPPPATH=depends)
+    shared_lib = env_module.SharedLibrary(target=module_name,
                                         source=[Glob('%s/*.cpp' % module_name)],
                                         LIBS=depends)
-    [Depends(shared_lib, d) for d in depends]
 
-    env_with_depends = env.Clone()
-    env_with_depends.Append(CPPPATH=depends,
+    env_python_wrapper = env.Clone()
+    env_python_wrapper.Append(CPPPATH=depends,
                             SWIGFLAGS=['-I%s/%s' % (Dir('.').abspath, x) for x in depends])
+    env_python_wrapper['SHLIBPREFIX'] = ''
 
-    if env_with_depends['PLATFORM'] == 'darwin':
-        env_with_depends['SHLINKFLAGS'] = '-bundle -flat_namespace -undefined suppress'
-        env_with_depends['SHLIBSUFFIX'] = '.so'
+    if env_python_wrapper['PLATFORM'] == 'darwin':
+        env_python_wrapper['SHLINKFLAGS'] = '-bundle -flat_namespace -undefined suppress'
+        env_python_wrapper['SHLIBSUFFIX'] = '.so'
 
-    python_lib = env_with_depends.SharedLibrary(target=('_%s' % module_name),
+    python_lib = env_python_wrapper.SharedLibrary(target=('_%s' % module_name),
                                         source=['%s/%s.i' % (module_name, module_name)],
                                         LIBS=module_name)
-    Depends(python_lib, shared_lib)
+    env_python_wrapper.Alias('%s-%s' % (module_name, variant_name), python_lib)
 
-    env_with_warnings.Alias('%s-%s' % (module_name, variant_name), python_lib)
+    [Depends(shared_lib, d) for d in depends]
+    Depends(python_lib, Glob('%s/*.i' % module_name))
+    Depends(python_lib, shared_lib)
+    Depends('%s/%s.py', python_lib)
+
     return shared_lib, python_lib, '%s/%s.py' % (module_name, module_name)
 
 
