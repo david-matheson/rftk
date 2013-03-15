@@ -77,8 +77,8 @@ def run_experiment(experiment_config, run_config):
     sampling_config = train.OnlineSamplingParams(False, 1.0)
 
     # Train online forest
-    online_learner = train.OnlineForestLearner(train_config)
-    online_learner.Train(data, indices, sampling_config)
+    online_learner = train.OnlineForestLearner(train_config, sampling_config, 10000)
+    online_learner.Train(data, indices)
 
     predict_forest = predict_utils.MatrixForestPredictor(online_learner.GetForest())
     y_probs = predict_forest.predict_proba(X_test)
