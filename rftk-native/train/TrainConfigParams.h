@@ -17,7 +17,7 @@ public:
                         BestSplitI* bestSplit,
                         SplitCriteriaI* splitCriteria,
                         int numberOfTrees,
-                        int maxNumberOfNodes);
+                        int initialNumberOfNodes = 32);
     TrainConfigParams( const TrainConfigParams& other );
     TrainConfigParams & operator=( const TrainConfigParams& rhs );
     ~TrainConfigParams();
@@ -33,7 +33,7 @@ public:
     BestSplitI* mBestSplit;
     SplitCriteriaI* mSplitCriteria;
     int mNumberOfTrees;
-    int mMaxNumberOfNodes;
+    int mInitialNumberOfNodes;
 
 };
 

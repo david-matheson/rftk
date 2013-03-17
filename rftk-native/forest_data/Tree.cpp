@@ -43,7 +43,7 @@ void ForestStats::Print() const
 }
 
 Tree::Tree()
-: mPath(0,0)
+: mPath(0,0, NULL_CHILD)
 , mIntFeatureParams(0,0)
 , mFloatFeatureParams(0,0)
 , mCounts(0)
@@ -75,13 +75,13 @@ Tree::Tree( const Int32MatrixBuffer& path,
     ASSERT_ARG_DIM_1D(mPath.GetM(), mYs.GetM())
 }
 
-Tree::Tree( int maxNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim  )
-: mPath(maxNumberNodes, 2)
-, mIntFeatureParams(maxNumberNodes, maxIntParamsDim)
-, mFloatFeatureParams(maxNumberNodes, maxFloatParamsDim)
-, mCounts(maxNumberNodes)
-, mDepths(maxNumberNodes)
-, mYs(maxNumberNodes, maxYsDim)
+Tree::Tree( int initalNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim  )
+: mPath(initalNumberNodes, 2, NULL_CHILD)
+, mIntFeatureParams(initalNumberNodes, maxIntParamsDim)
+, mFloatFeatureParams(initalNumberNodes, maxFloatParamsDim)
+, mCounts(initalNumberNodes)
+, mDepths(initalNumberNodes)
+, mYs(initalNumberNodes, maxYsDim)
 , mLastNodeIndex(1)
 , mValid(true)
 {
@@ -91,16 +91,14 @@ Tree::Tree( int maxNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int 
 
     //TODO: This needs to be changed for regression
     mYs.SetAll(1.0f/static_cast<float>(mYs.GetN()));
-
-    mPath.SetAll(-1);
 }
 
 void Tree::GatherStats(ForestStats& stats) const
 {
     for(int nodeId=0; nodeId<mLastNodeIndex-1; nodeId++)
     {
-        const bool isLeaf = (mPath.Get(nodeId, 0) == -1
-                             && mPath.Get(nodeId, 1) == -1);
+        const bool isLeaf = (mPath.Get(nodeId, 0) == NULL_CHILD
+                             || mPath.Get(nodeId, 1) == NULL_CHILD);
         if( isLeaf )
         {
             const int depth = mDepths.Get(nodeId);
@@ -109,4 +107,23 @@ void Tree::GatherStats(ForestStats& stats) const
             stats.ProcessLeaf(depth, numberEstimatorSamples);
         }
     }
+}
+
+int Tree::NextNodeIndex()
+{
+    int nextNodeIndex = mLastNodeIndex;
+    mLastNodeIndex++;
+    const int numberOfNodesAllocated = mPath.GetM();
+    if( mLastNodeIndex >= numberOfNodesAllocated )
+    {
+        int newNumberOfNodesAllocated = mLastNodeIndex + numberOfNodesAllocated/2 + 1;
+        // printf("Tree::NextNodeIndex resize %d=>%d\n", numberOfNodesAllocated, newNumberOfNodesAllocated);
+        mPath.Resize(newNumberOfNodesAllocated, 2, NULL_CHILD);
+        mIntFeatureParams.Resize(newNumberOfNodesAllocated, mIntFeatureParams.GetN());
+        mFloatFeatureParams.Resize(newNumberOfNodesAllocated, mFloatFeatureParams.GetN());
+        mCounts.Resize(newNumberOfNodesAllocated);
+        mDepths.Resize(newNumberOfNodesAllocated);
+        mYs.Resize(newNumberOfNodesAllocated, mYs.GetN());
+    }
+    return nextNodeIndex;
 }

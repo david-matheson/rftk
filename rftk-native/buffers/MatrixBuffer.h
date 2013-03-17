@@ -12,6 +12,7 @@ class MatrixBufferTemplate {
 public:
     MatrixBufferTemplate();
     MatrixBufferTemplate(int m, int n);
+    MatrixBufferTemplate(int m, int n, T value);
     MatrixBufferTemplate(float* data, int m, int n);
     MatrixBufferTemplate(double* data, int m, int n);
     MatrixBufferTemplate(int* data, int m, int n);
@@ -19,6 +20,7 @@ public:
     ~MatrixBufferTemplate();
 
     void Resize(int m, int n);
+    void Resize(int m, int n, T value);
     void Zero();
     void SetAll(const T value);
 
@@ -73,6 +75,14 @@ MatrixBufferTemplate<T>::MatrixBufferTemplate(int m, int n)
 {
 }
 
+template <class T>
+MatrixBufferTemplate<T>::MatrixBufferTemplate(int m, int n, T value)
+: mData( m*n, value )
+, mM(m)
+, mN(n)
+{
+}
+    
 template <class T>
 MatrixBufferTemplate<T>::MatrixBufferTemplate(float* data, int m, int n)
 : mData( m*n )
@@ -129,9 +139,15 @@ MatrixBufferTemplate<T>::~MatrixBufferTemplate()
 template <class T>
 void MatrixBufferTemplate<T>::Resize(int m, int n)
 {
+    Resize(m, n, T());
+}
+
+template <class T>
+void MatrixBufferTemplate<T>::Resize(int m, int n, T value)
+{
     if(static_cast<size_t>(m*n) > mData.size())
     {
-        mData.resize(m*n);
+        mData.resize(m*n, value);
     }
     mM = m;
     mN = n;

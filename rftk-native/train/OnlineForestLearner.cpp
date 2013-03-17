@@ -107,10 +107,8 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
                 // Split the node
                 if( activeSplit->ShouldSplit() == SPLT_CRITERIA_READY_TO_SPLIT )
                 {
-                    const int leftNode = tree.mLastNodeIndex;
-                    tree.mLastNodeIndex++;
-                    const int rightNode = tree.mLastNodeIndex;
-                    tree.mLastNodeIndex++;
+                    const int leftNode = tree.NextNodeIndex();
+                    const int rightNode = tree.NextNodeIndex();
                     activeSplit->WriteToTree(nodeIndex, leftNode, rightNode,
                                             tree.mPath, tree.mFloatFeatureParams, tree.mIntFeatureParams,
                                             tree.mDepths, tree.mCounts, tree.mYs);

@@ -21,6 +21,8 @@ public:
     int mTotalEstimatorPoints;
 };
 
+const int NULL_CHILD = -1;
+
 class Tree
 {
 public:
@@ -31,8 +33,9 @@ public:
             const Int32VectorBuffer& depths,
             const Float32VectorBuffer& counts,
             const Float32MatrixBuffer& ys );
-    Tree( int maxNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim );
+    Tree( int initalNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim );
     void GatherStats(ForestStats& stats) const;
+    int NextNodeIndex();
 
     Int32MatrixBuffer mPath;
     Int32MatrixBuffer mIntFeatureParams;
@@ -40,6 +43,7 @@ public:
     Float32VectorBuffer mCounts;
     Int32VectorBuffer mDepths;
     Float32MatrixBuffer mYs;
+private:
     int mLastNodeIndex;
     bool mValid;
 };

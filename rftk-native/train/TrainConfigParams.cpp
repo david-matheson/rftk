@@ -8,13 +8,13 @@ TrainConfigParams::TrainConfigParams(  std::vector<FeatureExtractorI*> featureEx
                     BestSplitI* bestSplit,
                     SplitCriteriaI* splitCriteria,
                     int numberOfTrees,
-                    int maxNumberOfNodes)
+                    int initialNumberOfNodes)
 : mFeatureExtractors(0)
 , mNodeDataCollectorFactory(nodeDataCollectorFactory->Clone())
 , mBestSplit(bestSplit->Clone())
 , mSplitCriteria(splitCriteria->Clone())
 , mNumberOfTrees(numberOfTrees)
-, mMaxNumberOfNodes(maxNumberOfNodes)
+, mInitialNumberOfNodes(initialNumberOfNodes)
 {
     for(unsigned int i=0; i<featureExtractors.size(); i++)
     {
@@ -28,7 +28,7 @@ TrainConfigParams::TrainConfigParams( const TrainConfigParams& other )
 , mBestSplit(other.mBestSplit->Clone())
 , mSplitCriteria(other.mSplitCriteria->Clone())
 , mNumberOfTrees(other.mNumberOfTrees)
-, mMaxNumberOfNodes(other.mMaxNumberOfNodes)
+, mInitialNumberOfNodes(other.mInitialNumberOfNodes)
 {
     for(unsigned int i=0; i<other.mFeatureExtractors.size(); i++)
     {
@@ -49,7 +49,7 @@ TrainConfigParams& TrainConfigParams::operator=( const TrainConfigParams& rhs )
     mBestSplit = rhs.mBestSplit->Clone();
     mSplitCriteria = rhs.mSplitCriteria->Clone();
     mNumberOfTrees = rhs.mNumberOfTrees;
-    mMaxNumberOfNodes = rhs.mMaxNumberOfNodes;
+    mInitialNumberOfNodes = rhs.mInitialNumberOfNodes;
     return *this;
 }
 
