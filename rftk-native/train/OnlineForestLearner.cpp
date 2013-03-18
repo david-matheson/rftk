@@ -18,7 +18,7 @@ OnlineForestLearner::OnlineForestLearner( const TrainConfigParams& trainConfigPa
 , mOnlineSamplingParams(samplingParams)
 , mMaxFrontierSize(maxFrontierSize)
 , mForest(  mTrainConfigParams.mNumberOfTrees,
-            mTrainConfigParams.mMaxNumberOfNodes,
+            mTrainConfigParams.mInitialNumberOfNodes,
             mTrainConfigParams.GetIntParamsMaxDim(),
             mTrainConfigParams.GetFloatParamsMaxDim(),
             mTrainConfigParams.GetYDim())

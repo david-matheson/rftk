@@ -117,7 +117,6 @@ int Tree::NextNodeIndex()
     if( mLastNodeIndex >= numberOfNodesAllocated )
     {
         int newNumberOfNodesAllocated = mLastNodeIndex + numberOfNodesAllocated/2 + 1;
-        // printf("Tree::NextNodeIndex resize %d=>%d\n", numberOfNodesAllocated, newNumberOfNodesAllocated);
         mPath.Resize(newNumberOfNodesAllocated, 2, NULL_CHILD);
         mIntFeatureParams.Resize(newNumberOfNodesAllocated, mIntFeatureParams.GetN());
         mFloatFeatureParams.Resize(newNumberOfNodesAllocated, mFloatFeatureParams.GetN());
