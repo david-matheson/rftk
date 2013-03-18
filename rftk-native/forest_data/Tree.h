@@ -36,6 +36,7 @@ public:
     Tree( int initalNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim );
     void GatherStats(ForestStats& stats) const;
     int NextNodeIndex();
+    void Compact();
 
     Int32MatrixBuffer mPath;
     Int32MatrixBuffer mIntFeatureParams;

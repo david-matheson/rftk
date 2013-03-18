@@ -126,3 +126,13 @@ int Tree::NextNodeIndex()
     }
     return nextNodeIndex;
 }
+
+void Tree::Compact()
+{
+    mPath.Resize(mLastNodeIndex, 2, NULL_CHILD);
+    mIntFeatureParams.Resize(mLastNodeIndex, mIntFeatureParams.GetN());
+    mFloatFeatureParams.Resize(mLastNodeIndex, mFloatFeatureParams.GetN());
+    mCounts.Resize(mLastNodeIndex);
+    mDepths.Resize(mLastNodeIndex);
+    mYs.Resize(mLastNodeIndex, mYs.GetN());
+}
