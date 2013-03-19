@@ -254,17 +254,18 @@ void Tensor3BufferTemplate<T>::Print() const
 }
 
 
-
 typedef Tensor3BufferTemplate<float> Float32Tensor3Buffer;
+typedef Tensor3BufferTemplate<double> Float64Tensor3Buffer;
 typedef Tensor3BufferTemplate<int> Int32Tensor3Buffer;
+typedef Tensor3BufferTemplate<long long> Int64Tensor3Buffer;
 
+Float32Tensor3Buffer Float32Tensor2(float* float2d, int m, int n);
+Float64Tensor3Buffer Float64Tensor2(double* double2d, int m, int n);
+Int32Tensor3Buffer Int32Tensor2(int* int2d, int m, int n);
+Int64Tensor3Buffer Int64Tensor2(long long* long2d, int m, int n);
 
-// Float32Tensor3Buffer Float32Tensor2(float* float2d, int m, int n);
-Float32Tensor3Buffer Float32Tensor2(double* double2d, int m, int n);
-// Int32Tensor3Buffer Int32Tensor2(int* int2d, int m, int n);
-Int32Tensor3Buffer Int32Tensor2(long long* long2d, int m, int n);
+Float32Tensor3Buffer Float32Tensor3(float* float3d, int l, int m, int n);
+Float64Tensor3Buffer Float64Tensor3(double* double3d, int l, int m, int n);
+Int32Tensor3Buffer Int32Tensor3(int* int3d, int l, int m, int n);
+Int64Tensor3Buffer Int64Tensor3(long long* long3d, int l, int m, int n);
 
-// Float32Tensor3Buffer Float32Tensor3(float* float3d, int l, int m, int n);
-Float32Tensor3Buffer Float32Tensor3(double* double3d, int l, int m, int n);
-// Int32Tensor3Buffer Int32Tensor3(int* int3d, int l, int m, int n);
-Int32Tensor3Buffer Int32Tensor3(long long* long3d, int l, int m, int n);

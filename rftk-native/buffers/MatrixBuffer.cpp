@@ -1,50 +1,24 @@
 #include "MatrixBuffer.h"
 
 
-Float32MatrixBuffer Float32Matrix(double* double2d, int m, int n)
-{
-    return Float32MatrixBuffer(double2d, m, n);
+#define DEFINE_SWIG_INTERFACE_FUNCTION_2D(TYPE_PREFIX, TYPE, TYPE_VAR) \
+TYPE_PREFIX ## MatrixBuffer TYPE_PREFIX ## Matrix2(TYPE* TYPE_VAR ## 2d, int m, int n) \
+{ \
+    return TYPE_PREFIX ## MatrixBuffer(TYPE_VAR ## 2d, m, n); \
 }
 
-Float64MatrixBuffer Float64Matrix(double* double2d, int m, int n)
-{
-    return Float64MatrixBuffer(double2d, m, n);
+DEFINE_SWIG_INTERFACE_FUNCTION_2D(Float32, float, float)
+DEFINE_SWIG_INTERFACE_FUNCTION_2D(Float64, double, double)
+DEFINE_SWIG_INTERFACE_FUNCTION_2D(Int32, int, int)
+DEFINE_SWIG_INTERFACE_FUNCTION_2D(Int64, long long, long)
+
+#define DEFINE_SWIG_INTERFACE_FUNCTION_1D(TYPE_PREFIX, TYPE, TYPE_VAR) \
+TYPE_PREFIX ## MatrixBuffer TYPE_PREFIX ## Matrix1(TYPE* TYPE_VAR ## 1d, int n) \
+{ \
+    return TYPE_PREFIX ## MatrixBuffer(TYPE_VAR ## 1d, n, 1); \
 }
 
-Int32MatrixBuffer Int32Matrix(int* int2d, int m, int n)
-{
-    return Int32MatrixBuffer(int2d, m, n);
-}
-
-Int64MatrixBuffer Int64Matrix(long long* long2d, int m, int n)
-{
-    return Int64MatrixBuffer(long2d, m, n);
-}
-
-
-
-// Old helper
-
-Float32MatrixBuffer vecBufferFloat(float* float1d, int n)
-{
-    return Float32MatrixBuffer(float1d, n, 1);
-}
-
-Float64MatrixBuffer vecBufferFloat64(double* double1d, int n)
-{
-    return Float64MatrixBuffer(double1d, n, 1);
-}
-
-Int32MatrixBuffer vecBufferInt(int* int1d, int n)
-{
-    return Int32MatrixBuffer(int1d, n, 1);
-}
-
-Int64MatrixBuffer vecBufferInt64(long long* long1d, int n)
-{
-    return Int64MatrixBuffer(long1d, n, 1);
-}
-
-
-
-
+DEFINE_SWIG_INTERFACE_FUNCTION_1D(Float32, float, float)
+DEFINE_SWIG_INTERFACE_FUNCTION_1D(Float64, double, double)
+DEFINE_SWIG_INTERFACE_FUNCTION_1D(Int32, int, int)
+DEFINE_SWIG_INTERFACE_FUNCTION_1D(Int64, long long, long)

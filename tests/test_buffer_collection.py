@@ -50,12 +50,12 @@ class TestBufferCollectoin(unittest.TestCase):
 
         self.assertEqual(collection.HasFloat32MatrixBuffer("first"), False)
         data_1 = np.array([[3,21,1],[22,1,5],[2,3,4],[7,7,7]], dtype=np.float32 )
-        collection.AddFloat32MatrixBuffer("first", buffers.Float32Matrix( data_1 ))
+        collection.AddFloat32MatrixBuffer("first", buffers.Float32Matrix2( data_1 ))
         self.assertEqual(collection.HasFloat32MatrixBuffer("first"), True)
 
         self.assertEqual(collection.HasFloat32MatrixBuffer("second"), False)
         data_2 = np.array([[3,21,1],[22,1,5]], dtype=np.float32 )
-        collection.AddFloat32MatrixBuffer("second", buffers.Float32Matrix( data_2 ))
+        collection.AddFloat32MatrixBuffer("second", buffers.Float32Matrix2( data_2 ))
         self.assertEqual(collection.HasFloat32MatrixBuffer("second"), True)
 
         data_1_out = buffer_converters.as_numpy_array(buffer=collection.GetFloat32MatrixBuffer("first"))
@@ -69,12 +69,12 @@ class TestBufferCollectoin(unittest.TestCase):
 
         self.assertEqual(collection.HasInt32MatrixBuffer("first"), False)
         data_1 = np.array([[3,21,1],[22,1,5],[2,3,4],[7,7,7]], dtype=np.int32 )
-        collection.AddInt32MatrixBuffer("first", buffers.Int32Matrix( data_1 ))
+        collection.AddInt32MatrixBuffer("first", buffers.Int32Matrix2( data_1 ))
         self.assertEqual(collection.HasInt32MatrixBuffer("first"), True)
 
         self.assertEqual(collection.HasInt32MatrixBuffer("second"), False)
         data_2 = np.array([[3,21,1],[22,1,5]], dtype=np.int32 )
-        collection.AddInt32MatrixBuffer("second", buffers.Int32Matrix( data_2 ))
+        collection.AddInt32MatrixBuffer("second", buffers.Int32Matrix2( data_2 ))
         self.assertEqual(collection.HasInt32MatrixBuffer("second"), True)
 
         data_1_out = buffer_converters.as_numpy_array(buffer=collection.GetInt32MatrixBuffer("first"))

@@ -40,23 +40,23 @@ class TestBufferConverters(unittest.TestCase):
     def test_img_buffer(self):
         X = np.array([[[3,21,1],[22,1,5]],[[2,3,4],[7,7,7]]], dtype=np.int32 )
         self.convert_img_buffer_both_directions_helper(X=X, buffer_type=buffers.Int32Tensor3Buffer)
-        X = np.array([[[3,21,1],[22,1,5]],[[2,3,4],[7,7,7]]], dtype=np.int )
-        self.convert_img_buffer_both_directions_helper(X=X, buffer_type=buffers.Int32Tensor3Buffer)
+        X = np.array([[[3,21,1],[22,1,5]],[[2,3,4],[7,7,7]]], dtype=np.int64 )
+        self.convert_img_buffer_both_directions_helper(X=X, buffer_type=buffers.Int64Tensor3Buffer)
         X = np.array([[[3,21,1],[22,1,5]],[[2,3,4],[7,7,7]]], dtype=np.float32 )
         self.convert_img_buffer_both_directions_helper(X=X, buffer_type=buffers.Float32Tensor3Buffer)
-        X = np.array([[[3,21,1],[22,1,5]],[[2,3,4],[7,7,7]]], dtype=np.float )
-        self.convert_img_buffer_both_directions_helper(X=X, buffer_type=buffers.Float32Tensor3Buffer)
+        X = np.array([[[3,21,1],[22,1,5]],[[2,3,4],[7,7,7]]], dtype=np.float64 )
+        self.convert_img_buffer_both_directions_helper(X=X, buffer_type=buffers.Float64Tensor3Buffer)
 
 
     def test_img_buffer_flatten(self):
         X = np.array([[3,21,1],[22,1,5]], dtype=np.int32 )
         self.img_buffer_flatten_helper(X=X, buffer_type=buffers.Int32Tensor3Buffer)
-        X_64 = np.array([[3,21,1],[22,1,5]], dtype=np.int )
-        self.img_buffer_flatten_helper(X=X_64, buffer_type=buffers.Int32Tensor3Buffer)
+        X_64 = np.array([[3,21,1],[22,1,5]], dtype=np.int64 )
+        self.img_buffer_flatten_helper(X=X_64, buffer_type=buffers.Int64Tensor3Buffer)
         X = np.array([[3,21,1],[22,1,5]], dtype=np.float32 )
         self.img_buffer_flatten_helper(X=X, buffer_type=buffers.Float32Tensor3Buffer)
-        X_64 = np.array([[3,21,1],[22,1,5]], dtype=np.float )
-        self.img_buffer_flatten_helper(X=X_64, buffer_type=buffers.Float32Tensor3Buffer)
+        X_64 = np.array([[3,21,1],[22,1,5]], dtype=np.float64 )
+        self.img_buffer_flatten_helper(X=X_64, buffer_type=buffers.Float64Tensor3Buffer)
 
     def test_matrix_buffer(self):
         X = np.array([[3,21,1],[22,1,5]], dtype=np.int32 )
