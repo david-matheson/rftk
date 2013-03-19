@@ -2,39 +2,38 @@ import unittest as unittest
 import numpy as np
 import rftk.native.assert_util
 import rftk.native.buffers as buffers
-import rftk.utils.buffer_converters as buffer_converters
 
 
 class TestBufferConverters(unittest.TestCase):
 
     def convert_img_buffer_both_directions_helper(self, X, buffer_type):
-        buf = buffer_converters.as_tensor_buffer(X)
+        buf = buffers.as_tensor_buffer(X)
         assert isinstance(buf, buffer_type)
-        X_back = buffer_converters.as_numpy_array(buf)
+        X_back = buffers.as_numpy_array(buf)
         self.assertTrue((X == X_back).all())
 
     def img_buffer_flatten_helper(self, X, buffer_type):
         m,n = X.shape
-        img_buffer = buffer_converters.as_tensor_buffer(X)
+        img_buffer = buffers.as_tensor_buffer(X)
         assert isinstance(img_buffer, buffer_type)
-        X_back = buffer_converters.as_numpy_array(img_buffer)
+        X_back = buffers.as_numpy_array(img_buffer)
         self.assertTrue((X.reshape(1,m,n) == X_back).all())
-        X_back = buffer_converters.as_numpy_array(buffer=img_buffer, flatten=True)
+        X_back = buffers.as_numpy_array(buffer=img_buffer, flatten=True)
         self.assertTrue((X == X_back).all())
 
     def convert_matrix_buffer_both_directions_helper(self, X, buffer_type):
-        buf = buffer_converters.as_matrix_buffer(X)
+        buf = buffers.as_matrix_buffer(X)
         assert isinstance(buf, buffer_type)
-        X_back = buffer_converters.as_numpy_array(buf)
+        X_back = buffers.as_numpy_array(buf)
         self.assertTrue((X == X_back).all())
 
     def matrix_buffer_flatten_helper(self, X, buffer_type):
         n = len(X.shape)
-        matrix_buffer = buffer_converters.as_matrix_buffer(X)
+        matrix_buffer = buffers.as_matrix_buffer(X)
         assert isinstance(matrix_buffer, buffer_type)
-        X_back = buffer_converters.as_numpy_array(matrix_buffer)
+        X_back = buffers.as_numpy_array(matrix_buffer)
         self.assertTrue((X == X_back.flatten()).all())
-        X_back = buffer_converters.as_numpy_array(buffer=matrix_buffer, flatten=True)
+        X_back = buffers.as_numpy_array(buffer=matrix_buffer, flatten=True)
         self.assertTrue((X == X_back).all())
 
     def test_img_buffer(self):

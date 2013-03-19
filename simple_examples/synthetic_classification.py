@@ -12,7 +12,7 @@ import rftk.native.best_split as best_splits
 import rftk.native.predict as predict
 import rftk.native.train as train
 
-import rftk.utils.buffer_converters as buffer_converters
+
 import rftk.utils.predict as predict_utils
 
 import plot_utils
@@ -68,7 +68,7 @@ if __name__ == "__main__":
         depth_first_learner = train.DepthFirstParallelForestLearner(train_config)
 
         data = buffers.BufferCollection()
-        data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(X_train))
+        data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffers.as_matrix_buffer(X_train))
         data.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffers.Int32Vector(Y_train))
         sampling_config = train.OfflineSamplingParams(x_m, True)
         indices = buffers.Int32Vector( np.array(np.arange(x_m), dtype=np.int32) )

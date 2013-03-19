@@ -14,7 +14,6 @@ import rftk.native.best_split as best_splits
 import rftk.native.predict as predict
 import rftk.native.train as train
 
-import rftk.utils.buffer_converters as buffer_converters
 import rftk.utils.predict as predict_utils
 import rftk.utils.forest as forest_utils
 
@@ -251,14 +250,14 @@ def classify_pixels(depth, forest):
     assert(depth.ndim == 2)
     m,n = depth.shape
     pixel_indices = np.array( list(itertools.product( np.zeros(1), range(m), range(n) )), dtype=np.int32 )
-    buffer_collection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, buffer_converters.as_matrix_buffer(pixel_indices))
-    depth_buffer = buffer_converters.as_tensor_buffer(depth)
+    buffer_collection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, buffers.as_matrix_buffer(pixel_indices))
+    depth_buffer = buffers.as_tensor_buffer(depth)
     buffer_collection.AddFloat32Tensor3Buffer(buffers.DEPTH_IMAGES, depth_buffer)
 
     yprobs_buffer = buffers.Float32MatrixBuffer()
     forest_predictor = predict.ForestPredictor(forest)
     forest_predictor.PredictYs(buffer_collection, m*n, yprobs_buffer)
-    yprobs = buffer_converters.as_numpy_array(yprobs_buffer)
+    yprobs = buffers.as_numpy_array(yprobs_buffer)
     (_, ydim) = yprobs.shape
     img_yprobs = yprobs.reshape((m,n,ydim))
     img_yhat = np.argmax(img_yprobs, axis=2)
@@ -270,13 +269,13 @@ def classify_body_pixels(depth, ground_labels, forest):
     m,n = depth.shape
     pixel_indices = to_indices(0, np.where(ground_labels != background))
     (number_of_non_background_pixels,_) = pixel_indices.shape
-    buffer_collection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, buffer_converters.as_matrix_buffer(pixel_indices))
-    buffer_collection.AddFloat32Tensor3Buffer(buffers.DEPTH_IMAGES, buffer_converters.as_tensor_buffer(depth))
+    buffer_collection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, buffers.as_matrix_buffer(pixel_indices))
+    buffer_collection.AddFloat32Tensor3Buffer(buffers.DEPTH_IMAGES, buffers.as_tensor_buffer(depth))
 
     forest_predictor = predict.ForestPredictor(forest)
     yprobs_buffer = buffers.Float32MatrixBuffer()
     forest_predictor.PredictYs(buffer_collection, number_of_non_background_pixels, yprobs_buffer)
-    yprobs = buffer_converters.as_numpy_array(yprobs_buffer)
+    yprobs = buffers.as_numpy_array(yprobs_buffer)
     (_, ydim) = yprobs.shape
     img_yprobs = np.zeros((m,n), dtype=np.float32)
     img_yprobs[ground_labels != background].shape

@@ -15,7 +15,6 @@ import rftk.native.best_split as best_splits
 import rftk.native.predict as predict
 import rftk.native.train as train
 
-import rftk.utils.buffer_converters as buffer_converters
 import rftk.utils.forest as forest_utils
 
 import utils as kinect_utils
@@ -31,12 +30,12 @@ def load_data(pose_path, list_of_poses):
 
         depths = depths
 
-        depths_buffer = buffer_converters.as_tensor_buffer(depths)
-        labels_buffer = buffer_converters.as_tensor_buffer(labels)
+        depths_buffer = buffers.as_tensor_buffer(depths)
+        labels_buffer = buffers.as_tensor_buffer(labels)
 
         if concat:
-            complete_depths_buffer.AppendSlice(depths_buffer)
-            complete_labels_buffer.AppendSlice(labels_buffer)
+            complete_depths_buffer.Append(depths_buffer)
+            complete_labels_buffer.Append(labels_buffer)
         else:
             complete_depths_buffer = depths_buffer
             complete_labels_buffer = labels_buffer
@@ -69,8 +68,8 @@ if __name__ == "__main__":
     depths_buffer, labels_buffer = load_data(args.pose_files_input_path,
                                             pose_filenames[0:args.number_of_images])
 
-    depths = buffer_converters.as_numpy_array(depths_buffer)
-    labels = buffer_converters.as_numpy_array(labels_buffer)
+    depths = buffers.as_numpy_array(depths_buffer)
+    labels = buffers.as_numpy_array(labels_buffer)
 
     # Load forest
     for (pass_id, forest_id) in forest_ids:

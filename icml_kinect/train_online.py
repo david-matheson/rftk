@@ -23,7 +23,7 @@ import rftk.native.best_split as best_splits
 import rftk.native.predict as predict
 import rftk.native.train as train
 
-import rftk.utils.buffer_converters as buffer_converters
+
 import rftk.utils.forest as forest_utils
 
 import utils as kinect_utils
@@ -34,16 +34,16 @@ class KinectOnlineConfig(object):
         self.number_of_pixels_per_image = 1000
 
     def configure_online_learner(self, number_of_trees, split_rate, number_datapoints_split_root, eval_split_period):
-        number_of_features = 500
-        number_of_thresholds = 4
+        number_of_features = 5000
+        number_of_thresholds = 10
         y_dim = kinect_utils.number_of_body_parts
         null_probability = 0
         impurity_probability = 0.5
         split_rate = split_rate
         number_of_data_to_split_root = number_datapoints_split_root
-        number_of_data_to_force_split_root = 10 * number_datapoints_split_root
+        number_of_data_to_force_split_root = 5 * number_datapoints_split_root
         min_impurity_gain = 0.01
-        max_tree_depth = 12
+        max_tree_depth = 1000
 
         sigma_x = 75
         sigma_y = 75
@@ -138,16 +138,16 @@ if __name__ == "__main__":
 
             # Package buffers for learner
             bufferCollection = buffers.BufferCollection()
-            bufferCollection.AddFloat32Tensor3Buffer(buffers.DEPTH_IMAGES, buffer_converters.as_tensor_buffer(depths))
-            bufferCollection.AddFloat32MatrixBuffer(buffers.OFFSET_SCALES, buffer_converters.as_matrix_buffer(offset_scales))
-            bufferCollection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, buffer_converters.as_matrix_buffer(pixel_indices))
-            bufferCollection.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffer_converters.as_vector_buffer(pixel_labels))
+            bufferCollection.AddFloat32Tensor3Buffer(buffers.DEPTH_IMAGES, buffers.as_tensor_buffer(depths))
+            bufferCollection.AddFloat32MatrixBuffer(buffers.OFFSET_SCALES, buffers.as_matrix_buffer(offset_scales))
+            bufferCollection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, buffers.as_matrix_buffer(pixel_indices))
+            bufferCollection.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffers.as_vector_buffer(pixel_labels))
 
             # Update learner
             online_learner.Train(bufferCollection, buffers.Int32Vector(datapoint_indices))
 
             #pickle forest and data used for training
-            if (i+1) % 5 == 0:
+            if (i+1) % 100 == 0:
                 forest_pickle_filename = "%s/forest-%d-%d.pkl" % (online_run_folder, pass_id, i+1)
                 forest_utils.pickle_dump_native_forest(online_learner.GetForest(), forest_pickle_filename)
 

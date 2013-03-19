@@ -100,3 +100,5 @@ DECLARE_WRAPPER_FOR_SPARSE_TYPE(long long, Int64SparseMatrix)
 %template(Int32SparseMatrixBuffer) SparseMatrixBufferTemplate<int>;
 %template(Int64SparseMatrixBuffer) SparseMatrixBufferTemplate<long long>;
 
+
+%include pybuffer_converters.i
