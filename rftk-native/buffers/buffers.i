@@ -99,48 +99,9 @@ DECLARE_WRAPPER_FOR_SPARSE_TYPE(long long, Int64SparseMatrix)
 %template(Int32SparseMatrixBuffer) SparseMatrixBufferTemplate<int>;
 %template(Int64SparseMatrixBuffer) SparseMatrixBufferTemplate<long long>;
 
-%include pybuffer_converters.i
+%include "buffer_converters.i"
 
 %include "BufferCollection.h"
 
-%pythoncode %{
-import buffers as buffers
-def buffer_add (self, name, b):
-    if not buffers.is_buffer(b):
-        b = buffers.as_buffer(b)
+%include "buffer_collection.i"
 
-    if isinstance(b, buffers.Float32VectorBuffer):
-        self.AddFloat32VectorBuffer(name, b)
-    elif isinstance(b, buffers.Float64VectorBuffer):
-        self.AddFloat64VectorBuffer(name, b)
-    elif isinstance(b, buffers.Int32VectorBuffer):
-        self.AddInt32VectorBuffer(name, b)
-    elif isinstance(b, buffers.Int64VectorBuffer):
-        self.AddInt64VectorBuffer(name, b)
-    elif isinstance(b, buffers.Float32MatrixBuffer):
-        self.AddFloat32MatrixBuffer(name, b)
-    elif isinstance(b, buffers.Float64MatrixBuffer):
-        self.AddFloat64MatrixBuffer(name, b)
-    elif isinstance(b, buffers.Int32MatrixBuffer):
-        self.AddInt32MatrixBuffer(name, b)
-    elif isinstance(b, buffers.Int64MatrixBuffer):
-        self.AddInt64MatrixBuffer(name, b)
-    elif isinstance(b, buffers.Float32Tensor3Buffer):
-        self.AddFloat32Tensor3Buffer(name, b)
-    elif isinstance(b, buffers.Float64Tensor3Buffer):
-        self.AddFloat64Tensor3Buffer(name, b)
-    elif isinstance(b, buffers.Int32Tensor3Buffer):
-        self.AddInt32Tensor3Buffer(name, b)
-    elif isinstance(b, buffers.Int64Tensor3Buffer):
-        self.AddInt64Tensor3Buffer(name, b)
-    elif isinstance(b, buffers.Float32SparseMatrixBuffer):
-        self.AddFloat32SparseMatrixBuffer(name, b)
-    elif isinstance(b, buffers.Float64SparseMatrixBuffer):
-        self.AddFloat64SparseMatrixBuffer(name, b)
-    elif isinstance(b, buffers.Int32SparseMatrixBuffer):
-        self.AddInt32SparseMatrixBuffer(name, b)
-    elif isinstance(b, buffers.Int64SparseMatrixBuffer):
-        self.AddInt64SparseMatrixBuffer(name, b)
-
-BufferCollection.Add = buffer_add
-%}

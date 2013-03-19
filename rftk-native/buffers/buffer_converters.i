@@ -23,7 +23,7 @@ def as_vector_buffer( np_array ):
         function = getattr(buffers, function_name)
         return function(np_array)
     else:
-        raise Exception('as_vector_buffer failed because %s does not exist', function_name)
+        raise Exception('as_vector_buffer failed because %s does not exist' % function_name)
 
 def as_matrix_buffer( np_array ):
     type_string = np_array.dtype.name.title()
@@ -32,7 +32,7 @@ def as_matrix_buffer( np_array ):
         function = getattr(buffers, function_name)
         return function(np_array)
     else:
-        raise Exception('as_matrix_buffer failed because %s does not exist', function_name)
+        raise Exception('as_matrix_buffer failed because %s does not exist' % function_name)
 
 def as_sparse_matrix( sparse_matrix ):
     type_string = np.sparse_matrix.dtype.name.title()
@@ -41,7 +41,7 @@ def as_sparse_matrix( sparse_matrix ):
         function = getattr(buffers, function_name)
         return function(np_array)
     else:
-        raise Exception('as_sparse_matrix failed because %s does not exist', function_name)
+        raise Exception('as_sparse_matrix failed because %s does not exist' % function_name)
 
 
 def as_tensor_buffer( np_array ):
@@ -51,7 +51,7 @@ def as_tensor_buffer( np_array ):
         function = getattr(buffers, function_name)
         return function(np_array)
     else:
-        raise Exception('as_tensor_buffer failed because %s does not exist', function_name)
+        raise Exception('as_tensor_buffer failed because %s does not exist' % function_name)
 
 def as_numpy_array( buffer, flatten=False ):
     isFloatTensor3Buffer = isinstance(buffer, buffers.Float32Tensor3Buffer) or isinstance(buffer, buffers.Float64Tensor3Buffer)

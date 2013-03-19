@@ -9,20 +9,20 @@ class TestBufferCollectoin(unittest.TestCase):
     def test_img_float(self):
         collection = buffers.BufferCollection()
 
-        self.assertEqual(collection.HasFloat32Tensor3Buffer("first"), False)
+        self.assertEqual(collection.HasBuffer("first"), False)
         data_1 = np.array([[[3,21,1],[22,1,5]],[[2,3,4],[7,7,7]]], dtype=np.float32 )
         collection.Add("first", data_1)
-        self.assertEqual(collection.HasFloat32Tensor3Buffer("first"), True)
+        self.assertEqual(collection.HasBuffer("first"), True)
 
         self.assertEqual(collection.HasFloat32Tensor3Buffer("second"), False)
         data_2 = np.array([[[3,21,1],[22,1,5]]], dtype=np.float32 )
         collection.Add("second", data_2)
         self.assertEqual(collection.HasFloat32Tensor3Buffer("second"), True)
 
-        data_1_out = buffers.as_numpy_array(buffer=collection.GetFloat32Tensor3Buffer("first"))
+        data_1_out = buffers.as_numpy_array(buffer=collection.GetBuffer("first"))
         self.assertTrue((data_1 == data_1_out).all())
 
-        data_2_out = buffers.as_numpy_array(buffer=collection.GetFloat32Tensor3Buffer("second"))
+        data_2_out = buffers.as_numpy_array(buffer=collection.GetBuffer("second"))
         self.assertTrue((data_2 == data_2_out).all())
 
     def test_img_int(self):
