@@ -17,78 +17,41 @@ def as_buffer( np_array ):
         raise Exception('as_buffer unknown type and ndim', np_array.dtype, np_array.ndim())
 
 def as_vector_buffer( np_array ):
-    if np_array.dtype == np.int32 and np_array.ndim == 1:
-        return buffers.Int32Vector( np_array )
-    elif np_array.dtype == np.float32 and np_array.ndim == 1:
-        return buffers.Float32Vector( np_array )
-    elif np_array.dtype == np.int64 and np_array.ndim == 1:
-        return buffers.Int64Vector( np_array )
-    elif np_array.dtype == np.float64 and np_array.ndim == 1:
-        return buffers.Float64Vector( np_array )
-    elif np_array.dtype == np.int32 and np_array.ndim == 2:
-        return buffers.Int32Vector( np_array.flatten() )
-    elif np_array.dtype == np.float32 and np_array.ndim == 2:
-        return buffers.Float32Vector( np_array.flatten() )
-    elif np_array.dtype == np.int64 and np_array.ndim == 2:
-        return buffers.Int64Vector( np_array.flatten() )
-    elif np_array.dtype == np.float64 and np_array.ndim == 2:
-        return buffers.Float64Vector( np_array.flatten() )
+    type_string = np_array.dtype.name.title()
+    function_name = '%s%s' % (type_string, 'Vector')
+    if hasattr(buffers, function_name):
+        function = getattr(buffers, function_name)
+        return function(np_array)
     else:
-        raise Exception('as_vector_buffer unknown type and ndim', np_array.dtype, np_array.ndim())
+        raise Exception('as_vector_buffer failed because %s does not exist', function_name)
 
 def as_matrix_buffer( np_array ):
-    if np_array.dtype == np.int32 and np_array.ndim == 1:
-        return buffers.Int32Matrix1( np_array )
-    elif np_array.dtype == np.int32 and np_array.ndim == 2:
-        return buffers.Int32Matrix2( np_array )
-    elif np_array.dtype == np.float32 and np_array.ndim == 1:
-        return buffers.Float32Matrix1( np_array )
-    elif np_array.dtype == np.float32 and np_array.ndim == 2:
-        return buffers.Float32Matrix2( np_array )
-    elif np_array.dtype == np.int64 and np_array.ndim == 1:
-        return buffers.Int64Matrix1( np_array )
-    elif np_array.dtype == np.int64 and np_array.ndim == 2:
-        return buffers.Int64Matrix2( np_array )
-    elif np_array.dtype == np.float64 and np_array.ndim == 1:
-        return buffers.Float64Matrix1( np_array )
-    elif np_array.dtype == np.float64 and np_array.ndim == 2:
-        return buffers.Float64Matrix2( np_array )
+    type_string = np_array.dtype.name.title()
+    function_name = '%s%s%d' % (type_string, 'Matrix', np_array.ndim)
+    if hasattr(buffers, function_name):
+        function = getattr(buffers, function_name)
+        return function(np_array)
     else:
-        raise Exception('as_matrix_buffer unknown type and ndim', np_array.dtype, np_array.ndim())
+        raise Exception('as_matrix_buffer failed because %s does not exist', function_name)
 
 def as_sparse_matrix( sparse_matrix ):
-    if sparse_matrix.dtype == np.float32:
-        return buffers.Float32SparseMatrix(sparse_matrix)
-    elif sparse_matrix.dtype == np.float64:
-        return buffers.Float64SparseMatrix(sparse_matrix)
-    elif sparse_matrix.dtype == np.int32:
-        return buffers.Int32SparseMatrix(sparse_matrix)
-    elif sparse_matrix.dtype == np.int64:
-        return buffers.Int64SparseMatrix(sparse_matrix)
+    type_string = np.sparse_matrix.dtype.name.title()
+    function_name = '%s%s%d' % (type_string, 'SparseMatrix', sparse_matrix.ndim)
+    if hasattr(buffers, function_name):
+        function = getattr(buffers, function_name)
+        return function(np_array)
     else:
-        raise Exception('as_sparse_matrix unknown type', np_array.dtype)
+        raise Exception('as_sparse_matrix failed because %s does not exist', function_name)
 
 
 def as_tensor_buffer( np_array ):
-    if np_array.dtype == np.int32 and np_array.ndim == 2:
-        return buffers.Int32Tensor2( np_array )
-    elif np_array.dtype == np.int32 and np_array.ndim == 3:
-        return buffers.Int32Tensor3( np_array )
-    elif np_array.dtype == np.float32 and np_array.ndim == 2:
-        return buffers.Float32Tensor2( np_array )
-    elif np_array.dtype == np.float32 and np_array.ndim == 3:
-        return buffers.Float32Tensor3( np_array )
-    elif np_array.dtype == np.int64 and np_array.ndim == 2:
-        return buffers.Int64Tensor2( np_array )
-    elif np_array.dtype == np.int64 and np_array.ndim == 3:
-        return buffers.Int64Tensor3( np_array )
-    elif np_array.dtype == np.float64 and np_array.ndim == 2:
-        return buffers.Float64Tensor2( np_array )
-    elif np_array.dtype == np.float64 and np_array.ndim == 3:
-        return buffers.Float64Tensor3( np_array )
+    type_string = np_array.dtype.name.title()
+    function_name = '%s%s%d' % (type_string, 'Tensor', np_array.ndim)
+    if hasattr(buffers, function_name):
+        function = getattr(buffers, function_name)
+        return function(np_array)
     else:
-        raise Exception('as_tensor_buffer unknown type and ndim', np_array.dtype, np_array.ndim())
-
+        raise Exception('as_tensor_buffer failed because %s does not exist', function_name)
 
 def as_numpy_array( buffer, flatten=False ):
     isFloatTensor3Buffer = isinstance(buffer, buffers.Float32Tensor3Buffer) or isinstance(buffer, buffers.Float64Tensor3Buffer)
