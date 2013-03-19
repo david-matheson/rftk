@@ -147,10 +147,8 @@ void ProcessNode(   const TrainConfigParams& trainConfigParams,
     activeSplit->ProcessData(data, indices, gen);
     if( activeSplit->ShouldSplit() == SPLT_CRITERIA_READY_TO_SPLIT )
     {
-        const int leftNode = treeOut->mLastNodeIndex;
-        treeOut->mLastNodeIndex++;
-        const int rightNode = treeOut->mLastNodeIndex;
-        treeOut->mLastNodeIndex++;
+        const int leftNode = treeOut->NextNodeIndex();
+        const int rightNode = treeOut->NextNodeIndex();
         activeSplit->WriteToTree(nodeIndex, leftNode, rightNode,
                                 treeOut->mPath, treeOut->mFloatFeatureParams, treeOut->mIntFeatureParams,
                                 treeOut->mDepths, treeOut->mCounts, treeOut->mYs);

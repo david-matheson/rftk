@@ -79,8 +79,7 @@ def run_experiment(config):
                                                     node_data_collector,
                                                     class_infogain_best_split,
                                                     split_criteria,
-                                                    online_config.number_of_trees,
-                                                    1000)
+                                                    online_config.number_of_trees)
             sampling_config = train.OnlineSamplingParams(False, 1.0)
 
             # Train online forest

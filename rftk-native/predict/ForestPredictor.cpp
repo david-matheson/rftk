@@ -82,7 +82,7 @@ int nextChild( const Tree& tree, int nodeId, BufferCollection& data, const int i
 int walkTree( const Tree& tree, int nodeId, BufferCollection& data, const int index, int& treeDepthOut )
 {
     const int childNodeId = nextChild( tree, nodeId, data, index);
-    if(childNodeId == -1)
+    if(childNodeId == NULL_CHILD)
     {
        return nodeId;
     }
