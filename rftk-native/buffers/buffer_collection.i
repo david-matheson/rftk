@@ -1,7 +1,7 @@
 %pythoncode %{
 import buffers as buffers
 
-def buffer_add(self, name, b):
+def _buffer_add(self, name, b):
     if not buffers.is_buffer(b):
         b = buffers.as_buffer(b)
     class_name = b.__class__.__name__
@@ -12,7 +12,7 @@ def buffer_add(self, name, b):
     else:
         raise Exception('BufferCollection.Add failed because %s does not exist' % function_name)
 
-BufferCollection.Add = buffer_add
+BufferCollection.Add = _buffer_add
 
 _buffer_type_names = ['Float32VectorBuffer', 
                 'Float64VectorBuffer', 
@@ -31,7 +31,7 @@ _buffer_type_names = ['Float32VectorBuffer',
                 'Int32VectorSparseMatrixBuffer', 
                 'Int64VectorSparseMatrix']
 
-def get_buffer(self, name):
+def _get_buffer(self, name):
     for buffer_type_name in _buffer_type_names:
         has_function_name = "%s%s" % ('Has', buffer_type_name)
         has_function = getattr(self, has_function_name)
@@ -41,5 +41,16 @@ def get_buffer(self, name):
             return get_function(name)
     raise Exception('BufferCollection.GetBuffer failed because %s does not exist' % name)
 
-BufferCollection.GetBuffer = get_buffer
+BufferCollection.GetBuffer = _get_buffer
+
+buffers._BufferCollection = buffers.BufferCollection
+
+def _create_buffer(**kwargs):
+    collection = buffers._BufferCollection()
+    for key, value in kwargs.iteritems():
+        collection.Add(key, value)
+    return collection
+
+buffers.BufferCollection = _create_buffer
+
 %}

@@ -10,9 +10,9 @@
 #include "Tensor3Buffer.h"
 
 //Using #define for compatibility with swig
-#define X_FLOAT_DATA    "X_Float"
+#define X_FLOAT_DATA    "x_float"
 #define SAMPLE_WEIGHTS  "SampleWeights"
-#define CLASS_LABELS    "ClassLabels"
+#define CLASS_LABELS    "y_class"
 #define FEATURE_VALUES  "Feature_Values"
 #define HISTOGRAM_LEFT            "Histogram_Left"
 #define HISTOGRAM_RIGHT           "Histogram_Right"

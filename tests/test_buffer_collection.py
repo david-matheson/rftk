@@ -26,11 +26,11 @@ class TestBufferCollectoin(unittest.TestCase):
         self.assertTrue((data_2 == data_2_out).all())
 
     def test_img_int(self):
-        collection = buffers.BufferCollection()
-
-        self.assertEqual(collection.HasInt32Tensor3Buffer("first"), False)
         data_1 = np.array([[[3,21,1],[22,1,5]],[[2,3,4],[7,7,7]]], dtype=np.int32 )
-        collection.AddInt32Tensor3Buffer("first", buffers.as_tensor_buffer(data_1))
+        collection = buffers.BufferCollection(first=data_1)
+
+        # self.assertEqual(collection.HasInt32Tensor3Buffer("first"), False)
+        # collection.AddInt32Tensor3Buffer("first", buffers.as_tensor_buffer(data_1))
         self.assertEqual(collection.HasInt32Tensor3Buffer("first"), True)
 
         self.assertEqual(collection.HasInt32Tensor3Buffer("second"), False)
