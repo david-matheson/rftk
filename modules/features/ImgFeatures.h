@@ -1,8 +1,8 @@
 #pragma once
 
-#include "buffers/VectorBuffer.h"
-#include "buffers/MatrixBuffer.h"
-#include "buffers/Tensor3Buffer.h"
+#include <VectorBuffer.h>
+#include <MatrixBuffer.h>
+#include <Tensor3Buffer.h>
 
 #include "FeatureTypes.h"
 

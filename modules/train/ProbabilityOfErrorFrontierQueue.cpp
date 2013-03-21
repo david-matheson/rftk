@@ -1,6 +1,6 @@
 #include <algorithm>
 
-#include "asserts/asserts.h"
+#include <asserts.h>
 #include "ProbabilityOfErrorFrontierQueue.h"
 
 ProbabilityOfErrorFrontierQueue::ProbabilityOfErrorFrontierQueue(const int numberOfTrees)

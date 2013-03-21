@@ -4,8 +4,8 @@
 #include <cfloat>
 #include <cstdio>
 
-#include "asserts/asserts.h"
-#include "buffers/Tensor3Buffer.h"
+#include <asserts.h>
+#include <Tensor3Buffer.h>
 
 #include "ClassInfoGainHistogramsBestSplit.h"
 

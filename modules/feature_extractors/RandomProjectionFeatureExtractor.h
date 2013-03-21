@@ -9,11 +9,11 @@
 #include <boost/random/poisson_distribution.hpp>
 #include <boost/random/uniform_real.hpp>
 
-#include "bootstrap/bootstrap.h"
-#include "buffers/MatrixBuffer.h"
-#include "buffers/SparseMatrixBuffer.h"
-#include "buffers/BufferCollection.h"
-#include "features/FeatureTypes.h"
+#include <bootstrap.h>
+#include <MatrixBuffer.h>
+#include <SparseMatrixBuffer.h>
+#include <BufferCollection.h>
+#include <FeatureTypes.h>
 
 #include "FeatureExtractorI.h"
 

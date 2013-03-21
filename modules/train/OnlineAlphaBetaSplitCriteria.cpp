@@ -1,6 +1,6 @@
 #include "float.h"
 
-#include "asserts/asserts.h"
+#include <asserts.h>
 #include "OnlineAlphaBetaSplitCriteria.h"
 
 

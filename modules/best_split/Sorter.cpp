@@ -1,6 +1,6 @@
-#include "Sorter.h"
-
 #include <algorithm>
+
+#include "Sorter.h"
 
 Sorter::Sorter(const float* values, int numberOfValues)
 : mValueIndices(numberOfValues)

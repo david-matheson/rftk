@@ -1,6 +1,6 @@
 #include "float.h"
 
-#include "asserts/asserts.h"
+#include <asserts.h>
 #include "OfflineSplitCriteria.h"
 
 OfflineSplitCriteria::OfflineSplitCriteria( int maxDepth,

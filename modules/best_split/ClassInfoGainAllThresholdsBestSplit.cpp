@@ -3,8 +3,8 @@
 #include <stdexcept>
 #include "float.h"
 
-#include "asserts/asserts.h"
-#include "bootstrap/bootstrap.h"
+#include <asserts.h>
+#include <bootstrap.h>
 
 #include "Sorter.h"
 #include "ClassInfoGainAllThresholdsBestSplit.h"

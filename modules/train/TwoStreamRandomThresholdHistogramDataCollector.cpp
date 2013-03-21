@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <climits>
 
-#include "asserts/asserts.h"
+#include <asserts.h>
 #include "TwoStreamRandomThresholdHistogramDataCollector.h"
 
 

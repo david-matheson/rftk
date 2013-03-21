@@ -1,7 +1,7 @@
 #pragma once
 
-#include "buffers/BufferCollection.h"
-#include "forest_data/Forest.h"
+#include <BufferCollection.h>
+#include <Forest.h>
 
 
 class ForestPredictor

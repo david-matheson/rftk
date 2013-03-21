@@ -3,9 +3,10 @@
 #include <tr1/memory>
 #include <vector>
 
-#include "buffers/BufferCollection.h"
-#include "feature_extractors/FeatureExtractorI.h"
-#include "best_split/BestSplitI.h"
+#include <BufferCollection.h>
+#include <FeatureExtractorI.h>
+#include <BestSplitI.h>
+
 #include "SplitCriteriaI.h"
 #include "NodeDataCollectorI.h"
 

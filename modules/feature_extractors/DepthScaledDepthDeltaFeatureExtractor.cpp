@@ -7,9 +7,9 @@
 #include <ctime>
 #include <vector>
 
-#include "asserts/asserts.h"
-#include "bootstrap/bootstrap.h"
-#include "features/ImgFeatures.h"
+#include <asserts.h>
+#include <bootstrap.h>
+#include <ImgFeatures.h>
 
 #include "DepthScaledDepthDeltaFeatureExtractor.h"
 

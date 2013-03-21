@@ -1,7 +1,7 @@
 #pragma once
 
-#include "buffers/VectorBuffer.h"
-#include "buffers/MatrixBuffer.h"
+#include <VectorBuffer.h>
+#include <MatrixBuffer.h>
 #include "SplitCriteriaI.h"
 
 

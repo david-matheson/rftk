@@ -1,7 +1,7 @@
 #pragma once
 
-#include "buffers/MatrixBuffer.h"
-#include "forest_data/Forest.h"
+#include <MatrixBuffer.h>
+#include <Forest.h>
 
 #include "TrainConfigParams.h"
 #include "OfflineSamplingParams.h"

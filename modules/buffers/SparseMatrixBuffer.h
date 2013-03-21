@@ -14,7 +14,8 @@
 
 #include <boost/lambda/lambda.hpp>
 
-#include "asserts/asserts.h"
+#include <asserts.h>
+
 #include "MatrixBuffer.h"
 #include "VectorBuffer.h"
 

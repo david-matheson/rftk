@@ -1,7 +1,7 @@
 #pragma once
 
-#include "buffers/MatrixBuffer.h"
-#include "buffers/BufferCollection.h"
+#include <MatrixBuffer.h>
+#include <BufferCollection.h>
 
 #include "BestSplitI.h"
 

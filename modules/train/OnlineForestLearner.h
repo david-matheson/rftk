@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-#include "forest_data/Forest.h"
+#include <Forest.h>
 
 #include "ActiveSplitNode.h"
 #include "TrainConfigParams.h"

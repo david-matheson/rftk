@@ -6,9 +6,10 @@
 #include <vector>
 #include <set>
 
-#include "buffers/MatrixBuffer.h"
-#include "buffers/Tensor3Buffer.h"
-#include "buffers/BufferCollection.h"
+#include <MatrixBuffer.h>
+#include <Tensor3Buffer.h>
+#include <BufferCollection.h>
+
 #include "NodeDataCollectorI.h"
 
 

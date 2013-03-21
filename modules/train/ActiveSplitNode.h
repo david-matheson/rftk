@@ -6,10 +6,10 @@
 #include <vector>
 #include <tr1/memory>
 
-#include "buffers/MatrixBuffer.h"
-#include "buffers/BufferCollection.h"
-#include "feature_extractors/FeatureExtractorI.h"
-#include "best_split/BestSplitI.h"
+#include <MatrixBuffer.h>
+#include <BufferCollection.h>
+#include <FeatureExtractorI.h>
+#include <BestSplitI.h>
 
 #include "NodeDataCollectorI.h"
 #include "SplitCriteriaI.h"

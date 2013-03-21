@@ -1,6 +1,6 @@
 #pragma once
 
-#include "buffers/MatrixBuffer.h"
+#include <MatrixBuffer.h>
 #include "SplitCriteriaI.h"
 
 
