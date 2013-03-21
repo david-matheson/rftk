@@ -7,12 +7,11 @@
 %}
 
 %include <exception.i>
-%import "asserts/asserts.i"
-%import "buffers/buffers.i"
+%import "asserts.i"
+%import "buffers.i"
 
 %include "FeatureExtractorI.h"
 %include "DepthScaledDepthDeltaFeatureExtractor.h"
-%include "DepthScaledEntangledYsFeatureExtractor.h"
 
 %include "AxisAlignedFeatureExtractor.i"
 %include "RandomProjectionFeatureExtractor.i"

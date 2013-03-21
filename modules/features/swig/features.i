@@ -6,9 +6,8 @@
 %}
 
 %include <exception.i>
-%import "asserts/asserts.i"
-%import "buffers/buffers.i"
+%import "asserts.i"
+%import "buffers.i"
 
 %include "ImgFeatures.h"
-%include "VecFeatures.h"
 

@@ -6,8 +6,8 @@
 %}
 
 %include <exception.i>
-%import "asserts/asserts.i"
-%import "buffers/buffers.i"
+%import "asserts.i"
+%import "buffers.i"
 
 %include "std_vector.i"
 

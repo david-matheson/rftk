@@ -35,16 +35,19 @@ def build_swig_module(env, non_swig_warnings, variant_name, module_name, depends
     if env_module['PLATFORM'] == 'darwin':
         env_module['SHLINKFLAGS'] = '-dynamiclib -install_name %s/lib%s.dylib' % (Dir(install_path).abspath, module_name)
 
-    env_module.Append(CCFLAGS=non_swig_warnings, CPPPATH=[d for d in depends])
+    env_module.Append(CCFLAGS=non_swig_warnings, CPPPATH=['%s/native' % d for d in depends])
     shared_lib = env_module.SharedLibrary(target=module_name,
-                                        source=[Glob('%s/*.cpp' % module_name)],
+                                        source=[Glob('%s/native/*.cpp' % module_name)],
                                         LIBS=depends)
 
     env_module.Alias('%s-%s-lib' % (module_name, variant_name), shared_lib)
 
     env_python_wrapper = env.Clone()
-    env_python_wrapper.Append(CPPPATH=[d for d in depends],
-                            SWIGFLAGS=['-I%s' % (Dir('.').abspath) ] + ['-I%s/%s' % (Dir('.').abspath, x) for x in depends])
+    cpppath = ['%s/%s/native' % (Dir('.').abspath, d) for d in depends + [module_name]]
+    swigflags = ['-I%s/%s/native' % (Dir('.').abspath, d) for d in depends + [module_name]]
+    swigflags += ['-I%s/%s/swig' % (Dir('.').abspath, d) for d in depends + [module_name]]
+    env_python_wrapper.Append(CPPPATH=cpppath,
+                            SWIGFLAGS=swigflags)
     env_python_wrapper['SHLIBPREFIX'] = ''
 
     if env_python_wrapper['PLATFORM'] == 'darwin':
@@ -52,7 +55,7 @@ def build_swig_module(env, non_swig_warnings, variant_name, module_name, depends
         env_python_wrapper['SHLIBSUFFIX'] = '.so'
 
     python_lib = env_python_wrapper.SharedLibrary(target=('_%s' % module_name),
-                                        source=['%s/%s.i' % (module_name, module_name)],
+                                        source=['%s/swig/%s.i' % (module_name, module_name)],
                                         LIBS=module_name)
     env_python_wrapper.Alias('%s-%s' % (module_name, variant_name), python_lib)
 
@@ -63,7 +66,7 @@ def build_swig_module(env, non_swig_warnings, variant_name, module_name, depends
     Depends(python_lib, shared_lib)
     Depends('%s/%s.py', python_lib)
 
-    return shared_lib, python_lib, '%s/%s.py' % (module_name, module_name)
+    return shared_lib, python_lib, '%s/swig/%s.py' % (module_name, module_name)
 
 
 

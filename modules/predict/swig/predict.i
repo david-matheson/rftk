@@ -5,8 +5,8 @@
 %}
 
 %include <exception.i>
-%import "asserts/asserts.i"
-%import "buffers/buffers.i"
-%import "forest_data/forest_data.i"
+%import "asserts.i"
+%import "buffers.i"
+%import "forest_data.i"
 
 %include "ForestPredictor.h"
