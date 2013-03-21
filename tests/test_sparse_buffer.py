@@ -1,7 +1,7 @@
 import unittest as unittest
 import numpy as np
 import scipy.sparse as sparse
-import rftk.asserts
+
 import rftk.buffers as buffers
 
 

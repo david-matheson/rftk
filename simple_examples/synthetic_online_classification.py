@@ -7,8 +7,6 @@ import random as random
 
 import sklearn.datasets as sklearn_datasets
 
-import rftk.asserts
-import rftk.bootstrap
 import rftk.buffers as buffers
 import rftk.forest_data  as forest_data
 import rftk.feature_extractors as feature_extractors

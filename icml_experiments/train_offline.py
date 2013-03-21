@@ -4,11 +4,8 @@ import itertools
 import cPickle as pickle
 from datetime import datetime
 
-import rftk.asserts
-import rftk.bootstrap
 import rftk.buffers as buffers
 import rftk.forest_data as forest_data
-import rftk.features
 import rftk.feature_extractors as feature_extractors
 import rftk.best_split as best_splits
 import rftk.predict as predict

@@ -1,9 +1,8 @@
 import unittest as unittest
 import numpy as np
-import rftk.asserts
+
 import rftk.buffers as buffers
 import rftk.bootstrap as bootstrap
-import rftk.features
 import rftk.feature_extractors as feature_extractors
 
 
