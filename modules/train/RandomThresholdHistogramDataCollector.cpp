@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <limits>
 
-#include "assert_util.h"
+#include "asserts/asserts.h"
 #include "RandomThresholdHistogramDataCollector.h"
 
 

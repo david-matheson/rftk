@@ -4,7 +4,7 @@ import os
 import cPickle as pickle
 from datetime import datetime
 
-import rftk.native.assert_util
+import rftk.native.asserts
 import rftk.utils.forest as forest_utils
 
 import plot_utils

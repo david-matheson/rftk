@@ -13,8 +13,8 @@
 #include <boost/make_shared.hpp>
 #endif
 
-#include "bootstrap.h"
-#include "assert_util.h"
+#include "asserts/asserts.h"
+#include "bootstrap/bootstrap.h"
 
 #include "OfflineSamplingParams.h"
 #include "DepthFirstParallelForestLearner.h"

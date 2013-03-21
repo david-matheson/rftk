@@ -2,7 +2,7 @@
 #include <math.h>
 #include "float.h"
 
-#include "assert_util.h"
+#include "asserts/asserts.h"
 #include "OnlineConsistentSplitCriteria.h"
 
 

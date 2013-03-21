@@ -1,6 +1,6 @@
 import numpy as np
 
-import rftk.native.assert_util
+import rftk.native.asserts
 import rftk.native.buffers as buffers
 import rftk.native.features as features
 import rftk.native.predict as predict

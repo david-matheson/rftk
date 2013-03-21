@@ -4,13 +4,14 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <ctime>
 
-#include "bootstrap.h"
-#include "MatrixBuffer.h"
-#include "SparseMatrixBuffer.h"
-#include "BufferCollection.h"
+#include "bootstrap/bootstrap.h"
+#include "buffers/MatrixBuffer.h"
+#include "buffers/SparseMatrixBuffer.h"
+#include "buffers/BufferCollection.h"
+#include "features/FeatureTypes.h"
 
 #include "FeatureExtractorI.h"
-#include "FeatureTypes.h"
+
 
 template<class XFloatBufferType>
 class AxisAlignedFeatureExtractor : public FeatureExtractorI {

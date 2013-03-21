@@ -7,7 +7,7 @@
 
 %include <exception.i>
 %include "numpy.i"
-%import "assert_util.i"
+%import "asserts/asserts.i"
 
 %init %{
     import_array();

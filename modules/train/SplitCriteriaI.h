@@ -1,7 +1,7 @@
 #pragma once
 
-#include "VectorBuffer.h"
-#include "MatrixBuffer.h"
+#include "buffers/VectorBuffer.h"
+#include "buffers/MatrixBuffer.h"
 
 enum SPLT_CRITERIA
 {

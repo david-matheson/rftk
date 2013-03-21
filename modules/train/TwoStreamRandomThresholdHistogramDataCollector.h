@@ -6,9 +6,9 @@
 #include <vector>
 #include <set>
 
-#include "MatrixBuffer.h"
-#include "Tensor3Buffer.h"
-#include "BufferCollection.h"
+#include "buffers/MatrixBuffer.h"
+#include "buffers/Tensor3Buffer.h"
+#include "buffers/BufferCollection.h"
 #include "RandomThresholdHistogramDataCollector.h"
 
 
@@ -39,7 +39,7 @@ private:
 class TwoStreamRandomThresholdHistogramDataCollectorFactory : public NodeDataCollectorFactoryI
 {
 public:
-    TwoStreamRandomThresholdHistogramDataCollectorFactory(int numberOfClasses, int numberOfThresholds, 
+    TwoStreamRandomThresholdHistogramDataCollectorFactory(int numberOfClasses, int numberOfThresholds,
                                                           float probabilityOfNullStream, float probabilityOfImpurityStream);
     virtual ~TwoStreamRandomThresholdHistogramDataCollectorFactory();
     virtual NodeDataCollectorFactoryI* Clone() const;

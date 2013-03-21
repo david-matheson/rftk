@@ -2,15 +2,15 @@
 
 #include <string>
 
-#include "MatrixBuffer.h"
-#include "BufferCollection.h"
+#include "buffers/MatrixBuffer.h"
+#include "buffers/BufferCollection.h"
 
 #include "BestSplitI.h"
 
 
 class ClassInfoGainHistogramsBestSplit : public BestSplitI {
 public:
-    ClassInfoGainHistogramsBestSplit( int numberOfClasses, 
+    ClassInfoGainHistogramsBestSplit( int numberOfClasses,
                                       const std::string& leftImpurityHistrogramBufferName,
                                       const std::string& rightImpurityHistrogramBufferName,
                                       const std::string& leftYsHistogramBufferName,

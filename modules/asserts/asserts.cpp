@@ -2,7 +2,7 @@
 #include <string>
 #include <sstream>
 
-#include "assert_util.h"
+#include "asserts.h"
 
 #if ENABLE_EXCEPTIONS
 

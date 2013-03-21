@@ -1,7 +1,7 @@
-%module assert_util
+%module asserts
 %{
     #define SWIG_FILE_WITH_INIT
-    #include "assert_util.h"
+    #include "asserts.h"
 %}
 
 %include <exception.i>
@@ -27,7 +27,7 @@
    }
 }
 
-%include "assert_util.h"
+%include "asserts.h"
 
 
 

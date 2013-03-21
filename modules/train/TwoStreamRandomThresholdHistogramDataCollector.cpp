@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <climits>
 
-#include "assert_util.h"
+#include "asserts/asserts.h"
 #include "TwoStreamRandomThresholdHistogramDataCollector.h"
 
 
@@ -39,37 +39,37 @@ void TwoStreamRandomThresholdHistogramDataCollector::Collect( const BufferCollec
     const int numberOfFeatures = featureValues.GetN();
     if( !mData.HasFloat32Tensor3Buffer(IMPURITY_HISTOGRAM_LEFT) )
     {
-        mData.AddFloat32Tensor3Buffer(IMPURITY_HISTOGRAM_LEFT, 
+        mData.AddFloat32Tensor3Buffer(IMPURITY_HISTOGRAM_LEFT,
           Float32Tensor3Buffer(numberOfFeatures, mNumberOfThresholds, mNumberOfClasses));
     }
 
     if( !mData.HasFloat32Tensor3Buffer(IMPURITY_HISTOGRAM_RIGHT) )
     {
-        mData.AddFloat32Tensor3Buffer(IMPURITY_HISTOGRAM_RIGHT, 
+        mData.AddFloat32Tensor3Buffer(IMPURITY_HISTOGRAM_RIGHT,
           Float32Tensor3Buffer(numberOfFeatures, mNumberOfThresholds, mNumberOfClasses));
     }
 
     if( !mData.HasFloat32Tensor3Buffer(YS_HISTOGRAM_LEFT) )
     {
-        mData.AddFloat32Tensor3Buffer(YS_HISTOGRAM_LEFT, 
+        mData.AddFloat32Tensor3Buffer(YS_HISTOGRAM_LEFT,
           Float32Tensor3Buffer(numberOfFeatures, mNumberOfThresholds, mNumberOfClasses));
     }
 
     if( !mData.HasFloat32Tensor3Buffer(YS_HISTOGRAM_RIGHT) )
     {
-        mData.AddFloat32Tensor3Buffer(YS_HISTOGRAM_RIGHT, 
+        mData.AddFloat32Tensor3Buffer(YS_HISTOGRAM_RIGHT,
           Float32Tensor3Buffer(numberOfFeatures, mNumberOfThresholds, mNumberOfClasses));
     }
 
     if ( !mData.HasFloat32MatrixBuffer(THRESHOLDS) )
     {
-        mData.AddFloat32MatrixBuffer(THRESHOLDS, 
+        mData.AddFloat32MatrixBuffer(THRESHOLDS,
           Float32MatrixBuffer(numberOfFeatures, mNumberOfThresholds));
     }
 
     if ( !mData.HasInt32VectorBuffer(THRESHOLD_COUNTS) )
     {
-        mData.AddInt32VectorBuffer(THRESHOLD_COUNTS, 
+        mData.AddInt32VectorBuffer(THRESHOLD_COUNTS,
           Int32VectorBuffer(numberOfFeatures));
     }
 
@@ -91,7 +91,7 @@ void TwoStreamRandomThresholdHistogramDataCollector::Collect( const BufferCollec
         }
 
         const bool structureStream = (var_impuritystream_bernoulli() > 0);
-        
+
         const int classLabel = classLabels.Get(i);
         const float weight = sampleWeights.Get(i);
         for(int f=0; f<featureValues.GetN(); f++)
@@ -130,7 +130,7 @@ void TwoStreamRandomThresholdHistogramDataCollector::Collect( const BufferCollec
                     else
                     {
                         ysHistogramRight.Incr(f, t, classLabel, weight);
-                    } 
+                    }
                 }
             }
         }
@@ -151,9 +151,9 @@ int TwoStreamRandomThresholdHistogramDataCollector::GetNumberOfCollectedSamples(
     return mNumberOfCollectedSamples;
 }
 
-TwoStreamRandomThresholdHistogramDataCollectorFactory::TwoStreamRandomThresholdHistogramDataCollectorFactory( int numberOfClasses, 
-                                                                                            int numberOfThresholds, 
-                                                                                            float probabilityOfNullStream, 
+TwoStreamRandomThresholdHistogramDataCollectorFactory::TwoStreamRandomThresholdHistogramDataCollectorFactory( int numberOfClasses,
+                                                                                            int numberOfThresholds,
+                                                                                            float probabilityOfNullStream,
                                                                                             float probabilityOfImpurityStream)
 : mNumberOfClasses(numberOfClasses)
 , mNumberOfThresholds(numberOfThresholds)
@@ -172,8 +172,8 @@ NodeDataCollectorFactoryI* TwoStreamRandomThresholdHistogramDataCollectorFactory
 
 NodeDataCollectorI* TwoStreamRandomThresholdHistogramDataCollectorFactory::Create() const
 {
-    return new TwoStreamRandomThresholdHistogramDataCollector(mNumberOfClasses, 
-                                                              mNumberOfThresholds, 
+    return new TwoStreamRandomThresholdHistogramDataCollector(mNumberOfClasses,
+                                                              mNumberOfThresholds,
                                                               mProbabilityOfNullStream,
                                                               mProbabilityOfImpurityStream);
 }

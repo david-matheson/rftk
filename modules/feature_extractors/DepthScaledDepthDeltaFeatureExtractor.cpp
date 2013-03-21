@@ -7,10 +7,10 @@
 #include <ctime>
 #include <vector>
 
-#include "assert_util.h"
-#include "bootstrap.h"
+#include "asserts/asserts.h"
+#include "bootstrap/bootstrap.h"
+#include "features/ImgFeatures.h"
 
-#include "ImgFeatures.h"
 #include "DepthScaledDepthDeltaFeatureExtractor.h"
 
 DepthScaledDepthDeltaFeatureExtractor::DepthScaledDepthDeltaFeatureExtractor(float sigmaX, float sigmaY, int numberOfFeatures, bool usePoisson )

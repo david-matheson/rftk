@@ -1,6 +1,6 @@
 #include <algorithm>
 
-#include "assert_util.h"
+#include "asserts/asserts.h"
 #include "Forest.h"
 
 Forest::Forest()

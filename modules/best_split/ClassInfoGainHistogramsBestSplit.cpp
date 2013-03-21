@@ -4,8 +4,9 @@
 #include <cfloat>
 #include <cstdio>
 
-#include "assert_util.h"
-#include "Tensor3Buffer.h"
+#include "asserts/asserts.h"
+#include "buffers/Tensor3Buffer.h"
+
 #include "ClassInfoGainHistogramsBestSplit.h"
 
 float sum(const float* array, int len)

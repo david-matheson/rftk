@@ -1,11 +1,11 @@
 #include <vector>
 #include <cstdio>
 
-#include "assert_util.h"
-#include "MatrixBuffer.h"
-#include "BufferCollection.h"
+#include "asserts/asserts.h"
+#include "buffers/MatrixBuffer.h"
+#include "buffers/BufferCollection.h"
+#include "feature_extractors/FeatureExtractorI.h"
 
-#include "FeatureExtractorI.h"
 #include "SplitCriteriaI.h"
 #include "ActiveSplitNode.h"
 

@@ -18,8 +18,8 @@
 %}
 
 %include <exception.i>
-%import "assert_util.i"
-%import "buffers.i"
+%import "asserts/asserts.i"
+%import "buffers/buffers.i"
 
 
 %include "std_vector.i"

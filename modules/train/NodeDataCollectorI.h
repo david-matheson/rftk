@@ -3,8 +3,8 @@
 #include <boost/random.hpp>
 #include <boost/random/mersenne_twister.hpp>
 
-#include "MatrixBuffer.h"
-#include "BufferCollection.h"
+#include "buffers/MatrixBuffer.h"
+#include "buffers/BufferCollection.h"
 
 
 // Subsampling could live in here along with a max cap

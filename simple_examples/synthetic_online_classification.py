@@ -7,7 +7,7 @@ import random as random
 
 import sklearn.datasets as sklearn_datasets
 
-import rftk.native.assert_util
+import rftk.native.asserts
 import rftk.native.bootstrap
 import rftk.native.buffers as buffers
 import rftk.native.forest_data  as forest_data

@@ -2,11 +2,12 @@
 
 #include <limits>
 
-#include "assert_util.h"
-#include "MatrixBuffer.h"
-#include "FeatureTypes.h"
-#include "ImgFeatures.h"
-#include "Forest.h"
+#include "asserts/asserts.h"
+#include "buffers/MatrixBuffer.h"
+#include "features/FeatureTypes.h"
+#include "features/ImgFeatures.h"
+#include "forest_data/Forest.h"
+
 #include "ForestPredictor.h"
 
 

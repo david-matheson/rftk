@@ -3,7 +3,7 @@
 #include <vector>
 #include <iostream>
 
-#include "assert_util.h"
+#include "asserts/asserts.h"
 
 template <class T>
 class Tensor3BufferTemplate {

@@ -14,7 +14,7 @@
 
 #include <boost/lambda/lambda.hpp>
 
-#include "assert_util.h"
+#include "asserts/asserts.h"
 #include "MatrixBuffer.h"
 #include "VectorBuffer.h"
 
@@ -34,12 +34,12 @@ public:
      * These functions check for value[i] == T(0) to determine zeros,
      * so very small but not-quite-zero floating point values will not
      * be dropped.
-     * 
+     *
      * Make sure your zeros are really zeros.
      */
     SparseMatrixBufferTemplate(T const* values, int m, int n);
     explicit SparseMatrixBufferTemplate(DenseType const& dense);
-    
+
 
     ~SparseMatrixBufferTemplate() {}
 
@@ -243,7 +243,7 @@ template<typename T>
 T SparseMatrixBufferTemplate<T>::GetMin() const
 {
     T minVal = *std::min_element(mValues.begin(), mValues.end());
-    
+
     // If minVal > T(0) then T(0) is actually the minimum value in the
     // array, unless there are no holes, in which case minVal is the
     // real minimum value.
@@ -259,7 +259,7 @@ template<typename T>
 T SparseMatrixBufferTemplate<T>::SumRow(int m) const
 {
     ASSERT_VALID_RANGE(m, 0, mM);
-    
+
     int valIndexBegin = mRowPtr[m];
     int valIndexEnd = mRowPtr[m+1];
 
@@ -381,7 +381,7 @@ bool SparseMatrixBufferTemplate<T>::operator==(SparseMatrixBufferTemplate<T> con
 }
 
 template<typename T>
-std::string SparseMatrixBufferTemplate<T>::ToString() const 
+std::string SparseMatrixBufferTemplate<T>::ToString() const
 {
     std::stringstream ss;
 

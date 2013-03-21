@@ -6,9 +6,9 @@
 #include <vector>
 #include <set>
 
-#include "MatrixBuffer.h"
-#include "Tensor3Buffer.h"
-#include "BufferCollection.h"
+#include "buffers/MatrixBuffer.h"
+#include "buffers/Tensor3Buffer.h"
+#include "buffers/BufferCollection.h"
 #include "NodeDataCollectorI.h"
 
 
@@ -33,7 +33,7 @@ public:
     virtual int GetNumberOfCollectedSamples();
 
 protected:
-    bool AddThreshold(Float32MatrixBuffer& thresholds, Int32VectorBuffer& thresholdCounts, 
+    bool AddThreshold(Float32MatrixBuffer& thresholds, Int32VectorBuffer& thresholdCounts,
                       const int featureIndex, const float featureValue);
     int mNumberOfCollectedSamples;
     int mNumberOfClasses;

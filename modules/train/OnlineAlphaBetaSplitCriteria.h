@@ -1,15 +1,15 @@
 #pragma once
 
-#include "VectorBuffer.h"
-#include "MatrixBuffer.h"
+#include "buffers/VectorBuffer.h"
+#include "buffers/MatrixBuffer.h"
 #include "SplitCriteriaI.h"
 
 
 class OnlineAlphaBetaSplitCriteria : public SplitCriteriaI
 {
 public:
-    OnlineAlphaBetaSplitCriteria(   int maxDepth, 
-                                    float minImpurity, 
+    OnlineAlphaBetaSplitCriteria(   int maxDepth,
+                                    float minImpurity,
                                     float minNumberOfSamples);
     virtual ~OnlineAlphaBetaSplitCriteria();
     virtual SplitCriteriaI* Clone() const;

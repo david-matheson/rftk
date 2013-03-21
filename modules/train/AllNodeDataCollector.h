@@ -3,8 +3,9 @@
 #include <boost/random.hpp>
 #include <boost/random/mersenne_twister.hpp>
 
-#include "MatrixBuffer.h"
-#include "BufferCollection.h"
+#include "buffers/MatrixBuffer.h"
+#include "buffers/BufferCollection.h"
+
 #include "NodeDataCollectorI.h"
 
 

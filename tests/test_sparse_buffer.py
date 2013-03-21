@@ -1,7 +1,7 @@
 import unittest as unittest
 import numpy as np
 import scipy.sparse as sparse
-import rftk.native.assert_util
+import rftk.native.asserts
 import rftk.native.buffers as buffers
 
 
@@ -9,7 +9,7 @@ import rftk.native.buffers as buffers
 #
 # Use self.create_matrix to construct a SparseMatrixBuffer from a scipy.sparse matrix.
 # Remember to specify (..., dtype=self.dtype) when creating the scipy.sparse matrix.
-# 
+#
 # Concrete realizations of this class are mixed with a unittest.TestCase so you
 # can use all of it's fanciness here.
 

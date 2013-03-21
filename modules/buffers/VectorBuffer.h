@@ -4,7 +4,7 @@
 #include <limits>
 #include <iostream>
 
-#include "assert_util.h"
+#include "asserts/asserts.h"
 
 template <class T>
 class VectorBufferTemplate {

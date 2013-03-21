@@ -4,7 +4,7 @@ import array
 import pickle
 import itertools
 
-import rftk.native.assert_util
+import rftk.native.asserts
 import rftk.native.bootstrap
 import rftk.native.buffers as buffers
 import rftk.native.forest_data  as forest_data

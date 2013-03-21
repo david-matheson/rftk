@@ -6,8 +6,8 @@
 #include <cstdio>
 #include <iostream>
 
-#include "BufferCollection.h"
-#include "ForestPredictor.h"
+#include "buffers/BufferCollection.h"
+#include "predict/ForestPredictor.h"
 #include "OnlineForestLearner.h"
 
 OnlineForestLearner::OnlineForestLearner( const TrainConfigParams& trainConfigParams,

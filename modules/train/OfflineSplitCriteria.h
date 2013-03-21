@@ -1,18 +1,18 @@
 #pragma once
 
-#include "MatrixBuffer.h"
+#include "buffers/MatrixBuffer.h"
 #include "SplitCriteriaI.h"
 
 
 class OfflineSplitCriteria : public SplitCriteriaI
 {
 public:
-    OfflineSplitCriteria(   int maxDepth, 
-                            float minImpurity, 
+    OfflineSplitCriteria(   int maxDepth,
+                            float minImpurity,
                             float minSampleCounts,
                             float minChildSampleCounts);
 
-    virtual ~OfflineSplitCriteria();    
+    virtual ~OfflineSplitCriteria();
     virtual SplitCriteriaI* Clone() const;
 
     virtual SPLT_CRITERIA ShouldSplit(   int treeDepth,

@@ -1,3 +1,4 @@
+#include "FeatureTypes.h"
 #include "ImgFeatures.h"
 #include <stdio.h>
 

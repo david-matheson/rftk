@@ -5,8 +5,8 @@
 #include <set>
 #include <utility>
 
-#include "VectorBuffer.h"
-#include "Forest.h"
+#include "buffers/VectorBuffer.h"
+#include "forest_data/Forest.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // This implements the priority queue for adding leafs to the fringe based on

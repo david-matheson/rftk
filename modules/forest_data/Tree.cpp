@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <limits>
 
-#include "assert_util.h"
+#include "asserts/asserts.h"
 #include "Tree.h"
 
 ForestStats::ForestStats()
