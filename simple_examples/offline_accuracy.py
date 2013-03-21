@@ -72,7 +72,7 @@ if __name__ == "__main__":
             depth_first_learner = train.DepthFirstParallelForestLearner(train_config)
 
             data = buffers.BufferCollection()
-            data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(X_train_sample))
+            data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffers.as_matrix_buffer(X_train_sample))
             data.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffers.Int32Vector(Y_train_sample))
             sampling_config = train.OfflineSamplingParams(x_m, True)
             indices = buffers.Int32Vector( np.array(np.arange(x_m), dtype=np.int32) )

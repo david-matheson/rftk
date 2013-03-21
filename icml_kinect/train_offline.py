@@ -22,7 +22,6 @@ import rftk.native.best_split as best_splits
 import rftk.native.predict as predict
 import rftk.native.train as train
 
-import rftk.utils.buffer_converters as buffer_converters
 import rftk.utils.forest as forest_utils
 
 import utils as kinect_utils
@@ -82,9 +81,9 @@ def load_data(pose_path, list_of_poses, number_of_pixels_per_image):
         pixel_indices, pixel_labels = kinect_utils.sample_pixels(depths, labels, config.number_of_pixels_per_image)
         pixel_indices[:,0] = i
 
-        depths_buffer = buffer_converters.as_tensor_buffer(depths)
-        pixel_labels_buffer = buffer_converters.as_vector_buffer(pixel_labels)
-        pixel_indices_buffer = buffer_converters.as_matrix_buffer(pixel_indices)
+        depths_buffer = buffers.as_tensor_buffer(depths)
+        pixel_labels_buffer = buffers.as_vector_buffer(pixel_labels)
+        pixel_indices_buffer = buffers.as_matrix_buffer(pixel_indices)
 
         if concat:
             complete_depths_buffer.AppendSlice(depths_buffer)
@@ -133,7 +132,7 @@ if __name__ == "__main__":
     # Package buffers for learner
     bufferCollection = buffers.BufferCollection()
     bufferCollection.AddFloat32Tensor3Buffer(buffers.DEPTH_IMAGES, depths_buffer)
-    bufferCollection.AddFloat32MatrixBuffer(buffers.OFFSET_SCALES, buffer_converters.as_matrix_buffer(offset_scales))
+    bufferCollection.AddFloat32MatrixBuffer(buffers.OFFSET_SCALES, buffers.as_matrix_buffer(offset_scales))
     bufferCollection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, pixel_indices_buffer)
     bufferCollection.AddInt32VectorBuffer(buffers.CLASS_LABELS, pixel_labels_buffer)
 

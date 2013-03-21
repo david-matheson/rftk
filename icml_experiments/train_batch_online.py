@@ -16,7 +16,6 @@ import rftk.native.best_split as best_splits
 import rftk.native.predict as predict
 import rftk.native.train as train
 
-import rftk.utils.buffer_converters as buffer_converters
 import rftk.utils.predict as predict_utils
 import rftk.utils.forest as forest_utils
 
@@ -39,9 +38,9 @@ def run_experiment(config):
             y_dim = int(np.max(Y_train) + 1)
 
             data = buffers.BufferCollection()
-            data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(X_train))
-            data.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffers.Int32Vector(Y_train))
-            indices = buffers.Int32Vector( np.array(np.arange(x_m), dtype=np.int32) )
+            data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffers.as_matrix_buffer(X_train))
+            data.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffers.as_vector_buffer(Y_train))
+            indices = buffers.as_vector_buffer( np.array(np.arange(x_m), dtype=np.int32) )
 
             online_config = config.get_online_config()
 

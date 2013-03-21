@@ -16,7 +16,7 @@ import rftk.native.best_split as best_splits
 import rftk.native.predict as predict
 import rftk.native.train as train
 
-import rftk.utils.buffer_converters as buffer_converters
+
 import rftk.utils.predict as predict_utils
 import rftk.utils.forest as forest_utils
 
@@ -68,10 +68,10 @@ if __name__ == "__main__":
     print X_train.shape
     random.shuffle( row_indices )
     X_train = np.append(X_train, X_train[row_indices, :], axis=0)
-    Y_train = np.append(Y_train, Y_train[row_indices])   
+    Y_train = np.append(Y_train, Y_train[row_indices])
     random.shuffle( row_indices )
     X_train = np.append(X_train, X_train[row_indices, :], axis=0)
-    Y_train = np.append(Y_train, Y_train[row_indices])   
+    Y_train = np.append(Y_train, Y_train[row_indices])
 
     X_test, Y_test,_,_= load_data("usps.t")
     print "HEREH"
@@ -161,7 +161,7 @@ if __name__ == "__main__":
 
           # Train online forest
           data = buffers.BufferCollection()
-          data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffer_converters.as_matrix_buffer(X_online_train_sample))
+          data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffers.as_matrix_buffer(X_online_train_sample))
           data.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffers.Int32Vector(Y_online_train_sample))
           indices = buffers.Int32Vector( np.array(np.arange(x_m), dtype=np.int32) )
           online_learner.Train(data, indices, sampling_config)

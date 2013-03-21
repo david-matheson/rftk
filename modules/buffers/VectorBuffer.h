@@ -246,9 +246,9 @@ typedef VectorBufferTemplate<double> Float64VectorBuffer;
 typedef VectorBufferTemplate<int> Int32VectorBuffer;
 typedef VectorBufferTemplate<long long> Int64VectorBuffer;
 
-Float32VectorBuffer Float32Vector(double* double1d, int n);
+Float32VectorBuffer Float32Vector(float* float1d, int n);
 Float64VectorBuffer Float64Vector(double* double1d, int n);
-Int32VectorBuffer Int32Vector(long long* long1d, int n);
+Int32VectorBuffer Int32Vector(int* int1d, int n);
 Int64VectorBuffer Int64Vector(long long* long1d, int n);
 
 

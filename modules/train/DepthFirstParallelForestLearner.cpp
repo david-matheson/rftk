@@ -83,7 +83,7 @@ void TrainTrees(    BufferCollection& data,
     for(int i=startIndex; i<trainConfigParams.mNumberOfTrees; i+=offset)
     {
         // printf("DepthFirstParallelForestLearner::Train tree=%d\n", i);
-        forestOut->mTrees[i] = Tree(    trainConfigParams.mMaxNumberOfNodes,
+        forestOut->mTrees[i] = Tree(    trainConfigParams.mInitialNumberOfNodes,
                                         trainConfigParams.GetIntParamsMaxDim(),
                                         trainConfigParams.GetFloatParamsMaxDim(),
                                         trainConfigParams.GetYDim());

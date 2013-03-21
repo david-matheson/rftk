@@ -15,7 +15,7 @@ import rftk.native.best_split as best_splits
 import rftk.native.predict as predict
 import rftk.native.train as train
 
-import rftk.utils.buffer_converters as buffer_converters
+
 import rftk.utils.forest as forest_utils
 
 import utils as kinect_utils
@@ -33,12 +33,12 @@ def load_data(pose_path, list_of_poses):
 
         depths = depths
 
-        depths_buffer = buffer_converters.as_tensor_buffer(depths)
-        labels_buffer = buffer_converters.as_tensor_buffer(labels)
+        depths_buffer = buffers.as_tensor_buffer(depths)
+        labels_buffer = buffers.as_tensor_buffer(labels)
 
         if concat:
-            complete_depths_buffer.AppendSlice(depths_buffer)
-            complete_labels_buffer.AppendSlice(labels_buffer)
+            complete_depths_buffer.Append(depths_buffer)
+            complete_labels_buffer.Append(labels_buffer)
         else:
             complete_depths_buffer = depths_buffer
             complete_labels_buffer = labels_buffer
@@ -56,8 +56,8 @@ def eval_accuracies(depths_buffer, labels_buffer, list_of_forest_and_accuracy_fi
     accuracies = np.zeros(len(list_of_forest_and_accuracy_files))
     for i, (forest_file, accuracy_file) in enumerate(list_of_forest_and_accuracy_files):
         if not os.path.exists(accuracy_file):
-            depths = buffer_converters.as_numpy_array(depths_buffer)
-            labels = buffer_converters.as_numpy_array(labels_buffer)
+            depths = buffers.as_numpy_array(depths_buffer)
+            labels = buffers.as_numpy_array(labels_buffer)
             forest = forest_utils.pickle_load_native_forest(forest_file)
             accuracy = kinect_utils.classification_accuracy(depths, labels, forest, 8)
             pickle.dump(accuracy, file(accuracy_file, 'wb'))
@@ -148,8 +148,38 @@ if __name__ == "__main__":
                                 '/home/davidm/projects/rftk/icml_kinect/experiment_data_v4/offline-tree-25-n-1000-2013-02-12-22-18-43.251212/accuracy-1-1000.pkl')
                             ])
 
+    online_one_pass_accuracy_no_depth = eval_accuracies(depths_buffer, labels_buffer,
+                            [(  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/forest-0-25.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/accuracy-0-25.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/forest-0-100.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/accuracy-0-100.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/forest-0-200.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/accuracy-0-200.pkl'),
+                            (   '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/forest-0-500.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/accuracy-0-500.pkl'),
+                            (   '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/forest-0-1000.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/accuracy-0-1000.pkl')
+                            ])
+
+
+
+    online_35_pass_accuracy_no_depth = eval_accuracies(depths_buffer, labels_buffer,
+                            [(  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/forest-35-25.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/accuracy-35-25.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/forest-35-100.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/accuracy-35-100.pkl'),
+                            (  '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/forest-35-200.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/accuracy-35-200.pkl'),
+                            (   '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/forest-35-500.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/accuracy-35-500.pkl'),
+                            (   '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/forest-35-1000.pkl',
+                                '/home/davidm/projects/rftk/icml_kinect/experiment_data_v5_fix_frontier/online-tree-25-n-1000-m-100-splitrate-1.00-splitroot-200.00-evalperiod-10-2013-03-14-02-05-12.588879/accuracy-35-1000.pkl')
+                            ])
+
+
 
     results = {'number_of_data': np.array([25, 100, 200, 500, 1000]), 'online_one_pass':online_one_pass_accuracy, 'online_multi_pass':online_multi_pass_accuracy,
-                'offline':offline_accuracy, 'alpha_online_one_pass_accuracy':alpha_online_one_pass_accuracy, 'alpha_online_multi_pass_accuracy':alpha_online_multi_pass_accuracy}
+                'offline':offline_accuracy, 'alpha_online_one_pass_accuracy':alpha_online_one_pass_accuracy, 'alpha_online_multi_pass_accuracy':alpha_online_multi_pass_accuracy,
+                'online_one_pass_accuracy_no_depth':online_one_pass_accuracy_no_depth, 'online_35_pass_accuracy_no_depth':online_35_pass_accuracy_no_depth}
     print results
     pickle.dump(results, file(args.out_file, 'wb'))

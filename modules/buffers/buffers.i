@@ -44,7 +44,6 @@
 %include "VectorBuffer.h"
 %include "Tensor3Buffer.h"
 %include "MatrixBuffer.h"
-%include "BufferCollection.h"
 
 %template(Float32MatrixBuffer) MatrixBufferTemplate<float>;
 %template(Float64MatrixBuffer) MatrixBufferTemplate<double>;
@@ -52,7 +51,9 @@
 %template(Int64MatrixBuffer) MatrixBufferTemplate<long long>;
 
 %template(Float32Tensor3Buffer) Tensor3BufferTemplate<float>;
+%template(Float64Tensor3Buffer) Tensor3BufferTemplate<double>;
 %template(Int32Tensor3Buffer) Tensor3BufferTemplate<int>;
+%template(Int64Tensor3Buffer) Tensor3BufferTemplate<long long>;
 
 %template(Float32VectorBuffer) VectorBufferTemplate<float>;
 %template(Float64VectorBuffer) VectorBufferTemplate<double>;
@@ -97,4 +98,10 @@ DECLARE_WRAPPER_FOR_SPARSE_TYPE(long long, Int64SparseMatrix)
 %template(Float64SparseMatrixBuffer) SparseMatrixBufferTemplate<double>;
 %template(Int32SparseMatrixBuffer) SparseMatrixBufferTemplate<int>;
 %template(Int64SparseMatrixBuffer) SparseMatrixBufferTemplate<long long>;
+
+%include "buffer_converters.i"
+
+%include "BufferCollection.h"
+
+%include "buffer_collection.i"
 
