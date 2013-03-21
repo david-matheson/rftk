@@ -103,7 +103,7 @@ python_init_filename = '/tmp/__init__.py'
 print python_init_filename
 # Generating the file is currently not working
 f = open(python_init_filename, 'w')
-python_init_imports = ['import - %s' % module_name[0] for module_name in modules_with_deps ]
+python_init_imports = ['import %s' % module_name[0] for module_name in modules_with_deps ]
 f.write('\n'.join(python_init_imports))
 f.close()
 init_install = env.Install(install_path, source=python_init_filename)
