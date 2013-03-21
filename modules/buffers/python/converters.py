@@ -1,5 +1,3 @@
-/* Converters */
-%pythoncode %{
 import numpy as np
 import scipy.sparse
 import buffers as buffers
@@ -106,4 +104,3 @@ def is_buffer( buffer ):
     isFloatVectorBuffer = isinstance(buffer, buffers.Float32VectorBuffer) or isinstance(buffer, buffers.Float64VectorBuffer)
     isIntVectorBuffer = isinstance(buffer, buffers.Int32VectorBuffer) or isinstance(buffer, buffers.Int64VectorBuffer)
     return isFloatTensor3Buffer or isIntTensor3Buffer or isFloatMatrixBuffer or isIntMatrixBuffer or isFloatVectorBuffer or isIntVectorBuffer
-%}
