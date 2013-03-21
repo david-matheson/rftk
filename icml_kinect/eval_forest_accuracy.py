@@ -12,8 +12,6 @@ import rftk.best_split as best_splits
 import rftk.predict as predict
 import rftk.train as train
 
-import rftk.utils.forest as forest_utils
-
 import utils as kinect_utils
 
 def load_data(pose_path, list_of_poses):
@@ -72,7 +70,7 @@ if __name__ == "__main__":
     for (pass_id, forest_id) in forest_ids:
         forest_pickle_filename = "%s/forest-%d-%d.pkl" % (args.forest_input_path, pass_id, forest_id)
         out_pickle_filename = "%s/accuracy-%d-%d.pkl" % (args.forest_input_path, pass_id, forest_id)
-        forest = forest_utils.pickle_load_native_forest(forest_pickle_filename)
+        forest = forest_data.pickle_load_native_forest(forest_pickle_filename)
 
         forest_stats = forest.GetForestStats()
         forest_stats.Print()

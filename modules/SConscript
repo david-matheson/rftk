@@ -39,7 +39,6 @@ def build_rftk_module(env, non_swig_warnings, variant_name, module_name, depends
     shared_lib = env_module.SharedLibrary(target=module_name,
                                         source=[Glob('%s/native/*.cpp' % module_name)],
                                         LIBS=depends)
-
     env_module.Alias('%s-%s-lib' % (module_name, variant_name), shared_lib)
 
     env_python_wrapper = env.Clone()
@@ -60,11 +59,7 @@ def build_rftk_module(env, non_swig_warnings, variant_name, module_name, depends
     env_python_wrapper.Alias('%s-%s' % (module_name, variant_name), python_lib)
 
     [Depends(shared_lib, d) for d in depends]
-    Depends(shared_lib, Glob('%s/*.h' % module_name))
-    Depends(python_lib, Glob('%s/*.i' % module_name))
-    Depends(python_lib, Glob('%s/*.h' % module_name))
     Depends(python_lib, shared_lib)
-    Depends('%s/%s.py', python_lib)
 
     lib_install_folder = '%s/lib' % (install_path)
     lib_install = env.Install(lib_install_folder, source=shared_lib)
@@ -74,7 +69,6 @@ def build_rftk_module(env, non_swig_warnings, variant_name, module_name, depends
                               Glob('%s/python/*.py' % module_name),
                               python_lib]
     module_install = env.Install(module_install_folder, source=module_install_source)
-
     return [lib_install, module_install]
 
 
@@ -99,13 +93,14 @@ for (module_name, depends) in modules_with_deps:
 
 
 # Create the root __init__.py to import all the modules that were built
-python_init_filename = '/tmp/__init__.py'
+python_init_filename = '%s/__init__.py' % Dir('#/modules').abspath
 print python_init_filename
-# Generating the file is currently not working
 f = open(python_init_filename, 'w')
-python_init_imports = ['import %s' % module_name[0] for module_name in modules_with_deps ]
+python_init_imports = ['import %s' % m[0] for m in modules_with_deps ]
 f.write('\n'.join(python_init_imports))
 f.close()
+
+# Add the generated __init__.py to install files
 init_install = env.Install(install_path, source=python_init_filename)
 install_dependencies.append(init_install)
 

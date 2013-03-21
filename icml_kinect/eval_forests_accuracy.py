@@ -13,8 +13,6 @@ import rftk.predict as predict
 import rftk.train as train
 
 
-import rftk.utils.forest as forest_utils
-
 import utils as kinect_utils
 
 
@@ -55,7 +53,7 @@ def eval_accuracies(depths_buffer, labels_buffer, list_of_forest_and_accuracy_fi
         if not os.path.exists(accuracy_file):
             depths = buffers.as_numpy_array(depths_buffer)
             labels = buffers.as_numpy_array(labels_buffer)
-            forest = forest_utils.pickle_load_native_forest(forest_file)
+            forest = forest_data.pickle_load_native_forest(forest_file)
             accuracy = kinect_utils.classification_accuracy(depths, labels, forest, 8)
             pickle.dump(accuracy, file(accuracy_file, 'wb'))
         accuracies[i] = pickle.load(file(accuracy_file, 'rb'))

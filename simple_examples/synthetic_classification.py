@@ -11,8 +11,6 @@ import rftk.predict as predict
 import rftk.train as train
 
 
-import rftk.utils.predict as predict_utils
-
 import plot_utils
 import dist_utils
 
@@ -71,7 +69,7 @@ if __name__ == "__main__":
         sampling_config = train.OfflineSamplingParams(x_m, True)
         indices = buffers.Int32Vector( np.array(np.arange(x_m), dtype=np.int32) )
         full_forest_data = depth_first_learner.Train(data, indices, sampling_config, number_of_jobs)
-        forest = predict_utils.MatrixForestPredictor(full_forest_data)
+        forest = predict.MatrixForestPredictor(full_forest_data)
 
     y_probs = forest.predict_proba(X_test)
     y_hat = y_probs.argmax(axis=1)
@@ -87,7 +85,7 @@ if __name__ == "__main__":
         for tree_id in range(full_forest_data.GetNumberOfTrees()):
             print tree_id
             single_tree_forest_data = forest_data.Forest([full_forest_data.GetTree(tree_id)])
-            single_tree_forest_predictor = predict_utils.MatrixForestPredictor(single_tree_forest_data)
+            single_tree_forest_predictor = predict.MatrixForestPredictor(single_tree_forest_data)
             plot_utils.grid_plot(single_tree_forest_predictor, X_train, Y_train, X_test, "synthetic_classification-%d.png" % (tree_id))
 
 

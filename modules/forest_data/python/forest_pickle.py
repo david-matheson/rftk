@@ -1,9 +1,8 @@
 import cPickle as pickle
 import numpy as np
 
-import rftk.asserts
 import rftk.buffers as buffers
-import rftk.forest_data as forest_data
+import forest_data
 
 
 class PyTree(object):

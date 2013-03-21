@@ -14,10 +14,6 @@ import rftk.best_split as best_splits
 import rftk.predict as predict
 import rftk.train as train
 
-
-import rftk.utils.predict as predict_utils
-import rftk.utils.forest as forest_utils
-
 import dist_utils
 
 def load_data(file):
@@ -166,13 +162,13 @@ if __name__ == "__main__":
 
           # pickle online forest for later evaluation
           forest_pickle_filename = "%s/forest-%d.pkl" % (data_path, total_samples)
-          forest_utils.pickle_dump_native_forest(online_learner.GetForest(), forest_pickle_filename)
+          forest_data.pickle_dump_native_forest(online_learner.GetForest(), forest_pickle_filename)
 
           print datetime.now()
 
           #
           print "Synthetic (classification):"
-          predict_forest = predict_utils.MatrixForestPredictor(online_learner.GetForest())
+          predict_forest = predict.MatrixForestPredictor(online_learner.GetForest())
           y_probs = predict_forest.predict_proba(X_test)
           y_hat = y_probs.argmax(axis=1)
           print "    Accuracy:", np.mean(Y_test == y_hat)
@@ -183,7 +179,7 @@ if __name__ == "__main__":
           online_forest_data = online_learner.GetForest()
           for tree_id in range(online_forest_data.GetNumberOfTrees()):
               single_tree_forest_data = forest_data.Forest([online_forest_data.GetTree(tree_id)])
-              single_tree_forest_predictor = predict_utils.MatrixForestPredictor(single_tree_forest_data)
+              single_tree_forest_predictor = predict.MatrixForestPredictor(single_tree_forest_data)
               y_probs = single_tree_forest_predictor.predict_proba(X_test)
               y_hat = y_probs.argmax(axis=1)
               tree_accuracy[epoch_id,tree_id] = np.mean(Y_test == y_hat)

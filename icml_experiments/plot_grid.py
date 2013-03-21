@@ -2,8 +2,7 @@ import argparse
 import cPickle as pickle
 
 import rftk.forest_data as forest_data
-import rftk.utils.forest as forest_utils
-import rftk.utils.predict as predict_utils
+import rftk.predict as predict
 
 import plot_utils
 
@@ -28,8 +27,8 @@ if __name__ == "__main__":
         Y_online_train_sample = Y_train[previous_data_size:data_size]
 
         forest_pickle_filename = "%s/forest-%d.pkl" % (args.in_forest_folder, data_size)
-        forest = forest_utils.pickle_load_native_forest(forest_pickle_filename)
-        predict_forest = predict_utils.MatrixForestPredictor(forest)
+        forest = forest_data.pickle_load_native_forest(forest_pickle_filename)
+        predict_forest = predict.MatrixForestPredictor(forest)
 
         plot_utils.grid_plot(predict_forest, X_online_train_sample, Y_online_train_sample, X_test,
             "%s/grid-%d.png" % (args.out_forest_folder, data_size))
@@ -38,7 +37,7 @@ if __name__ == "__main__":
 
         for tree_id in range(forest.GetNumberOfTrees()):
             single_tree_forest_data = forest_data.Forest([forest.GetTree(tree_id)])
-            single_tree_forest_predictor = predict_utils.MatrixForestPredictor(single_tree_forest_data)
+            single_tree_forest_predictor = predict.MatrixForestPredictor(single_tree_forest_data)
             plot_utils.grid_plot(single_tree_forest_predictor, X_online_train_sample, Y_online_train_sample, X_test,
                 "%s/grid-%d-tree-%d.png" % (args.out_tree_folder, data_size, tree_id))
 

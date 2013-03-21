@@ -20,9 +20,6 @@ import rftk.best_split as best_splits
 import rftk.predict as predict
 import rftk.train as train
 
-
-import rftk.utils.forest as forest_utils
-
 import utils as kinect_utils
 
 
@@ -130,7 +127,7 @@ if __name__ == "__main__":
             #pickle forest and data used for training
             if (i+1) % 5 == 0:
                 forest_pickle_filename = "%s/forest-%d-%d.pkl" % (online_run_folder, pass_id, i+1)
-                forest_utils.pickle_dump_native_forest(online_learner.GetForest(), forest_pickle_filename)
+                forest_data.pickle_dump_native_forest(online_learner.GetForest(), forest_pickle_filename)
 
                 run_info['pose_filenames'].append(pose_filename)
                 run_info['pixel_indices'].append(pixel_indices)

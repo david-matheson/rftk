@@ -4,7 +4,7 @@ import os
 import cPickle as pickle
 from datetime import datetime
 
-import rftk.utils.forest as forest_utils
+import rftk.forest_data as forest_data
 
 import plot_utils
 import dist_utils

@@ -1,10 +1,13 @@
-%pythoncode %{
+###############################################################################
+# Warning: This file modifies the python interface for buffer collections
+###############################################################################
+
 import itertools
-import converters as converters
+import buffers as buffers
 
 def _buffer_add(self, name, b):
-    if not converters.is_buffer(b):
-        b = converters.as_buffer(b)
+    if not buffers.is_buffer(b):
+        b = buffers.as_buffer(b)
     class_name = b.__class__.__name__
     function_name = '%s%s' % ('Add', class_name)
     if hasattr(self, function_name):
@@ -33,14 +36,12 @@ def _get_buffer(self, name):
 BufferCollection.GetBuffer = _get_buffer
 
 
-_BufferCollection = BufferCollection
+buffers._BufferCollection = buffers.BufferCollection
 
 def _create_buffer(**kwargs):
-    collection = _BufferCollection()
+    collection = buffers._BufferCollection()
     for key, value in kwargs.iteritems():
         collection.AddBuffer(key, value)
     return collection
 
-BufferCollection = _create_buffer
-
-%}
+buffers.BufferCollection = _create_buffer

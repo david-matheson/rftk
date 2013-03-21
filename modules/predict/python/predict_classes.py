@@ -1,10 +1,10 @@
 import numpy as np
 
-import rftk.asserts
 import rftk.buffers as buffers
 import rftk.features as features
-import rftk.predict as predict
 import rftk.forest_data as forest_data
+
+import predict
 
 
 def as_predict_forest( tree_data_list ):

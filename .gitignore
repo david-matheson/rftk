@@ -18,3 +18,4 @@
 *.dblite
 build
 rftk
+modules/__init__.py

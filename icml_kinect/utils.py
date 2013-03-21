@@ -11,8 +11,6 @@ import rftk.best_split as best_splits
 import rftk.predict as predict
 import rftk.train as train
 
-import rftk.utils.predict as predict_utils
-import rftk.utils.forest as forest_utils
 
 head = 0
 torso0L = 1
