@@ -1,10 +1,10 @@
 import numpy as np
 
-import rftk.native.asserts
-import rftk.native.buffers as buffers
-import rftk.native.features as features
-import rftk.native.predict as predict
-import rftk.native.forest_data as forest_data
+import rftk.asserts
+import rftk.buffers as buffers
+import rftk.features as features
+import rftk.predict as predict
+import rftk.forest_data as forest_data
 
 
 def as_predict_forest( tree_data_list ):

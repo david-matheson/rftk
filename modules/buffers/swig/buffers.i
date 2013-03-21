@@ -10,7 +10,7 @@
 
 %include <exception.i>
 %include "numpy.i"
-%import "asserts.i"
+%import(module="rftk.asserts") "asserts.i"
 
 %include "std_string.i"
 

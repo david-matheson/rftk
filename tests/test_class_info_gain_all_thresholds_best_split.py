@@ -1,10 +1,10 @@
 import unittest as unittest
 import numpy as np
-import rftk.native.asserts
-import rftk.native.bootstrap
-import rftk.native.buffers as buffers
+import rftk.asserts
+import rftk.bootstrap
+import rftk.buffers as buffers
 
-import rftk.native.best_split as best_split
+import rftk.best_split as best_split
 
 
 class TestClassInfoGainAllThresholdsBestSplit(unittest.TestCase):

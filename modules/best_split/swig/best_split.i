@@ -7,8 +7,8 @@
 %}
 
 %include <exception.i>
-%import "asserts.i"
-%import "buffers.i"
+%import(module="rftk.asserts") "asserts.i"
+%import(module="rftk.buffers") "buffers.i"
 
 %include "BestSplitI.h"
 %include "ClassInfoGainAllThresholdsBestSplit.h"

@@ -1,10 +1,10 @@
 import unittest as unittest
 import numpy as np
-import rftk.native.asserts
-import rftk.native.buffers as buffers
-import rftk.native.bootstrap as bootstrap
-import rftk.native.features
-import rftk.native.feature_extractors as feature_extractors
+import rftk.asserts
+import rftk.buffers as buffers
+import rftk.bootstrap as bootstrap
+import rftk.features
+import rftk.feature_extractors as feature_extractors
 
 
 class TestDepthScaledDepthDeltaFeature(unittest.TestCase):

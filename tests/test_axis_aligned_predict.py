@@ -1,10 +1,10 @@
 import unittest as unittest
 import numpy as np
-import rftk.native.asserts
-import rftk.native.buffers as buffers
-import rftk.native.features as features
-import rftk.native.forest_data as forest_data
-import rftk.native.predict as predict
+import rftk.asserts
+import rftk.buffers as buffers
+import rftk.features as features
+import rftk.forest_data as forest_data
+import rftk.predict as predict
 
 
 class TestPredictWithAxisAligned(unittest.TestCase):

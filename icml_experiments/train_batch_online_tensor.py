@@ -6,14 +6,14 @@ import random as random
 import cPickle as pickle
 from datetime import datetime
 
-import rftk.native.asserts
-import rftk.native.bootstrap
-import rftk.native.buffers as buffers
-import rftk.native.forest_data  as forest_data
-import rftk.native.feature_extractors as feature_extractors
-import rftk.native.best_split as best_splits
-import rftk.native.predict as predict
-import rftk.native.train as train
+import rftk.asserts
+import rftk.bootstrap
+import rftk.buffers as buffers
+import rftk.forest_data  as forest_data
+import rftk.feature_extractors as feature_extractors
+import rftk.best_split as best_splits
+import rftk.predict as predict
+import rftk.train as train
 
 import rftk.utils.predict as predict_utils
 import rftk.utils.forest as forest_utils

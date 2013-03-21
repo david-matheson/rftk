@@ -5,8 +5,8 @@
 %}
 
 %include <exception.i>
-%import "asserts.i"
-%import "buffers.i"
-%import "forest_data.i"
+%import(module="rftk.asserts") "asserts.i"
+%import(module="rftk.buffers") "buffers.i"
+%import(module="rftk.forest_data") "forest_data.i"
 
 %include "ForestPredictor.h"

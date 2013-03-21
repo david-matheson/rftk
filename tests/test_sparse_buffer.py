@@ -1,8 +1,8 @@
 import unittest as unittest
 import numpy as np
 import scipy.sparse as sparse
-import rftk.native.asserts
-import rftk.native.buffers as buffers
+import rftk.asserts
+import rftk.buffers as buffers
 
 
 # Generic type-free testing code.
