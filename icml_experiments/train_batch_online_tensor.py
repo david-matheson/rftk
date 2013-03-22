@@ -6,17 +6,12 @@ import random as random
 import cPickle as pickle
 from datetime import datetime
 
-import rftk.native.assert_util
-import rftk.native.bootstrap
-import rftk.native.buffers as buffers
-import rftk.native.forest_data  as forest_data
-import rftk.native.feature_extractors as feature_extractors
-import rftk.native.best_split as best_splits
-import rftk.native.predict as predict
-import rftk.native.train as train
-
-import rftk.utils.predict as predict_utils
-import rftk.utils.forest as forest_utils
+import rftk.buffers as buffers
+import rftk.forest_data  as forest_data
+import rftk.feature_extractors as feature_extractors
+import rftk.best_split as best_splits
+import rftk.predict as predict
+import rftk.train as train
 
 import dist_utils
 import experiment_measurement_tensor as exp_measurement
@@ -79,7 +74,7 @@ def run_experiment(experiment_config, run_config):
     online_learner = train.OnlineForestLearner(train_config, sampling_config, 10000)
     online_learner.Train(data, indices)
 
-    predict_forest = predict_utils.MatrixForestPredictor(online_learner.GetForest())
+    predict_forest = predict.MatrixForestPredictor(online_learner.GetForest())
     y_probs = predict_forest.predict_proba(X_test)
     y_hat = y_probs.argmax(axis=1)
     accuracy = np.mean(Y_test == y_hat)
@@ -101,7 +96,7 @@ def run_experiment(experiment_config, run_config):
     online_forest_data = online_learner.GetForest()
     for tree_id in range(online_forest_data.GetNumberOfTrees()):
         single_tree_forest_data = forest_data.Forest([online_forest_data.GetTree(tree_id)])
-        single_tree_forest_predictor = predict_utils.MatrixForestPredictor(single_tree_forest_data)
+        single_tree_forest_predictor = predict.MatrixForestPredictor(single_tree_forest_data)
         y_probs = single_tree_forest_predictor.predict_proba(X_test)
         # print "A:", y_probs.argmax(axis=1)
         # print "B:", Y_test

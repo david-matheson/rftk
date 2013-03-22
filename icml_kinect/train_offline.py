@@ -12,17 +12,12 @@ from datetime import datetime
 import argparse
 import os
 
-import rftk.native.assert_util
-import rftk.native.bootstrap
-import rftk.native.buffers as buffers
-import rftk.native.forest_data as forest_data
-import rftk.native.features
-import rftk.native.feature_extractors as feature_extractors
-import rftk.native.best_split as best_splits
-import rftk.native.predict as predict
-import rftk.native.train as train
-
-import rftk.utils.forest as forest_utils
+import rftk.buffers as buffers
+import rftk.forest_data as forest_data
+import rftk.feature_extractors as feature_extractors
+import rftk.best_split as best_splits
+import rftk.predict as predict
+import rftk.train as train
 
 import utils as kinect_utils
 
@@ -149,4 +144,4 @@ if __name__ == "__main__":
 
     #pickle forest and data used for training
     forest_pickle_filename = "%s/forest-1-%d.pkl" % (offline_run_folder, args.number_of_images)
-    forest_utils.pickle_dump_native_forest(forest, forest_pickle_filename)
+    forest_data.pickle_dump_native_forest(forest, forest_pickle_filename)

@@ -77,7 +77,7 @@ if __name__ == "__main__":
             sampling_config = train.OfflineSamplingParams(x_m, True)
             indices = buffers.Int32Vector( np.array(np.arange(x_m), dtype=np.int32) )
             full_forest_data = depth_first_learner.Train(data, indices, sampling_config, number_of_jobs)
-            forest = predict_utils.MatrixForestPredictor(full_forest_data)
+            forest = predict.MatrixForestPredictor(full_forest_data)
 
         y_probs = forest.predict_proba(X_test)
         y_hat = y_probs.argmax(axis=1)

@@ -4,9 +4,9 @@ release_install_dir = 'install_release'
 
 # Only use the correct install path for the true variant
 if 'install-debug' in COMMAND_LINE_TARGETS:
-    debug_install_dir = Dir('#/rftk/native').abspath
+    debug_install_dir = Dir('#/rftk').abspath
 else:
-    release_install_dir = Dir('#/rftk/native').abspath
+    release_install_dir = Dir('#/rftk').abspath
 
 SConscript('modules/SConscript', variant_dir='build/debug', duplicate=True,
     exports={'install_path': debug_install_dir, 'variant': 'debug'})

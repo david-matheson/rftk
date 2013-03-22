@@ -1,7 +1,7 @@
 import unittest as unittest
 import numpy as np
-import rftk.native.assert_util
-import rftk.native.buffers as buffers
+import rftk.asserts
+import rftk.buffers as buffers
 
 
 class TestBufferCollectoin(unittest.TestCase):
@@ -19,6 +19,7 @@ class TestBufferCollectoin(unittest.TestCase):
         self.assertEqual(collection.HasBuffer("second"), False)
         data_2 = np.array([3,21,1], dtype=np.float64 )
         collection.AddBuffer("second", data_2)
+        self.assertEqual(collection.HasBuffer("second"), True)
         self.assertEqual(collection.HasFloat32VectorBuffer("second"), False)
         self.assertEqual(collection.HasFloat64VectorBuffer("second"), True)
         self.assertEqual(collection.HasInt32VectorBuffer("second"), False)
@@ -66,6 +67,7 @@ class TestBufferCollectoin(unittest.TestCase):
         self.assertEqual(collection.HasBuffer("second"), False)
         data_2 = np.array([[3,21,1],[22,1,5]], dtype=np.float64 )
         collection.AddBuffer("second", data_2)
+        self.assertEqual(collection.HasBuffer("second"), True)
         self.assertEqual(collection.HasFloat32MatrixBuffer("second"), False)
         self.assertEqual(collection.HasFloat64MatrixBuffer("second"), True)
         self.assertEqual(collection.HasInt32MatrixBuffer("second"), False)
@@ -113,6 +115,7 @@ class TestBufferCollectoin(unittest.TestCase):
         self.assertEqual(collection.HasBuffer("second"), False)
         data_2 = np.array([[[3,21,1],[22,1,5]]], dtype=np.float64 )
         collection.AddBuffer("second", data_2)
+        self.assertEqual(collection.HasBuffer("second"), True)
         self.assertEqual(collection.HasFloat32Tensor3Buffer("second"), False)
         self.assertEqual(collection.HasFloat64Tensor3Buffer("second"), True)
         self.assertEqual(collection.HasInt32Tensor3Buffer("second"), False)

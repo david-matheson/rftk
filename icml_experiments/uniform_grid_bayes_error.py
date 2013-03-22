@@ -2,10 +2,9 @@ import argparse
 import cPickle as pickle
 import numpy as np
 
-import rftk.native.assert_util
-import rftk.native.forest_data as forest_data
-import rftk.utils.forest as forest_utils
-import rftk.utils.predict as predict_utils
+import rftk.forest_data as forest_data
+import rftk.predict as predict
+
 
 import plot_utils
 import dist_utils
@@ -26,8 +25,8 @@ if __name__ == "__main__":
         print "plotting sample count %d" % data_size
 
         forest_pickle_filename = "%s/forest-%d.pkl" % (args.in_forest_folder, data_size)
-        forest = forest_utils.pickle_load_native_forest(forest_pickle_filename)
-        predict_forest = predict_utils.MatrixForestPredictor(forest)
+        forest = forest_data.pickle_load_native_forest(forest_pickle_filename)
+        predict_forest = predict.MatrixForestPredictor(forest)
 
         grid_extend = [-4, 14, -6, 8]
         Ux, Uy = np.meshgrid(

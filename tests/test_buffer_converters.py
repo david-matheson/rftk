@@ -1,7 +1,7 @@
 import unittest as unittest
 import numpy as np
-import rftk.native.assert_util
-import rftk.native.buffers as buffers
+
+import rftk.buffers as buffers
 
 
 class TestBufferConverters(unittest.TestCase):

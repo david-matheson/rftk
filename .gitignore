@@ -17,4 +17,5 @@
 *.html
 *.dblite
 build
-rftk/native
+rftk
+modules/__init__.py

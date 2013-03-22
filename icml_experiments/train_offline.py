@@ -4,17 +4,12 @@ import itertools
 import cPickle as pickle
 from datetime import datetime
 
-import rftk.native.assert_util
-import rftk.native.bootstrap
-import rftk.native.buffers as buffers
-import rftk.native.forest_data as forest_data
-import rftk.native.features
-import rftk.native.feature_extractors as feature_extractors
-import rftk.native.best_split as best_splits
-import rftk.native.predict as predict
-import rftk.native.train as train
-
-import rftk.utils.predict as predict_utils
+import rftk.buffers as buffers
+import rftk.forest_data as forest_data
+import rftk.feature_extractors as feature_extractors
+import rftk.best_split as best_splits
+import rftk.predict as predict
+import rftk.train as train
 
 import experiment_measurement as exp_measurement
 
@@ -84,7 +79,7 @@ if __name__ == "__main__":
             depth_first_learner = train.DepthFirstParallelForestLearner(train_config)
 
             full_forest_data = depth_first_learner.Train(data, indices, sampling_config, offline_config.number_of_jobs)
-            forest = predict_utils.MatrixForestPredictor(full_forest_data)
+            forest = predict.MatrixForestPredictor(full_forest_data)
 
             y_probs = forest.predict_proba(X_test)
             y_hat = y_probs.argmax(axis=1)
