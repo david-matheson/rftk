@@ -47,7 +47,9 @@ public:
     MatrixBufferTemplate<T> SliceRow(const int row) const;
 
     void AsNumpy2dFloat32(float* outfloat2d, int m, int n) const;
+    void AsNumpy2dFloat64(double* outdouble2d, int m, int n) const;
     void AsNumpy2dInt32(int* outint2d, int m, int n) const;
+    void AsNumpy2dInt64(long long* outlong2d, int m, int n) const;
 
     bool operator==(MatrixBufferTemplate<T> const& other) const;
 
@@ -316,12 +318,33 @@ void MatrixBufferTemplate<T>::AsNumpy2dFloat32(float* outfloat2d, int m, int n) 
 }
 
 template <class T>
+void MatrixBufferTemplate<T>::AsNumpy2dFloat64(double* outdouble2d, int m, int n) const
+{
+    ASSERT_ARG_DIM_2D(m, n, mM, mN)
+    for(int i=0; i<m*n; i++)
+    {
+        outdouble2d[i] = static_cast<double>(mData[i]);
+    }
+}
+
+
+template <class T>
 void MatrixBufferTemplate<T>::AsNumpy2dInt32(int* outint2d, int m, int n) const
 {
     ASSERT_ARG_DIM_2D(m, n, mM, mN)
     for(int i=0; i<m*n; i++)
     {
         outint2d[i] = static_cast<int>(mData[i]);
+    }
+}
+
+template <class T>
+void MatrixBufferTemplate<T>::AsNumpy2dInt64(long long* outlong2d, int m, int n) const
+{
+    ASSERT_ARG_DIM_2D(m, n, mM, mN)
+    for(int i=0; i<m*n; i++)
+    {
+        outlong2d[i] = static_cast<long long>(mData[i]);
     }
 }
 

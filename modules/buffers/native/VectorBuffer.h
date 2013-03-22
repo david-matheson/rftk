@@ -37,8 +37,9 @@ public:
     VectorBufferTemplate<T> Slice(const VectorBufferTemplate<int>& indices) const;
 
     void AsNumpy1dFloat32(float* outfloat1d, int n) const;
+    void AsNumpy1dFloat64(double* outdouble1d, int n) const;
     void AsNumpy1dInt32(int* outint1d, int n) const;
-
+    void AsNumpy1dInt64(long long* outlong1d, int n) const;
 
     void Print() const;
 
@@ -220,6 +221,16 @@ void VectorBufferTemplate<T>::AsNumpy1dFloat32(float* outfloat1d, int n) const
 }
 
 template <class T>
+void VectorBufferTemplate<T>::AsNumpy1dFloat64(double* outdouble1d, int n) const
+{
+    ASSERT_ARG_DIM_1D(n, mN)
+    for(int i=0; i<std::min(n,mN); i++)
+    {
+        outdouble1d[i] = static_cast<double>(mData[i]);
+    }
+}
+
+template <class T>
 void VectorBufferTemplate<T>::AsNumpy1dInt32(int* outint1d, int n) const
 {
     ASSERT_ARG_DIM_1D(n, mN)
@@ -228,6 +239,17 @@ void VectorBufferTemplate<T>::AsNumpy1dInt32(int* outint1d, int n) const
         outint1d[i] = static_cast<int>(mData[i]);
     }
 }
+
+template <class T>
+void VectorBufferTemplate<T>::AsNumpy1dInt64(long long* outlong1d, int n) const
+{
+    ASSERT_ARG_DIM_1D(n, mN)
+    for(int i=0; i<std::min(n,mN); i++)
+    {
+        outlong1d[i] = static_cast<long long>(mData[i]);
+    }
+}
+
 
 template <class T>
 void VectorBufferTemplate<T>::Print() const

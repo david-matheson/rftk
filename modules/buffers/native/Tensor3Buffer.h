@@ -33,7 +33,9 @@ public:
     void Append(const Tensor3BufferTemplate<T>& buffer);
 
     void AsNumpy3dFloat32(float* outfloat3d, int l, int m, int n) const;
+    void AsNumpy3dFloat64(double* outdouble3d, int l, int m, int n) const;
     void AsNumpy3dInt32(int* outint3d, int l, int m, int n) const;
+    void AsNumpy3dInt64(long long* outlong3d, int l, int m, int n) const;
 
     void Print() const;
 
@@ -222,6 +224,16 @@ void Tensor3BufferTemplate<T>::AsNumpy3dFloat32(float* outfloat3d, int l, int m,
 }
 
 template <class T>
+void Tensor3BufferTemplate<T>::AsNumpy3dFloat64(double* outdouble3d, int l, int m, int n) const
+{
+    ASSERT_ARG_DIM_3D(l, m, n, mL, mM, mN)
+    for(int i=0; i<l*m*n; i++)
+    {
+        outdouble3d[i] = static_cast<double>(mData[i]);
+    }
+}
+
+template <class T>
 void Tensor3BufferTemplate<T>::AsNumpy3dInt32(int* outint3d, int l, int m, int n) const
 {
     ASSERT_ARG_DIM_3D(l, m, n, mL, mM, mN)
@@ -230,6 +242,17 @@ void Tensor3BufferTemplate<T>::AsNumpy3dInt32(int* outint3d, int l, int m, int n
         outint3d[i] = static_cast<int>(mData[i]);
     }
 }
+
+template <class T>
+void Tensor3BufferTemplate<T>::AsNumpy3dInt64(long long* outlong3d, int l, int m, int n) const
+{
+    ASSERT_ARG_DIM_3D(l, m, n, mL, mM, mN)
+    for(int i=0; i<l*m*n; i++)
+    {
+        outlong3d[i] = static_cast<long long>(mData[i]);
+    }
+}
+
 
 template <class T>
 void Tensor3BufferTemplate<T>::Print() const
