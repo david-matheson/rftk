@@ -24,7 +24,7 @@ env = Environment(SWIGFLAGS=['-python', '-c++', '-Werror', '-w490', '-w362'],
                   CCFLAGS=ccflags,
                   CPPDEFINES=cppdefines,
                   LIBPATH=[Dir('.').abspath],
-                  RPATH=[Dir(install_path).abspath]
+                  RPATH=['%s/lib' % Dir(install_path).abspath]
                   )
 non_swig_warnings = ['-Wall', '-Wextra', '-Weffc++', '-Werror']
 
@@ -65,7 +65,7 @@ def build_rftk_module(env, non_swig_warnings, variant_name, module_name, depends
     lib_install = env.Install(lib_install_folder, source=shared_lib)
 
     module_install_folder = '%s/%s' % (install_path, module_name)
-    module_install_source = ['%s/swig/%s.py' % (module_name, module_name), 
+    module_install_source = ['%s/swig/%s.py' % (module_name, module_name),
                               Glob('%s/python/*.py' % module_name),
                               python_lib]
     module_install = env.Install(module_install_folder, source=module_install_source)

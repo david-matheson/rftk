@@ -1,6 +1,9 @@
 import unittest as unittest
 import numpy as np
 
+import pickle
+import itertools
+
 import rftk.buffers as buffers
 
 
@@ -181,6 +184,36 @@ class TestBuffers(unittest.TestCase):
         a.AsNumpy2dInt32(result)
         zeros = np.zeros((2,3), dtype=np.int32)
         self.assertTrue((zeros == result).all())
+
+    def test_pickle(self):
+        # test tensor
+        for dtype in [np.float32, np.float64, np.int32, np.int64]:
+            array = np.array([[[3,21,1],[22,1,5]],[[2,2,2],[7,7,7]]], dtype=dtype )
+            b1 = buffers.as_tensor_buffer(array)
+            pickle.dump(b1, open('tmp.pkl', 'wb'))
+            b2 = pickle.load(open('tmp.pkl', 'rb'))
+            array2 = buffers.as_numpy_array(b2)
+            self.assertTrue((array == array2).all())
+
+        # test matrix
+        for dtype in [np.float32, np.float64, np.int32, np.int64]:
+            array = np.array([[3,21,1],[22,1,5],[2,2,2],[7,7,7]], dtype=dtype )
+            b1 = buffers.as_matrix_buffer(array)
+            pickle.dump(b1, open('tmp.pkl', 'wb'))
+            b2 = pickle.load(open('tmp.pkl', 'rb'))
+            array2 = buffers.as_numpy_array(b2)
+            self.assertTrue((array == array2).all())
+
+        # test vector
+        for dtype in [np.float32, np.float64, np.int32, np.int64]:
+            array = np.array([3,21,1], dtype=dtype )
+            b1 = buffers.as_vector_buffer(array)
+            pickle.dump(b1, open('tmp.pkl', 'wb'))
+            b2 = pickle.load(open('tmp.pkl', 'rb'))
+            array2 = buffers.as_numpy_array(b2)
+            self.assertTrue((array == array2).all())
+
+
 
 
 
