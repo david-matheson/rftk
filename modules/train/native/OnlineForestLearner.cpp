@@ -51,7 +51,7 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
     boost::variate_generator<boost::mt19937&,boost::poisson_distribution<> > var_poisson(gen, poisson);
 
     // Setup the buffer for the weights
-    Float32VectorBuffer weights(indices.GetN());
+    Float32VectorBuffer weights(indices.GetMax()+1);
     data.AddFloat32VectorBuffer(SAMPLE_WEIGHTS, weights);
 
     for(int sampleIndex=0; sampleIndex<indices.GetN(); sampleIndex++)
@@ -74,7 +74,7 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
             mFrontierQueue.IncrDatapoints(treeIndex, static_cast<long long>(sampleWeight));
 
             int treeDepth = 0;
-            const int nodeIndex = walkTree( tree, 0, data, sampleIndex, treeDepth );
+            const int nodeIndex = walkTree( tree, 0, data, indices.Get(sampleIndex), treeDepth );
 
             // Update class histogram (this needs to be moved to a seperate class to support regression)
             const Int32VectorBuffer& classLabels = data.GetInt32VectorBuffer(CLASS_LABELS);
@@ -102,7 +102,7 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
                 singleIndex.Set(0, indices.Get(sampleIndex));
 
                 Float32VectorBuffer& weights = data.GetFloat32VectorBuffer(SAMPLE_WEIGHTS);
-                weights.Set(sampleIndex, sampleWeight);
+                weights.Set(indices.Get(sampleIndex), sampleWeight);
                 activeSplit->ProcessData(data, singleIndex, gen);
 
                 // Split the node
