@@ -3,25 +3,9 @@
 #include <VectorBuffer.h>
 #include <MatrixBuffer.h>
 
-class ForestStats
-{
-public:
-    ForestStats();
-    void ProcessLeaf(int depth, int numberEstimatorPoints);
-    float GetAverageDepth() const;
-    float GetAverageEstimatorPoints() const;
-    void Print() const;
-
-    int mNumberOfLeafNodes;
-    int mMinDepth;
-    int mMaxDepth;
-    int mTotalDepth;
-    int mMinEstimatorPoints;
-    int mMaxEstimatorPoints;
-    int mTotalEstimatorPoints;
-};
-
 const int NULL_CHILD = -1;
+
+class ForestStats;
 
 class Tree
 {
@@ -47,4 +31,26 @@ public:
 private:
     int mLastNodeIndex;
     bool mValid;
+};
+
+class ForestStats
+{
+public:
+    ForestStats();
+    void ProcessLeaf(const Tree& tree, int nodeId);
+    float GetAverageDepth() const;
+    float GetAverageEstimatorPoints() const;
+    float GetAverageError() const;
+    void Print() const;
+
+    int mNumberOfLeafNodes;
+    int mMinDepth;
+    int mMaxDepth;
+    int mTotalDepth;
+    int mMinEstimatorPoints;
+    int mMaxEstimatorPoints;
+    int mTotalEstimatorPoints;
+    float mMinError;
+    float mMaxError;
+    float mTotalError;
 };
