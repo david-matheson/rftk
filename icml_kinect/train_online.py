@@ -29,7 +29,7 @@ class KinectOnlineConfig(object):
         self.number_of_pixels_per_image = 1000
 
     def configure_online_learner(self, number_of_trees, split_rate, number_datapoints_split_root, eval_split_period, max_depth):
-        number_of_features = 5000
+        number_of_features = 2000
         number_of_thresholds = 10
         y_dim = kinect_utils.number_of_body_parts
         null_probability = 0
@@ -122,8 +122,11 @@ if __name__ == "__main__":
             print "Processing %d - %d - %s - %s" % (pass_id, i, pose_filename, str(datetime.now()))
 
             # Load single pose depth and class labels
-            depth_pickle_file = "%s%s_depth.pkl" % (args.pose_files_input_path, pose_filename)
-            depths = pickle.load(open(depth_pickle_file,'rb'))
+
+            # depth_pickle_file = "%s%s_depth.pkl" % (args.pose_files_input_path, pose_filename)
+            # depths = pickle.load(open(depth_pickle_file,'rb'))
+            depths = kinect_utils.load_depth("%s%s.exr" % (args.pose_files_input_path, pose_filename))
+
             class_labels_pickle_file = "%s%s_classlabels.pkl" % (args.pose_files_input_path, pose_filename)
             labels = pickle.load(open(class_labels_pickle_file,'rb'))
             pixel_indices, pixel_labels = kinect_utils.sample_pixels(depths, labels, config.number_of_pixels_per_image)

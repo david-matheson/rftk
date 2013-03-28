@@ -129,7 +129,7 @@ def load_depth( filename ):
 
     depth = np.fromstring(fileH.channel("Z", FLOAT), dtype = np.float32)
     depth.shape = (size[1], size[0]) # Numpy arrays are (row, col)
-    return depth / 10
+    return np.array(np.clip(depth / 10, 0.0, 6.0), dtype=np.float32)
 
 # Reconstruct depth image
 def reconstruct_depth_image(depth, labels):
@@ -200,8 +200,9 @@ def load_data_and_sample(pose_path, list_of_poses, number_of_pixels_per_image):
         print "Loading %d - %s" % (i, pose_filename)
 
         # Load single pose depth and class labels
-        depths = pickle.load(open("%s%s_depth.pkl" % (pose_path, pose_filename), 'rb'))
+        depths = load_depth("%s%s.exr" % (pose_path, pose_filename))#pickle.load(open("%s%s_depth.pkl" % (pose_path, pose_filename), 'rb'))
         labels = pickle.load(open("%s%s_classlabels.pkl" % (pose_path, pose_filename), 'rb'))
+
         pixel_indices, pixel_labels = sample_pixels(depths, labels, number_of_pixels_per_image)
         pixel_indices[:,0] = i
 
@@ -235,10 +236,8 @@ def load_data(pose_path, list_of_poses):
         print "Loading %d - %s" % (i, pose_filename)
 
         # Load single pose depth and class labels
-        depths = pickle.load(open("%s%s_depth.pkl" % (pose_path, pose_filename), 'rb'))
+        depths = load_depth("%s%s.exr" % (pose_path, pose_filename))#depths = pickle.load(open("%s%s_depth.pkl" % (pose_path, pose_filename), 'rb'))
         labels = pickle.load(open("%s%s_classlabels.pkl" % (pose_path, pose_filename), 'rb'))
-
-        depths = depths
 
         depths_buffer = buffers.as_tensor_buffer(depths)
         labels_buffer = buffers.as_tensor_buffer(labels)

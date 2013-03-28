@@ -29,7 +29,7 @@ class KinectOnlineConfig(object):
         self.number_of_pixels_per_image = 1000
 
     def configure_online_learner(self, number_of_trees, number_datapoints_split_root, eval_split_period, max_depth):
-        number_of_features = 5000
+        number_of_features = 2000
         number_of_thresholds = 10
         y_dim = kinect_utils.number_of_body_parts
         null_probability = 0

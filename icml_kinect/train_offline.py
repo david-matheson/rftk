@@ -28,7 +28,7 @@ class KinectOfflineConfig(object):
         self.number_of_pixels_per_image = 1000
 
     def configure_offline_learner(self, number_of_trees):
-        number_of_features = 5000
+        number_of_features = 2000
         y_dim = kinect_utils.number_of_body_parts
         min_impurity_gain = 0.01
         max_depth = 30
