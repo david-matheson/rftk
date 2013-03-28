@@ -8,6 +8,7 @@ Offline training of kinect random forests
 import numpy as np
 import matplotlib.pyplot as pl
 import cPickle as pickle
+import gzip
 from datetime import datetime
 import argparse
 import os
@@ -116,4 +117,4 @@ if __name__ == "__main__":
 
     #pickle forest and data used for training
     forest_pickle_filename = "%s/forest-1-%d.pkl" % (offline_run_folder, args.number_of_images)
-    pickle.dump(forest, open(forest_pickle_filename, 'wb'))
+    pickle.dump(forest, gzip.open(forest_pickle_filename, 'wb'))

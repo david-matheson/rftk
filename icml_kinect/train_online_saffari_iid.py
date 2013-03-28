@@ -8,6 +8,7 @@ Online training of kinect random forests
 import numpy as np
 import matplotlib.pyplot as pl
 import cPickle as pickle
+import gzip
 from datetime import datetime
 import argparse
 import os
@@ -129,17 +130,17 @@ if __name__ == "__main__":
         print "len ", pixel_labels_buffer.GetN()
 
         # Update learner
-        for (start_index, end_index) in [(0,100), (100, 500)]:
-        # for (start_index, end_index) in [(0,100), (100, 200), (200,500), (500,1000),
-        #                                 (1000, 2000), (2000, 5000), (5000, 10000),
-        #                                 (10000, 25000), (25000, 50000), (50000, 100000),
-        #                                 (100000, 250000), (250000, 500000), (500000, pixel_labels_buffer.GetN())]:
+        # for (start_index, end_index) in [(0,100), (100, 500)]:
+        for (start_index, end_index) in [(0,100), (100, 200), (200,500), (500,1000),
+                                        (1000, 2000), (2000, 5000), (5000, 10000),
+                                        (10000, 25000), (25000, 50000), (50000, 100000),
+                                        (100000, 250000), (250000, 500000), (500000, pixel_labels_buffer.GetN())]:
             datapoint_indices = np.array(np.arange(start_index, end_index), dtype=np.int32)
             online_learner.Train(bufferCollection, buffers.Int32Vector(datapoint_indices))
 
             #pickle forest and data used for training
             forest_pickle_filename = "%s/forest-%d-%d.pkl" % (online_run_folder, pass_id, end_index)
-            pickle.dump(online_learner.GetForest(), open(forest_pickle_filename, 'wb'))
+            pickle.dump(online_learner.GetForest(), gzip.open(forest_pickle_filename, 'wb'))
 
             # Print forest stats
             forestStats = online_learner.GetForest().GetForestStats()

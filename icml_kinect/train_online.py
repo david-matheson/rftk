@@ -8,6 +8,7 @@ Online training of kinect random forests
 import numpy as np
 import matplotlib.pyplot as pl
 import cPickle as pickle
+import gzip
 from datetime import datetime
 import argparse
 import os
@@ -146,7 +147,7 @@ if __name__ == "__main__":
             if (i+1) % 500 == 0:
             # if True:
                 forest_pickle_filename = "%s/forest-%d-%d.pkl" % (online_run_folder, pass_id, i+1)
-                pickle.dump(online_learner.GetForest(), open(forest_pickle_filename, 'wb'))
+                pickle.dump(online_learner.GetForest(), gzip.open(forest_pickle_filename, 'wb'))
 
                 # Print forest stats
                 forestStats = online_learner.GetForest().GetForestStats()
