@@ -6,7 +6,7 @@
 #include <limits>
 
 #include <asserts.h>
-
+#include <bootstrap.h>
 #include "RandomThresholdHistogramDataCollector.h"
 
 
@@ -70,8 +70,13 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
     Float32MatrixBuffer& thresholds = mData.GetFloat32MatrixBuffer(THRESHOLDS);
     Int32VectorBuffer& thresholdCounts = mData.GetInt32VectorBuffer(THRESHOLD_COUNTS);
 
-    for(int i=0; i<sampleIndices.GetN(); i++)
+    std::vector<int> randomOrder(sampleIndices.GetN());
+    sampleIndicesWithOutReplacement(&randomOrder[0], randomOrder.size(), randomOrder.size());
+
+    for(int j=0; j<sampleIndices.GetN(); j++)
     {
+        const int i = randomOrder.at(j);
+
         if(var_nullstream_bernoulli() > 0)
         {
             continue;
@@ -82,12 +87,6 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
         for(int f=0; f<featureValues.GetN(); f++)
         {
             const float featureValue = featureValues.Get(i,f);
-
-            const bool thresholdUpdated = AddThreshold(thresholds, thresholdCounts, f, featureValue);
-            if( thresholdUpdated )
-            {
-                continue;
-            }
 
             for(int t=0; t<thresholdCounts.Get(f); t++)
             {
@@ -102,7 +101,7 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
                     histogramRight.Incr(f, t, classLabel, weight);
                 }
             }
-
+            AddThreshold(thresholds, thresholdCounts, f, featureValue);
         }
     }
 
