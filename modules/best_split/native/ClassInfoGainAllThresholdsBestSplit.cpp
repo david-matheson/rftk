@@ -21,10 +21,7 @@ float calculateDiscreteEntropy(const float* classLabelCounts, const float* logCl
     {
         const float prob = inverseTotalCounts * classLabelCounts[i];
         entropy -= prob * (logClassLabelCounts[i] - logTotalCounts);
-
-        // printf("calculateDiscreteEntropy prob=%0.2f entropy=%0.2f classLabelCounts[%d]=%0.2f\n", prob, entropy, i, classLabelCounts[i]);
     }
-    // printf("calculateDiscreteEntropy entropy=%0.2f\n", entropy);
 
     return entropy;
 }
@@ -144,7 +141,7 @@ void ClassInfoGainAllThresholdsBestSplit::BestSplits(   const BufferCollection& 
         float leftWeight = totalWeight;
         float rightWeight = 0.0f;
 
-        float bestLeftWeight = 0.0f;
+        float bestLeftWeight = totalWeight;
         float bestRightWeight = 0.0f;
 
         //Reset class counts
