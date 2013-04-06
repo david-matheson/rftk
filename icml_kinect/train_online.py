@@ -36,7 +36,7 @@ class KinectOnlineConfig(object):
         impurity_probability = 0.5
         split_rate = split_rate
         number_of_data_to_split_root = number_datapoints_split_root
-        number_of_data_to_force_split_root = 10 * number_datapoints_split_root
+        number_of_data_to_force_split_root = 4 * number_datapoints_split_root
         min_impurity_gain = 0.01
 
         sigma_x = 75
