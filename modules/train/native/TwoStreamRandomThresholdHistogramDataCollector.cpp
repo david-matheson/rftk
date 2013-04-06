@@ -87,15 +87,31 @@ void TwoStreamRandomThresholdHistogramDataCollector::Collect( const BufferCollec
     std::vector<int> randomOrder(sampleIndices.GetN());
     sampleIndicesWithOutReplacement(&randomOrder[0], randomOrder.size(), randomOrder.size());
 
+    std::vector<bool> isStructureStream(sampleIndices.GetN());
     for(int j=0; j<sampleIndices.GetN(); j++)
     {
+        const bool structureStream = (var_impuritystream_bernoulli() > 0);
         const int i = randomOrder.at(j);
+
+        for(int f=0; f<featureValues.GetN(); f++)
+        {
+            const float featureValue = featureValues.Get(i,f);
+            if( structureStream )
+            {
+                AddThreshold(thresholds, thresholdCounts, f, featureValue);
+            }
+        }
+        isStructureStream[i] = structureStream;
+    }
+
+    for(int i=0; i<sampleIndices.GetN(); i++)
+    {
         if(var_nullstream_bernoulli() > 0)
         {
             continue;
         }
 
-        const bool structureStream = (var_impuritystream_bernoulli() > 0);
+        const bool structureStream = isStructureStream[i];
 
         const int classLabel = classLabels.Get(i);
         const float weight = sampleWeights.Get(i);
@@ -105,7 +121,7 @@ void TwoStreamRandomThresholdHistogramDataCollector::Collect( const BufferCollec
             for(int t=0; t<thresholdCounts.Get(f); t++)
             {
                 const float threshold = thresholds.Get(f,t);
-                const bool isleft = (featureValue >= threshold);
+                const bool isleft = (featureValue > threshold);
 
                 if( structureStream )
                 {
@@ -129,10 +145,6 @@ void TwoStreamRandomThresholdHistogramDataCollector::Collect( const BufferCollec
                         ysHistogramRight.Incr(f, t, classLabel, weight);
                     }
                 }
-            }
-            if( structureStream )
-            {
-                AddThreshold(thresholds, thresholdCounts, f, featureValue);
             }
         }
     }

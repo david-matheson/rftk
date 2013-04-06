@@ -76,7 +76,15 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
     for(int j=0; j<sampleIndices.GetN(); j++)
     {
         const int i = randomOrder.at(j);
+        for(int f=0; f<featureValues.GetN(); f++)
+        {
+            const float featureValue = featureValues.Get(i,f);
+            AddThreshold(thresholds, thresholdCounts, f, featureValue);
+        }
+    }
 
+    for(int i=0; i<sampleIndices.GetN(); i++)
+    {
         if(var_nullstream_bernoulli() > 0)
         {
             continue;
@@ -87,11 +95,10 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
         for(int f=0; f<featureValues.GetN(); f++)
         {
             const float featureValue = featureValues.Get(i,f);
-
             for(int t=0; t<thresholdCounts.Get(f); t++)
             {
                 const float threshold = thresholds.Get(f,t);
-                const bool isleft = (featureValue >= threshold);
+                const bool isleft = (featureValue > threshold);
                 if( isleft )
                 {
                     histogramLeft.Incr(f, t, classLabel, weight);
@@ -101,7 +108,6 @@ void RandomThresholdHistogramDataCollector::Collect( const BufferCollection& dat
                     histogramRight.Incr(f, t, classLabel, weight);
                 }
             }
-            AddThreshold(thresholds, thresholdCounts, f, featureValue);
         }
     }
 

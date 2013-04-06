@@ -150,7 +150,7 @@ void ActiveSplitNodeFeatureSet::SplitIndices(   const int featureIndex,
     {
         const float featureValue = featureValues.Get(i, 0);
         const int sampleIndex = sampleIndices.Get(i);
-        if( featureValue >= threshold )
+        if( featureValue > threshold )
         {
             leftIndices.push_back(sampleIndex);
         }

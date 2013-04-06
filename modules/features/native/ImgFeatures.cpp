@@ -62,7 +62,7 @@ bool pixelDepthDeltaTest(const Float32Tensor3Buffer& depths,
     const float vx = offsets.Get(nodeIndex, 3);
     const float vy = offsets.Get(nodeIndex, 4);
 
-    return (pixelDepthDelta(depths, imgId, pixelM, pixelN, ux, uy, vx, vy) >= offsets.Get(nodeIndex, 0));
+    return (pixelDepthDelta(depths, imgId, pixelM, pixelN, ux, uy, vx, vy) > offsets.Get(nodeIndex, 0));
 }
 
 
