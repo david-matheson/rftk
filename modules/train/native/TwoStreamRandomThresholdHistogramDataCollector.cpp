@@ -6,6 +6,7 @@
 #include <climits>
 
 #include <asserts.h>
+#include <bootstrap.h>
 #include "TwoStreamRandomThresholdHistogramDataCollector.h"
 
 
@@ -83,8 +84,12 @@ void TwoStreamRandomThresholdHistogramDataCollector::Collect( const BufferCollec
     Float32MatrixBuffer& thresholds = mData.GetFloat32MatrixBuffer(THRESHOLDS);
     Int32VectorBuffer& thresholdCounts = mData.GetInt32VectorBuffer(THRESHOLD_COUNTS);
 
-    for(int i=0; i<sampleIndices.GetN(); i++)
+    std::vector<int> randomOrder(sampleIndices.GetN());
+    sampleIndicesWithOutReplacement(&randomOrder[0], randomOrder.size(), randomOrder.size());
+
+    for(int j=0; j<sampleIndices.GetN(); j++)
     {
+        const int i = randomOrder.at(j);
         if(var_nullstream_bernoulli() > 0)
         {
             continue;
@@ -97,14 +102,6 @@ void TwoStreamRandomThresholdHistogramDataCollector::Collect( const BufferCollec
         for(int f=0; f<featureValues.GetN(); f++)
         {
             const float featureValue = featureValues.Get(i,f);
-            if( structureStream )
-            {
-                const bool thresholdUpdated = AddThreshold(thresholds, thresholdCounts, f, featureValue);
-                if( thresholdUpdated )
-                {
-                    continue;
-                }
-            }
             for(int t=0; t<thresholdCounts.Get(f); t++)
             {
                 const float threshold = thresholds.Get(f,t);
@@ -132,6 +129,10 @@ void TwoStreamRandomThresholdHistogramDataCollector::Collect( const BufferCollec
                         ysHistogramRight.Incr(f, t, classLabel, weight);
                     }
                 }
+            }
+            if( structureStream )
+            {
+                AddThreshold(thresholds, thresholdCounts, f, featureValue);
             }
         }
     }
