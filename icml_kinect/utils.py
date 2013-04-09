@@ -11,7 +11,6 @@ import rftk.best_split as best_splits
 import rftk.predict as predict
 import rftk.train as train
 
-
 head = 0
 torso0L = 1
 torso0R = 2
@@ -130,7 +129,7 @@ def load_depth( filename ):
 
     depth = np.fromstring(fileH.channel("Z", FLOAT), dtype = np.float32)
     depth.shape = (size[1], size[0]) # Numpy arrays are (row, col)
-    return depth / 10
+    return np.array(np.clip(depth / 10, 0.0, 6.0), dtype=np.float32)
 
 # Reconstruct depth image
 def reconstruct_depth_image(depth, labels):
@@ -194,6 +193,68 @@ def sample_pixels(depth, labels, number_datapoints):
     pixel_labels = labels[indices_array_complete[:, 1], indices_array_complete[:, 2]]
 
     return indices_array_complete, pixel_labels
+
+def load_data_and_sample(pose_path, list_of_poses, number_of_pixels_per_image):
+    concat = False
+    for i, pose_filename in enumerate(list_of_poses):
+        print "Loading %d - %s" % (i, pose_filename)
+
+        # Load single pose depth and class labels
+        depths = load_depth("%s%s.exr" % (pose_path, pose_filename))#pickle.load(open("%s%s_depth.pkl" % (pose_path, pose_filename), 'rb'))
+        labels = pickle.load(open("%s%s_classlabels.pkl" % (pose_path, pose_filename), 'rb'))
+
+        pixel_indices, pixel_labels = sample_pixels(depths, labels, number_of_pixels_per_image)
+        pixel_indices[:,0] = i
+
+        depths_buffer = buffers.as_tensor_buffer(depths)
+        pixel_labels_buffer = buffers.as_vector_buffer(pixel_labels)
+        pixel_indices_buffer = buffers.as_matrix_buffer(pixel_indices)
+
+        if concat:
+            complete_depths_buffer.Append(depths_buffer)
+            complete_pixel_labels_buffer.Append(pixel_labels_buffer)
+            complete_pixel_indices_buffer.Append(pixel_indices_buffer)
+        else:
+            complete_depths_buffer = depths_buffer
+            complete_pixel_labels_buffer = pixel_labels_buffer
+            complete_pixel_indices_buffer = pixel_indices_buffer
+            concat = True
+
+    assert(complete_pixel_labels_buffer.GetN() == complete_pixel_indices_buffer.GetM())
+
+    #randomize the order
+    perm = buffers.as_vector_buffer(np.array(np.random.permutation(complete_pixel_labels_buffer.GetN()), dtype=np.int32))
+    complete_pixel_labels_buffer = complete_pixel_labels_buffer.Slice(perm)
+    complete_pixel_indices_buffer = complete_pixel_indices_buffer.Slice(perm)
+
+    assert(complete_pixel_labels_buffer.GetN() == complete_pixel_indices_buffer.GetM())
+    return complete_depths_buffer, complete_pixel_indices_buffer, complete_pixel_labels_buffer
+
+def load_data(pose_path, list_of_poses):
+    concat = False
+    for i, pose_filename in enumerate(list_of_poses):
+        print "Loading %d - %s" % (i, pose_filename)
+
+        # Load single pose depth and class labels
+        depths = load_depth("%s%s.exr" % (pose_path, pose_filename))#depths = pickle.load(open("%s%s_depth.pkl" % (pose_path, pose_filename), 'rb'))
+        labels = pickle.load(open("%s%s_classlabels.pkl" % (pose_path, pose_filename), 'rb'))
+
+        depths_buffer = buffers.as_tensor_buffer(depths)
+        labels_buffer = buffers.as_tensor_buffer(labels)
+
+        if concat:
+            complete_depths_buffer.Append(depths_buffer)
+            complete_labels_buffer.Append(labels_buffer)
+        else:
+            complete_depths_buffer = depths_buffer
+            complete_labels_buffer = labels_buffer
+            concat = True
+
+    assert(complete_depths_buffer.GetL() == complete_labels_buffer.GetL())
+    assert(complete_depths_buffer.GetM() == complete_labels_buffer.GetM())
+    assert(complete_depths_buffer.GetN() == complete_labels_buffer.GetN())
+
+    return complete_depths_buffer, complete_labels_buffer
 
 
 # def build_closest_image(img, depth):

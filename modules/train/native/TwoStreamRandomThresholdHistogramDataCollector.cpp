@@ -6,6 +6,7 @@
 #include <climits>
 
 #include <asserts.h>
+#include <bootstrap.h>
 #include "TwoStreamRandomThresholdHistogramDataCollector.h"
 
 
@@ -83,6 +84,26 @@ void TwoStreamRandomThresholdHistogramDataCollector::Collect( const BufferCollec
     Float32MatrixBuffer& thresholds = mData.GetFloat32MatrixBuffer(THRESHOLDS);
     Int32VectorBuffer& thresholdCounts = mData.GetInt32VectorBuffer(THRESHOLD_COUNTS);
 
+    std::vector<int> randomOrder(sampleIndices.GetN());
+    sampleIndicesWithOutReplacement(&randomOrder[0], randomOrder.size(), randomOrder.size());
+
+    std::vector<bool> isStructureStream(sampleIndices.GetN());
+    for(int j=0; j<sampleIndices.GetN(); j++)
+    {
+        const bool structureStream = (var_impuritystream_bernoulli() > 0);
+        const int i = randomOrder.at(j);
+
+        for(int f=0; f<featureValues.GetN(); f++)
+        {
+            const float featureValue = featureValues.Get(i,f);
+            if( structureStream )
+            {
+                AddThreshold(thresholds, thresholdCounts, f, featureValue);
+            }
+        }
+        isStructureStream[i] = structureStream;
+    }
+
     for(int i=0; i<sampleIndices.GetN(); i++)
     {
         if(var_nullstream_bernoulli() > 0)
@@ -90,25 +111,17 @@ void TwoStreamRandomThresholdHistogramDataCollector::Collect( const BufferCollec
             continue;
         }
 
-        const bool structureStream = (var_impuritystream_bernoulli() > 0);
+        const bool structureStream = isStructureStream[i];
 
         const int classLabel = classLabels.Get(i);
         const float weight = sampleWeights.Get(i);
         for(int f=0; f<featureValues.GetN(); f++)
         {
             const float featureValue = featureValues.Get(i,f);
-            if( structureStream )
-            {
-                const bool thresholdUpdated = AddThreshold(thresholds, thresholdCounts, f, featureValue);
-                if( thresholdUpdated )
-                {
-                    continue;
-                }
-            }
             for(int t=0; t<thresholdCounts.Get(f); t++)
             {
                 const float threshold = thresholds.Get(f,t);
-                const bool isleft = (featureValue >= threshold);
+                const bool isleft = (featureValue > threshold);
 
                 if( structureStream )
                 {

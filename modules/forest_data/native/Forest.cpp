@@ -53,3 +53,9 @@ ForestStats Forest::GetForestStats() const
 }
 
 
+ForestStats Forest::GetTreeStats(const int tree) const
+{
+    ForestStats stats;
+    mTrees[tree].GatherStats(stats);
+    return stats;
+}

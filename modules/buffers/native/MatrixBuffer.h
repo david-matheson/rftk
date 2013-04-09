@@ -282,8 +282,7 @@ MatrixBufferTemplate<T> MatrixBufferTemplate<T>::Transpose() const
 template <class T>
 MatrixBufferTemplate<T> MatrixBufferTemplate<T>::Slice(const VectorBufferTemplate<int>& indices) const
 {
-    MatrixBufferTemplate<T> sliced(indices.GetN(), mM);
-    ASSERT_ARG_DIM_1D(indices.GetN(), 1)
+    MatrixBufferTemplate<T> sliced(indices.GetN(), mN);
     for(int i=0; i<indices.GetN(); i++)
     {
         int r = indices.Get(i);

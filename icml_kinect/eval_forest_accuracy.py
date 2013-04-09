@@ -14,35 +14,6 @@ import rftk.train as train
 
 import utils as kinect_utils
 
-def load_data(pose_path, list_of_poses):
-    concat = False
-    for i, pose_filename in enumerate(list_of_poses):
-        print "Loading %d - %s" % (i, pose_filename)
-
-        # Load single pose depth and class labels
-        depths = pickle.load(open("%s%s_depth.pkl" % (pose_path, pose_filename), 'rb'))
-        labels = pickle.load(open("%s%s_classlabels.pkl" % (pose_path, pose_filename), 'rb'))
-
-        depths = depths
-
-        depths_buffer = buffers.as_tensor_buffer(depths)
-        labels_buffer = buffers.as_tensor_buffer(labels)
-
-        if concat:
-            complete_depths_buffer.Append(depths_buffer)
-            complete_labels_buffer.Append(labels_buffer)
-        else:
-            complete_depths_buffer = depths_buffer
-            complete_labels_buffer = labels_buffer
-            concat = True
-
-    assert(complete_depths_buffer.GetL() == complete_labels_buffer.GetL())
-    assert(complete_depths_buffer.GetM() == complete_labels_buffer.GetM())
-    assert(complete_depths_buffer.GetN() == complete_labels_buffer.GetN())
-
-    return complete_depths_buffer, complete_labels_buffer
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Deterime forest accuracy on test set')
     parser.add_argument('-i', '--pose_files_input_path', type=str, required=True)
@@ -60,7 +31,7 @@ if __name__ == "__main__":
     pose_filenames = poses_to_include_file.read().split('\n')
     poses_to_include_file.close()
 
-    depths_buffer, labels_buffer = load_data(args.pose_files_input_path,
+    depths_buffer, labels_buffer = kinect_utils.load_data(args.pose_files_input_path,
                                             pose_filenames[0:args.number_of_images])
 
     depths = buffers.as_numpy_array(depths_buffer)
@@ -70,7 +41,7 @@ if __name__ == "__main__":
     for (pass_id, forest_id) in forest_ids:
         forest_pickle_filename = "%s/forest-%d-%d.pkl" % (args.forest_input_path, pass_id, forest_id)
         out_pickle_filename = "%s/accuracy-%d-%d.pkl" % (args.forest_input_path, pass_id, forest_id)
-        forest = forest_data.pickle_load_native_forest(forest_pickle_filename)
+        forest = pickle.load(open(forest_pickle_filename, 'rb'))
 
         forest_stats = forest.GetForestStats()
         forest_stats.Print()

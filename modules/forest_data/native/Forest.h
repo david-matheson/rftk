@@ -19,6 +19,7 @@ public:
     int GetNumberOfTrees() const;
     Tree GetTree(const int index) const;
     ForestStats GetForestStats() const;
+    ForestStats GetTreeStats(const int tree) const;
 
     std::vector<Tree> mTrees;
 };

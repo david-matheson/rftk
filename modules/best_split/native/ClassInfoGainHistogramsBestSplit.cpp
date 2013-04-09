@@ -141,9 +141,9 @@ void ClassInfoGainHistogramsBestSplit::BestSplits(   const BufferCollection& dat
                 thresholdOut.Set(f, thresholds.Get(f,t));
 
                 const float* leftYs = ysHistogramLeft.GetRowPtrUnsafe(f,t);
-                const float leftYsTotal = sum(leftYs, mNumberOfClasses);
+                const float leftYsTotal = std::max(1.0f, sum(leftYs, mNumberOfClasses));
                 const float* rightYs = ysHistogramRight.GetRowPtrUnsafe(f,t);
-                const float rightYsTotal = sum(rightYs, mNumberOfClasses);
+                const float rightYsTotal = std::max(1.0f, sum(rightYs, mNumberOfClasses));
                 for(int c=0; c<mNumberOfClasses; c++)
                 {
                     leftYsOut.Set(f, c, leftYs[c] / leftYsTotal);

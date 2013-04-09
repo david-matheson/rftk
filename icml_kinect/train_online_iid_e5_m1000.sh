@@ -1,0 +1,1 @@
+python train_online_iid.py -i source_image_640x480/ -p 1500_dataset_1000000/poses_train.txt -n 1000 -m 1000 -t 25 -s 1.0 -r 10 -e 5 -d 200 >> train_online_iid_e5_m1000.log

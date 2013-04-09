@@ -94,7 +94,7 @@ if __name__ == "__main__":
     pose_filenames = pose_filenames[0:args.number_of_images]
 
 
-    online_run_folder = ("experiment_data_online/online-tree-%d-n-%d-m-%d-splitrate-%0.2f-splitroot-%0.2f-evalperiod-%d-maxdepth-%s-%s") % (
+    online_run_folder = ("experiment_data_online_iid/online-iid-tree-%d-n-%d-m-%d-splitrate-%0.2f-splitroot-%0.2f-evalperiod-%d-maxdepth-%s-%s") % (
                             args.number_of_trees,
                             args.number_of_images,
                             args.number_of_passes_through_data,
@@ -115,43 +115,49 @@ if __name__ == "__main__":
 
     print "Starting %s" % online_run_folder
 
+    depths_buffer, pixel_indices_buffer, pixel_labels_buffer = kinect_utils.load_data_and_sample(args.pose_files_input_path,
+                                                                pose_filenames[0:args.number_of_images],
+                                                                config.number_of_pixels_per_image)
+
+
     for pass_id in range(args.number_of_passes_through_data):
-        random.shuffle(pose_filenames)
 
-        for i, pose_filename in enumerate(pose_filenames):
-            print "Processing %d - %d - %s - %s" % (pass_id, i, pose_filename, str(datetime.now()))
+        # Randomize the order
+        perm = buffers.as_vector_buffer(np.array(np.random.permutation(pixel_labels_buffer.GetN()), dtype=np.int32))
+        pixel_indices_buffer = pixel_indices_buffer.Slice(perm)
+        pixel_labels_buffer = pixel_labels_buffer.Slice(perm)
 
-            # Load single pose depth and class labels
+        # Randomly offset scales
+        number_of_datapoints = pixel_indices_buffer.GetM()
+        offset_scales = np.array(np.random.uniform(0.8, 1.2, (number_of_datapoints, 2)), dtype=np.float32)
 
-            # depth_pickle_file = "%s%s_depth.pkl" % (args.pose_files_input_path, pose_filename)
-            # depths = pickle.load(open(depth_pickle_file,'rb'))
-            depths = kinect_utils.load_depth("%s%s.exr" % (args.pose_files_input_path, pose_filename))
+        # Package buffers for learner
+        bufferCollection = buffers.BufferCollection()
+        bufferCollection.AddFloat32Tensor3Buffer(buffers.DEPTH_IMAGES, depths_buffer)
+        bufferCollection.AddFloat32MatrixBuffer(buffers.OFFSET_SCALES, buffers.as_matrix_buffer(offset_scales))
+        bufferCollection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, pixel_indices_buffer)
+        bufferCollection.AddInt32VectorBuffer(buffers.CLASS_LABELS, pixel_labels_buffer)
 
-            class_labels_pickle_file = "%s%s_classlabels.pkl" % (args.pose_files_input_path, pose_filename)
-            labels = pickle.load(open(class_labels_pickle_file,'rb'))
-            pixel_indices, pixel_labels = kinect_utils.sample_pixels(depths, labels, config.number_of_pixels_per_image)
+        print "len ", pixel_labels_buffer.GetN()
 
-            # Randomly sample pixels and offset scales
-            (number_of_datapoints, _) = pixel_indices.shape
-            offset_scales = np.array(np.random.uniform(0.8, 1.2, (number_of_datapoints, 2)), dtype=np.float32)
-            datapoint_indices = np.array(np.arange(number_of_datapoints), dtype=np.int32)
-
-            # Package buffers for learner
-            bufferCollection = buffers.BufferCollection()
-            bufferCollection.AddFloat32Tensor3Buffer(buffers.DEPTH_IMAGES, buffers.as_tensor_buffer(depths))
-            bufferCollection.AddFloat32MatrixBuffer(buffers.OFFSET_SCALES, buffers.as_matrix_buffer(offset_scales))
-            bufferCollection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, buffers.as_matrix_buffer(pixel_indices))
-            bufferCollection.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffers.as_vector_buffer(pixel_labels))
-
-            # Update learner
+        # Update learner
+        # for (start_index, end_index) in [(0,100), (100, 500)]:
+        for (start_index, end_index) in [(0,100), (100, 200), (200,500), (500,1000),
+                                        (1000, 2000), (2000, 5000), (5000, 10000),
+                                        (10000, 25000), (25000, 50000), (50000, 100000),
+                                        (100000, 250000), (250000, 500000), (500000, pixel_labels_buffer.GetN())]:
+            datapoint_indices = np.array(np.arange(start_index, end_index), dtype=np.int32)
             online_learner.Train(bufferCollection, buffers.Int32Vector(datapoint_indices))
 
             #pickle forest and data used for training
-            if (i+1) % 500 == 0:
-            # if True:
-                forest_pickle_filename = "%s/forest-%d-%d.pkl" % (online_run_folder, pass_id, i+1)
-                pickle.dump(online_learner.GetForest(), gzip.open(forest_pickle_filename, 'wb'))
+            forest_pickle_filename = "%s/forest-%d-%d.pkl" % (online_run_folder, pass_id, end_index)
+            pickle.dump(online_learner.GetForest(), gzip.open(forest_pickle_filename, 'wb'))
 
-                # Print forest stats
-                forestStats = online_learner.GetForest().GetForestStats()
-                forestStats.Print()
+            # Print forest stats
+            forestStats = online_learner.GetForest().GetForestStats()
+            forestStats.Print()
+
+            for i in range(online_learner.GetForest().GetNumberOfTrees() ):
+                print "tree %d" % i
+                treeStats = online_learner.GetForest().GetTreeStats(i)
+                treeStats.Print()
