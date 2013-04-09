@@ -125,7 +125,7 @@ bool RandomThresholdHistogramDataCollector::AddThreshold(Float32MatrixBuffer& th
 
     for(int thresholdIndex=0; thresholdIndex<thresholdCounts.Get(featureIndex); thresholdIndex++)
     {
-        if(abs(featureValue - thresholds.Get(featureIndex, thresholdIndex)) < std::numeric_limits<float>::epsilon())
+        if(fabs(featureValue - thresholds.Get(featureIndex, thresholdIndex)) < std::numeric_limits<float>::epsilon())
         {
             return false;
         }
