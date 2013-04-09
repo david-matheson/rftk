@@ -34,16 +34,6 @@ void ForestStats::ProcessLeaf(const Tree& tree, int nodeId)
     mMinError = std::min(mMinError, errorProb);
     mMaxError = std::max(mMaxError, errorProb);
     mTotalError += errorProb;
-
-    if(depth <= mMinDepth)
-    {
-        printf("ForestStats (depth <= mMinDepth) depth=%d points=%d error=%0.2f\n", depth, numberEstimatorPoints, errorProb);
-    }
-
-    if( mMaxEstimatorPoints <= numberEstimatorPoints)
-    {
-        printf("ForestStats (mMaxEstimatorPoints <= numberEstimatorPoints) depth=%d points=%d error=%0.2f\n", depth, numberEstimatorPoints, errorProb);
-    }
 }
 
 float ForestStats::GetAverageDepth() const
