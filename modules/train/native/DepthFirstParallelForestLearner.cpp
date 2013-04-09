@@ -5,19 +5,17 @@
 #include <stdio.h>
 #include <vector>
 
-#define USE_BOOST_THREAD 0
+#include <asserts.h>
+#include <bootstrap.h>
+
+#include "OfflineSamplingParams.h"
+#include "DepthFirstParallelForestLearner.h"
 
 #if USE_BOOST_THREAD
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 #endif
-
-#include <asserts.h>
-#include <bootstrap.h>
-
-#include "OfflineSamplingParams.h"
-#include "DepthFirstParallelForestLearner.h"
 
 void TrainTrees(    BufferCollection& data,
                     const Int32VectorBuffer& indices,
@@ -82,14 +80,12 @@ void TrainTrees(    BufferCollection& data,
 {
     for(int i=startIndex; i<trainConfigParams.mNumberOfTrees; i+=offset)
     {
-        // printf("DepthFirstParallelForestLearner::Train tree=%d\n", i);
         forestOut->mTrees[i] = Tree(    trainConfigParams.mInitialNumberOfNodes,
                                         trainConfigParams.GetIntParamsMaxDim(),
                                         trainConfigParams.GetFloatParamsMaxDim(),
                                         trainConfigParams.GetYDim());
     }
 
-    // printf("DepthFirstParallelForestLearner::Train startIndex=%d offest=%d\n", startIndex, offset);
     for(int i=startIndex; i<trainConfigParams.mNumberOfTrees; i+=offset)
     {
         TrainTree(data, indices, trainConfigParams, samplingParams, &forestOut->mTrees[i]);
@@ -135,7 +131,6 @@ void ProcessNode(   const TrainConfigParams& trainConfigParams,
                     boost::mt19937& gen,
                     Tree* treeOut)
 {
-    // printf("DepthFirstParallelForestLearner::ProcessNode depth=%d\n", treeDepth);
     const int evalSplitPeriod = 1;
     ActiveSplitNode* activeSplit = new ActiveSplitNode( trainConfigParams.mFeatureExtractors,
                                                         trainConfigParams.mNodeDataCollectorFactory,

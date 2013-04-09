@@ -7,10 +7,10 @@ Import('install_path')
 Import('variant')
 if variant == 'debug':
     ccflags = ['-g', '-O0']
-    cppdefines = {'ENABLE_EXCEPTIONS': 1}
+    cppdefines = {'ENABLE_EXCEPTIONS': 1, 'USE_BOOST_THREAD':0}
 elif variant == 'release':
     ccflags = ['-O3']
-    cppdefines = {'ENABLE_EXCEPTIONS': 0}
+    cppdefines = {'ENABLE_EXCEPTIONS': 0, 'USE_BOOST_THREAD':1}
 
 ###############################################################################
 try:
@@ -29,7 +29,7 @@ env = Environment(SWIGFLAGS=['-python', '-c++', '-Werror', '-w490', '-w362'],
 non_swig_warnings = ['-Wall', '-Wextra', '-Weffc++', '-Werror']
 
 ###############################################################################
-def build_rftk_module(env, non_swig_warnings, variant_name, module_name, depends):
+def build_rftk_module(env, non_swig_warnings, variant_name, module_name, depends, external_libs):
     env_module = env.Clone()
 
     if env_module['PLATFORM'] == 'darwin':
@@ -38,7 +38,7 @@ def build_rftk_module(env, non_swig_warnings, variant_name, module_name, depends
     env_module.Append(CCFLAGS=non_swig_warnings, CPPPATH=['%s/native' % d for d in depends])
     shared_lib = env_module.SharedLibrary(target=module_name,
                                         source=[Glob('%s/native/*.cpp' % module_name)],
-                                        LIBS=depends)
+                                        LIBS=depends+external_libs)
     env_module.Alias('%s-%s-lib' % (module_name, variant_name), shared_lib)
 
     env_python_wrapper = env.Clone()
@@ -83,12 +83,14 @@ modules_with_deps = [('asserts', []),
                     ('train', ['asserts', 'buffers', 'bootstrap', 'best_split', 'forest_data', 'feature_extractors', 'predict'])]
 
 install_dependencies = []
+external_libs = ['boost_thread']
 for (module_name, depends) in modules_with_deps:
     module_install_alias = build_rftk_module(env=env,
                                       non_swig_warnings=non_swig_warnings,
                                       variant_name=variant,
                                       module_name=module_name,
-                                      depends=depends)
+                                      depends=depends,
+                                      external_libs=external_libs)
     install_dependencies.extend(module_install_alias)
 
 
