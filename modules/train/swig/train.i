@@ -15,6 +15,7 @@
     #include "OfflineSplitCriteria.h"
     #include "OnlineAlphaBetaSplitCriteria.h"
     #include "OnlineConsistentSplitCriteria.h"
+    #include "TimerSplitCriteria.h"
 %}
 
 %include <exception.i>
@@ -42,3 +43,4 @@ namespace std {
 %include "OfflineSplitCriteria.h"
 %include "OnlineAlphaBetaSplitCriteria.h"
 %include "OnlineConsistentSplitCriteria.h"
+%include "TimerSplitCriteria.h"
