@@ -13,7 +13,7 @@
 
 class DepthScaledDepthDeltaFeatureExtractor : public FeatureExtractorI {
 public:
-    DepthScaledDepthDeltaFeatureExtractor(float sigmaX, float sigmaY, int numberOfFeatures, bool usePoisson );
+    DepthScaledDepthDeltaFeatureExtractor(float ux, float uy, float vx, float vy, int numberOfFeatures, bool usePoisson );
     ~DepthScaledDepthDeltaFeatureExtractor();
     virtual FeatureExtractorI* Clone() const;
 
@@ -33,8 +33,10 @@ public:
                             Float32MatrixBuffer& featureValuesOUT) const; // #tests X #samples
 
 private:
-    float mSigmaX;
-    float mSigmaY;
+    float mUx;
+    float mUy;
+    float mVx;
+    float mVy;
     int mNumberOfFeatures;
     bool mUsePoisson;
     mutable boost::mt19937 mGen;

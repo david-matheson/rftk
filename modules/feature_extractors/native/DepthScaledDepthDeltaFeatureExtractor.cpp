@@ -13,9 +13,11 @@
 
 #include "DepthScaledDepthDeltaFeatureExtractor.h"
 
-DepthScaledDepthDeltaFeatureExtractor::DepthScaledDepthDeltaFeatureExtractor(float sigmaX, float sigmaY, int numberOfFeatures, bool usePoisson )
-: mSigmaX(sigmaX)
-, mSigmaY(sigmaY)
+DepthScaledDepthDeltaFeatureExtractor::DepthScaledDepthDeltaFeatureExtractor(float ux, float uy, float vx, float vy, int numberOfFeatures, bool usePoisson )
+: mUx(ux)
+, mUy(uy)
+, mVx(vx)
+, mVy(vy)
 , mNumberOfFeatures(numberOfFeatures)
 , mUsePoisson(usePoisson)
 , mGen( static_cast<unsigned int>(std::time(NULL)) )
@@ -46,17 +48,21 @@ Float32MatrixBuffer DepthScaledDepthDeltaFeatureExtractor::CreateFloatParams(con
 {
     Float32MatrixBuffer floatParams = Float32MatrixBuffer(numberOfFeatures, GetFloatParamsDim());
 
-    boost::normal_distribution<> x_normal(0.0, mSigmaX);
-    boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > var_x_normal(mGen, x_normal);
-    boost::normal_distribution<> y_normal(0.0, mSigmaY);
-    boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > var_y_normal(mGen, y_normal);
+    boost::normal_distribution<> ux_normal(0.0, mUx);
+    boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > var_ux_normal(mGen, ux_normal);
+    boost::normal_distribution<> uy_normal(0.0, mUy);
+    boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > var_uy_normal(mGen, uy_normal);
+    boost::normal_distribution<> vx_normal(0.0, mVx);
+    boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > var_vx_normal(mGen, vx_normal);
+    boost::normal_distribution<> vy_normal(0.0, mVy);
+    boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > var_vy_normal(mGen, vy_normal);
 
     for(int i=0; i<numberOfFeatures; i++)
     {
-        floatParams.Set(i, 1, var_x_normal());
-        floatParams.Set(i, 2, var_y_normal());
-        floatParams.Set(i, 3, var_x_normal());
-        floatParams.Set(i, 4, var_y_normal());
+        floatParams.Set(i, 1, var_ux_normal());
+        floatParams.Set(i, 2, var_uy_normal());
+        floatParams.Set(i, 3, var_vx_normal());
+        floatParams.Set(i, 4, var_vy_normal());
     }
     return floatParams;
 }
