@@ -27,6 +27,12 @@ SplitCriteriaI* OnlineConsistentSplitCriteria::Clone() const
     return new OnlineConsistentSplitCriteria(*this);
 }
 
+bool OnlineConsistentSplitCriteria::ShouldProcessNode( int treeDepth ) const
+{
+    return treeDepth < mMaxDepth;
+}
+
+
 SPLT_CRITERIA OnlineConsistentSplitCriteria::ShouldSplit(int treeDepth,
                                                 const Float32VectorBuffer& impurityValues,
                                                 const Float32MatrixBuffer& childCounts) const

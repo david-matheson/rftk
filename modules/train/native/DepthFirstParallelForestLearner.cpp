@@ -131,36 +131,39 @@ void ProcessNode(   const TrainConfigParams& trainConfigParams,
                     boost::mt19937& gen,
                     Tree* treeOut)
 {
-    const int evalSplitPeriod = 1;
-    ActiveSplitNode* activeSplit = new ActiveSplitNode( trainConfigParams.mFeatureExtractors,
-                                                        trainConfigParams.mNodeDataCollectorFactory,
-                                                        trainConfigParams.mBestSplit,
-                                                        trainConfigParams.mSplitCriteria,
-                                                        treeDepth,
-                                                        evalSplitPeriod);
-
-    activeSplit->ProcessData(data, indices, gen);
-    if( activeSplit->ShouldSplit() == SPLT_CRITERIA_READY_TO_SPLIT )
+    if( trainConfigParams.mSplitCriteria->ShouldProcessNode(treeDepth) )
     {
-        const int leftNode = treeOut->NextNodeIndex();
-        const int rightNode = treeOut->NextNodeIndex();
-        activeSplit->WriteToTree(nodeIndex, leftNode, rightNode,
-                                treeOut->mPath, treeOut->mFloatFeatureParams, treeOut->mIntFeatureParams,
-                                treeOut->mDepths, treeOut->mCounts, treeOut->mYs);
+        const int evalSplitPeriod = 1;
+        ActiveSplitNode* activeSplit = new ActiveSplitNode( trainConfigParams.mFeatureExtractors,
+                                                            trainConfigParams.mNodeDataCollectorFactory,
+                                                            trainConfigParams.mBestSplit,
+                                                            trainConfigParams.mSplitCriteria,
+                                                            treeDepth,
+                                                            evalSplitPeriod);
 
-        Int32VectorBuffer leftIndices;
-        Int32VectorBuffer rightIndices;
-        activeSplit->SplitIndices(data, indices, leftIndices, rightIndices);
+        activeSplit->ProcessData(data, indices, gen);
+        if( activeSplit->ShouldSplit() == SPLT_CRITERIA_READY_TO_SPLIT )
+        {
+            const int leftNode = treeOut->NextNodeIndex();
+            const int rightNode = treeOut->NextNodeIndex();
+            activeSplit->WriteToTree(nodeIndex, leftNode, rightNode,
+                                    treeOut->mPath, treeOut->mFloatFeatureParams, treeOut->mIntFeatureParams,
+                                    treeOut->mDepths, treeOut->mCounts, treeOut->mYs);
 
-        // Delete before recursing to save memory
-        delete activeSplit;
-        activeSplit = NULL;
+            Int32VectorBuffer leftIndices;
+            Int32VectorBuffer rightIndices;
+            activeSplit->SplitIndices(data, indices, leftIndices, rightIndices);
 
-        ProcessNode(trainConfigParams, leftNode, treeDepth+1, data, leftIndices, gen, treeOut);
-        ProcessNode(trainConfigParams, rightNode, treeDepth+1, data, rightIndices, gen, treeOut);
-    }
-    if( activeSplit != NULL )
-    {
-        delete activeSplit;
+            // Delete before recursing to save memory
+            delete activeSplit;
+            activeSplit = NULL;
+
+            ProcessNode(trainConfigParams, leftNode, treeDepth+1, data, leftIndices, gen, treeOut);
+            ProcessNode(trainConfigParams, rightNode, treeDepth+1, data, rightIndices, gen, treeOut);
+        }
+        if( activeSplit != NULL )
+        {
+            delete activeSplit;
+        }
     }
 }

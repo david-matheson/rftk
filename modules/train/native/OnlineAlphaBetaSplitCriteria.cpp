@@ -21,6 +21,11 @@ SplitCriteriaI* OnlineAlphaBetaSplitCriteria::Clone() const
     return new OnlineAlphaBetaSplitCriteria(*this);
 }
 
+bool OnlineAlphaBetaSplitCriteria::ShouldProcessNode( int treeDepth ) const
+{
+    return treeDepth < mMaxDepth;
+}
+
 SPLT_CRITERIA OnlineAlphaBetaSplitCriteria::ShouldSplit(int treeDepth,
                                                 const Float32VectorBuffer& impurityValues,
                                                 const Float32MatrixBuffer& childCounts) const

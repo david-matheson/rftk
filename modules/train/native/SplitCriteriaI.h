@@ -17,6 +17,8 @@ public:
     virtual ~SplitCriteriaI() {}    //Needed by swig for pseudo abstract base classes
     virtual SplitCriteriaI* Clone() const=0;
 
+    virtual bool ShouldProcessNode( int treeDepth ) const=0;
+
     virtual SPLT_CRITERIA ShouldSplit(   int treeDepth,
                                         const Float32VectorBuffer& impurityValues,
                                         const Float32MatrixBuffer& childCounts) const=0;
