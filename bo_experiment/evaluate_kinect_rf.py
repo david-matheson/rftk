@@ -34,21 +34,22 @@ class KinectRandomForestEvaluator:
 
     def _configure_learner(self, number_of_trees, number_of_features,
                             max_depth, min_samples_split, min_samples_leaf, min_impurity_gain,
-                            ux, uy, vx, vy):
+                            ux, uy, vx, vy, timeout_in_seconds):
         y_dim = kinect_utils.number_of_body_parts
 
         feature_extractor = feature_extractors.DepthScaledDepthDeltaFeatureExtractor(ux, uy, vx, vy, number_of_features, True)
         node_data_collector = train.AllNodeDataCollectorFactory()
         class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, y_dim)
 
-        split_criteria = train.OfflineSplitCriteria(max_depth, min_impurity_gain,
+        offline_split_criteria = train.OfflineSplitCriteria(max_depth, min_impurity_gain,
                                                     min_samples_split, min_samples_leaf)
+        time_split_criteria = train.TimerSplitCriteria(offline_split_criteria, timeout_in_seconds)
 
         extractor_list = [feature_extractor]
         train_config = train.TrainConfigParams(extractor_list,
                                                 node_data_collector,
                                                 class_infogain_best_split,
-                                                split_criteria,
+                                                time_split_criteria,
                                                 number_of_trees)
         depth_first_learner = train.DepthFirstParallelForestLearner(train_config)
         return depth_first_learner
@@ -59,7 +60,8 @@ class KinectRandomForestEvaluator:
 
     def evaluate(self, use_bootstrap, number_of_trees, number_of_features,
                     max_depth, min_samples_split, min_samples_leaf, min_impurity_gain,
-                    ux, uy, vx, vy):
+                    ux, uy, vx, vy,
+                    timeout_in_seconds=300, number_of_jobs=2):
         offline_run_folder = ("experiment_data_randomforest/offline-b-%r-t-%d-f-%d-d-%d-ms-%d-ml-%d-ig-%0.2f-ux-%0.2f-uy-%0.2f-vx-%0.2f-vy-%0.2f-%s") % (
                             use_bootstrap,
                             number_of_trees,
@@ -76,7 +78,7 @@ class KinectRandomForestEvaluator:
         # Create learner
         offline_learner = self._configure_learner( number_of_trees, number_of_features,
                                                     max_depth, min_samples_split, min_samples_leaf, min_impurity_gain,
-                                                    ux, uy, vx, vy)
+                                                    ux, uy, vx, vy, timeout_in_seconds=timeout_in_seconds)
 
         # Package buffers for learner
         bufferCollection = buffers.BufferCollection()
@@ -84,21 +86,24 @@ class KinectRandomForestEvaluator:
         bufferCollection.AddFloat32MatrixBuffer(buffers.OFFSET_SCALES, buffers.as_matrix_buffer(self.offset_scales))
         bufferCollection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, self.train_pixel_indices)
         bufferCollection.AddInt32VectorBuffer(buffers.CLASS_LABELS, self.train_pixel_labels)
-        number_of_jobs = 2
         datapoint_indices = np.array(np.arange(self.number_of_datapoints), dtype=np.int32)
         sampling_config = self._get_sampling_config(self.number_of_datapoints, use_bootstrap)
-        forest = offline_learner.Train(bufferCollection, buffers.Int32Vector(datapoint_indices), sampling_config, number_of_jobs)
 
-        #pickle forest
+        # train and pickle forest
+        print "Starting training", str(datetime.now())
+        forest = offline_learner.Train(bufferCollection, buffers.Int32Vector(datapoint_indices), sampling_config, number_of_jobs)
         forest_pickle_filename = "%s/forest.pkl" % offline_run_folder
         pickle.dump(forest, gzip.open(forest_pickle_filename, 'wb'))
 
-        # pickle accuracy
+        # compute and pickle accuracy
+        print "Starting testing", str(datetime.now())
         accuracy = kinect_utils.classification_accuracy(buffers.as_numpy_array(self.test_depth),
                                                         buffers.as_numpy_array(self.test_pixel_labels),
-                                                        forest)
+                                                        forest,
+                                                        number_of_jobs=number_of_jobs)
         accuracy_pickle_filename = "%s/accuracy.pkl" % offline_run_folder
         pickle.dump(accuracy, file(accuracy_pickle_filename, 'wb'))
+        print "Finish testing", str(datetime.now())
         return accuracy
 
 

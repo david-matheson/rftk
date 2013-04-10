@@ -257,18 +257,6 @@ def load_data(pose_path, list_of_poses):
     return complete_depths_buffer, complete_labels_buffer
 
 
-# def build_closest_image(img, depth):
-#     (M,N) = depth.shape
-#     cloestImg = np.zeros(img.shape)
-
-#     for m in range(M):
-#         for n in range(N):
-#             colorId = find_closest(img[m][n])
-#             colorValueAsArray = get_color(colorId)
-#             cloestImg[m][n] = colorValueAsArray / 255.0
-#     return cloestImg
-
-
 # Reconstruct image from labels
 def reconstruct_label_image(depth, labels):
     (M,N) = depth.shape
@@ -374,7 +362,7 @@ def classification_accuracy(depthsIn, labelsIn, classificationTreesIn, number_of
     incorrectClassificationCount = 0
     nonBackgroundCount = 0
 
-    counts = Parallel(n_jobs=10)(delayed(classification_accuracy_image)(imgId)
+    counts = Parallel(n_jobs=number_of_jobs)(delayed(classification_accuracy_image)(imgId)
       for imgId in range(numberOfImgs))
 
     incorrectClassificationCount = sum([x[0] for x in counts])
