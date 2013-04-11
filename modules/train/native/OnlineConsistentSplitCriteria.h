@@ -16,6 +16,8 @@ public:
     virtual ~OnlineConsistentSplitCriteria();
     virtual SplitCriteriaI* Clone() const;
 
+    virtual bool ShouldProcessNode( int treeDepth ) const;
+
     virtual SPLT_CRITERIA ShouldSplit(   int treeDepth,
                                         const Float32VectorBuffer& impurityValues,
                                         const Float32MatrixBuffer& childCounts) const;

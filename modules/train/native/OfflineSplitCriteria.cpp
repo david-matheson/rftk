@@ -22,6 +22,11 @@ SplitCriteriaI* OfflineSplitCriteria::Clone() const
     return new OfflineSplitCriteria(*this);
 }
 
+bool OfflineSplitCriteria::ShouldProcessNode( int treeDepth ) const
+{
+    return treeDepth < mMaxDepth;
+}
+
 SPLT_CRITERIA OfflineSplitCriteria::ShouldSplit(int treeDepth,
                                                 const Float32VectorBuffer& impurityValues,
                                                 const Float32MatrixBuffer& childCounts) const

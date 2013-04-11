@@ -1,17 +1,20 @@
 #pragma once
 
-#include <VectorBuffer.h>
+#include <time.h>
+
 #include <MatrixBuffer.h>
 #include "SplitCriteriaI.h"
 
 
-class OnlineAlphaBetaSplitCriteria : public SplitCriteriaI
+class TimerSplitCriteria : public SplitCriteriaI
 {
 public:
-    OnlineAlphaBetaSplitCriteria(   int maxDepth,
-                                    float minImpurity,
-                                    float minNumberOfSamples);
-    virtual ~OnlineAlphaBetaSplitCriteria();
+    TimerSplitCriteria( SplitCriteriaI* childSplitCriteria, int minutesToRun );
+    TimerSplitCriteria( SplitCriteriaI* childSplitCriteria, time_t endTime );
+    TimerSplitCriteria(const TimerSplitCriteria& rhs);
+    TimerSplitCriteria& operator=( const TimerSplitCriteria& rhs );
+    virtual ~TimerSplitCriteria();
+
     virtual SplitCriteriaI* Clone() const;
 
     virtual bool ShouldProcessNode( int treeDepth ) const;
@@ -26,7 +29,6 @@ public:
 
     virtual int MinTotalSamples( int treeDepth ) const;
 private:
-    const int mMaxDepth;
-    const float mMinImpurity;
-    const float mMinNumberOfSamples;
+    SplitCriteriaI* mChildSplitCriteria;
+    time_t mEndTime;
 };
