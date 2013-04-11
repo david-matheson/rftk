@@ -13,6 +13,17 @@
 
 #include "DepthScaledDepthDeltaFeatureExtractor.h"
 
+DepthScaledDepthDeltaFeatureExtractor::DepthScaledDepthDeltaFeatureExtractor(float x, float y, int numberOfFeatures, bool usePoisson )
+: mUx(x)
+, mUy(y)
+, mVx(x)
+, mVy(y)
+, mNumberOfFeatures(numberOfFeatures)
+, mUsePoisson(usePoisson)
+, mGen( static_cast<unsigned int>(std::time(NULL)) )
+{
+}
+
 DepthScaledDepthDeltaFeatureExtractor::DepthScaledDepthDeltaFeatureExtractor(float ux, float uy, float vx, float vy, int numberOfFeatures, bool usePoisson )
 : mUx(ux)
 , mUy(uy)

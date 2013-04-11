@@ -13,6 +13,7 @@
 
 class DepthScaledDepthDeltaFeatureExtractor : public FeatureExtractorI {
 public:
+    DepthScaledDepthDeltaFeatureExtractor(float x, float y, int numberOfFeatures, bool usePoisson );
     DepthScaledDepthDeltaFeatureExtractor(float ux, float uy, float vx, float vy, int numberOfFeatures, bool usePoisson );
     ~DepthScaledDepthDeltaFeatureExtractor();
     virtual FeatureExtractorI* Clone() const;
