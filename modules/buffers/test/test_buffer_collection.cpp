@@ -1,9 +1,9 @@
-#include <string>
-
-#include "TestHarness.h"
+#include <boost/test/unit_test.hpp>
 
 #include "BufferCollection.h"
 #include "MatrixBuffer.h"
+
+BOOST_AUTO_TEST_SUITE( BufferCollectionSuite )
 
 template<typename T>
 MatrixBufferTemplate<T> CreateExampleMatrix()
@@ -12,25 +12,25 @@ MatrixBufferTemplate<T> CreateExampleMatrix()
     return MatrixBufferTemplate<T>(&data[0], 4, 4);
 }
 
-bool test_AddBuffer()
+BOOST_AUTO_TEST_CASE(test_AddBuffer)
 {
     BufferCollection collection;
     MatrixBufferTemplate<double> mb = CreateExampleMatrix<double>();
     collection.AddBuffer("double", mb);
-    return collection.HasBuffer("double");
+    BOOST_CHECK(collection.HasBuffer("double"));
 }
 
-bool test_GetBuffer()
+BOOST_AUTO_TEST_CASE(test_GetBuffer)
 {
     BufferCollection collection;
     MatrixBufferTemplate<double> mb = CreateExampleMatrix<double>();
     collection.AddBuffer("double", mb);
     MatrixBufferTemplate<double>& mb2 = collection.GetBuffer<MatrixBufferTemplate<double> >("double");
 
-    return mb == mb2;
+    BOOST_CHECK(mb == mb2);
 }
 
-bool test_GetBuffer_doesnt_copy()
+BOOST_AUTO_TEST_CASE(test_GetBuffer_doesnt_copy)
 {
     BufferCollection collection;
     MatrixBufferTemplate<double> mb = CreateExampleMatrix<double>();
@@ -44,10 +44,10 @@ bool test_GetBuffer_doesnt_copy()
     bool success = true;
     success &= (&mb_get1 == &mb_get2);
     success &= (mb_get1.Get(0, 0) == mb_get2.Get(0, 0));
-    return success;
+    BOOST_CHECK(success);
 }
 
-bool test_AppendBuffer()
+BOOST_AUTO_TEST_CASE(test_AppendBuffer)
 {
     BufferCollection collection;
     MatrixBufferTemplate<double> mb1 = CreateExampleMatrix<double>();
@@ -60,17 +60,7 @@ bool test_AppendBuffer()
     mb3.Append(mb4);
 
     MatrixBufferTemplate<double>& mb_result = collection.GetBuffer<MatrixBufferTemplate<double> >("double");
-    return mb_result == mb3;
+    BOOST_CHECK(mb_result == mb3);
 }
 
-int main() {
-    bool all_success = true;
-
-
-    RUN_TEST(test_AddBuffer);
-    RUN_TEST(test_GetBuffer);
-    RUN_TEST(test_GetBuffer_doesnt_copy);
-    RUN_TEST(test_AppendBuffer);
-
-    return !all_success;
-}
+BOOST_AUTO_TEST_SUITE_END()

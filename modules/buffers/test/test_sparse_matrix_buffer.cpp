@@ -1,9 +1,11 @@
-#include <string>
+#include <boost/test/unit_test.hpp>
 
-#include "TestHarness.h"
+#include <string>
 
 #include "SparseMatrixBuffer.h"
 #include "MatrixBuffer.h"
+
+BOOST_AUTO_TEST_SUITE( SparseMatrix )
 
 template<typename T, size_t N>
 size_t length_of(T (&a)[N]) {
@@ -36,12 +38,14 @@ SparseMatrixBufferTemplate<T> CreateExampleSparseMatrix()
 
 // -----------
 
-bool test_get_zero() {
+BOOST_AUTO_TEST_CASE(test_get_zero)
+{
     SparseMatrixBufferTemplate<double> smb(3,3);
-    return smb.Get(1,1) == 0.0;
+    BOOST_CHECK(smb.Get(1,1) == 0.0);
 }
 
-bool test_get_with_empty_row() {
+BOOST_AUTO_TEST_CASE(test_get_with_empty_row)
+{
 
     // .. .. ..
     // .. 11 ..
@@ -68,10 +72,11 @@ bool test_get_with_empty_row() {
         }
     }
     
-    return all_match;
+    BOOST_CHECK(all_match);
 }
 
-bool test_ToString() {
+BOOST_AUTO_TEST_CASE(test_ToString)
+{
 
     SparseMatrixBufferTemplate<long> smb = CreateExampleSparseMatrix<long>();
 
@@ -89,11 +94,12 @@ bool test_ToString() {
         ".. .. .. .. .. .. 87 88 \n"
         ;
 
-    return result == expected;
+    BOOST_CHECK(result == expected);
 
 }
 
-bool test_SumRow() {
+BOOST_AUTO_TEST_CASE(test_SumRow)
+{
     SparseMatrixBufferTemplate<double> smb = CreateExampleSparseMatrix<double>();
 
     bool correct = true;
@@ -106,10 +112,11 @@ bool test_SumRow() {
     correct &= smb.SumRow(6) == (65 + 66 + 67);
     correct &= smb.SumRow(7) == (75 + 77 + 78);
     correct &= smb.SumRow(8) == (87 + 88);
-    return correct;
+    BOOST_CHECK(correct);
 }
 
-bool test_NormalizeRow() {
+BOOST_AUTO_TEST_CASE(test_NormalizeRow) 
+{
     SparseMatrixBufferTemplate<double> smb = CreateExampleSparseMatrix<double>();
 
     bool correct = true;
@@ -120,16 +127,18 @@ bool test_NormalizeRow() {
             correct &= abs(sum - 1.0) < 1e-10;
         }
     }
-    return correct;
+    BOOST_CHECK(correct);
 }
 
-bool test_GetMax_withpositive() {
+BOOST_AUTO_TEST_CASE(test_GetMax_withpositive) 
+{
     // positive entries
     SparseMatrixBufferTemplate<double> smb = CreateExampleSparseMatrix<double>();
-    return smb.GetMax() == 88.0;
+    BOOST_CHECK(smb.GetMax() == 88.0);
 }
 
-bool test_GetMax_nonpositive() {
+BOOST_AUTO_TEST_CASE(test_GetMax_nonpositive) 
+{
     // includes only negative entries and zeros
     // .. .. ..
     // .. -1 -3
@@ -143,16 +152,18 @@ bool test_GetMax_nonpositive() {
         smb(&val[0], length_of(val), &col[0], length_of(col),
             &rowPtr[0], length_of(rowPtr), 3, 3);
 
-    return smb.GetMax() == 0.0;
+    BOOST_CHECK(smb.GetMax() == 0.0);
 }
 
-bool test_GetMin_nonnegative() {
+BOOST_AUTO_TEST_CASE(test_GetMin_nonnegative) 
+{
     // only positive entries
     SparseMatrixBufferTemplate<double> smb = CreateExampleSparseMatrix<double>();
-    return smb.GetMin() == 0.0;
+    BOOST_CHECK(smb.GetMin() == 0.0);
 }
 
-bool test_GetMin_withnegative() {
+BOOST_AUTO_TEST_CASE(test_GetMin_withnegative)
+{
     // includes a negative entry
     // .. .. ..
     // .. 11 -3
@@ -166,16 +177,18 @@ bool test_GetMin_withnegative() {
         smb(&val[0], length_of(val), &col[0], length_of(col),
             &rowPtr[0], length_of(rowPtr), 3, 3);
 
-    return smb.GetMin() == -3;
+     BOOST_CHECK(smb.GetMin() == -3);
 }
 
-bool test_GetM_GetN() {
+BOOST_AUTO_TEST_CASE(test_GetM_GetN)
+{
     SparseMatrixBufferTemplate<int> smb(4,22);
-    return smb.GetM() == 4 && smb.GetN() == 22;
+    BOOST_CHECK(smb.GetM() == 4 && smb.GetN() == 22);
 }
 
 
-bool test_Append() {
+BOOST_AUTO_TEST_CASE(test_Append)
+{
 
     SparseMatrixBufferTemplate<long> smb1 = CreateExampleSparseMatrix<long>();
     SparseMatrixBufferTemplate<long> smb2 = CreateExampleSparseMatrix<long>();
@@ -197,11 +210,12 @@ bool test_Append() {
         ;
     expected = expected + expected;
 
-    return result == expected;
+    BOOST_CHECK(result == expected);
 
 }
 
-bool test_Append_append_to_empty() {
+BOOST_AUTO_TEST_CASE(test_Append_append_to_empty)
+{
     SparseMatrixBufferTemplate<double> smb;
 
     double data[] = {0,0,0, 1, 0, 1, 0, 0, 1};
@@ -209,20 +223,21 @@ bool test_Append_append_to_empty() {
 
     smb.Append(expected);
 
-    return smb == expected;
+    BOOST_CHECK(smb == expected);
 }
 
-bool test_SliceRow() {
+BOOST_AUTO_TEST_CASE(test_SliceRow)
+{
     SparseMatrixBufferTemplate<double> smb = CreateExampleSparseMatrix<double>();
     SparseMatrixBufferTemplate<double> row = smb.SliceRow(3);
 
     double data[] = { 31, 0, 33, 34, 0, 0, 0, 0 };
     SparseMatrixBufferTemplate<double> expectedRow(&data[0], 1, 8);
 
-    return row == expectedRow;
+    BOOST_CHECK(row == expectedRow);
 }
 
-bool test_ConstructFromDense()
+BOOST_AUTO_TEST_CASE(test_ConstructFromDense)
 {
     double values[] = {
         0, 0, 0,
@@ -243,10 +258,10 @@ bool test_ConstructFromDense()
         ".. .. .. \n"
         ;
 
-    return result == expected;
+    BOOST_CHECK(result == expected);
 }
 
-bool test_ColumnIndexOnePastTheEndBug()
+BOOST_AUTO_TEST_CASE(test_ColumnIndexOnePastTheEndBug)
 {
     double values[] = {
         1, 0,
@@ -260,10 +275,11 @@ bool test_ColumnIndexOnePastTheEndBug()
         ".. 1 \n"
         ;
 
-    return result.ToString() == expected;
+    BOOST_CHECK(result.ToString() == expected);
 }
 
-bool test_equals()
+
+BOOST_AUTO_TEST_CASE(test_equals)
 {
     double data1[] = {
         1, 2, 3,
@@ -283,10 +299,11 @@ bool test_equals()
     pass &= (smb1 != smb2);
     pass &= (smb2 != smb1);
     pass &= (smb2 == smb2);
-    return pass;
+    BOOST_CHECK(pass);
 }
 
-bool test_Slice() {
+BOOST_AUTO_TEST_CASE(test_Slice)
+{
     SparseMatrixBufferTemplate<double> smb = CreateExampleSparseMatrix<double>();
 
     double indexData[] = { 1, 1, 2, 0, 4, 2, 4, 8 };
@@ -298,31 +315,7 @@ bool test_Slice() {
         expectedSliced.Append(smb.SliceRow(indices.Get(i)));
     }
 
-    return sliced == expectedSliced;
+    BOOST_CHECK(sliced == expectedSliced);
 }
 
-// ------------
-
-int main() {
-    bool all_success = true;
-
-    RUN_TEST(test_get_zero);
-    RUN_TEST(test_get_with_empty_row);
-    RUN_TEST(test_ToString);
-    RUN_TEST(test_SumRow);
-    RUN_TEST(test_NormalizeRow);
-    RUN_TEST(test_GetMax_withpositive);
-    RUN_TEST(test_GetMax_nonpositive);
-    RUN_TEST(test_GetMin_nonnegative);
-    RUN_TEST(test_GetMin_withnegative);
-    RUN_TEST(test_GetM_GetN);
-    RUN_TEST(test_Append);
-    RUN_TEST(test_Append_append_to_empty);
-    RUN_TEST(test_SliceRow);
-    RUN_TEST(test_ConstructFromDense);
-    RUN_TEST(test_ColumnIndexOnePastTheEndBug);
-    RUN_TEST(test_equals);
-    RUN_TEST(test_Slice);
-
-    return !all_success;
-}
+BOOST_AUTO_TEST_SUITE_END()

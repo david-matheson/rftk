@@ -12,5 +12,6 @@ SConscript('modules/SConscript', variant_dir='build/debug', duplicate=True,
     exports={'install_path': debug_install_dir, 'variant': 'debug'})
 SConscript('modules/SConscript', variant_dir='build/release', duplicate=True,
     exports={'install_path': release_install_dir, 'variant': 'release'})
-
 Default('install-debug', 'install-release')
+
+# SConscript('tests/SConscript')
