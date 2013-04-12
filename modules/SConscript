@@ -80,7 +80,14 @@ modules_with_deps = [('asserts', []),
                     ('features', ['asserts', 'buffers']),
                     ('feature_extractors', ['asserts', 'bootstrap', 'buffers', 'features']),
                     ('predict', ['asserts', 'buffers', 'forest_data', 'features']),
-                    ('train', ['asserts', 'buffers', 'bootstrap', 'best_split', 'forest_data', 'feature_extractors', 'predict'])]
+                    ('train', ['asserts', 'buffers', 'bootstrap', 'best_split', 'forest_data', 'feature_extractors', 'predict']),
+                    ('pipeline', ['asserts', 'buffers']),
+                    ('matrix_features', ['asserts', 'bootstrap', 'buffers', 'pipeline']),
+                    ('image_features', ['asserts', 'bootstrap', 'buffers', 'pipeline']),
+                    ('histograms', ['asserts', 'bootstrap', 'buffers', 'pipeline']),
+                    ('try_split_criteria', ['asserts', 'buffers']),
+                    ('split_criteria', ['asserts', 'buffers']),
+                    ('impurity', ['asserts', 'buffers', 'pipeline', 'split_criteria'])]
 
 install_dependencies = []
 external_libs = ['boost_thread']
