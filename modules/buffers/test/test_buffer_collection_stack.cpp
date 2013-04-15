@@ -19,8 +19,8 @@ MatrixBufferTemplate<T> Create4x4ExampleMatrix2()
     return MatrixBufferTemplate<T>(&data[0], 4, 4);
 }
 
-struct Fixture {
-    Fixture() 
+struct BufferCollectionStackFixture {
+    BufferCollectionStackFixture()
     : double4x4_1(Create4x4ExampleMatrix1<double>())
     , double4x4_2(Create4x4ExampleMatrix2<double>())
     , float4x4_1(Create4x4ExampleMatrix1<float>())
@@ -31,7 +31,7 @@ struct Fixture {
         collection_2.AddBuffer("float4x4_1", float4x4_1);
     }
 
-    ~Fixture()
+    ~BufferCollectionStackFixture()
     {
     }
 
@@ -42,7 +42,7 @@ struct Fixture {
     BufferCollection collection_2;
 };
 
-BOOST_FIXTURE_TEST_SUITE( BufferCollectionStackSuite, Fixture )
+BOOST_FIXTURE_TEST_SUITE( BufferCollectionStackTests, BufferCollectionStackFixture )
 
 BOOST_AUTO_TEST_CASE(test_HasBuffer)
 {
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(test_GetBuffer)
 {
     BufferCollectionStack stack;
     stack.Push(&collection_1);
-    const MatrixBufferTemplate<double>& mb = 
+    const MatrixBufferTemplate<double>& mb =
         stack.GetBuffer< MatrixBufferTemplate<double> >("double4x4_1");
     BOOST_CHECK(mb == double4x4_1);
 }
@@ -68,18 +68,18 @@ BOOST_AUTO_TEST_CASE(test_Push_and_Pop)
     BufferCollectionStack stack;
     BOOST_CHECK(!stack.HasBuffer< MatrixBufferTemplate<double> >("double4x4_1"));
     BOOST_CHECK(!stack.HasBuffer< MatrixBufferTemplate<float> >("float4x4_1"));
-    
+
     stack.Push(&collection_1);
     BOOST_CHECK(stack.HasBuffer< MatrixBufferTemplate<double> >("double4x4_1"));
     BOOST_CHECK(!stack.HasBuffer< MatrixBufferTemplate<float> >("float4x4_1"));
     BOOST_CHECK(stack.GetBuffer< MatrixBufferTemplate<double> >("double4x4_1") == double4x4_1);
-    
+
     stack.Push(&collection_2);
     BOOST_CHECK(stack.HasBuffer< MatrixBufferTemplate<double> >("double4x4_1"));
     BOOST_CHECK(stack.HasBuffer< MatrixBufferTemplate<float> >("float4x4_1"));
     BOOST_CHECK(stack.GetBuffer< MatrixBufferTemplate<double> >("double4x4_1") == double4x4_1);
     BOOST_CHECK(stack.GetBuffer< MatrixBufferTemplate<float> >("float4x4_1") == float4x4_1);
-    
+
     stack.Pop();
     BOOST_CHECK(stack.HasBuffer< MatrixBufferTemplate<double> >("double4x4_1"));
     BOOST_CHECK(!stack.HasBuffer< MatrixBufferTemplate<float> >("float4x4_1"));
@@ -89,19 +89,19 @@ BOOST_AUTO_TEST_CASE(test_Push_and_Pop)
     BOOST_CHECK(!stack.HasBuffer< MatrixBufferTemplate<float> >("float4x4_1"));
 }
 
-BOOST_AUTO_TEST_CASE(test_Push_Override_Buffer)
+BOOST_AUTO_TEST_CASE(test_Push_override_buffer)
 {
     BufferCollectionStack stack;
     BOOST_CHECK(!stack.HasBuffer< MatrixBufferTemplate<double> >("double4x4_1"));
-    
+
     stack.Push(&collection_1);
     BOOST_CHECK(stack.HasBuffer< MatrixBufferTemplate<double> >("double4x4_1"));
-    BOOST_CHECK(stack.GetBuffer< MatrixBufferTemplate<double> >("double4x4_1") == double4x4_1);  
+    BOOST_CHECK(stack.GetBuffer< MatrixBufferTemplate<double> >("double4x4_1") == double4x4_1);
 
     collection_2.AddBuffer("double4x4_1", double4x4_2);
     stack.Push(&collection_2);
     BOOST_CHECK(stack.HasBuffer< MatrixBufferTemplate<double> >("double4x4_1"));
-    BOOST_CHECK(stack.GetBuffer< MatrixBufferTemplate<double> >("double4x4_1") == double4x4_2);     
+    BOOST_CHECK(stack.GetBuffer< MatrixBufferTemplate<double> >("double4x4_1") == double4x4_2);
 
     stack.Pop();
     BOOST_CHECK(stack.HasBuffer< MatrixBufferTemplate<double> >("double4x4_1"));
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(test_Push_Override_Buffer)
     BOOST_CHECK(!stack.HasBuffer< MatrixBufferTemplate<double> >("double4x4_1"));
 }
 
-BOOST_AUTO_TEST_CASE(test_Same_Name_Different_Types)
+BOOST_AUTO_TEST_CASE(test_same_name_different_types)
 {
     MatrixBufferTemplate<double> conflict_double = Create4x4ExampleMatrix1<double>();
     collection_1.AddBuffer("conflict", conflict_double);
@@ -125,13 +125,13 @@ BOOST_AUTO_TEST_CASE(test_Same_Name_Different_Types)
     stack.Push(&collection_1);
     BOOST_CHECK(stack.HasBuffer< MatrixBufferTemplate<double> >("conflict"));
     BOOST_CHECK(!stack.HasBuffer< MatrixBufferTemplate<float> >("conflict"));
-    BOOST_CHECK(stack.GetBuffer< MatrixBufferTemplate<double> >("conflict") == conflict_double);  
+    BOOST_CHECK(stack.GetBuffer< MatrixBufferTemplate<double> >("conflict") == conflict_double);
 
     stack.Push(&collection_2);
     BOOST_CHECK(stack.HasBuffer< MatrixBufferTemplate<double> >("conflict"));
     BOOST_CHECK(stack.HasBuffer< MatrixBufferTemplate<float> >("conflict"));
-    BOOST_CHECK(stack.GetBuffer< MatrixBufferTemplate<double> >("conflict") == conflict_double);  
-    BOOST_CHECK(stack.GetBuffer< MatrixBufferTemplate<float> >("conflict") == conflict_float);  
+    BOOST_CHECK(stack.GetBuffer< MatrixBufferTemplate<double> >("conflict") == conflict_double);
+    BOOST_CHECK(stack.GetBuffer< MatrixBufferTemplate<float> >("conflict") == conflict_float);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
