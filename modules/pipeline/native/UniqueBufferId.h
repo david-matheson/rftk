@@ -10,8 +10,10 @@
 
 namespace UniqueBufferId
 {
+    typedef std::string BufferId;
+
     void Reset();
     int GetId();
-    std::string GetBufferString(const std::string& basename);
+    BufferId GetBufferId(const BufferId& base);
 }
 

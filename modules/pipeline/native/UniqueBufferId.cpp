@@ -6,24 +6,24 @@
 namespace UniqueBufferId
 {
 
-int globalBufferId = 0;
+int globalId = 0;
 
 void Reset()
 {
-    globalBufferId = 0;
+    globalId = 0;
 }
 
 int GetId()
 {
     // Note: this is not thread safe
     // GetId() must always be called from the main thread
-    return ++globalBufferId;
+    return ++globalId;
 }
 
-std::string GetBufferString(const std::string& basename)
+BufferId GetBufferId(const BufferId& base)
 {
     std::ostringstream result;
-    result << basename << GetId();
+    result << base << GetId();
     return result.str();
 }
 

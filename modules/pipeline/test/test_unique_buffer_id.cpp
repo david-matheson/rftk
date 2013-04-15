@@ -15,10 +15,10 @@ BOOST_AUTO_TEST_CASE(test_GetId)
 BOOST_AUTO_TEST_CASE(test_GetBufferString)
 {
     UniqueBufferId::Reset();
-    BOOST_CHECK_EQUAL( UniqueBufferId::GetBufferString("Try"), "Try1" );
-    BOOST_CHECK_EQUAL( UniqueBufferId::GetBufferString("Different"), "Different2" );
-    BOOST_CHECK_EQUAL( UniqueBufferId::GetBufferString("Strings"), "Strings3" );
-    BOOST_CHECK_EQUAL( UniqueBufferId::GetBufferString("Strings"), "Strings4" );
+    BOOST_CHECK_EQUAL( UniqueBufferId::GetBufferId("Try"), "Try1" );
+    BOOST_CHECK_EQUAL( UniqueBufferId::GetBufferId("Different"), "Different2" );
+    BOOST_CHECK_EQUAL( UniqueBufferId::GetBufferId("Strings"), "Strings3" );
+    BOOST_CHECK_EQUAL( UniqueBufferId::GetBufferId("Strings"), "Strings4" );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
