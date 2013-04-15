@@ -5,7 +5,7 @@
 #include "SparseMatrixBuffer.h"
 #include "MatrixBuffer.h"
 
-BOOST_AUTO_TEST_SUITE( SparseMatrix )
+BOOST_AUTO_TEST_SUITE( SparseMatrixTests )
 
 template<typename T, size_t N>
 size_t length_of(T (&a)[N]) {
@@ -15,15 +15,15 @@ size_t length_of(T (&a)[N]) {
 template<typename T>
 SparseMatrixBufferTemplate<T> CreateExampleSparseMatrix()
 {
-    // .. .. .. .. .. .. .. .. 
-    // 11 12 .. 14 .. .. .. .. 
-    // .. 22 23 .. 25 .. .. .. 
-    // 31 .. 33 34 .. .. .. .. 
-    // .. 42 .. .. 45 46 .. .. 
-    // .. .. .. .. 55 .. .. .. 
-    // .. .. .. .. 65 66 67 .. 
-    // .. .. .. .. 75 .. 77 78 
-    // .. .. .. .. .. .. 87 88 
+    // .. .. .. .. .. .. .. ..
+    // 11 12 .. 14 .. .. .. ..
+    // .. 22 23 .. 25 .. .. ..
+    // 31 .. 33 34 .. .. .. ..
+    // .. 42 .. .. 45 46 .. ..
+    // .. .. .. .. 55 .. .. ..
+    // .. .. .. .. 65 66 67 ..
+    // .. .. .. .. 75 .. 77 78
+    // .. .. .. .. .. .. 87 88
 
     int rowPtr[] = {0,0,3,6,9,12,13,16,19,21};
     int col[] = {0,1,3,1,2,4,0,2,3,1,4,5,4,4,5,6,4,6,7,6,7};
@@ -32,7 +32,7 @@ SparseMatrixBufferTemplate<T> CreateExampleSparseMatrix()
     SparseMatrixBufferTemplate<T>
         smb(&val[0], length_of(val), &col[0], length_of(col),
             &rowPtr[0], length_of(rowPtr), 9, 8);
-    
+
     return smb;
 }
 
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(test_get_with_empty_row)
             }
         }
     }
-    
+
     BOOST_CHECK(all_match);
 }
 
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(test_ToString)
 
     std::string result = smb.ToString();
 
-    std::string expected = 
+    std::string expected =
         ".. .. .. .. .. .. .. .. \n"
         "11 12 .. 14 .. .. .. .. \n"
         ".. 22 23 .. 25 .. .. .. \n"
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(test_SumRow)
     BOOST_CHECK(correct);
 }
 
-BOOST_AUTO_TEST_CASE(test_NormalizeRow) 
+BOOST_AUTO_TEST_CASE(test_NormalizeRow)
 {
     SparseMatrixBufferTemplate<double> smb = CreateExampleSparseMatrix<double>();
 
@@ -130,14 +130,14 @@ BOOST_AUTO_TEST_CASE(test_NormalizeRow)
     BOOST_CHECK(correct);
 }
 
-BOOST_AUTO_TEST_CASE(test_GetMax_withpositive) 
+BOOST_AUTO_TEST_CASE(test_GetMax_withpositive)
 {
     // positive entries
     SparseMatrixBufferTemplate<double> smb = CreateExampleSparseMatrix<double>();
     BOOST_CHECK(smb.GetMax() == 88.0);
 }
 
-BOOST_AUTO_TEST_CASE(test_GetMax_nonpositive) 
+BOOST_AUTO_TEST_CASE(test_GetMax_nonpositive)
 {
     // includes only negative entries and zeros
     // .. .. ..
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(test_GetMax_nonpositive)
     BOOST_CHECK(smb.GetMax() == 0.0);
 }
 
-BOOST_AUTO_TEST_CASE(test_GetMin_nonnegative) 
+BOOST_AUTO_TEST_CASE(test_GetMin_nonnegative)
 {
     // only positive entries
     SparseMatrixBufferTemplate<double> smb = CreateExampleSparseMatrix<double>();
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(test_Append)
 
     std::string result = smb1.ToString();
 
-    std::string expected = 
+    std::string expected =
         ".. .. .. .. .. .. .. .. \n"
         "11 12 .. 14 .. .. .. .. \n"
         ".. 22 23 .. 25 .. .. .. \n"
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE(test_ConstructFromDense)
     SparseMatrixBufferTemplate<double> smb(mb);
     std::string result = smb.ToString();
 
-    std::string expected = 
+    std::string expected =
         ".. .. .. \n"
         "1 .. 3 \n"
         ".. 5 .. \n"

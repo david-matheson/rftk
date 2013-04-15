@@ -3,7 +3,7 @@
 #include "BufferCollection.h"
 #include "MatrixBuffer.h"
 
-BOOST_AUTO_TEST_SUITE( BufferCollectionSuite )
+BOOST_AUTO_TEST_SUITE( BufferCollectionTests )
 
 template<typename T>
 MatrixBufferTemplate<T> CreateExampleMatrix()
