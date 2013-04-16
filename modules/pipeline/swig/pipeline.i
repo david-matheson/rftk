@@ -3,6 +3,7 @@
     #define SWIG_FILE_WITH_INIT
     #include "PipelineStepI.h"
     #include "Pipeline.h"
+    #include "SetBufferStep.h"
 %}
 
 %include <exception.i>
@@ -17,3 +18,14 @@ namespace std {
 
 %include "PipelineStepI.h"
 %include "Pipeline.h"
+%include "SetBufferStep.h"
+
+%template(SetFloat32VectorBufferStep) SetBufferStep< VectorBufferTemplate<float> >;
+%template(SetFloat64VectorBufferStep) SetBufferStep< VectorBufferTemplate<double> >;
+%template(SetInt32VectorBufferStep) SetBufferStep< VectorBufferTemplate<int> >;
+%template(SetInt64VectorBufferStep) SetBufferStep< VectorBufferTemplate<long long> >;
+
+%template(SetFloat32MatrixBufferStep) SetBufferStep< MatrixBufferTemplate<float> >;
+%template(SetFloat64MatrixBufferStep) SetBufferStep< MatrixBufferTemplate<double> >;
+%template(SetInt32MatrixBufferStep) SetBufferStep< MatrixBufferTemplate<int> >;
+%template(SetInt64MatrixBufferStep) SetBufferStep< MatrixBufferTemplate<long long> >;
