@@ -14,8 +14,10 @@ class PipelineStepI
 {
 public:
     virtual ~PipelineStepI() {}
-    virtual void ProcessStep(   const Int64VectorBuffer indices,
+
+    virtual PipelineStepI* Clone() const = 0;
+
+    virtual void ProcessStep(   const VectorBufferTemplate<long long> indices,
                                 const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection) const = 0;
-    virtual PipelineStepI* Clone() const = 0;
 };

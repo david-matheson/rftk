@@ -19,7 +19,7 @@ Pipeline::~Pipeline()
     }
 }
 
-void Pipeline::ProcessStep( const Int64VectorBuffer indices,
+void Pipeline::ProcessStep( const VectorBufferTemplate<long long> indices,
                             const BufferCollectionStack& readCollection,
                             BufferCollection& writeCollection) const
 {
