@@ -41,12 +41,15 @@ BUFFER_TYPE& Get ## BUFFER_TYPE(const BufferCollectionKey_t& name);
     DECLARE_BUFFER_SWIG_INTERFACE_FOR_TYPE(Int32Tensor3Buffer)
     DECLARE_BUFFER_SWIG_INTERFACE_FOR_TYPE(Int64Tensor3Buffer)
 
+
 #undef DECLARE_BUFFER_SWIG_INTERFACE_FOR_TYPE
 
     bool HasBuffer(BufferCollectionKey_t name) const;
 
     template<typename BufferType>
     void AddBuffer(BufferCollectionKey_t name, BufferType const& data);
+    template<typename BufferType>
+    BufferType& GetOrAddBuffer(BufferCollectionKey_t name);
     template<typename BufferType>
     void AppendBuffer(BufferCollectionKey_t name, BufferType const& buffer);
     template<typename BufferType>
@@ -80,6 +83,16 @@ template<typename BufferType>
 void BufferCollection::AddBuffer(BufferCollectionKey_t name, BufferType const& buffer)
 {
     mBuffers[name] = boost::any(buffer);
+}
+
+template<typename BufferType>
+BufferType& BufferCollection::GetOrAddBuffer(BufferCollectionKey_t name)
+{
+    if( !HasBuffer<BufferType>(name) )
+    {
+        mBuffers[name] = boost::any(BufferType());
+    }
+    return GetBuffer<BufferType>(name);
 }
 
 template<typename BufferType>
