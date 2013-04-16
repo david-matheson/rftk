@@ -10,12 +10,6 @@
 // only when OutputBufferId has not already been set.
 //
 // ----------------------------------------------------------------------------
-enum SetRule
-{
-    WHEN_NEW,
-    EVERY_PROCESS
-};
-
 template <class BufType>
 class SetBufferStep: public PipelineStepI
 {

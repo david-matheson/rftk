@@ -10,7 +10,6 @@
 // The pipeline owns a copy of all steps in the pipeline.
 //
 // ----------------------------------------------------------------------------
-
 class Pipeline: public PipelineStepI
 {
 public:
@@ -26,3 +25,4 @@ public:
 private:
     std::vector<PipelineStepI*> mSteps;
 };
+

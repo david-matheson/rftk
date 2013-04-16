@@ -21,3 +21,9 @@ public:
                                 const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection) const = 0;
 };
+
+enum SetRule
+{
+    WHEN_NEW,
+    EVERY_PROCESS
+};
