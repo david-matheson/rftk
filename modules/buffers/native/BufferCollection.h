@@ -56,6 +56,10 @@ BUFFER_TYPE& Get ## BUFFER_TYPE(const BufferCollectionKey_t& name);
     BufferType const& GetBuffer(BufferCollectionKey_t name) const;
     template<typename BufferType>
     BufferType& GetBuffer(BufferCollectionKey_t name);
+    template<typename BufferType>
+    BufferType const* GetBufferPtr(BufferCollectionKey_t name) const;
+    template<typename BufferType>
+    BufferType* GetBufferPtr(BufferCollectionKey_t name);
 
 // private:
     // Checks for a buffer of a specific type.
@@ -109,19 +113,33 @@ void BufferCollection::AppendBuffer(BufferCollectionKey_t name, BufferType const
 template<typename BufferType>
 BufferType const& BufferCollection::GetBuffer(BufferCollectionKey_t name) const
 {
-    ASSERT(HasBuffer(name));
-    BufferMapType::const_iterator bufferIter = mBuffers.find(name);
-    // use pointers so any_cast doesn't copy the buffer
-    return *boost::any_cast<BufferType>(&bufferIter->second);
+    BufferType const* ptr = GetBufferPtr<BufferType>(name);
+    return *ptr;
 }
 
 template<typename BufferType>
 BufferType& BufferCollection::GetBuffer(BufferCollectionKey_t name)
 {
+    BufferType* ptr = GetBufferPtr<BufferType>(name);
+    return *ptr;
+}
+
+template<typename BufferType>
+BufferType const* BufferCollection::GetBufferPtr(BufferCollectionKey_t name) const
+{
+    ASSERT(HasBuffer(name));
+    BufferMapType::const_iterator bufferIter = mBuffers.find(name);
+    // use pointers so any_cast doesn't copy the buffer
+    return boost::any_cast<BufferType>(&bufferIter->second);
+}
+
+template<typename BufferType>
+BufferType* BufferCollection::GetBufferPtr(BufferCollectionKey_t name)
+{
     ASSERT(HasBuffer(name));
     BufferMapType::iterator bufferIter = mBuffers.find(name);
     // use pointers so any_cast doesn't copy the buffer
-    return *boost::any_cast<BufferType>(&bufferIter->second);
+    return boost::any_cast<BufferType>(&bufferIter->second);
 }
 
 

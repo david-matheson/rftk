@@ -47,6 +47,7 @@ DEFINE_BUFFER_SWIG_INTERFACE_FOR_TYPE(Float64Tensor3Buffer)
 DEFINE_BUFFER_SWIG_INTERFACE_FOR_TYPE(Int32Tensor3Buffer)
 DEFINE_BUFFER_SWIG_INTERFACE_FOR_TYPE(Int64Tensor3Buffer)
 
+
 bool BufferCollection::HasBuffer(std::string name) const
 {
     return (mBuffers.find(name) != mBuffers.end());

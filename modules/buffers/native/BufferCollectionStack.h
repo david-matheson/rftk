@@ -35,6 +35,9 @@ public:
     template<typename BufferType>
     BufferType const& GetBuffer(BufferCollectionKey_t bufferKey) const;
 
+    template<typename BufferType>
+    BufferType const* GetBufferPtr(BufferCollectionKey_t bufferKey) const;
+
 
 private:
     std::list<const BufferCollection*> mStack;
@@ -58,13 +61,20 @@ bool BufferCollectionStack::HasBuffer(BufferCollectionKey_t bufferKey) const
 template<typename BufferType>
 BufferType const& BufferCollectionStack::GetBuffer(BufferCollectionKey_t bufferKey) const
 {
-    for (std::list<const BufferCollection*>::const_iterator it = mStack.begin() ; it != mStack.end(); ++it)
+    BufferType const* bufferPtr = GetBufferPtr<BufferType>(bufferKey);
+    ASSERT(bufferPtr != NULL);
+    return *bufferPtr;
+}
+
+template<typename BufferType>
+BufferType const* BufferCollectionStack::GetBufferPtr(BufferCollectionKey_t bufferKey) const
+{
+    for (std::list<const BufferCollection*>::const_iterator it = mStack.begin(); it != mStack.end(); ++it)
     {
         if((*it)->HasBuffer<BufferType>(bufferKey))
         {
-            return (*it)->GetBuffer<BufferType>(bufferKey);
+            return (*it)->GetBufferPtr<BufferType>(bufferKey);
         }
     }
-    // Failed to find a BufferCollection with bufferKey
-    ASSERT(false);
+    return NULL;
 }
