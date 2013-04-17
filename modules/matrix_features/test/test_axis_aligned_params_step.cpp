@@ -15,7 +15,6 @@ struct AxisAlignedParamsStepFixture {
     , number_of_features_key("#features")
     , xs(4,5)
     , numberOfFeaturesBuffers(1)
-    , indices(VectorBufferTemplate<long long>())
     , collection()
     , stack()
     {
@@ -31,7 +30,6 @@ struct AxisAlignedParamsStepFixture {
     const BufferCollectionKey_t number_of_features_key;
     const MatrixBufferTemplate<double> xs;
     const VectorBufferTemplate<int> numberOfFeaturesBuffers;
-    const VectorBufferTemplate<long long> indices;
     BufferCollection collection;
     BufferCollectionStack stack;
 };
@@ -52,7 +50,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<double> >(axisAlignedStep.FloatParamsBufferId));
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<int> >(axisAlignedStep.IntParamsBufferId));
 
-    axisAlignedStep.ProcessStep(indices, stack, collection);
+    axisAlignedStep.ProcessStep(stack, collection);
 
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<double> >(axisAlignedStep.FloatParamsBufferId));
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<int> >(axisAlignedStep.IntParamsBufferId));    
@@ -98,7 +96,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_all_dimensions)
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<double> >(axisAlignedStep.FloatParamsBufferId));
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<int> >(axisAlignedStep.IntParamsBufferId));
 
-    axisAlignedStep.ProcessStep(indices, stack, collection);
+    axisAlignedStep.ProcessStep(stack, collection);
 
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<double> >(axisAlignedStep.FloatParamsBufferId));
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<int> >(axisAlignedStep.IntParamsBufferId));    

@@ -2,6 +2,8 @@
 
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
+#include "BufferCollection.h"
+#include "BufferCollectionStack.h"
 #include "bootstrap.h"
 #include "PipelineStepI.h"
 #include "UniqueBufferId.h"
@@ -24,8 +26,7 @@ public:
 
     virtual PipelineStepI* Clone() const;
 
-    virtual void ProcessStep(   const VectorBufferTemplate<long long> indices,
-                                const BufferCollectionStack& readCollection,
+    virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection) const;
 
     // Read only output buffers
@@ -64,11 +65,9 @@ PipelineStepI* AxisAlignedParamsStep<FloatType,IntType>::Clone() const
 }
 
 template <class FloatType, class IntType>
-void AxisAlignedParamsStep<FloatType,IntType>::ProcessStep(const VectorBufferTemplate<long long> indices,
-                                                const BufferCollectionStack& readCollection,
-                                                BufferCollection& writeCollection) const
+void AxisAlignedParamsStep<FloatType,IntType>::ProcessStep(const BufferCollectionStack& readCollection,
+                                                          BufferCollection& writeCollection) const
 {
-    UNUSED_PARAM(indices);
     if(!writeCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(FloatParamsBufferId)
         || !writeCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(IntParamsBufferId))
     {

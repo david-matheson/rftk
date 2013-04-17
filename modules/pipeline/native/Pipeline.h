@@ -18,8 +18,7 @@ public:
 
     virtual PipelineStepI* Clone() const;
 
-    virtual void ProcessStep(   const VectorBufferTemplate<long long> indices,
-                                const BufferCollectionStack& readCollection,
+    virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection) const;
 
 private:

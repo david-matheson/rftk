@@ -19,8 +19,7 @@ public:
 
     virtual PipelineStepI* Clone() const;
 
-    virtual void ProcessStep(   const VectorBufferTemplate<long long> indices,
-                                const BufferCollectionStack& readCollection,
+    virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection) const;
 
     // Read only output buffer
@@ -50,11 +49,9 @@ PipelineStepI* SetBufferStep<BufType>::Clone() const
 }
 
 template <class BufType>
-void SetBufferStep<BufType>::ProcessStep(const VectorBufferTemplate<long long> indices,
-                                        const BufferCollectionStack& readCollection,
+void SetBufferStep<BufType>::ProcessStep(const BufferCollectionStack& readCollection,
                                         BufferCollection& writeCollection) const
 {
-    UNUSED_PARAM(indices);
     UNUSED_PARAM(readCollection);
 
     if(!writeCollection.HasBuffer<BufType>(OutputBufferId) || mSetRule == EVERY_PROCESS)

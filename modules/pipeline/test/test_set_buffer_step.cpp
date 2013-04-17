@@ -24,7 +24,6 @@ struct SetBufferStepFixture {
     SetBufferStepFixture()
     : buffer1(Create4x4ExampleMatrix1<double>())
     , buffer2(Create4x4ExampleMatrix2<double>())
-    , indices(VectorBufferTemplate<long long>())
     , collection()
     , stack()
     {
@@ -36,10 +35,8 @@ struct SetBufferStepFixture {
 
     const MatrixBufferTemplate<double> buffer1;
     const MatrixBufferTemplate<double> buffer2;
-    const VectorBufferTemplate<long long> indices;
     BufferCollection collection;
     BufferCollectionStack stack;
-
 };
 
 BOOST_FIXTURE_TEST_SUITE( SetBufferStepTests, SetBufferStepFixture )
@@ -49,7 +46,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
     const SetBufferStep< MatrixBufferTemplate<double> > setBufferStep(buffer1, WHEN_NEW);
 
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId));
-    setBufferStep.ProcessStep(indices, stack, collection);
+    setBufferStep.ProcessStep(stack, collection);
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId));
     BOOST_CHECK(collection.GetBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId) == buffer1);
 }
@@ -59,7 +56,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_when_new)
     const SetBufferStep< MatrixBufferTemplate<double> > setBufferStep(buffer1, WHEN_NEW);
     collection.AddBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId, buffer2);
     BOOST_CHECK(collection.GetBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId) == buffer2);
-    setBufferStep.ProcessStep(indices, stack, collection);
+    setBufferStep.ProcessStep(stack, collection);
     BOOST_CHECK(collection.GetBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId) == buffer2);
 }
 
@@ -68,7 +65,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_every_process)
     const SetBufferStep< MatrixBufferTemplate<double> > setBufferStep(buffer1, EVERY_PROCESS);
     collection.AddBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId, buffer2);
     BOOST_CHECK(collection.GetBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId) == buffer2);
-    setBufferStep.ProcessStep(indices, stack, collection);
+    setBufferStep.ProcessStep(stack, collection);
     BOOST_CHECK(collection.GetBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId) == buffer1);
 }
 

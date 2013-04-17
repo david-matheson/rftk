@@ -19,13 +19,12 @@ Pipeline::~Pipeline()
     }
 }
 
-void Pipeline::ProcessStep( const VectorBufferTemplate<long long> indices,
-                            const BufferCollectionStack& readCollection,
+void Pipeline::ProcessStep( const BufferCollectionStack& readCollection,
                             BufferCollection& writeCollection) const
 {
     for (std::vector<PipelineStepI*>::const_iterator it = mSteps.begin(); it != mSteps.end(); ++it)
     {
-        (*it)->ProcessStep(indices, readCollection, writeCollection);
+        (*it)->ProcessStep(readCollection, writeCollection);
     }
 }
 
