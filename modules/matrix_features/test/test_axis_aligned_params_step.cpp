@@ -60,24 +60,26 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
     MatrixBufferTemplate<double> floatParams = 
             collection.GetBuffer< MatrixBufferTemplate<double> >(axisAlignedStep.FloatParamsBufferId);
     BOOST_CHECK_EQUAL(floatParams.GetM(), numberOfFeatures);
-    BOOST_CHECK_EQUAL(floatParams.GetN(), 2);
+    BOOST_CHECK_EQUAL(floatParams.GetN(), 3);
 
     MatrixBufferTemplate<int> intParams = 
             collection.GetBuffer< MatrixBufferTemplate<int> >(axisAlignedStep.IntParamsBufferId);
     BOOST_CHECK_EQUAL(intParams.GetM(), numberOfFeatures);
-    BOOST_CHECK_EQUAL(intParams.GetN(), 2);
+    BOOST_CHECK_EQUAL(intParams.GetN(), 3);
 
     std::vector<bool> dimensionsUsed(numberOfFeatures);
     for(int i=0; i<numberOfFeatures; i++)
     {
         const int featureType = intParams.Get(i,0);
         BOOST_CHECK(featureType == MATRIX_FEATURES);
-        const int dimension = intParams.Get(i,1);
+        const int numberOfDimensions = intParams.Get(i,1);
+        BOOST_CHECK_EQUAL(numberOfDimensions, 1);
+        const int dimension = intParams.Get(i,2);
         BOOST_CHECK(dimension >=0 && dimension < 5);
         BOOST_CHECK(!dimensionsUsed[dimension]);
         dimensionsUsed[dimension] = true;
 
-        const double weight = floatParams.Get(i,1);
+        const double weight = floatParams.Get(i,2);
         BOOST_CHECK_CLOSE(1.0, weight, 0.001);
     }
 }
@@ -104,24 +106,26 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_all_dimensions)
     MatrixBufferTemplate<double> floatParams = 
             collection.GetBuffer< MatrixBufferTemplate<double> >(axisAlignedStep.FloatParamsBufferId);
     BOOST_CHECK_EQUAL(floatParams.GetM(), numberOfFeaturesActual);
-    BOOST_CHECK_EQUAL(floatParams.GetN(), 2);
+    BOOST_CHECK_EQUAL(floatParams.GetN(), 3);
 
     MatrixBufferTemplate<int> intParams = 
             collection.GetBuffer< MatrixBufferTemplate<int> >(axisAlignedStep.IntParamsBufferId);
     BOOST_CHECK_EQUAL(intParams.GetM(), numberOfFeaturesActual);
-    BOOST_CHECK_EQUAL(intParams.GetN(), 2);
+    BOOST_CHECK_EQUAL(intParams.GetN(), 3);
 
     std::vector<bool> dimensionsUsed(numberOfFeaturesActual);
     for(int i=0; i<numberOfFeaturesActual; i++)
     {
         const int featureType = intParams.Get(i,0);
         BOOST_CHECK(featureType == MATRIX_FEATURES);
-        const int dimension = intParams.Get(i,1);
+        const int numberOfDimensions = intParams.Get(i,1);
+        BOOST_CHECK_EQUAL(numberOfDimensions, 1);
+        const int dimension = intParams.Get(i,2);
         BOOST_CHECK(dimension >=0 && dimension < 5);
         BOOST_CHECK(!dimensionsUsed[dimension]);
         dimensionsUsed[dimension] = true;
 
-        const double weight = floatParams.Get(i,1);
+        const double weight = floatParams.Get(i,2);
         BOOST_CHECK_CLOSE(1.0, weight, 0.001);
     }
 }

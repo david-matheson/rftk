@@ -5,6 +5,7 @@
 #include "bootstrap.h"
 #include "PipelineStepI.h"
 #include "UniqueBufferId.h"
+#include "LinearMatrixFeature.h"
 
 // ----------------------------------------------------------------------------
 // 
@@ -13,16 +14,6 @@
 // the input matrix and is choosen uniformily from all dimensions.
 //
 // ----------------------------------------------------------------------------
-enum
-{
-    MATRIX_FEATURES = 1 // Move this to a more soucefile
-};
-
-const int SPLIT_POINT_INDEX = 0;  // Move this to a more soucefile
-const int FEATURE_TYPE_INDEX = SPLIT_POINT_INDEX;     // Move this to a more soucefile
-const int PARAM_START_INDEX = SPLIT_POINT_INDEX + 1;  // Move this to a more soucefile
-
-
 template <class FloatType, class IntType>
 class AxisAlignedParamsStep: public PipelineStepI
 {
@@ -41,7 +32,7 @@ public:
     const UniqueBufferId::BufferId FloatParamsBufferId;
     const UniqueBufferId::BufferId IntParamsBufferId;
 private:
-    enum { DIMENSION_OF_PARAMETERS = 2 };
+    enum { DIMENSION_OF_PARAMETERS = PARAM_START_INDEX + 1 };
     void SampleParams(IntType numberOfFeatures, 
                       IntType numberOfDimensions,
                       MatrixBufferTemplate<FloatType>& floatParams,
@@ -117,9 +108,9 @@ void AxisAlignedParamsStep<FloatType,IntType>::SampleParams(IntType numberOfFeat
 
     for(int i=0; i<numberOfFeatures; i++)
     {
-        floatParams.Set(i, SPLIT_POINT_INDEX, static_cast<FloatType>(0.0)); // this will be replaced by best splitpoint
         floatParams.Set(i, PARAM_START_INDEX, static_cast<FloatType>(1.0)); // use a weight of 1.0 since there is 1 component
         intParams.Set(i, FEATURE_TYPE_INDEX, MATRIX_FEATURES); // feature type
+        intParams.Set(i, NUMBER_OF_DIMENSIONS, 1); // how many dimensions in projection
         intParams.Set(i, PARAM_START_INDEX, candidateDimensions[i]); // dimension index
     }
 }
