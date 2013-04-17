@@ -40,6 +40,9 @@ public:
     IntType GetNumberOfFeatures() const;
     IntType GetNumberOfDatapoints() const;
 
+    typedef FloatType Float;
+    typedef IntType Int;
+    
 private:
     const UniqueBufferId::BufferId mFloatParamsBufferId;
     const UniqueBufferId::BufferId mIntParamsBufferId;
