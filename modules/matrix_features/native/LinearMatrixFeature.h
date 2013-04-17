@@ -3,6 +3,8 @@
 #include "asserts.h"
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
+#include "BufferCollection.h"
+#include "BufferCollectionStack.h"
 #include "UniqueBufferId.h"
 
 enum
@@ -34,6 +36,9 @@ public:
     void Bind(const BufferCollectionStack& readCollection);
 
     FloatType FeatureValue( const int featureIndex, const int relativeSampleIndex) const;
+
+    IntType GetNumberOfFeatures() const;
+    IntType GetNumberOfDatapoints() const;
 
 private:
     const UniqueBufferId::BufferId mFloatParamsBufferId;
@@ -97,3 +102,14 @@ FloatType LinearMatrixFeature<FloatType, IntType>::FeatureValue( const int featu
     return featureValue;
 }
 
+template <class FloatType, class IntType>
+IntType LinearMatrixFeature<FloatType, IntType>::GetNumberOfFeatures() const
+{
+    return (mIntParams != NULL) ? mIntParams->GetM() : 0;
+}
+
+template <class FloatType, class IntType>
+IntType LinearMatrixFeature<FloatType, IntType>::GetNumberOfDatapoints() const
+{
+    return (mIndices != NULL) ? mIndices->GetN() : 0;
+}
