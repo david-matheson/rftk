@@ -41,6 +41,8 @@ public:
     void AsNumpy1dInt32(int* outint1d, int n) const;
     void AsNumpy1dInt64(long long* outlong1d, int n) const;
 
+    bool operator==(VectorBufferTemplate<T> const& other) const;
+
     void Print() const;
 
 private:
@@ -250,6 +252,15 @@ void VectorBufferTemplate<T>::AsNumpy1dInt64(long long* outlong1d, int n) const
     }
 }
 
+template<class T>
+bool VectorBufferTemplate<T>::operator==(VectorBufferTemplate<T> const& other) const
+{
+    if (GetN() != other.GetN()) {
+        return false;
+    }
+
+    return std::equal(mData.begin(), mData.end(), other.mData.begin());
+}
 
 template <class T>
 void VectorBufferTemplate<T>::Print() const
