@@ -33,6 +33,10 @@ public:
     T GetMax() const;
     T GetMin() const;
 
+    T Sum() const;
+    void Normalize();
+    VectorBufferTemplate<T> Normalized() const;
+
     void Append(const VectorBufferTemplate<T>& buffer);
     VectorBufferTemplate<T> Slice(const VectorBufferTemplate<int>& indices) const;
 
@@ -187,6 +191,35 @@ T VectorBufferTemplate<T>::GetMin() const
         min = (min < mData[i]) ? min : mData[i];
     }
     return min;
+}
+
+template <class T>
+T VectorBufferTemplate<T>::Sum() const
+{
+    T sum = Get(0);
+    for(int c=1; c<mN; c++)
+    {
+        sum += Get(c);
+    }
+    return sum;
+}
+
+template <class T>
+void VectorBufferTemplate<T>::Normalize()
+{
+    T sum = Sum();
+    for(int c=0; c<mN && sum > T(0); c++)
+    {
+        mData[c] /= sum;
+    }
+}
+
+template <class T>
+VectorBufferTemplate<T> VectorBufferTemplate<T>::Normalized() const
+{
+    VectorBufferTemplate<T> result = *this;
+    result.Normalize();
+    return result;
 }
 
 template <class T>
