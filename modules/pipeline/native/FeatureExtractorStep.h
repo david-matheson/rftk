@@ -34,7 +34,7 @@ public:
     // Read only output buffer
     const UniqueBufferId::BufferId FeatureValuesBufferId;
 private:
-    FeatureType mFeature;
+    const FeatureType mFeature;
     FeatureValueOrdering mOrdering;
 };
 
