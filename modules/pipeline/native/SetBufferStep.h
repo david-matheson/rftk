@@ -1,5 +1,8 @@
 #pragma once
 
+#include "VectorBuffer.h"
+#include "MatrixBuffer.h"
+#include "BufferCollection.h"
 #include "PipelineStepI.h"
 #include "UniqueBufferId.h"
 
