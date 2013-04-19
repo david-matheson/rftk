@@ -34,6 +34,7 @@ public:
     void Incr(int m, int n, T value);
 
     const T* GetRowPtrUnsafe(int m) const;
+    void SetRow(int m, const VectorBufferTemplate<T>& row);
 
     T GetMax() const;
     T GetMin() const;
@@ -208,6 +209,17 @@ const T* MatrixBufferTemplate<T>::GetRowPtrUnsafe(int m) const
 }
 
 template <class T>
+void MatrixBufferTemplate<T>::SetRow(int m, const VectorBufferTemplate<T>& row)
+{
+    ASSERT_ARG_DIM_1D(mN, row.GetN());
+    const int maxColumn = std::min(mN, row.GetN());
+    for(int i=0; i<maxColumn; i++)
+    {
+        Set(m, i, row.Get(i));
+    }
+}
+
+template <class T>
 T MatrixBufferTemplate<T>::GetMax() const
 {
     T max = std::numeric_limits<T>::min();
@@ -244,7 +256,7 @@ template <class T>
 void MatrixBufferTemplate<T>::NormalizeRow(int m)
 {
     T sum = SumRow(m);
-    for(int c=0; c<mN; c++)
+    for(int c=0; c<mN && sum > T(0); c++)
     {
         mData[ m*mN + c] /= sum;
     }
