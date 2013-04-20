@@ -46,6 +46,8 @@ public:
     MatrixBufferTemplate<T> Transpose() const;
     MatrixBufferTemplate<T> Slice(const VectorBufferTemplate<int>& indices) const;
     MatrixBufferTemplate<T> SliceRow(const int row) const;
+    VectorBufferTemplate<T> SliceRowAsVector(const int row) const;
+
 
     void AsNumpy2dFloat32(float* outfloat2d, int m, int n) const;
     void AsNumpy2dFloat64(double* outdouble2d, int m, int n) const;
@@ -313,6 +315,18 @@ MatrixBufferTemplate<T> MatrixBufferTemplate<T>::SliceRow(const int row) const
     for(int c=0; c<mN; c++)
     {
         sliced.Set(0, c, Get(row, c));
+    }
+
+    return sliced;
+}
+
+template <class T>
+VectorBufferTemplate<T> MatrixBufferTemplate<T>::SliceRowAsVector(const int row) const
+{
+    VectorBufferTemplate<T> sliced(mN);
+    for(int c=0; c<mN; c++)
+    {
+        sliced.Set(c, Get(row, c));
     }
 
     return sliced;
