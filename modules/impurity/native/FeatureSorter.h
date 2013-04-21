@@ -9,7 +9,8 @@
 
 // ----------------------------------------------------------------------------
 //
-// Sorted feature indices by row or column
+// Sort feature values to get a mapping from unsorted indices to sorted 
+// indices.  Either by row or column.
 //
 // ----------------------------------------------------------------------------
 template <class FloatType>
