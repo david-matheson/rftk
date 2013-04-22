@@ -28,7 +28,7 @@ TrySplitCriteriaI* TrySplitCombinedCriteria::Clone() const
 bool TrySplitCombinedCriteria::TrySplit(int depth, int numberOfDatapoints) const
 {
     bool trySplit = true;
-    for (std::vector<TrySplitCriteriaI*>::const_iterator it = mCriterias.begin(); it != mCriterias.end(); ++it)
+    for (std::vector<TrySplitCriteriaI*>::const_iterator it = mCriterias.begin(); it != mCriterias.end() && trySplit; ++it)
     {
         trySplit = trySplit && (*it)->TrySplit(depth, numberOfDatapoints);
     }
