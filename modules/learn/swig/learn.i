@@ -1,4 +1,4 @@
-%module try_split_criteria
+%module learn
 %{
     #define SWIG_FILE_WITH_INIT
 %}

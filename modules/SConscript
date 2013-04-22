@@ -85,9 +85,11 @@ modules_with_deps = [('asserts', []),
                     ('matrix_features', ['asserts', 'bootstrap', 'buffers', 'pipeline']),
                     ('image_features', ['asserts', 'bootstrap', 'buffers', 'pipeline']),
                     ('histograms', ['asserts', 'bootstrap', 'buffers', 'pipeline']),
-                    ('try_split_criteria', ['asserts', 'buffers']),
-                    ('split_criteria', ['asserts', 'buffers']),
-                    ('impurity', ['asserts', 'buffers', 'pipeline', 'split_criteria'])]
+                    ('try_split', ['asserts', 'buffers']),
+                    ('should_split', ['asserts', 'buffers']),
+                    ('impurity', ['asserts', 'buffers', 'pipeline', 'should_split']),
+                    ('learn', ['asserts', 'buffers', 'bootstrap', 'forest_data']),
+                    ('classification', ['asserts', 'buffers', 'pipeline', 'impurity'])]
 
 install_dependencies = []
 external_libs = ['boost_thread']
@@ -140,5 +142,5 @@ def build_and_run_unit_tests(test_exec, variant, cpp_files, depends):
 
 
 build_and_run_unit_tests('native_tests', variant, Glob('*/test/*.cpp'), 
-                        ['asserts','buffers','pipeline', 'bootstrap', 'matrix_features', 'impurity'])
+                        ['asserts','buffers','pipeline', 'bootstrap', 'matrix_features', 'impurity', 'classification'])
 
