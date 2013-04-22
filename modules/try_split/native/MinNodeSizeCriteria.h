@@ -4,14 +4,14 @@
 
 // ----------------------------------------------------------------------------
 //
-// MinNumberDatapointsCriteria checks if number of datapoints is passed the min
+// MinNodeSizeCriteria checks if number of datapoints is passed the min
 //
 // ----------------------------------------------------------------------------
-class MinNumberDatapointsCriteria: public TrySplitCriteriaI
+class MinNodeSizeCriteria: public TrySplitCriteriaI
 {
 public:
-    MinNumberDatapointsCriteria(int minNumberOfDatapoints);
-    virtual ~MinNumberDatapointsCriteria();
+    MinNodeSizeCriteria(int minNumberOfDatapoints);
+    virtual ~MinNodeSizeCriteria();
 
     virtual TrySplitCriteriaI* Clone() const;
 

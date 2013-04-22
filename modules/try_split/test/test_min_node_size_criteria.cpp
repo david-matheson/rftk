@@ -1,13 +1,13 @@
 #include <boost/test/unit_test.hpp>
 
-#include "MinNumberDatapointsCriteria.h"
+#include "MinNodeSizeCriteria.h"
 
-BOOST_AUTO_TEST_SUITE( MinNumberDatapointsCriteriaTests )
+BOOST_AUTO_TEST_SUITE( MinNodeSizeCriteriaTests )
 
 BOOST_AUTO_TEST_CASE(test_TrySplit)
 {
     const int minDatapoints = 3;
-    MinNumberDatapointsCriteria minNumberDatapoints(minDatapoints);
+    MinNodeSizeCriteria minNumberDatapoints(minDatapoints);
     BOOST_CHECK( !minNumberDatapoints.TrySplit(0, minDatapoints-1));
     BOOST_CHECK( minNumberDatapoints.TrySplit(0, minDatapoints));
     BOOST_CHECK( minNumberDatapoints.TrySplit(0, minDatapoints+1));
@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(test_TrySplit)
 BOOST_AUTO_TEST_CASE(test_Clone)
 {
     const int minDatapoints = 3;
-    TrySplitCriteriaI* minNumberDatapoints = new MinNumberDatapointsCriteria(minDatapoints);
+    TrySplitCriteriaI* minNumberDatapoints = new MinNodeSizeCriteria(minDatapoints);
     TrySplitCriteriaI* clone = minNumberDatapoints->Clone();
     delete minNumberDatapoints;
 
