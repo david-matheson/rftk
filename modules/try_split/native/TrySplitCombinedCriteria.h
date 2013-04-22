@@ -5,14 +5,14 @@
 
 // ----------------------------------------------------------------------------
 //
-// CombinedCriteria checks if all criteria pass
+// TrySplitCombinedCriteria checks if all criteria pass
 //
 // ----------------------------------------------------------------------------
-class CombinedCriteria: public TrySplitCriteriaI
+class TrySplitCombinedCriteria: public TrySplitCriteriaI
 {
 public:
-    CombinedCriteria(std::vector<TrySplitCriteriaI*> criterias);
-    virtual ~CombinedCriteria();
+    TrySplitCombinedCriteria(std::vector<TrySplitCriteriaI*> criterias);
+    virtual ~TrySplitCombinedCriteria();
 
     virtual TrySplitCriteriaI* Clone() const;
 

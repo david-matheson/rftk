@@ -1,6 +1,6 @@
-#include "CombinedCriteria.h"
+#include "TrySplitCombinedCriteria.h"
 
-CombinedCriteria::CombinedCriteria(std::vector<TrySplitCriteriaI*> criterias)
+TrySplitCombinedCriteria::TrySplitCombinedCriteria(std::vector<TrySplitCriteriaI*> criterias)
 : mCriterias()
 {
     // Create a copy of each criteria
@@ -10,7 +10,7 @@ CombinedCriteria::CombinedCriteria(std::vector<TrySplitCriteriaI*> criterias)
     }
 }
 
-CombinedCriteria::~CombinedCriteria()
+TrySplitCombinedCriteria::~TrySplitCombinedCriteria()
 {
     // Free each critieria
     for (std::vector<TrySplitCriteriaI*>::iterator it = mCriterias.begin(); it != mCriterias.end(); ++it)
@@ -19,13 +19,13 @@ CombinedCriteria::~CombinedCriteria()
     }
 }
 
-TrySplitCriteriaI* CombinedCriteria::Clone() const
+TrySplitCriteriaI* TrySplitCombinedCriteria::Clone() const
 {
-    TrySplitCriteriaI* clone = new CombinedCriteria(mCriterias);
+    TrySplitCriteriaI* clone = new TrySplitCombinedCriteria(mCriterias);
     return clone;
 }
 
-bool CombinedCriteria::TrySplit(int depth, int numberOfDatapoints) const
+bool TrySplitCombinedCriteria::TrySplit(int depth, int numberOfDatapoints) const
 {
     bool trySplit = true;
     for (std::vector<TrySplitCriteriaI*>::const_iterator it = mCriterias.begin(); it != mCriterias.end(); ++it)

@@ -2,11 +2,11 @@
 
 #include <vector>
 
-#include "CombinedCriteria.h"
+#include "TrySplitCombinedCriteria.h"
 #include "MaxDepthCriteria.h"
-#include "MinNumberDatapointsCriteria.h"
+#include "MinNodeSizeCriteria.h"
 
-BOOST_AUTO_TEST_SUITE( CombinedCriteriaTests )
+BOOST_AUTO_TEST_SUITE( TrySplitCombinedCriteriaTests )
 
 BOOST_AUTO_TEST_CASE(test_TrySplit)
 {
@@ -15,10 +15,10 @@ BOOST_AUTO_TEST_CASE(test_TrySplit)
     MaxDepthCriteria maxDepthCriteria(maxDepth);
     criterias.push_back(&maxDepthCriteria);
     const int minDatapoints = 3;
-    MinNumberDatapointsCriteria minNumberDatapoints(minDatapoints);
+    MinNodeSizeCriteria minNumberDatapoints(minDatapoints);
     criterias.push_back(&minNumberDatapoints);
 
-    CombinedCriteria combinedCritiera(criterias);
+    TrySplitCombinedCriteria combinedCritiera(criterias);
 
     BOOST_CHECK( !combinedCritiera.TrySplit(maxDepth-1, minDatapoints-1));
     BOOST_CHECK( combinedCritiera.TrySplit(maxDepth-1, minDatapoints));
@@ -35,15 +35,16 @@ BOOST_AUTO_TEST_CASE(test_Clone)
     TrySplitCriteriaI* maxDepthCriteria = new MaxDepthCriteria(maxDepth);
     criterias.push_back(maxDepthCriteria);
     const int minDatapoints = 3;
-    TrySplitCriteriaI* minNumberDatapoints = new MinNumberDatapointsCriteria(minDatapoints);
+    TrySplitCriteriaI* minNumberDatapoints = new MinNodeSizeCriteria(minDatapoints);
     criterias.push_back(minNumberDatapoints);
 
-    TrySplitCriteriaI* combinedCritiera = new CombinedCriteria(criterias);
+    TrySplitCriteriaI* combinedCritiera = new TrySplitCombinedCriteria(criterias);
     criterias.clear();
     delete maxDepthCriteria;
     delete minNumberDatapoints;
 
     TrySplitCriteriaI* clone = combinedCritiera->Clone();
+    delete combinedCritiera;
 
     BOOST_CHECK( !clone->TrySplit(maxDepth-1, minDatapoints-1));
     BOOST_CHECK( clone->TrySplit(maxDepth-1, minDatapoints));
