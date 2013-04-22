@@ -143,5 +143,5 @@ def build_and_run_unit_tests(test_exec, variant, cpp_files, depends):
 
 build_and_run_unit_tests('native_tests', variant, Glob('*/test/*.cpp'), 
                         ['asserts','buffers','pipeline', 'bootstrap', 'matrix_features', 'impurity', 'classification',
-                        'try_split'])
+                        'try_split', 'should_split'])
 
