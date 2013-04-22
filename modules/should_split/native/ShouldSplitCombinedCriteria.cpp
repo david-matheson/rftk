@@ -28,11 +28,11 @@ ShouldSplitCriteriaI* ShouldSplitCombinedCriteria::Clone() const
 bool ShouldSplitCombinedCriteria::ShouldSplit(int depth, float impurity,
                                       int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints) const
 {
-    bool trySplit = true;
-    for (std::vector<ShouldSplitCriteriaI*>::const_iterator it = mCriterias.begin(); it != mCriterias.end(); ++it)
+    bool shouldSplit = true;
+    for (std::vector<ShouldSplitCriteriaI*>::const_iterator it = mCriterias.begin(); it != mCriterias.end() && shouldSplit; ++it)
     {
-        trySplit = trySplit && (*it)->ShouldSplit(depth, impurity, numberOfDatapoints, leftNumberOfDataponts, rightNumberOfDatapoints);
+        shouldSplit = shouldSplit && (*it)->ShouldSplit(depth, impurity, numberOfDatapoints, leftNumberOfDataponts, rightNumberOfDatapoints);
     }
-    return trySplit;
+    return shouldSplit;
 
 }
