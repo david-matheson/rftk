@@ -165,11 +165,13 @@ if __name__ == "__main__":
     pickle.dump(results, open(args.out.format("forest"), "wb"))
 
     if experiment_config.measure_tree_accuracy:
-        for i, tree_measurement_grid in enumerate(tree_measurement_grids):
-            results = {
-                'measurements': tree_measurement_grid,
-                'experiment_config': experiment_config,
-                'run_config': run_config_template,
-            }
-            pickle.dump(results, open(args.out.format(
-                "tree%05d" % i), "wb"))
+        with open(args.out.format("trees"), 'wb') as tree_results_file:
+            tree_results = [
+                {
+                    'measurements': tree_measurement_grid,
+                    'experiment_config': experiment_config,
+                    'run_config': run_config_template,
+                }
+                for tree_measurement_grid in tree_measurement_grids
+                ]
+            pickle.dump(tree_results, tree_results_file)
