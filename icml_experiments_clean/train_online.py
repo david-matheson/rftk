@@ -107,7 +107,7 @@ def run_experiment(experiment_config, run_config):
         single_tree_forest_predictor = predict.MatrixForestPredictor(single_tree_forest_data)
         y_probs = single_tree_forest_predictor.predict_proba(X_test)
         accuracy = np.mean(Y_test == y_probs.argmax(axis=1))
-        tree_measurement = exp_measurement.AccuracyMeasurement(
+        tree_measurement = experiment_utils.measurements.AccuracyMeasurement(
             accuracy=accuracy)
         tree_measurements.append(tree_measurement)
 
