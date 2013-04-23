@@ -14,4 +14,5 @@ class FinalizerI
 public:
     virtual void Finalize(FloatType count, VectorBufferTemplate<FloatType>& estimator) const=0;
     virtual FinalizerI<FloatType>* Clone() const=0;
+    virtual ~FinalizerI() {}
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <cmath> 
 
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
