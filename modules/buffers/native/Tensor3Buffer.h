@@ -36,6 +36,8 @@ public:
     T SumRow(int l, int m) const;
     void NormalizeRow(int l, int m);
 
+    VectorBufferTemplate<T> SliceRow(int l, int m) const;
+
     void AsNumpy3dFloat32(float* outfloat3d, int l, int m, int n) const;
     void AsNumpy3dFloat64(double* outdouble3d, int l, int m, int n) const;
     void AsNumpy3dInt32(int* outint3d, int l, int m, int n) const;
@@ -249,6 +251,17 @@ void Tensor3BufferTemplate<T>::NormalizeRow(int l, int m)
     {
         mData[ l*mM*mN + m*mN + c] /= sum;
     }
+}
+
+template <class T>
+VectorBufferTemplate<T> Tensor3BufferTemplate<T>::SliceRow(int l, int m) const
+{
+    VectorBufferTemplate<T> sliced(mN);
+    for(int c=0; c<mN; c++)
+    {
+        sliced.Set(c, Get(l, m, c));
+    }
+    return sliced;
 }
 
 template <class T>

@@ -30,6 +30,17 @@ BOOST_AUTO_TEST_CASE(test_Tensor3_SetRow)
     BOOST_CHECK(tb == expected_result);
 }
 
+BOOST_AUTO_TEST_CASE(test_Tensor3_SliceRow)
+{
+    Tensor3BufferTemplate<int> tb = CreateExampleTensor3<int>();
+    VectorBufferTemplate<int> vb = tb.SliceRow(2, 0);
+
+    int expected_result_data[] = { 16, 17, 18, 19 };
+    VectorBufferTemplate<int> expected_result(&expected_result_data[0], 4);
+
+    BOOST_CHECK(vb == expected_result);
+}
+
 BOOST_AUTO_TEST_CASE(test_Tensor3_SumRow)
 {
     Tensor3BufferTemplate<double> tb = CreateExampleTensor3<double>();
