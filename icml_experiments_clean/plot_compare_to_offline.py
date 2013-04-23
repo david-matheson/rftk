@@ -83,7 +83,8 @@ if __name__ == "__main__":
         label="Online"
         )
 
-    ax.set_xlim([20, 7291])
+    x_extent = online_measurements.domain.extent['data_size']
+    ax.set_xlim([x_extent.min(), x_extent.max()])
 
     ax.set_xscale('log')
     ax.set_xlabel('Data Size')
