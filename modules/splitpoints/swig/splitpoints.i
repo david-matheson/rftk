@@ -1,4 +1,4 @@
-%module impurity
+%module splitpoints
 %{
     #define SWIG_FILE_WITH_INIT
 %}
