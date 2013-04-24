@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath> 
+
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
@@ -8,10 +10,10 @@
 #include "UniqueBufferId.h"
 
 template <class FloatType>
-float calcDiscreteEntropy(FloatType totalCounts, VectorBufferTemplate<FloatType> classHistogram, VectorBufferTemplate<FloatType> logClassHistogram)
+FloatType calcDiscreteEntropy(FloatType totalCounts, VectorBufferTemplate<FloatType> classHistogram, VectorBufferTemplate<FloatType> logClassHistogram)
 {;
     const FloatType inverseTotalCounts = 1.0f / totalCounts;
-    const float logTotalCounts = log2(totalCounts);
+    const FloatType logTotalCounts = log2(totalCounts);
 
     FloatType entropy = FloatType(0);
     for(int i=0; i<classHistogram.GetN() && totalCounts > 0.0f; i++)
