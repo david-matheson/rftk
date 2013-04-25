@@ -33,7 +33,8 @@ public:
                           MatrixBufferTemplate<IntType>& treeIntFeatureParams,
                           MatrixBufferTemplate<FloatType>& treeFloatEstimatorParams ) const;
 
-    void SplitIndices(BufferCollection& leftIndicesBufCol, BufferCollection& rightIndicesBufCol) const;
+    void SplitIndices(BufferCollection& leftIndicesBufCol, BufferCollection& rightIndicesBufCol,
+                      FloatType& leftSize, FloatType& rightSize) const;
 
 private:
     const SplitSelectorBuffers& mSplitSelectorBuffers;
@@ -119,7 +120,8 @@ void SplitSelectorInfo<FloatType, IntType>::WriteToTree(int nodeId, int leftNode
 }
 
 template <class FloatType, class IntType>
-void SplitSelectorInfo<FloatType, IntType>::SplitIndices(BufferCollection& leftIndicesBufCol, BufferCollection& rightIndicesBufCol) const
+void SplitSelectorInfo<FloatType, IntType>::SplitIndices(BufferCollection& leftIndicesBufCol, BufferCollection& rightIndicesBufCol,
+                                                          FloatType& leftSize, FloatType& rightSize) const
 {
     ASSERT(ValidSplit())
 
@@ -159,9 +161,11 @@ void SplitSelectorInfo<FloatType, IntType>::SplitIndices(BufferCollection& leftI
             rightIndices.push_back(index);
         }
     }
+    leftSize = static_cast<FloatType>(leftIndices.size());
     VectorBufferTemplate<IntType> leftIndicesBuf(&leftIndices[0], leftIndices.size());
     leftIndicesBufCol.AddBuffer< VectorBufferTemplate<IntType> >(mSplitSelectorBuffers.mIndicesBufferId, leftIndicesBuf );
 
+    rightSize = static_cast<FloatType>(rightIndices.size());
     VectorBufferTemplate<IntType> rightIndicesBuf(&rightIndices[0], rightIndices.size());
     rightIndicesBufCol.AddBuffer< VectorBufferTemplate<IntType> >(mSplitSelectorBuffers.mIndicesBufferId, rightIndicesBuf );
 }

@@ -354,7 +354,10 @@ BOOST_AUTO_TEST_CASE(test_SplitIndices_FEATURES_BY_DATAPOINTS)
 
     BufferCollection leftBufCol;
     BufferCollection rightBufCol;
-    selectorInfo.SplitIndices(leftBufCol, rightBufCol);
+    double leftSize, rightSize;
+    selectorInfo.SplitIndices(leftBufCol, rightBufCol, leftSize, rightSize);
+    BOOST_CHECK_CLOSE(leftSize, 2.0, 0.1);
+    BOOST_CHECK_CLOSE(rightSize, 3.0, 0.1);
 
     int leftExpectedIndexData[] = {0, 4};
     int rightExpectedIndexData[] = {1, 2, 3};
@@ -384,7 +387,10 @@ BOOST_AUTO_TEST_CASE(test_SplitIndices_DATAPOINTS_BY_FEATURES)
 
     BufferCollection leftBufCol;
     BufferCollection rightBufCol;
-    selectorInfo.SplitIndices(leftBufCol, rightBufCol);
+    double leftSize, rightSize;
+    selectorInfo.SplitIndices(leftBufCol, rightBufCol, leftSize, rightSize);
+    BOOST_CHECK_CLOSE(leftSize, 2.0, 0.1);
+    BOOST_CHECK_CLOSE(rightSize, 3.0, 0.1);
 
     int leftExpectedIndexData[] = {0, 4};
     int rightExpectedIndexData[] = {1, 2, 3};
