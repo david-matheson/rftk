@@ -18,12 +18,12 @@ const int NUMBER_OF_DIMENSIONS = FEATURE_TYPE_INDEX + 1;
 const int PARAM_START_INDEX = NUMBER_OF_DIMENSIONS + 1;  // Move this to a more soucefile
 
 // ----------------------------------------------------------------------------
-// 
+//
 // LinearMatrixFeature is a linear combination of dimensions (columns) for
 // each sample (row).
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType>
+template <class DataMatrixType, class FloatType, class IntType>
 class LinearMatrixFeature
 {
 public:
@@ -42,7 +42,7 @@ public:
 
     typedef FloatType Float;
     typedef IntType Int;
-    
+
 private:
     const UniqueBufferId::BufferId mFloatParamsBufferId;
     const UniqueBufferId::BufferId mIntParamsBufferId;
@@ -52,12 +52,12 @@ private:
     MatrixBufferTemplate<FloatType> const* mFloatParams;
     MatrixBufferTemplate<IntType> const* mIntParams;
     VectorBufferTemplate<IntType> const* mIndices;
-    MatrixBufferTemplate<FloatType> const* mDataMatrix;
+    DataMatrixType const* mDataMatrix;
 
 };
 
-template <class FloatType, class IntType>
-LinearMatrixFeature<FloatType, IntType>::LinearMatrixFeature( const UniqueBufferId::BufferId floatParamsBufferId,
+template <class DataMatrixType, class FloatType, class IntType>
+LinearMatrixFeature<DataMatrixType, FloatType, IntType>::LinearMatrixFeature( const UniqueBufferId::BufferId floatParamsBufferId,
                                                               const UniqueBufferId::BufferId intParamsBufferId,
                                                               const UniqueBufferId::BufferId indicesBufferId,
                                                               const UniqueBufferId::BufferId matrixDataBufferId )
@@ -71,28 +71,30 @@ LinearMatrixFeature<FloatType, IntType>::LinearMatrixFeature( const UniqueBuffer
 , mDataMatrix(NULL)
 {}
 
-template <class FloatType, class IntType>
-LinearMatrixFeature<FloatType, IntType>::~LinearMatrixFeature()
+template <class DataMatrixType, class FloatType, class IntType>
+LinearMatrixFeature<DataMatrixType, FloatType, IntType>::~LinearMatrixFeature()
 {}
 
-template <class FloatType, class IntType>
-void LinearMatrixFeature<FloatType, IntType>::Bind(const BufferCollectionStack& readCollection)
+template <class DataMatrixType, class FloatType, class IntType>
+void LinearMatrixFeature<DataMatrixType, FloatType, IntType>::Bind(const BufferCollectionStack& readCollection)
 {
     ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(mFloatParamsBufferId));
     ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<IntType> >(mIntParamsBufferId));
     ASSERT(readCollection.HasBuffer< VectorBufferTemplate<IntType> >(mIndicesBufferId));
-    ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(mDataMatrixBufferId));
+    ASSERT(readCollection.HasBuffer< DataMatrixType >(mDataMatrixBufferId));
 
     mFloatParams = readCollection.GetBufferPtr< MatrixBufferTemplate<FloatType> >(mFloatParamsBufferId);
     mIntParams = readCollection.GetBufferPtr< MatrixBufferTemplate<IntType> >(mIntParamsBufferId);
     mIndices = readCollection.GetBufferPtr< VectorBufferTemplate<IntType> >(mIndicesBufferId);
-    mDataMatrix = readCollection.GetBufferPtr< MatrixBufferTemplate<FloatType> >(mDataMatrixBufferId);
+    mDataMatrix = readCollection.GetBufferPtr< DataMatrixType >(mDataMatrixBufferId);
 
     ASSERT_ARG_DIM_1D(mFloatParams->GetN(), mIntParams->GetN());
 }
 
-template <class FloatType, class IntType>
-FloatType LinearMatrixFeature<FloatType, IntType>::FeatureValue( const int featureIndex, const int relativeSampleIndex) const
+
+//TODO: move to another class
+template <class DataMatrixType, class FloatType, class IntType>
+FloatType LinearMatrixFeature<DataMatrixType, FloatType, IntType>::FeatureValue( const int featureIndex, const int relativeSampleIndex) const
 {
     FloatType featureValue = static_cast<FloatType>(0.0);
     const IntType numberOfDimensions = mIntParams->Get(featureIndex, NUMBER_OF_DIMENSIONS);
@@ -105,14 +107,14 @@ FloatType LinearMatrixFeature<FloatType, IntType>::FeatureValue( const int featu
     return featureValue;
 }
 
-template <class FloatType, class IntType>
-IntType LinearMatrixFeature<FloatType, IntType>::GetNumberOfFeatures() const
+template <class DataMatrixType, class FloatType, class IntType>
+IntType LinearMatrixFeature<DataMatrixType, FloatType, IntType>::GetNumberOfFeatures() const
 {
     return (mIntParams != NULL) ? mIntParams->GetM() : 0;
 }
 
-template <class FloatType, class IntType>
-IntType LinearMatrixFeature<FloatType, IntType>::GetNumberOfDatapoints() const
+template <class DataMatrixType, class FloatType, class IntType>
+IntType LinearMatrixFeature<DataMatrixType, FloatType, IntType>::GetNumberOfDatapoints() const
 {
     return (mIndices != NULL) ? mIndices->GetN() : 0;
 }

@@ -1,7 +1,5 @@
 #include <boost/test/unit_test.hpp>
 
-#include <vector>
-
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
@@ -69,7 +67,7 @@ BOOST_AUTO_TEST_CASE(test_FeatureValue_axis_aligned)
     MatrixBufferTemplate<int> int_params(&int_params_data[0], 2, 3);
     collection.AddBuffer< MatrixBufferTemplate<int> >(int_params_key, int_params);
 
-    LinearMatrixFeature<double, int> matrix_feature(  float_params_key, int_params_key, 
+    LinearMatrixFeature<MatrixBufferTemplate<double>, double, int> matrix_feature(  float_params_key, int_params_key, 
                                                       indices_key, xs_key);
     matrix_feature.Bind(stack);
     BOOST_CHECK_EQUAL(matrix_feature.FeatureValue(0, 0), 0);
@@ -92,7 +90,7 @@ BOOST_AUTO_TEST_CASE(test_FeatureValue_linear_combination)
     MatrixBufferTemplate<int> int_params(&int_params_data[0], 2, 7);
     collection.AddBuffer< MatrixBufferTemplate<int> >(int_params_key, int_params);
 
-    LinearMatrixFeature<double, int> matrix_feature(  float_params_key, int_params_key, 
+    LinearMatrixFeature<MatrixBufferTemplate<double>, double, int> matrix_feature(  float_params_key, int_params_key, 
                                                       indices_key, xs_key);
     matrix_feature.Bind(stack);
     BOOST_CHECK_EQUAL(matrix_feature.FeatureValue(0, 0), -4);
@@ -113,10 +111,10 @@ BOOST_AUTO_TEST_CASE(test_FeatureExtractor_linear_combination)
     MatrixBufferTemplate<int> int_params(&int_params_data[0], 2, 7);
     collection.AddBuffer< MatrixBufferTemplate<int> >(int_params_key, int_params);
 
-    LinearMatrixFeature<double, int> matrix_feature(  float_params_key, int_params_key, 
+    LinearMatrixFeature<MatrixBufferTemplate<double>, double, int> matrix_feature(  float_params_key, int_params_key, 
                                                       indices_key, xs_key);
 
-    FeatureExtractorStep< LinearMatrixFeature<double, int> > fe(matrix_feature, FEATURES_BY_DATAPOINTS);
+    FeatureExtractorStep< LinearMatrixFeature<MatrixBufferTemplate<double>, double, int> > fe(matrix_feature, FEATURES_BY_DATAPOINTS);
 
     fe.ProcessStep(stack, collection);
 
