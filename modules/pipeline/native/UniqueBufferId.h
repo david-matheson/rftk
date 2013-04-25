@@ -12,6 +12,8 @@ namespace UniqueBufferId
 {
     typedef std::string BufferId;
 
+    const BufferId NullKey("null");
+
     void Reset();
     int GetId();
     BufferId GetBufferId(const BufferId& base);

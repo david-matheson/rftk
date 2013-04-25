@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UniqueBufferId.h"
+#include "FeatureExtractorStep.h"
 
 // ----------------------------------------------------------------------------
 //
@@ -18,7 +19,10 @@ public:
                     const UniqueBufferId::BufferId& leftEstimatorParamsBufferId,
                     const UniqueBufferId::BufferId& rightEstimatorParamsBufferId,
                     const UniqueBufferId::BufferId& floatParamsBufferId,
-                    const UniqueBufferId::BufferId& intParamsBufferId);
+                    const UniqueBufferId::BufferId& intParamsBufferId,
+                    const UniqueBufferId::BufferId& featureValuesBufferId,
+                    FeatureValueOrdering ordering,
+                    const UniqueBufferId::BufferId& indicesBufferId);
  
     // BufferIds are non-const for vector assignment operator
     UniqueBufferId::BufferId mImpurityBufferId;
@@ -29,23 +33,8 @@ public:
     UniqueBufferId::BufferId mRightEstimatorParamsBufferId;
     UniqueBufferId::BufferId mFloatParamsBufferId;
     UniqueBufferId::BufferId mIntParamsBufferId;
+    UniqueBufferId::BufferId mFeatureValuesBufferId;
+    FeatureValueOrdering mOrdering;
+    UniqueBufferId::BufferId mIndicesBufferId;
 };
 
-
-SplitSelectorBuffers::SplitSelectorBuffers(const UniqueBufferId::BufferId& impurityBufferId,
-                                const UniqueBufferId::BufferId& splitpointsBufferId,
-                                const UniqueBufferId::BufferId& splitpointsCountsBufferId,
-                                const UniqueBufferId::BufferId& childCountsBufferId,
-                                const UniqueBufferId::BufferId& leftEstimatorParamsBufferId,
-                                const UniqueBufferId::BufferId& rightEstimatorParamsBufferId,
-                                const UniqueBufferId::BufferId& floatParamsBufferId,
-                                const UniqueBufferId::BufferId& intParamsBufferId)
-: mImpurityBufferId(impurityBufferId)
-, mSplitpointsBufferId(splitpointsBufferId)
-, mSplitpointsCountsBufferId(splitpointsCountsBufferId)
-, mChildCountsBufferId(childCountsBufferId)
-, mLeftEstimatorParamsBufferId(leftEstimatorParamsBufferId)
-, mRightEstimatorParamsBufferId(rightEstimatorParamsBufferId)
-, mFloatParamsBufferId(floatParamsBufferId)
-, mIntParamsBufferId(intParamsBufferId)
-{}
