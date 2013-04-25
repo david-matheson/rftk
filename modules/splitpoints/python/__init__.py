@@ -1,1 +1,1 @@
-from impurity import *
+from splitpoints import *
