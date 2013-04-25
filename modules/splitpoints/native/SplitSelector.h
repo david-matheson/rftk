@@ -28,6 +28,8 @@ public:
 
     SplitSelectorInfo<FloatType, IntType> ProcessSplits(const BufferCollectionStack& bufferCollectionStack, int depth) const;
 
+    SplitSelector<FloatType, IntType>* Clone() const;
+
 private:
     std::vector<SplitSelectorBuffers>& mSplitSelectorBuffers;
     const ShouldSplitCriteriaI* mShouldSplitCriteria;
@@ -94,4 +96,11 @@ SplitSelectorInfo<FloatType, IntType> SplitSelector<FloatType, IntType>::Process
     SplitSelectorInfo<FloatType, IntType> result(mSplitSelectorBuffers[bestSplitSelectorBuffers], 
                                                 readCollection, mFinalizer, bestFeature, bestThreshold);
     return result;
+}
+
+template <class FloatType, class IntType>
+SplitSelector<FloatType, IntType>* SplitSelector<FloatType, IntType>::Clone() const
+{
+    SplitSelector* clone = new SplitSelector<FloatType, IntType>(mSplitSelectorBuffers, mShouldSplitCriteria, mFinalizer);
+    return clone;
 }
