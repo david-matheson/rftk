@@ -214,7 +214,7 @@ const T* MatrixBufferTemplate<T>::GetRowPtrUnsafe(int m) const
 template <class T>
 void MatrixBufferTemplate<T>::SetRow(int m, const VectorBufferTemplate<T>& row)
 {
-    ASSERT_ARG_DIM_1D(mN, row.GetN());
+    ASSERT(row.GetN() <= mN);
     const int maxColumn = std::min(mN, row.GetN());
     for(int i=0; i<maxColumn; i++)
     {
