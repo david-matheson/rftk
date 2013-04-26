@@ -9,7 +9,7 @@
 
 enum
 {
-    MATRIX_FEATURES = 1 // Move this to a more soucefile
+    MATRIX_FEATURES = 10 // Move this to a more soucefile
 };
 
 const int FEATURE_TYPE_INDEX = 0;     // Move this to a more soucefile
