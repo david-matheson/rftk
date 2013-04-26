@@ -45,6 +45,7 @@ BUFFER_TYPE& Get ## BUFFER_TYPE(const BufferCollectionKey_t& name);
 #undef DECLARE_BUFFER_SWIG_INTERFACE_FOR_TYPE
 
     bool HasBuffer(BufferCollectionKey_t name) const;
+    void Print() const;
 
     template<typename BufferType>
     void AddBuffer(BufferCollectionKey_t name, BufferType const& data);
