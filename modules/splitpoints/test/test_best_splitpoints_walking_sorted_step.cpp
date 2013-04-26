@@ -114,14 +114,14 @@ BOOST_AUTO_TEST_CASE(test_BestSplitpointsWalkingSortedStep_ProcessStep_FEATURES_
     MatrixBufferTemplate<double> expected_best_impurity = CreateMatrix<double>(expected_best_impurity_data, 3, 1);
     BOOST_CHECK(best_impurity == expected_best_impurity);
 
-    BOOST_CHECK( collection.HasBuffer< MatrixBufferTemplate<double> >( bestsplits.ThresholdBufferId ) );
-    MatrixBufferTemplate<double>& best_thresholds = collection.GetBuffer< MatrixBufferTemplate<double> >( bestsplits.ThresholdBufferId );
+    BOOST_CHECK( collection.HasBuffer< MatrixBufferTemplate<double> >( bestsplits.SplitpointBufferId ) );
+    MatrixBufferTemplate<double>& best_thresholds = collection.GetBuffer< MatrixBufferTemplate<double> >( bestsplits.SplitpointBufferId );
     double expected_best_thresholds_data[] = {0.01, 7.5, 8.9};
     MatrixBufferTemplate<double> expected_best_thresholds = CreateMatrix<double>(expected_best_thresholds_data, 3, 1);
     BOOST_CHECK(best_thresholds == expected_best_thresholds);
 
-    BOOST_CHECK( collection.HasBuffer< VectorBufferTemplate<int> >( bestsplits.ThresholdCountsBufferId ) );
-    VectorBufferTemplate<int>& threshold_counts = collection.GetBuffer< VectorBufferTemplate<int> >( bestsplits.ThresholdCountsBufferId );
+    BOOST_CHECK( collection.HasBuffer< VectorBufferTemplate<int> >( bestsplits.SplitpointCountsBufferId ) );
+    VectorBufferTemplate<int>& threshold_counts = collection.GetBuffer< VectorBufferTemplate<int> >( bestsplits.SplitpointCountsBufferId );
     int expected_threshold_counts_data[] = {1, 1, 1};
     VectorBufferTemplate<int> expected_threshold_counts = CreateVector<int>(expected_threshold_counts_data, 3);
     BOOST_CHECK(threshold_counts == expected_threshold_counts);
@@ -164,8 +164,8 @@ BOOST_AUTO_TEST_CASE(test_BestSplitpointsWalkingSortedStep_ProcessStep_DATAPOINT
     MatrixBufferTemplate<double> expected_best_impurity = CreateMatrix<double>(expected_best_impurity_data, 5, 1);
     BOOST_CHECK(best_impurity == expected_best_impurity);
 
-    BOOST_CHECK( collection.HasBuffer< MatrixBufferTemplate<double> >( bestsplits.ThresholdBufferId ) );
-    MatrixBufferTemplate<double>& best_thresholds = collection.GetBuffer< MatrixBufferTemplate<double> >( bestsplits.ThresholdBufferId );
+    BOOST_CHECK( collection.HasBuffer< MatrixBufferTemplate<double> >( bestsplits.SplitpointBufferId ) );
+    MatrixBufferTemplate<double>& best_thresholds = collection.GetBuffer< MatrixBufferTemplate<double> >( bestsplits.SplitpointBufferId );
     double expected_best_thresholds_data[] = {7.55, 1.515, 2.785, 8.825, 1.01};
     MatrixBufferTemplate<double> expected_best_thresholds = CreateMatrix<double>(expected_best_thresholds_data, 5, 1);
     BOOST_CHECK_CLOSE(best_thresholds.Get(0,0), expected_best_thresholds.Get(0,0), 0.001);
@@ -175,8 +175,8 @@ BOOST_AUTO_TEST_CASE(test_BestSplitpointsWalkingSortedStep_ProcessStep_DATAPOINT
     BOOST_CHECK_CLOSE(best_thresholds.Get(4,0), expected_best_thresholds.Get(4,0), 0.001);
     // BOOST_CHECK(best_thresholds == expected_best_thresholds);
 
-    BOOST_CHECK( collection.HasBuffer< VectorBufferTemplate<int> >( bestsplits.ThresholdCountsBufferId ) );
-    VectorBufferTemplate<int>& threshold_counts = collection.GetBuffer< VectorBufferTemplate<int> >( bestsplits.ThresholdCountsBufferId );
+    BOOST_CHECK( collection.HasBuffer< VectorBufferTemplate<int> >( bestsplits.SplitpointCountsBufferId ) );
+    VectorBufferTemplate<int>& threshold_counts = collection.GetBuffer< VectorBufferTemplate<int> >( bestsplits.SplitpointCountsBufferId );
     int expected_threshold_counts_data[] = {1, 1, 1, 1, 1};
     VectorBufferTemplate<int> expected_threshold_counts = CreateVector<int>(expected_threshold_counts_data, 5);
     BOOST_CHECK(threshold_counts == expected_threshold_counts);
