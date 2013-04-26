@@ -28,6 +28,7 @@ public:
 
     void Push(const BufferCollection* bufferCollection);
     void Pop();
+    void Print() const;
 
     template<typename BufferType>
     bool HasBuffer(BufferCollectionKey_t bufferKey) const;

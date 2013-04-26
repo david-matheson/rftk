@@ -1,3 +1,4 @@
+#include <stdio.h>
 
 #include "BufferCollectionStack.h"
 
@@ -18,4 +19,15 @@ void BufferCollectionStack::Push(const BufferCollection* bufferCollection)
 void BufferCollectionStack::Pop()
 {
     mStack.pop_front();
+}
+
+void BufferCollectionStack::Print() const
+{
+    int level = 0;
+    for (std::list<const BufferCollection*>::const_iterator it = mStack.begin(); it != mStack.end(); ++it, ++level)
+    {
+        printf("-- Stack level %d --\n", level);
+        (*it)->Print();
+    }
+    printf("--------------------\n");
 }
