@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <limits>
+#include <cmath>
 #include <iostream>
 
 #include <asserts.h>
@@ -56,6 +57,7 @@ public:
     void AsNumpy2dInt64(long long* outlong2d, int m, int n) const;
 
     bool operator==(MatrixBufferTemplate<T> const& other) const;
+    bool AlmostEqual(MatrixBufferTemplate<T> const& other) const;
 
     void Print() const;
 
@@ -395,6 +397,22 @@ bool MatrixBufferTemplate<T>::operator==(MatrixBufferTemplate<T> const& other) c
     }
 
     return std::equal(mData.begin(), mData.end(), other.mData.begin());
+}
+
+template<class T>
+bool almostEqual(T i, T j) {
+  return (std::abs(i-j) < std::numeric_limits<T>::epsilon());
+}
+
+template<class T>
+bool MatrixBufferTemplate<T>::AlmostEqual(MatrixBufferTemplate<T> const& other) const
+{
+    if (GetM() != other.GetM() || GetN() != other.GetN()) {
+        return false;
+    }
+
+    return std::equal(mData.begin(), mData.end(), other.mData.begin(), almostEqual<T>);
+
 }
 
 template <class T>
