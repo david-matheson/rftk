@@ -10,12 +10,12 @@
 class MinNodeSizeCriteria: public TrySplitCriteriaI
 {
 public:
-    MinNodeSizeCriteria(int minNumberOfDatapoints);
+    MinNodeSizeCriteria(double minNumberOfDatapoints);
     virtual ~MinNodeSizeCriteria();
 
     virtual TrySplitCriteriaI* Clone() const;
 
-    virtual bool TrySplit(int depth, int numberOfDatapoints) const;
+    virtual bool TrySplit(int depth, double numberOfDatapoints) const;
 private:
-    const int mMinNumberOfDatapoints;
+    const double mMinNumberOfDatapoints;
 };

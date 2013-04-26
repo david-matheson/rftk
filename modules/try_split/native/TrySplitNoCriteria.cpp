@@ -14,7 +14,7 @@ TrySplitCriteriaI* TrySplitNoCriteria::Clone() const
     return clone;
 }
 
-bool TrySplitNoCriteria::TrySplit(int depth, int numberOfDatapoints) const
+bool TrySplitNoCriteria::TrySplit(int depth, double numberOfDatapoints) const
 {
     UNUSED_PARAM(depth);
     UNUSED_PARAM(numberOfDatapoints);

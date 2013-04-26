@@ -18,7 +18,7 @@ TrySplitCriteriaI* TimeLimitCriteria::Clone() const
     return clone;
 }
 
-bool TimeLimitCriteria::TrySplit(int depth, int numberOfDatapoints) const
+bool TimeLimitCriteria::TrySplit(int depth, double numberOfDatapoints) const
 {
     UNUSED_PARAM(depth);
     UNUSED_PARAM(numberOfDatapoints);

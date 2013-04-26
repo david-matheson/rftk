@@ -14,7 +14,7 @@ TrySplitCriteriaI* MaxDepthCriteria::Clone() const
     return clone;
 }
 
-bool MaxDepthCriteria::TrySplit(int depth, int numberOfDatapoints) const
+bool MaxDepthCriteria::TrySplit(int depth, double numberOfDatapoints) const
 {
     UNUSED_PARAM(numberOfDatapoints);
     return (depth < mMaxDepth);

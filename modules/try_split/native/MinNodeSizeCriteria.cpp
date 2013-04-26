@@ -1,8 +1,10 @@
 #include "asserts.h" // for UNUSED_PARAM
 #include "MinNodeSizeCriteria.h"
 
+// remove print
+#include <stdio.h>
 
-MinNodeSizeCriteria::MinNodeSizeCriteria(int minNumberOfDatapoints)
+MinNodeSizeCriteria::MinNodeSizeCriteria(double minNumberOfDatapoints)
 : mMinNumberOfDatapoints(minNumberOfDatapoints)
 {}
 
@@ -15,7 +17,7 @@ TrySplitCriteriaI* MinNodeSizeCriteria::Clone() const
     return clone;
 }
 
-bool MinNodeSizeCriteria::TrySplit(int depth, int numberOfDatapoints) const
+bool MinNodeSizeCriteria::TrySplit(int depth, double numberOfDatapoints) const
 {
     UNUSED_PARAM(depth);
     return (numberOfDatapoints >= mMinNumberOfDatapoints);
