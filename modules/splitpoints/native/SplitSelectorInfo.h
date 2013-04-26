@@ -23,12 +23,14 @@ public:
                       const BufferCollectionStack& bufferCollectionStack,
                       const FinalizerI<FloatType>* finalizer,
                       int bestFeature,
-                      int bestSplitpoints);
+                      int bestSplitpoints,
+                      int depth);
 
     bool ValidSplit() const;
 
     void WriteToTree(int nodeId, int leftNodeId, int rightNodeId,
                           VectorBufferTemplate<FloatType>& treeCounts,
+                          VectorBufferTemplate<IntType>& depths,
                           MatrixBufferTemplate<FloatType>& treeFloatFeatureParams,
                           MatrixBufferTemplate<IntType>& treeIntFeatureParams,
                           MatrixBufferTemplate<FloatType>& treeFloatEstimatorParams ) const;
@@ -42,6 +44,7 @@ private:
     const FinalizerI<FloatType>* mFinalizer;
     const int mBestFeature;
     const int mBestSplitpoint;
+    const int mDepth;
 };
 
 
@@ -59,12 +62,14 @@ SplitSelectorInfo<FloatType, IntType>::SplitSelectorInfo(const SplitSelectorBuff
                                                         const BufferCollectionStack& bufferCollectionStack,
                                                         const FinalizerI<FloatType>* finalizer,
                                                         int bestFeature,
-                                                        int bestSplitpoints)
+                                                        int bestSplitpoints,
+                                                        int depth)
 : mSplitSelectorBuffers(splitStatistics)
 , mReadCollection(bufferCollectionStack)
 , mFinalizer(finalizer)
 , mBestFeature(bestFeature)
 , mBestSplitpoint(bestSplitpoints)
+, mDepth(depth)
 {}
 
 template <class FloatType, class IntType>
@@ -76,6 +81,7 @@ bool SplitSelectorInfo<FloatType, IntType>::ValidSplit() const
 template <class FloatType, class IntType>
 void SplitSelectorInfo<FloatType, IntType>::WriteToTree(int nodeId, int leftNodeId, int rightNodeId,
                                                           VectorBufferTemplate<FloatType>& treeCounts,
+                                                          VectorBufferTemplate<IntType>& depths,
                                                           MatrixBufferTemplate<FloatType>& treeFloatFeatureParams,
                                                           MatrixBufferTemplate<IntType>& treeIntFeatureParams,
                                                           MatrixBufferTemplate<FloatType>& treeFloatEstimatorParams ) const
@@ -99,6 +105,10 @@ void SplitSelectorInfo<FloatType, IntType>::WriteToTree(int nodeId, int leftNode
 
     const MatrixBufferTemplate<IntType>& intParams
           = mReadCollection.GetBuffer< MatrixBufferTemplate<IntType> >(mSplitSelectorBuffers.mIntParamsBufferId);
+
+    depths.Set(nodeId, mDepth);
+    depths.Set(leftNodeId, mDepth+1);
+    depths.Set(rightNodeId, mDepth+1);
 
     treeIntFeatureParams.SetRow(nodeId, intParams.SliceRowAsVector(mBestFeature));
     treeFloatFeatureParams.SetRow(nodeId, floatParams.SliceRowAsVector(mBestFeature));
@@ -161,11 +171,15 @@ void SplitSelectorInfo<FloatType, IntType>::SplitIndices(BufferCollection& leftI
             rightIndices.push_back(index);
         }
     }
-    leftSize = static_cast<FloatType>(leftIndices.size());
     VectorBufferTemplate<IntType> leftIndicesBuf(&leftIndices[0], leftIndices.size());
     leftIndicesBufCol.AddBuffer< VectorBufferTemplate<IntType> >(mSplitSelectorBuffers.mIndicesBufferId, leftIndicesBuf );
 
-    rightSize = static_cast<FloatType>(rightIndices.size());
     VectorBufferTemplate<IntType> rightIndicesBuf(&rightIndices[0], rightIndices.size());
     rightIndicesBufCol.AddBuffer< VectorBufferTemplate<IntType> >(mSplitSelectorBuffers.mIndicesBufferId, rightIndicesBuf );
+
+    const Tensor3BufferTemplate<FloatType>& childCounts
+           = mReadCollection.GetBuffer< Tensor3BufferTemplate<FloatType> >(mSplitSelectorBuffers.mChildCountsBufferId);
+           
+    leftSize = childCounts.Get(mBestFeature, mBestSplitpoint, LEFT_CHILD_INDEX);
+    rightSize = childCounts.Get(mBestFeature, mBestSplitpoint, RIGHT_CHILD_INDEX); 
 }

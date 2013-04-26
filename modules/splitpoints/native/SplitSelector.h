@@ -21,7 +21,7 @@ template <class FloatType, class IntType>
 class SplitSelector
 {
 public:
-    SplitSelector(std::vector<SplitSelectorBuffers>& splitStatistics,
+    SplitSelector(const std::vector<SplitSelectorBuffers>& splitBuffers,
                   const ShouldSplitCriteriaI* shouldSplitCriteria,
                   const FinalizerI<FloatType>* finalizer);
     ~SplitSelector();
@@ -31,16 +31,16 @@ public:
     SplitSelector<FloatType, IntType>* Clone() const;
 
 private:
-    std::vector<SplitSelectorBuffers>& mSplitSelectorBuffers;
+    std::vector<SplitSelectorBuffers> mSplitSelectorBuffers;
     const ShouldSplitCriteriaI* mShouldSplitCriteria;
     const FinalizerI<FloatType>* mFinalizer;
 };
 
 template <class FloatType, class IntType>
-SplitSelector<FloatType, IntType>::SplitSelector( std::vector<SplitSelectorBuffers>& splitStatistics,
+SplitSelector<FloatType, IntType>::SplitSelector( const std::vector<SplitSelectorBuffers>& splitBuffers,
                                                   const ShouldSplitCriteriaI* shouldSplitCriteria,
                                                   const FinalizerI<FloatType>* finalizer)
-: mSplitSelectorBuffers(splitStatistics)
+: mSplitSelectorBuffers(splitBuffers)
 , mShouldSplitCriteria(shouldSplitCriteria->Clone())
 , mFinalizer(finalizer->Clone())
 {}
@@ -94,7 +94,7 @@ SplitSelectorInfo<FloatType, IntType> SplitSelector<FloatType, IntType>::Process
     }
 
     SplitSelectorInfo<FloatType, IntType> result(mSplitSelectorBuffers[bestSplitSelectorBuffers], 
-                                                readCollection, mFinalizer, bestFeature, bestThreshold);
+                                                readCollection, mFinalizer, bestFeature, bestThreshold, depth);
     return result;
 }
 

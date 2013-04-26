@@ -223,16 +223,20 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_NoCriteria)
     const int leftNodeId = 2;
     const int rightNodeId = 5;
     VectorBufferTemplate<double> counts(10);
+    VectorBufferTemplate<int> depths(10);
     MatrixBufferTemplate<double> floatParams(10,2);
     MatrixBufferTemplate<int> intParams(10,2);
     MatrixBufferTemplate<double> estimatorParams(10,3);
-    selectorInfo.WriteToTree(nodeId, leftNodeId, rightNodeId, counts, floatParams, intParams, estimatorParams);
+    selectorInfo.WriteToTree(nodeId, leftNodeId, rightNodeId, counts, depths, floatParams, intParams, estimatorParams);
 
     const int bestFeature = 1;
     const int bestSplitpoint = 0;
 
     BOOST_CHECK_EQUAL( counts.Get(leftNodeId), childcounts.Get(bestFeature, bestSplitpoint, LEFT_CHILD_INDEX) );
     BOOST_CHECK_EQUAL( counts.Get(rightNodeId), childcounts.Get(bestFeature, bestSplitpoint, RIGHT_CHILD_INDEX) );
+    BOOST_CHECK_EQUAL( depths.Get(nodeId), depth );
+    BOOST_CHECK_EQUAL( depths.Get(leftNodeId), depth+1 );
+    BOOST_CHECK_EQUAL( depths.Get(rightNodeId), depth+1 );
     BOOST_CHECK_EQUAL( floatParams.Get(nodeId, SPLITPOINT_INDEX), splitpoints.Get(bestFeature, bestSplitpoint));
     BOOST_CHECK_EQUAL( floatParams.Get(nodeId, 1), feature_floatparams.Get(bestFeature, 1));
     BOOST_CHECK( intParams.SliceRowAsVector(nodeId) == feature_intparams.SliceRowAsVector(bestFeature));
@@ -277,16 +281,20 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_MinChildSizeCriteria)
     const int leftNodeId = 4;
     const int rightNodeId = 3;
     VectorBufferTemplate<double> counts(10);
+    VectorBufferTemplate<int> depths(10);
     MatrixBufferTemplate<double> floatParams(10,2);
     MatrixBufferTemplate<int> intParams(10,2);
     MatrixBufferTemplate<double> estimatorParams(10,3);
-    selectorInfo.WriteToTree(nodeId, leftNodeId, rightNodeId, counts, floatParams, intParams, estimatorParams);
+    selectorInfo.WriteToTree(nodeId, leftNodeId, rightNodeId, counts, depths, floatParams, intParams, estimatorParams);
 
     const int bestFeature = 2;
     const int bestSplitpoint = 2;
 
     BOOST_CHECK_EQUAL( counts.Get(leftNodeId), childcounts.Get(bestFeature, bestSplitpoint, LEFT_CHILD_INDEX) );
     BOOST_CHECK_EQUAL( counts.Get(rightNodeId), childcounts.Get(bestFeature, bestSplitpoint, RIGHT_CHILD_INDEX) );
+    BOOST_CHECK_EQUAL( depths.Get(nodeId), depth );
+    BOOST_CHECK_EQUAL( depths.Get(leftNodeId), depth+1 );
+    BOOST_CHECK_EQUAL( depths.Get(rightNodeId), depth+1 );
     BOOST_CHECK_EQUAL( floatParams.Get(nodeId, SPLITPOINT_INDEX), splitpoints.Get(bestFeature, bestSplitpoint));
     BOOST_CHECK_EQUAL( floatParams.Get(nodeId, 1), feature_floatparams.Get(bestFeature, 1));
     BOOST_CHECK( intParams.SliceRowAsVector(nodeId) == feature_intparams.SliceRowAsVector(bestFeature));
@@ -319,16 +327,20 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_two_SplitSelectorBuffers)
     const int leftNodeId = 2;
     const int rightNodeId = 5;
     VectorBufferTemplate<double> counts(10);
+    VectorBufferTemplate<int> depths(10);
     MatrixBufferTemplate<double> floatParams(10,2);
     MatrixBufferTemplate<int> intParams(10,2);
     MatrixBufferTemplate<double> estimatorParams(10,3);
-    selectorInfo.WriteToTree(nodeId, leftNodeId, rightNodeId, counts, floatParams, intParams, estimatorParams);
+    selectorInfo.WriteToTree(nodeId, leftNodeId, rightNodeId, counts, depths, floatParams, intParams, estimatorParams);
 
     const int bestFeature = 1;
     const int bestSplitpoint = 3;
 
     BOOST_CHECK_EQUAL( counts.Get(leftNodeId), childcounts.Get(bestFeature, bestSplitpoint, LEFT_CHILD_INDEX) );
     BOOST_CHECK_EQUAL( counts.Get(rightNodeId), childcounts.Get(bestFeature, bestSplitpoint, RIGHT_CHILD_INDEX) );
+    BOOST_CHECK_EQUAL( depths.Get(nodeId), depth );
+    BOOST_CHECK_EQUAL( depths.Get(leftNodeId), depth+1 );
+    BOOST_CHECK_EQUAL( depths.Get(rightNodeId), depth+1 );
     BOOST_CHECK_EQUAL( floatParams.Get(nodeId, SPLITPOINT_INDEX), splitpoints.Get(bestFeature, bestSplitpoint));
     BOOST_CHECK_EQUAL( floatParams.Get(nodeId, 1), feature_floatparams.Get(bestFeature, 1));
     BOOST_CHECK( intParams.SliceRowAsVector(nodeId) == feature_intparams.SliceRowAsVector(bestFeature));
@@ -356,8 +368,8 @@ BOOST_AUTO_TEST_CASE(test_SplitIndices_FEATURES_BY_DATAPOINTS)
     BufferCollection rightBufCol;
     double leftSize, rightSize;
     selectorInfo.SplitIndices(leftBufCol, rightBufCol, leftSize, rightSize);
-    BOOST_CHECK_CLOSE(leftSize, 2.0, 0.1);
-    BOOST_CHECK_CLOSE(rightSize, 3.0, 0.1);
+    BOOST_CHECK_CLOSE(leftSize, 11.0, 0.1);
+    BOOST_CHECK_CLOSE(rightSize, 12.0, 0.1);
 
     int leftExpectedIndexData[] = {0, 4};
     int rightExpectedIndexData[] = {1, 2, 3};
@@ -389,8 +401,8 @@ BOOST_AUTO_TEST_CASE(test_SplitIndices_DATAPOINTS_BY_FEATURES)
     BufferCollection rightBufCol;
     double leftSize, rightSize;
     selectorInfo.SplitIndices(leftBufCol, rightBufCol, leftSize, rightSize);
-    BOOST_CHECK_CLOSE(leftSize, 2.0, 0.1);
-    BOOST_CHECK_CLOSE(rightSize, 3.0, 0.1);
+    BOOST_CHECK_CLOSE(leftSize, 11.0, 0.1);
+    BOOST_CHECK_CLOSE(rightSize, 12.0, 0.1);
 
     int leftExpectedIndexData[] = {0, 4};
     int rightExpectedIndexData[] = {1, 2, 3};
