@@ -23,6 +23,8 @@ public:
                                  VectorBufferTemplate<IntType> const* indices,
                                  DataMatrixType const* dataMatrix);
 
+    LinearMatrixFeatureBinding();
+
     ~LinearMatrixFeatureBinding();
 
     FloatType FeatureValue( const int featureIndex, const int relativeSampleIndex) const;
@@ -47,6 +49,14 @@ LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::LinearMatrixFeat
 , mIntParams(intParams)
 , mIndices(indices)
 , mDataMatrix(dataMatrix)
+{}
+
+template <class DataMatrixType, class FloatType, class IntType>
+LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::LinearMatrixFeatureBinding()
+: mFloatParams(NULL)
+, mIntParams(NULL)
+, mIndices(NULL)
+, mDataMatrix(NULL)
 {}
 
 
