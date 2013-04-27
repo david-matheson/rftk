@@ -15,6 +15,7 @@ public:
     void Reset();
     void Combine(int nodeId, const MatrixBufferTemplate<FloatType>& estimatorParameters);
     void WriteResult(int row, MatrixBufferTemplate<FloatType>& results);
+    int GetResultDim() const;
 
 private:
     VectorBufferTemplate<FloatType> mCombinedResults;
@@ -56,4 +57,10 @@ void ClassProbabilityCombiner<FloatType>::WriteResult(int row, MatrixBufferTempl
     {
         results.Set(row, i, numberOfTreeInv * mCombinedResults.Get(i));
     }
+}
+
+template <class FloatType>
+int ClassProbabilityCombiner<FloatType>::GetResultDim() const
+{
+    return mCombinedResults.GetN();
 }
