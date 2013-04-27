@@ -6,16 +6,12 @@
 #include "BufferCollection.h"
 #include "BufferCollectionStack.h"
 #include "UniqueBufferId.h"
+#include "LinearMatrixFeatureBinding.h"
 
 enum
 {
     MATRIX_FEATURES = 10 // Move this to a more soucefile
 };
-
-const int FEATURE_TYPE_INDEX = 0;     // Move this to a more soucefile
-const int SPLIT_POINT_INDEX = FEATURE_TYPE_INDEX;  // Move this to a more soucefile
-const int NUMBER_OF_DIMENSIONS = FEATURE_TYPE_INDEX + 1;
-const int PARAM_START_INDEX = NUMBER_OF_DIMENSIONS + 1;  // Move this to a more soucefile
 
 // ----------------------------------------------------------------------------
 //
@@ -31,29 +27,23 @@ public:
                     const UniqueBufferId::BufferId intParamsBufferId,
                     const UniqueBufferId::BufferId indicesBufferId,
                     const UniqueBufferId::BufferId matrixDataBufferId );
+
+    LinearMatrixFeature( const UniqueBufferId::BufferId indicesBufferId,
+                        const UniqueBufferId::BufferId matrixDataBufferId );
+
     ~LinearMatrixFeature();
 
-    void Bind(const BufferCollectionStack& readCollection);
+    LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType> Bind(const BufferCollectionStack& readCollection) const;
 
-    FloatType FeatureValue( const int featureIndex, const int relativeSampleIndex) const;
-
-    IntType GetNumberOfFeatures() const;
-    IntType GetNumberOfDatapoints() const;
 
     typedef FloatType Float;
     typedef IntType Int;
+    typedef LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType> FeatureBinding;
 
-private:
     const UniqueBufferId::BufferId mFloatParamsBufferId;
     const UniqueBufferId::BufferId mIntParamsBufferId;
     const UniqueBufferId::BufferId mIndicesBufferId;
     const UniqueBufferId::BufferId mDataMatrixBufferId;
-
-    MatrixBufferTemplate<FloatType> const* mFloatParams;
-    MatrixBufferTemplate<IntType> const* mIntParams;
-    VectorBufferTemplate<IntType> const* mIndices;
-    DataMatrixType const* mDataMatrix;
-
 };
 
 template <class DataMatrixType, class FloatType, class IntType>
@@ -65,10 +55,15 @@ LinearMatrixFeature<DataMatrixType, FloatType, IntType>::LinearMatrixFeature( co
 , mIntParamsBufferId(intParamsBufferId)
 , mIndicesBufferId(indicesBufferId)
 , mDataMatrixBufferId(matrixDataBufferId)
-, mFloatParams(NULL)
-, mIntParams(NULL)
-, mIndices(NULL)
-, mDataMatrix(NULL)
+{}
+
+template <class DataMatrixType, class FloatType, class IntType>
+LinearMatrixFeature<DataMatrixType, FloatType, IntType>::LinearMatrixFeature( const UniqueBufferId::BufferId indicesBufferId,
+                                                              const UniqueBufferId::BufferId matrixDataBufferId )
+: mFloatParamsBufferId(UniqueBufferId::GetBufferId("floatParams"))
+, mIntParamsBufferId(UniqueBufferId::GetBufferId("intParams"))
+, mIndicesBufferId(indicesBufferId)
+, mDataMatrixBufferId(matrixDataBufferId)
 {}
 
 template <class DataMatrixType, class FloatType, class IntType>
@@ -76,45 +71,20 @@ LinearMatrixFeature<DataMatrixType, FloatType, IntType>::~LinearMatrixFeature()
 {}
 
 template <class DataMatrixType, class FloatType, class IntType>
-void LinearMatrixFeature<DataMatrixType, FloatType, IntType>::Bind(const BufferCollectionStack& readCollection)
+LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType> LinearMatrixFeature<DataMatrixType, FloatType, IntType>::Bind(const BufferCollectionStack& readCollection) const
 {
     ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(mFloatParamsBufferId));
     ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<IntType> >(mIntParamsBufferId));
     ASSERT(readCollection.HasBuffer< VectorBufferTemplate<IntType> >(mIndicesBufferId));
     ASSERT(readCollection.HasBuffer< DataMatrixType >(mDataMatrixBufferId));
 
-    mFloatParams = readCollection.GetBufferPtr< MatrixBufferTemplate<FloatType> >(mFloatParamsBufferId);
-    mIntParams = readCollection.GetBufferPtr< MatrixBufferTemplate<IntType> >(mIntParamsBufferId);
-    mIndices = readCollection.GetBufferPtr< VectorBufferTemplate<IntType> >(mIndicesBufferId);
-    mDataMatrix = readCollection.GetBufferPtr< DataMatrixType >(mDataMatrixBufferId);
+    MatrixBufferTemplate<FloatType> const* floatParams = readCollection.GetBufferPtr< MatrixBufferTemplate<FloatType> >(mFloatParamsBufferId);
+    MatrixBufferTemplate<IntType> const* intParams = readCollection.GetBufferPtr< MatrixBufferTemplate<IntType> >(mIntParamsBufferId);
+    VectorBufferTemplate<IntType> const* indices = readCollection.GetBufferPtr< VectorBufferTemplate<IntType> >(mIndicesBufferId);
+    DataMatrixType const* dataMatrix = readCollection.GetBufferPtr< DataMatrixType >(mDataMatrixBufferId);
 
-    ASSERT_ARG_DIM_1D(mFloatParams->GetN(), mIntParams->GetN());
+    ASSERT_ARG_DIM_1D(floatParams->GetN(), intParams->GetN());
+
+    return LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>(floatParams, intParams, indices, dataMatrix);
 }
 
-
-//TODO: move to another class
-template <class DataMatrixType, class FloatType, class IntType>
-FloatType LinearMatrixFeature<DataMatrixType, FloatType, IntType>::FeatureValue( const int featureIndex, const int relativeSampleIndex) const
-{
-    FloatType featureValue = static_cast<FloatType>(0.0);
-    const IntType numberOfDimensions = mIntParams->Get(featureIndex, NUMBER_OF_DIMENSIONS);
-    for(int i=PARAM_START_INDEX; i<numberOfDimensions + PARAM_START_INDEX; i++)
-    {
-        const IntType dimension = mIntParams->Get(featureIndex, i);
-        const IntType matrixIndex = mIndices->Get(relativeSampleIndex);
-        featureValue += mFloatParams->Get(featureIndex, i) * mDataMatrix->Get(matrixIndex, dimension);
-    }
-    return featureValue;
-}
-
-template <class DataMatrixType, class FloatType, class IntType>
-IntType LinearMatrixFeature<DataMatrixType, FloatType, IntType>::GetNumberOfFeatures() const
-{
-    return (mIntParams != NULL) ? mIntParams->GetM() : 0;
-}
-
-template <class DataMatrixType, class FloatType, class IntType>
-IntType LinearMatrixFeature<DataMatrixType, FloatType, IntType>::GetNumberOfDatapoints() const
-{
-    return (mIndices != NULL) ? mIndices->GetN() : 0;
-}

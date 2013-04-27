@@ -60,11 +60,10 @@ template <class FeatureType>
 void FeatureExtractorStep<FeatureType>::ProcessStep(const BufferCollectionStack& readCollection,
                                                 BufferCollection& writeCollection) const
 {
-    FeatureType feature = mFeature;
-    feature.Bind(readCollection);
+    typename FeatureType::FeatureBinding featureBinding = mFeature.Bind(readCollection);
 
-    typename FeatureType::Int numberOfFeatures = feature.GetNumberOfFeatures();
-    typename FeatureType::Int numberOfDatapoints = feature.GetNumberOfDatapoints();
+    typename FeatureType::Int numberOfFeatures = featureBinding.GetNumberOfFeatures();
+    typename FeatureType::Int numberOfDatapoints = featureBinding.GetNumberOfDatapoints();
 
     typename FeatureType::Int m = (mOrdering == FEATURES_BY_DATAPOINTS) ? numberOfFeatures : numberOfDatapoints;
     typename FeatureType::Int n = (mOrdering == FEATURES_BY_DATAPOINTS) ? numberOfDatapoints : numberOfFeatures;
@@ -77,7 +76,7 @@ void FeatureExtractorStep<FeatureType>::ProcessStep(const BufferCollectionStack&
     {
         for(int f=0; f<numberOfFeatures; f++)
         {
-            typename FeatureType::Float value = feature.FeatureValue(f, s);
+            typename FeatureType::Float value = featureBinding.FeatureValue(f, s);
             typename FeatureType::Int r = (mOrdering == FEATURES_BY_DATAPOINTS) ? f : s;
             typename FeatureType::Int c = (mOrdering == FEATURES_BY_DATAPOINTS) ? s : f;
             featureValues.Set(r,c, value);

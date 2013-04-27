@@ -82,10 +82,10 @@ modules_with_deps = [('asserts', []),
                     ('forest_data', ['asserts', 'buffers']),
                     ('features', ['asserts', 'buffers']),
                     ('feature_extractors', ['asserts', 'bootstrap', 'buffers', 'features']),
-                    ('predict', ['asserts', 'buffers', 'forest_data', 'features']),
-                    ('train', ['asserts', 'buffers', 'bootstrap', 'best_split', 'forest_data', 'feature_extractors', 'predict']),
+                    ('predict', ['asserts', 'buffers', 'forest_data', 'features', 'pipeline']),
+                    ('train', ['asserts', 'buffers', 'bootstrap', 'best_split', 'forest_data', 'feature_extractors', 'predict', 'pipeline']),
                     ('pipeline', ['asserts', 'buffers']),
-                    ('matrix_features', ['asserts', 'bootstrap', 'buffers', 'pipeline']),
+                    ('matrix_features', ['asserts', 'bootstrap', 'buffers', 'forest_data', 'pipeline']),
                     ('image_features', ['asserts', 'bootstrap', 'buffers', 'pipeline']),
                     ('histograms', ['asserts', 'bootstrap', 'buffers', 'pipeline']),
                     ('try_split', ['asserts', 'buffers']),
@@ -144,7 +144,7 @@ def build_and_run_unit_tests(test_exec, variant, cpp_files, depends):
     AlwaysBuild(test_alias)
 
 
-build_and_run_unit_tests('native_tests', variant, Glob('*/test/*.cpp'), 
+build_and_run_unit_tests('native_tests', variant, Glob('*/test/*.cpp'),
                         ['asserts','buffers','pipeline', 'bootstrap', 'forest_data', 'matrix_features', 'splitpoints', 'classification',
-                        'try_split', 'should_split', 'learn'])
+                        'try_split', 'should_split', 'learn', 'predict'])
 
