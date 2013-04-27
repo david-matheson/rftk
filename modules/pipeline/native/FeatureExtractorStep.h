@@ -32,7 +32,7 @@ public:
                                 BufferCollection& writeCollection) const;
 
     // Read only output buffer
-    const UniqueBufferId::BufferId FeatureValuesBufferId;
+    const BufferId FeatureValuesBufferId;
 private:
     const FeatureType mFeature;
     FeatureValueOrdering mOrdering;
@@ -40,7 +40,7 @@ private:
 
 template <class FeatureType>
 FeatureExtractorStep<FeatureType>::FeatureExtractorStep(const FeatureType& feature, FeatureValueOrdering ordering)
-: FeatureValuesBufferId(UniqueBufferId::GetBufferId("FeatureValues"))
+: FeatureValuesBufferId(GetBufferId("FeatureValues"))
 , mFeature(feature)
 , mOrdering(ordering)
 {}

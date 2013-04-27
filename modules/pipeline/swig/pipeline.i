@@ -4,6 +4,7 @@
     #include "PipelineStepI.h"
     #include "Pipeline.h"
     #include "SetBufferStep.h"
+    #include "UniqueBufferId.h"
 %}
 
 %include <exception.i>
@@ -19,6 +20,7 @@ namespace std {
 %include "PipelineStepI.h"
 %include "Pipeline.h"
 %include "SetBufferStep.h"
+%include "UniqueBufferId.h"
 
 %template(SetFloat32VectorBufferStep) SetBufferStep< VectorBufferTemplate<float> >;
 %template(SetFloat64VectorBufferStep) SetBufferStep< VectorBufferTemplate<double> >;

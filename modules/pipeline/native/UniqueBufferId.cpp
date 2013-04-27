@@ -3,8 +3,6 @@
 
 #include "UniqueBufferId.h"
 
-namespace UniqueBufferId
-{
 
 int globalId = 0;
 
@@ -27,4 +25,3 @@ BufferId GetBufferId(const BufferId& base)
     return result.str();
 }
 
-} // namespace UniqueBufferId

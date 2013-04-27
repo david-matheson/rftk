@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <cmath> 
+#include <cmath>
 
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
@@ -14,7 +14,7 @@
 // ----------------------------------------------------------------------------
 //
 // Compute the class information gain when walking sorted feature values.
-// This class is called from BestSplitpointsWalkingSortedStep where 
+// This class is called from BestSplitpointsWalkingSortedStep where
 // MoveLeftToRight is called for the sorted feature values
 //
 // ----------------------------------------------------------------------------
@@ -22,8 +22,8 @@ template <class FloatType, class IntType>
 class ClassInfoGainWalker
 {
 public:
-    ClassInfoGainWalker (const UniqueBufferId::BufferId& sampleWeights,
-                  const UniqueBufferId::BufferId& classes,
+    ClassInfoGainWalker (const BufferId& sampleWeights,
+                  const BufferId& classes,
                   const int numberOfClasses );
     virtual ~ClassInfoGainWalker();
 
@@ -44,8 +44,8 @@ public:
     typedef IntType Int;
 
 private:
-    const UniqueBufferId::BufferId mSampleWeightsBufferId;
-    const UniqueBufferId::BufferId mClassesBufferId;
+    const BufferId mSampleWeightsBufferId;
+    const BufferId mClassesBufferId;
     const int mNumberOfClasses;
 
     VectorBufferTemplate<FloatType> const* mSampleWeights;
@@ -65,8 +65,8 @@ private:
 
 
 template <class FloatType, class IntType>
-ClassInfoGainWalker<FloatType, IntType>::ClassInfoGainWalker(const UniqueBufferId::BufferId& sampleWeights,
-                                                                      const UniqueBufferId::BufferId& classes,
+ClassInfoGainWalker<FloatType, IntType>::ClassInfoGainWalker(const BufferId& sampleWeights,
+                                                                      const BufferId& classes,
                                                                       const int numberOfClasses )
 : mSampleWeightsBufferId(sampleWeights)
 , mClassesBufferId(classes)
@@ -153,8 +153,8 @@ FloatType ClassInfoGainWalker<FloatType, IntType>::Impurity()
     const FloatType leftEntropy = calcDiscreteEntropy<FloatType>(leftWeight, mLeftClassHistogram, mLeftLogClassHistogram);
     const FloatType rightEntropy = calcDiscreteEntropy<FloatType>(rightWeight, mRightClassHistogram, mRightLogClassHistogram);
 
-    const FloatType infoGain = mStartEntropy 
-                                  - ((leftWeight / totalWeight) * leftEntropy) 
+    const FloatType infoGain = mStartEntropy
+                                  - ((leftWeight / totalWeight) * leftEntropy)
                                   - ((rightWeight / totalWeight) * rightEntropy);
     return infoGain;
 }

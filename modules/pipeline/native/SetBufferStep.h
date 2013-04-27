@@ -26,7 +26,7 @@ public:
                                 BufferCollection& writeCollection) const;
 
     // Read only output buffer
-    const UniqueBufferId::BufferId OutputBufferId;
+    const BufferId OutputBufferId;
 private:
     BufType mBuffer;
     SetRule mSetRule;
@@ -35,7 +35,7 @@ private:
 
 template <class BufType>
 SetBufferStep<BufType>::SetBufferStep(const BufType& buffer, SetRule setRule)
-: OutputBufferId(UniqueBufferId::GetBufferId("SetBufferStep"))
+: OutputBufferId(GetBufferId("SetBufferStep"))
 , mBuffer(buffer)
 , mSetRule(setRule)
 {}

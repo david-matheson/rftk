@@ -8,14 +8,10 @@
 //
 // ----------------------------------------------------------------------------
 
-namespace UniqueBufferId
-{
-    typedef std::string BufferId;
+#define BufferId  std::string
+#define NullKey "null"
 
-    const BufferId NullKey("null");
-
-    void Reset();
-    int GetId();
-    BufferId GetBufferId(const BufferId& base);
-}
+void Reset();
+int GetId();
+BufferId GetBufferId(const BufferId& base);
 

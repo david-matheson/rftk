@@ -23,13 +23,13 @@ template <class DataMatrixType, class FloatType, class IntType>
 class LinearMatrixFeature
 {
 public:
-    LinearMatrixFeature( const UniqueBufferId::BufferId floatParamsBufferId,
-                    const UniqueBufferId::BufferId intParamsBufferId,
-                    const UniqueBufferId::BufferId indicesBufferId,
-                    const UniqueBufferId::BufferId matrixDataBufferId );
+    LinearMatrixFeature( const BufferId& floatParamsBufferId,
+                        const BufferId& intParamsBufferId,
+                        const BufferId& indicesBufferId,
+                        const BufferId& matrixDataBufferId );
 
-    LinearMatrixFeature( const UniqueBufferId::BufferId indicesBufferId,
-                        const UniqueBufferId::BufferId matrixDataBufferId );
+    LinearMatrixFeature( const BufferId& indicesBufferId,
+                        const BufferId& matrixDataBufferId );
 
     ~LinearMatrixFeature();
 
@@ -40,17 +40,17 @@ public:
     typedef IntType Int;
     typedef LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType> FeatureBinding;
 
-    const UniqueBufferId::BufferId mFloatParamsBufferId;
-    const UniqueBufferId::BufferId mIntParamsBufferId;
-    const UniqueBufferId::BufferId mIndicesBufferId;
-    const UniqueBufferId::BufferId mDataMatrixBufferId;
+    const BufferId mFloatParamsBufferId;
+    const BufferId mIntParamsBufferId;
+    const BufferId mIndicesBufferId;
+    const BufferId mDataMatrixBufferId;
 };
 
 template <class DataMatrixType, class FloatType, class IntType>
-LinearMatrixFeature<DataMatrixType, FloatType, IntType>::LinearMatrixFeature( const UniqueBufferId::BufferId floatParamsBufferId,
-                                                              const UniqueBufferId::BufferId intParamsBufferId,
-                                                              const UniqueBufferId::BufferId indicesBufferId,
-                                                              const UniqueBufferId::BufferId matrixDataBufferId )
+LinearMatrixFeature<DataMatrixType, FloatType, IntType>::LinearMatrixFeature( const BufferId& floatParamsBufferId,
+                                                              const BufferId& intParamsBufferId,
+                                                              const BufferId& indicesBufferId,
+                                                              const BufferId& matrixDataBufferId )
 : mFloatParamsBufferId(floatParamsBufferId)
 , mIntParamsBufferId(intParamsBufferId)
 , mIndicesBufferId(indicesBufferId)
@@ -58,10 +58,10 @@ LinearMatrixFeature<DataMatrixType, FloatType, IntType>::LinearMatrixFeature( co
 {}
 
 template <class DataMatrixType, class FloatType, class IntType>
-LinearMatrixFeature<DataMatrixType, FloatType, IntType>::LinearMatrixFeature( const UniqueBufferId::BufferId indicesBufferId,
-                                                              const UniqueBufferId::BufferId matrixDataBufferId )
-: mFloatParamsBufferId(UniqueBufferId::GetBufferId("floatParams"))
-, mIntParamsBufferId(UniqueBufferId::GetBufferId("intParams"))
+LinearMatrixFeature<DataMatrixType, FloatType, IntType>::LinearMatrixFeature( const BufferId& indicesBufferId,
+                                                              const BufferId& matrixDataBufferId )
+: mFloatParamsBufferId(GetBufferId("floatParams"))
+, mIntParamsBufferId(GetBufferId("intParams"))
 , mIndicesBufferId(indicesBufferId)
 , mDataMatrixBufferId(matrixDataBufferId)
 {}

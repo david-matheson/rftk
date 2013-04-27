@@ -13,8 +13,8 @@ template <class BufType, class IntType>
 class SliceBufferStep: public PipelineStepI
 {
 public:
-    SliceBufferStep(  const UniqueBufferId::BufferId& buffer,
-                      const UniqueBufferId::BufferId& indices );
+    SliceBufferStep(  const BufferId& buffer,
+                      const BufferId& indices );
     virtual ~SliceBufferStep();
 
     virtual PipelineStepI* Clone() const;
@@ -23,17 +23,17 @@ public:
                                 BufferCollection& writeCollection) const;
 
     // Read only output buffer
-    const UniqueBufferId::BufferId SlicedBufferId;
+    const BufferId SlicedBufferId;
 private:
-    const UniqueBufferId::BufferId mBufferBufferId;
-    const UniqueBufferId::BufferId mIndicesBufferId;
+    const BufferId mBufferBufferId;
+    const BufferId mIndicesBufferId;
 };
 
 
 template <class BufType, class IntType>
-SliceBufferStep<BufType, IntType>::SliceBufferStep(const UniqueBufferId::BufferId& buffer,
-                                          const UniqueBufferId::BufferId& indices)
-: SlicedBufferId(UniqueBufferId::GetBufferId("SlicedBuffer"))
+SliceBufferStep<BufType, IntType>::SliceBufferStep(const BufferId& buffer,
+                                          const BufferId& indices)
+: SlicedBufferId(GetBufferId("SlicedBuffer"))
 , mBufferBufferId(buffer)
 , mIndicesBufferId(indices)
 {}
@@ -54,7 +54,7 @@ void SliceBufferStep<BufType, IntType>::ProcessStep(const BufferCollectionStack&
                                         BufferCollection& writeCollection) const
 {
     const BufType& buffer = readCollection.GetBuffer<BufType>(mBufferBufferId);
-    const VectorBufferTemplate<IntType>& indices = 
+    const VectorBufferTemplate<IntType>& indices =
           readCollection.GetBuffer< VectorBufferTemplate<IntType> >(mIndicesBufferId);
     const BufType& slicedBuffer = buffer.Slice(indices);
     writeCollection.AddBuffer<BufType>(SlicedBufferId, slicedBuffer);

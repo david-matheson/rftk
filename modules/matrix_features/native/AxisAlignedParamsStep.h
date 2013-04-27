@@ -10,7 +10,7 @@
 #include "LinearMatrixFeature.h"
 
 // ----------------------------------------------------------------------------
-// 
+//
 // AxisAlignedParamsStep constructs a float_params and int_params matrix for
 // extracting features from a matrix.  Each feature is a single dimension of
 // the input matrix and is choosen uniformily from all dimensions.
@@ -20,8 +20,8 @@ template <class FloatType, class IntType>
 class AxisAlignedParamsStep: public PipelineStepI
 {
 public:
-    AxisAlignedParamsStep( const UniqueBufferId::BufferId numberOfFeaturesBufferId,
-                            const UniqueBufferId::BufferId matrixDataBufferId );
+    AxisAlignedParamsStep( const BufferId numberOfFeaturesBufferId,
+                            const BufferId matrixDataBufferId );
     virtual ~AxisAlignedParamsStep();
 
     virtual PipelineStepI* Clone() const;
@@ -30,25 +30,25 @@ public:
                                 BufferCollection& writeCollection) const;
 
     // Read only output buffers
-    const UniqueBufferId::BufferId FloatParamsBufferId;
-    const UniqueBufferId::BufferId IntParamsBufferId;
+    const BufferId FloatParamsBufferId;
+    const BufferId IntParamsBufferId;
 private:
     enum { DIMENSION_OF_PARAMETERS = PARAM_START_INDEX + 1 };
-    void SampleParams(IntType numberOfFeatures, 
+    void SampleParams(IntType numberOfFeatures,
                       IntType numberOfDimensions,
                       MatrixBufferTemplate<FloatType>& floatParams,
                       MatrixBufferTemplate<IntType>& intParams ) const;
 
-    const UniqueBufferId::BufferId mNumberOfFeaturesBufferId;
-    const UniqueBufferId::BufferId mMatrixDataBufferId;
+    const BufferId mNumberOfFeaturesBufferId;
+    const BufferId mMatrixDataBufferId;
 };
 
 
 template <class FloatType, class IntType>
-AxisAlignedParamsStep<FloatType,IntType>::AxisAlignedParamsStep(  const UniqueBufferId::BufferId numberOfFeaturesBufferId,
-                                                                  const UniqueBufferId::BufferId matrixDataBufferId )
-: FloatParamsBufferId(UniqueBufferId::GetBufferId("FloatParams"))
-, IntParamsBufferId(UniqueBufferId::GetBufferId("IntParams"))
+AxisAlignedParamsStep<FloatType,IntType>::AxisAlignedParamsStep(  const BufferId numberOfFeaturesBufferId,
+                                                                  const BufferId matrixDataBufferId )
+: FloatParamsBufferId(GetBufferId("FloatParams"))
+, IntParamsBufferId(GetBufferId("IntParams"))
 , mNumberOfFeaturesBufferId(numberOfFeaturesBufferId)
 , mMatrixDataBufferId(matrixDataBufferId)
 {}
@@ -93,7 +93,7 @@ void AxisAlignedParamsStep<FloatType,IntType>::ProcessStep(const BufferCollectio
 }
 
 template <class FloatType, class IntType>
-void AxisAlignedParamsStep<FloatType,IntType>::SampleParams(IntType numberOfFeatures, 
+void AxisAlignedParamsStep<FloatType,IntType>::SampleParams(IntType numberOfFeatures,
                                                             IntType numberOfDimensions,
                                                             MatrixBufferTemplate<FloatType>& floatParams,
                                                             MatrixBufferTemplate<IntType>& intParams ) const

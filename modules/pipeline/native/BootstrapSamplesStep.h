@@ -17,7 +17,7 @@ template <class FloatType, class IntType>
 class BootstrapSamplesStep: public PipelineStepI
 {
 public:
-    BootstrapSamplesStep( const UniqueBufferId::BufferId& dataBuffer );
+    BootstrapSamplesStep( const BufferId& dataBuffer );
     virtual ~BootstrapSamplesStep();
 
     virtual PipelineStepI* Clone() const;
@@ -26,18 +26,18 @@ public:
                                 BufferCollection& writeCollection) const;
 
     // Read only output buffer
-    const UniqueBufferId::BufferId IndicesBufferId;
-    const UniqueBufferId::BufferId WeightsBufferId;
+    const BufferId IndicesBufferId;
+    const BufferId WeightsBufferId;
 private:
-    const UniqueBufferId::BufferId mDataBufferId;
+    const BufferId mDataBufferId;
 
 };
 
 
 template <class FloatType, class IntType>
-BootstrapSamplesStep<FloatType, IntType>::BootstrapSamplesStep(const UniqueBufferId::BufferId& dataBuffer)
-: IndicesBufferId(UniqueBufferId::GetBufferId("IndicesBuffer"))
-, WeightsBufferId(UniqueBufferId::GetBufferId("WeightsBuffer"))
+BootstrapSamplesStep<FloatType, IntType>::BootstrapSamplesStep(const BufferId& dataBuffer)
+: IndicesBufferId(GetBufferId("IndicesBuffer"))
+, WeightsBufferId(GetBufferId("WeightsBuffer"))
 , mDataBufferId(dataBuffer)
 {}
 
@@ -58,12 +58,12 @@ void BootstrapSamplesStep<FloatType, IntType>::ProcessStep(const BufferCollectio
 {
     ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(mDataBufferId));
 
-    const MatrixBufferTemplate<FloatType> & buffer 
+    const MatrixBufferTemplate<FloatType> & buffer
           = readCollection.GetBuffer <MatrixBufferTemplate<FloatType> >(mDataBufferId);
-    VectorBufferTemplate<IntType>& indices 
+    VectorBufferTemplate<IntType>& indices
           = writeCollection.GetOrAddBuffer< VectorBufferTemplate<IntType> >(IndicesBufferId);
-    VectorBufferTemplate<FloatType>& weights 
-          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<FloatType> >(WeightsBufferId);     
+    VectorBufferTemplate<FloatType>& weights
+          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<FloatType> >(WeightsBufferId);
 
     const IntType numberOfSamples = buffer.GetM();
     weights.Resize(numberOfSamples);
@@ -85,5 +85,5 @@ void BootstrapSamplesStep<FloatType, IntType>::ProcessStep(const BufferCollectio
         }
     }
     indices = VectorBufferTemplate<IntType>(&sampledIndices[0], sampledIndices.size());
-      
+
 }

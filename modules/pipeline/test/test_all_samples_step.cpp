@@ -12,7 +12,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
 {
     const int numberOfDatapoints = 7;
     MatrixBufferTemplate<float> xs(numberOfDatapoints, 10);
-    UniqueBufferId::BufferId xs_key("xs");
+    BufferId xs_key("xs");
     BufferCollection collection;
     collection.AddBuffer< MatrixBufferTemplate<float> > (xs_key, xs);
     BufferCollectionStack stack;
@@ -24,10 +24,10 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
     BOOST_CHECK(collection.HasBuffer< VectorBufferTemplate<float> >(all_samples_step.WeightsBufferId));
     BOOST_CHECK(collection.HasBuffer< VectorBufferTemplate<int> >(all_samples_step.IndicesBufferId));
 
-    VectorBufferTemplate<float>& weights = 
+    VectorBufferTemplate<float>& weights =
               collection.GetBuffer< VectorBufferTemplate<float> >(all_samples_step.WeightsBufferId);
 
-    VectorBufferTemplate<int>& indices = 
+    VectorBufferTemplate<int>& indices =
               collection.GetBuffer< VectorBufferTemplate<int> >(all_samples_step.IndicesBufferId);
 
     BOOST_CHECK_CLOSE(weights.Sum(), static_cast<float>(numberOfDatapoints), 0.1);

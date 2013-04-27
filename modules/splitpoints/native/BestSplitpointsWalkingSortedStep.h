@@ -23,7 +23,7 @@ class BestSplitpointsWalkingSortedStep : public PipelineStepI
 {
 public:
     BestSplitpointsWalkingSortedStep (const ImpurityWalker& impurityWalker,
-                              const UniqueBufferId::BufferId& featureValues,
+                              const BufferId& featureValues,
                               const FeatureValueOrdering featureValueOrdering );
     virtual ~BestSplitpointsWalkingSortedStep();
 
@@ -33,15 +33,15 @@ public:
                                 BufferCollection& writeCollection) const;
 
     // Read only output buffer
-    const UniqueBufferId::BufferId ImpurityBufferId;
-    const UniqueBufferId::BufferId SplitpointBufferId;
-    const UniqueBufferId::BufferId SplitpointCountsBufferId;
-    const UniqueBufferId::BufferId ChildCountsBufferId;
-    const UniqueBufferId::BufferId LeftYsBufferId;
-    const UniqueBufferId::BufferId RightYsBufferId;
+    const BufferId ImpurityBufferId;
+    const BufferId SplitpointBufferId;
+    const BufferId SplitpointCountsBufferId;
+    const BufferId ChildCountsBufferId;
+    const BufferId LeftYsBufferId;
+    const BufferId RightYsBufferId;
 private:
     const ImpurityWalker mImpurityWalker;
-    const UniqueBufferId::BufferId mFeatureValuesBufferId;
+    const BufferId mFeatureValuesBufferId;
     const FeatureValueOrdering mFeatureValueOrdering;
 
 };
@@ -49,14 +49,14 @@ private:
 
 template <class ImpurityWalker>
 BestSplitpointsWalkingSortedStep<ImpurityWalker>::BestSplitpointsWalkingSortedStep(const ImpurityWalker& impurityWalker,
-                                                                      const UniqueBufferId::BufferId& featureValues,
+                                                                      const BufferId& featureValues,
                                                                       const FeatureValueOrdering featureValueOrdering )
-: ImpurityBufferId( UniqueBufferId::GetBufferId("Impurity") )
-, SplitpointBufferId( UniqueBufferId::GetBufferId("Splitpoints") )
-, SplitpointCountsBufferId( UniqueBufferId::GetBufferId("SplitpointsCounts") )
-, ChildCountsBufferId( UniqueBufferId::GetBufferId("ChildCounts") )
-, LeftYsBufferId( UniqueBufferId::GetBufferId("LeftYs") )
-, RightYsBufferId( UniqueBufferId::GetBufferId("RightYs") )
+: ImpurityBufferId( GetBufferId("Impurity") )
+, SplitpointBufferId( GetBufferId("Splitpoints") )
+, SplitpointCountsBufferId( GetBufferId("SplitpointsCounts") )
+, ChildCountsBufferId( GetBufferId("ChildCounts") )
+, LeftYsBufferId( GetBufferId("LeftYs") )
+, RightYsBufferId( GetBufferId("RightYs") )
 , mImpurityWalker(impurityWalker)
 , mFeatureValuesBufferId(featureValues)
 , mFeatureValueOrdering(featureValueOrdering)
