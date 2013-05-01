@@ -5,6 +5,7 @@
 #include "BufferCollection.h"
 #include "BufferCollectionStack.h"
 #include "bootstrap.h"
+#include "Constants.h"
 #include "PipelineStepI.h"
 #include "UniqueBufferId.h"
 #include "LinearMatrixFeature.h"
@@ -109,7 +110,7 @@ void AxisAlignedParamsStep<FloatType,IntType>::SampleParams(IntType numberOfFeat
     {
         floatParams.Set(i, PARAM_START_INDEX, static_cast<FloatType>(1.0)); // use a weight of 1.0 since there is 1 component
         intParams.Set(i, FEATURE_TYPE_INDEX, MATRIX_FEATURES); // feature type
-        intParams.Set(i, NUMBER_OF_DIMENSIONS, 1); // how many dimensions in projection
+        intParams.Set(i, NUMBER_OF_DIMENSIONS_INDEX, 1); // how many dimensions in projection
         intParams.Set(i, PARAM_START_INDEX, candidateDimensions[i]); // dimension index
     }
 }

@@ -5,8 +5,8 @@
 #include "MatrixBuffer.h"
 #include "Constants.h"
 
-const int NUMBER_OF_DIMENSIONS = FEATURE_TYPE_INDEX + 1;
-const int PARAM_START_INDEX = NUMBER_OF_DIMENSIONS + 1;  // Move this to a more soucefile
+const int NUMBER_OF_DIMENSIONS_INDEX = FEATURE_TYPE_INDEX + 1;
+const int PARAM_START_INDEX = NUMBER_OF_DIMENSIONS_INDEX + 1;  // Move this to a more soucefile
 
 // ----------------------------------------------------------------------------
 //
@@ -75,20 +75,19 @@ LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>& LinearMatrixFeat
     mIntParams = other.mIntParams;
     mIndices = other.mIndices;
     mDataMatrix = other.mDataMatrix;
+    return *this;
 }
-
 
 template <class DataMatrixType, class FloatType, class IntType>
 LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::~LinearMatrixFeatureBinding()
 {}
 
 
-//TODO: move to another class
 template <class DataMatrixType, class FloatType, class IntType>
 FloatType LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::FeatureValue( const int featureIndex, const int relativeSampleIndex) const
 {
     FloatType featureValue = static_cast<FloatType>(0.0);
-    const IntType numberOfDimensions = mIntParams->Get(featureIndex, NUMBER_OF_DIMENSIONS);
+    const IntType numberOfDimensions = mIntParams->Get(featureIndex, NUMBER_OF_DIMENSIONS_INDEX);
     for(int i=PARAM_START_INDEX; i<numberOfDimensions + PARAM_START_INDEX; i++)
     {
         const IntType dimension = mIntParams->Get(featureIndex, i);

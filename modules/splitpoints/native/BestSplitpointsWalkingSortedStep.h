@@ -88,7 +88,6 @@ void BestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(const BufferC
     const int numberOfFeatures =  mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? featureValues.GetM() : featureValues.GetN();
 
     // Bind output buffers
-    const int numberOfThresholds = 1;
     MatrixBufferTemplate<typename ImpurityWalker::Float>& impurities
            = writeCollection.GetOrAddBuffer< MatrixBufferTemplate<typename ImpurityWalker::Float> >(ImpurityBufferId);
     impurities.Resize(numberOfFeatures,1);
