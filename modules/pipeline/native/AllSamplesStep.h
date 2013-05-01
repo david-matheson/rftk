@@ -1,7 +1,6 @@
 #pragma once
 
 #include <asserts.h>
-#include <bootstrap.h>
 
 #include "BufferCollection.h"
 #include "PipelineStepI.h"

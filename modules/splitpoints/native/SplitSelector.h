@@ -92,10 +92,9 @@ SplitSelectorInfo<FloatType, IntType> SplitSelector<FloatType, IntType>::Process
             }
         } 
     }
-
-    SplitSelectorInfo<FloatType, IntType> result(mSplitSelectorBuffers[bestSplitSelectorBuffers], 
-                                                readCollection, mFinalizer, bestFeature, bestThreshold, depth);
-    return result;
+    
+    return SplitSelectorInfo<FloatType, IntType>(mSplitSelectorBuffers[bestSplitSelectorBuffers], 
+                                            readCollection, mFinalizer, bestFeature, bestThreshold, depth);;
 }
 
 template <class FloatType, class IntType>

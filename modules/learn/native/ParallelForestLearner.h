@@ -12,6 +12,9 @@ public:
 
     Forest& Learn( const BufferCollection& data );
 private:
+    ParallelForestLearner( const ParallelForestLearner& other );
+    ParallelForestLearner& operator=( const ParallelForestLearner& rhs );
+    
     Forest* mForest;  // because multiple threads write to mForest, it must be on the heap
     const TreeLearnerI* mTreeLearner;
     const int mNumberOfTrees;

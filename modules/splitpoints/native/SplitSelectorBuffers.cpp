@@ -1,4 +1,19 @@
+#include "UniqueBufferId.h"
 #include "SplitSelectorBuffers.h"
+
+SplitSelectorBuffers::SplitSelectorBuffers()
+: mImpurityBufferId()
+, mSplitpointsBufferId()
+, mSplitpointsCountsBufferId()
+, mChildCountsBufferId()
+, mLeftEstimatorParamsBufferId()
+, mRightEstimatorParamsBufferId()
+, mFloatParamsBufferId() 
+, mIntParamsBufferId()
+, mFeatureValuesBufferId()
+, mOrdering(FEATURES_BY_DATAPOINTS)
+, mIndicesBufferId()
+{}
 
 SplitSelectorBuffers::SplitSelectorBuffers(const BufferId& impurityBufferId,
                                             const BufferId& splitpointsBufferId,
@@ -23,3 +38,4 @@ SplitSelectorBuffers::SplitSelectorBuffers(const BufferId& impurityBufferId,
 , mOrdering(ordering)
 , mIndicesBufferId(indicesBufferId)
 {}
+

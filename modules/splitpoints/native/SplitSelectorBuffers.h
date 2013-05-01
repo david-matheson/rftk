@@ -12,6 +12,7 @@
 class SplitSelectorBuffers
 {
 public:
+    SplitSelectorBuffers();
     SplitSelectorBuffers(const BufferId& impurityBufferId,
                     const BufferId& splitpointsBufferId,
                     const BufferId& splitpointsCountsBufferId,

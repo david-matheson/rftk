@@ -20,8 +20,8 @@ except AttributeError:
 
 ###############################################################################
 env = Environment(
-                  CC='clang',
-                  CXX='clang',
+                  # CC='clang',
+                  # CXX='clang',
                   SWIGFLAGS=['-python', '-c++', '-Werror', '-w490', '-w362'],
                   CPPPATH=[distutils.sysconfig.get_python_inc(), numpy_include],
                   CCFLAGS=ccflags,
@@ -29,6 +29,7 @@ env = Environment(
                   LIBPATH=[Dir('.').abspath],
                   RPATH=['%s/lib' % Dir(install_path).abspath]
                   )
+
 non_swig_warnings = ['-Wall', '-Wextra', '-Weffc++', '-Werror']
 
 ###############################################################################
@@ -58,10 +59,11 @@ def build_rftk_module(env, non_swig_warnings, variant_name, module_name, depends
 
     python_lib = env_python_wrapper.SharedLibrary(target=('_%s' % module_name),
                                         source=['%s/swig/%s.i' % (module_name, module_name)],
-                                        LIBS=module_name)
+                                        LIBS=depends+[module_name])
     env_python_wrapper.Alias('%s-%s' % (module_name, variant_name), python_lib)
 
-    [Depends(shared_lib, d) for d in depends]
+
+    [Depends(shared_lib, 'lib%s.so' % d) for d in depends]
     Depends(python_lib, shared_lib)
 
     lib_install_folder = '%s/lib' % (install_path)
@@ -82,17 +84,17 @@ modules_with_deps = [('asserts', []),
                     ('forest_data', ['asserts', 'buffers']),
                     ('features', ['asserts', 'buffers']),
                     ('feature_extractors', ['asserts', 'bootstrap', 'buffers', 'features']),
-                    ('predict', ['asserts', 'buffers', 'forest_data', 'features', 'pipeline']),
                     ('train', ['asserts', 'buffers', 'bootstrap', 'best_split', 'forest_data', 'feature_extractors', 'predict', 'pipeline']),
-                    ('pipeline', ['asserts', 'buffers']),
+                    ('pipeline', ['asserts', 'buffers', 'bootstrap']),
                     ('matrix_features', ['asserts', 'bootstrap', 'buffers', 'forest_data', 'pipeline']),
                     ('image_features', ['asserts', 'bootstrap', 'buffers', 'pipeline']),
                     ('histograms', ['asserts', 'bootstrap', 'buffers', 'pipeline']),
                     ('try_split', ['asserts', 'buffers']),
                     ('should_split', ['asserts', 'buffers']),
-                    ('splitpoints', ['asserts', 'buffers', 'pipeline', 'should_split']),
-                    ('learn', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'splitpoints', 'classification', 'try_split', 'should_split']),
-                    ('classification', ['asserts', 'buffers', 'pipeline', 'splitpoints'])]
+                    ('splitpoints', ['asserts', 'buffers', 'bootstrap', 'pipeline', 'should_split']),
+                    ('classification', ['asserts', 'buffers', 'bootstrap', 'pipeline', 'splitpoints', 'should_split']),
+                    ('predict', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'features', 'pipeline', 'should_split', 'splitpoints', 'matrix_features', 'classification']),
+                    ('learn', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'classification', 'try_split', 'should_split'])]
 
 install_dependencies = []
 external_libs = ['boost_thread']
@@ -144,7 +146,7 @@ def build_and_run_unit_tests(test_exec, variant, cpp_files, depends):
     AlwaysBuild(test_alias)
 
 
-build_and_run_unit_tests('native_tests', variant, Glob('*/test/*.cpp'),
+build_and_run_unit_tests('test-cpp', variant, Glob('*/test/*.cpp'),
                         ['asserts','buffers','pipeline', 'bootstrap', 'forest_data', 'matrix_features', 'splitpoints', 'classification',
                         'try_split', 'should_split', 'learn', 'predict'])
 

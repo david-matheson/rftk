@@ -24,7 +24,7 @@ class BestSplitpointsWalkingSortedStep : public PipelineStepI
 public:
     BestSplitpointsWalkingSortedStep (const ImpurityWalker& impurityWalker,
                               const BufferId& featureValues,
-                              const FeatureValueOrdering featureValueOrdering );
+                              FeatureValueOrdering featureValueOrdering );
     virtual ~BestSplitpointsWalkingSortedStep();
 
     virtual PipelineStepI* Clone() const;
@@ -50,7 +50,7 @@ private:
 template <class ImpurityWalker>
 BestSplitpointsWalkingSortedStep<ImpurityWalker>::BestSplitpointsWalkingSortedStep(const ImpurityWalker& impurityWalker,
                                                                       const BufferId& featureValues,
-                                                                      const FeatureValueOrdering featureValueOrdering )
+                                                                      FeatureValueOrdering featureValueOrdering )
 : ImpurityBufferId( GetBufferId("Impurity") )
 , SplitpointBufferId( GetBufferId("Splitpoints") )
 , SplitpointCountsBufferId( GetBufferId("SplitpointsCounts") )

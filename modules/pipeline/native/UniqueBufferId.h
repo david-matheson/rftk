@@ -8,7 +8,7 @@
 //
 // ----------------------------------------------------------------------------
 
-#define BufferId  std::string
+typedef std::string BufferId;
 #define NullKey "null"
 
 void Reset();

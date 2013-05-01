@@ -22,10 +22,11 @@ public:
                                  MatrixBufferTemplate<IntType> const* intParams,
                                  VectorBufferTemplate<IntType> const* indices,
                                  DataMatrixType const* dataMatrix);
-
     LinearMatrixFeatureBinding();
-
     ~LinearMatrixFeatureBinding();
+
+    LinearMatrixFeatureBinding(const LinearMatrixFeatureBinding& other);
+    LinearMatrixFeatureBinding & operator=(const LinearMatrixFeatureBinding & other);
 
     FloatType FeatureValue( const int featureIndex, const int relativeSampleIndex) const;
 
@@ -58,6 +59,23 @@ LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::LinearMatrixFeat
 , mIndices(NULL)
 , mDataMatrix(NULL)
 {}
+
+template <class DataMatrixType, class FloatType, class IntType>
+LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::LinearMatrixFeatureBinding( const LinearMatrixFeatureBinding& other )
+: mFloatParams(other.mFloatParams)
+, mIntParams(other.mIntParams)
+, mIndices(other.mIndices)
+, mDataMatrix(other.mDataMatrix)
+{}
+
+template <class DataMatrixType, class FloatType, class IntType>
+LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>& LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::operator=(const LinearMatrixFeatureBinding & other)
+{
+    mFloatParams = other.mFloatParams;
+    mIntParams = other.mIntParams;
+    mIndices = other.mIndices;
+    mDataMatrix = other.mDataMatrix;
+}
 
 
 template <class DataMatrixType, class FloatType, class IntType>

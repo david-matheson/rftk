@@ -1,8 +1,8 @@
-#include "ParallelForestLearner.h"
 
 #include "BufferCollectionStack.h"
-#include "TreeLearnerI.h"
 #include "Forest.h"
+#include "TreeLearnerI.h"
+#include "ParallelForestLearner.h"
 
 #if USE_BOOST_THREAD
 #include <boost/thread.hpp>

@@ -3,14 +3,18 @@
     #define SWIG_FILE_WITH_INIT
     #include "AxisAlignedParamsStep.h"
     #include "LinearMatrixFeature.h"
+    #include "FeatureExtractorStep.h"
 %}
 
 %include <exception.i>
 %import(module="rftk.asserts") "asserts.i"
 %import(module="rftk.buffers") "buffers.i"
-%include <pipeline.i>
+%import(module="rftk.pipeline") "pipeline_external.i"
 
 %include "AxisAlignedParamsStep.h"
 %include "LinearMatrixFeature.h"
+%include "FeatureExtractorStep.h"
 
-%template(LinearMatrixFeature_f32i32) LinearMatrixFeature< MatrixBufferTemplate<float>, float, int >;
+%template(AxisAlignedParamsStep_f32i32) AxisAlignedParamsStep<float, int>;
+%template(LinearFloat32MatrixFeature_f32i32) LinearMatrixFeature< MatrixBufferTemplate<float>, float, int >;
+%template(LinearFloat32MatrixFeatureExtractorStep_f32i32) FeatureExtractorStep< LinearMatrixFeature<MatrixBufferTemplate<float>, float, int> >;

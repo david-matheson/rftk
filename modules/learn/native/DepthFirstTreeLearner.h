@@ -33,10 +33,10 @@ public:
     virtual void Learn( const BufferCollection& data, Tree& tree ) const;
 
 private:
-    void ProcessNode( boost::mt19937& gen, 
-                      Tree& tree, 
-                      BufferCollectionStack& stack, 
-                      IntType nodeIndex, 
+    void ProcessNode( boost::mt19937& gen,
+                      Tree& tree,
+                      BufferCollectionStack& stack,
+                      IntType nodeIndex,
                       IntType depth,
                       FloatType nodeSize ) const;
 
@@ -99,18 +99,18 @@ void DepthFirstTreeLearner<FloatType, IntType>::Learn( const BufferCollection& d
     mTreeSteps->ProcessStep(stack, treeData);
     stack.Push(&treeData);
 
-    //emptyIndicesCollection is pushed so subsequent leftIndicesBufCol and rightIndicesBufCol 
+    //emptyIndicesCollection is pushed so subsequent leftIndicesBufCol and rightIndicesBufCol
     //can be popped before adding the next layer down
-    BufferCollection emptyIndicesCollection; 
+    BufferCollection emptyIndicesCollection;
     stack.Push(&emptyIndicesCollection);
     ProcessNode(gen, tree, stack, 0, 0, std::numeric_limits<FloatType>::max());
 }
 
 template <class FloatType, class IntType>
-void DepthFirstTreeLearner<FloatType, IntType>::ProcessNode( boost::mt19937& gen, 
-                                                              Tree& tree, BufferCollectionStack& stack, 
-                                                              IntType nodeIndex, 
-                                                              IntType depth, 
+void DepthFirstTreeLearner<FloatType, IntType>::ProcessNode( boost::mt19937& gen,
+                                                              Tree& tree, BufferCollectionStack& stack,
+                                                              IntType nodeIndex,
+                                                              IntType depth,
                                                               FloatType nodeSize ) const
 {
     if(mTrySplitCriteria->TrySplit(depth, nodeSize))
@@ -124,7 +124,7 @@ void DepthFirstTreeLearner<FloatType, IntType>::ProcessNode( boost::mt19937& gen
         IntType rightNodeIndex = -1;
 
         // Using a nested block so memory is freed before recursing
-        { 
+        {
             BufferCollection nodeData;
             stack.Push(&nodeData);
             mNodeSteps->ProcessStep(stack, nodeData);
@@ -135,7 +135,7 @@ void DepthFirstTreeLearner<FloatType, IntType>::ProcessNode( boost::mt19937& gen
                 leftNodeIndex = tree.NextNodeIndex();
                 rightNodeIndex = tree.NextNodeIndex();
 
-                selectorInfo.WriteToTree( nodeIndex, leftNodeIndex, rightNodeIndex, 
+                selectorInfo.WriteToTree( nodeIndex, leftNodeIndex, rightNodeIndex,
                                           tree.mCounts, tree.mDepths, tree.mFloatFeatureParams, tree.mIntFeatureParams, tree.mYs);
 
                 tree.mPath.Set(nodeIndex, 0, leftNodeIndex);

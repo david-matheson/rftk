@@ -1,5 +1,6 @@
 #pragma once
 
+#include "asserts.h"
 #include "VectorBuffer.h"
 #include "FinalizerI.h"
 
@@ -20,6 +21,7 @@ public:
 template <class FloatType>
 void ClassEstimatorFinalizer<FloatType>::Finalize(FloatType count, VectorBufferTemplate<FloatType>& estimator) const
 {
+    UNUSED_PARAM(count);
     estimator.Normalize();
 }
 
