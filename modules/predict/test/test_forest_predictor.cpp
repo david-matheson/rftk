@@ -21,7 +21,7 @@ struct ForestPredictorFixture {
     , indicesStep(xs_key)
     , feature(indicesStep.IndicesBufferId, xs_key)
     , combiner(numberOfClasses)
-    , forestPredictor(forest, feature, combiner, &indicesStep)
+    , forestPredictor(NULL)
     {
         float xs_data[] = {4.0, 0.0};
         xs = MatrixBufferTemplate<float>(&xs_data[0], 1, 2);
@@ -85,10 +85,15 @@ struct ForestPredictorFixture {
 
         forest.mTrees[0] = Tree(path_1, int_params_1, float_params_1, depth, counts, estimator_params_1);
         forest.mTrees[1] = Tree(path_2, int_params_2, float_params_2, depth, counts, estimator_params_2);
+
+        forestPredictor = new TemplateForestPredictor< LinearMatrixFeature_t, ClassProbabilityCombiner<float>, float, int>(
+                                forest, feature, combiner, &indicesStep);
+
     }
 
     ~ForestPredictorFixture()
     {
+        delete forestPredictor;
     }
 
     VectorBufferTemplate<int> depth;
@@ -115,7 +120,7 @@ struct ForestPredictorFixture {
     AllSamplesStep<float, int> indicesStep;
     LinearMatrixFeature_t feature;
     ClassProbabilityCombiner<float> combiner;
-    TemplateForestPredictor< LinearMatrixFeature_t, ClassProbabilityCombiner<float>, float, int> forestPredictor;
+    TemplateForestPredictor< LinearMatrixFeature_t, ClassProbabilityCombiner<float>, float, int>* forestPredictor;
 };
 
 BOOST_FIXTURE_TEST_SUITE( ForestPredictorTests,  ForestPredictorFixture)
@@ -123,7 +128,7 @@ BOOST_FIXTURE_TEST_SUITE( ForestPredictorTests,  ForestPredictorFixture)
 BOOST_AUTO_TEST_CASE(test_PredictLeafs)
 {
     MatrixBufferTemplate<int> leafs;
-    forestPredictor.PredictLeafs(collection, leafs);
+    forestPredictor->PredictLeafs(collection, leafs);
 
     BOOST_CHECK_EQUAL(leafs.Get(0,0), 3);
     BOOST_CHECK_EQUAL(leafs.Get(0,1), 2);
@@ -132,7 +137,7 @@ BOOST_AUTO_TEST_CASE(test_PredictLeafs)
 BOOST_AUTO_TEST_CASE(test_PredictYs)
 {
     MatrixBufferTemplate<float> ys;
-    forestPredictor.PredictYs(collection, ys);
+    forestPredictor->PredictYs(collection, ys);
 
     BOOST_CHECK_CLOSE(ys.Get(0,0), 0.55, 0.1);
     BOOST_CHECK_CLOSE(ys.Get(0,1), 0.2, 0.1);

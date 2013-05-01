@@ -37,7 +37,7 @@ private:
     int walkTree( const typename Feature::FeatureBinding& feature, const Tree& tree, int nodeId, const int index );
     int nextChild( const typename Feature::FeatureBinding& feature, const Tree& tree, int nodeId, const int index );
 
-    const Forest& mForest;
+    const Forest mForest;
     Feature mFeature;
     Combiner mCombiner;
     const PipelineStepI* mPreSteps;
