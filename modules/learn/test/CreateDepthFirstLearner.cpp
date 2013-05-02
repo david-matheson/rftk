@@ -11,7 +11,7 @@ DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t
 
     // Tree steps
     std::vector<PipelineStepI*> treeSteps;
-    AllSamplesStep<float, int> allSamplesStep(xs_key);
+    AllSamplesStep<MatrixBufferTemplate<float>, float, int> allSamplesStep(xs_key);
     treeSteps.push_back(&allSamplesStep);
     VectorBufferTemplate<int> numberOfFeaturesBuffer = CreateVector1<int>(2);
     SetBufferStep< VectorBufferTemplate<int> > numberOfFeatures( numberOfFeaturesBuffer, WHEN_NEW );

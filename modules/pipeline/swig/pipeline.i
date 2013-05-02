@@ -31,8 +31,10 @@ namespace std {
 %include "SliceBufferStep.h"
 %include "FeatureExtractorStep.h"
 
-%template(AllSamplesStep_f32i32) AllSamplesStep< float, int >;
-%template(BootstrapSamplesStep_f32i32) BootstrapSamplesStep< float, int >;
+%template(AllSamplesStep_f32f32i32) AllSamplesStep< MatrixBufferTemplate<float>, float, int >;
+%template(AllSamplesStep_i32f32i32) AllSamplesStep< MatrixBufferTemplate<int>, float, int >;
+%template(BootstrapSamplesStep_f32f32i32) BootstrapSamplesStep< MatrixBufferTemplate<float>, float, int >;
+%template(BootstrapSamplesStep_i32f32i32) BootstrapSamplesStep< MatrixBufferTemplate<int>, float, int >;
 
 %template(SetFloat32VectorBufferStep) SetBufferStep< VectorBufferTemplate<float> >;
 %template(SetFloat64VectorBufferStep) SetBufferStep< VectorBufferTemplate<double> >;

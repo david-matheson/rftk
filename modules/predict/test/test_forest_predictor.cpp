@@ -117,7 +117,7 @@ struct ForestPredictorFixture {
 
     typedef LinearMatrixFeature< MatrixBufferTemplate<float>, float, int> LinearMatrixFeature_t;
     int numberOfClasses;
-    AllSamplesStep<float, int> indicesStep;
+    AllSamplesStep<MatrixBufferTemplate<float>, float, int> indicesStep;
     LinearMatrixFeature_t feature;
     ClassProbabilityCombiner<float> combiner;
     TemplateForestPredictor< LinearMatrixFeature_t, ClassProbabilityCombiner<float>, float, int>* forestPredictor;

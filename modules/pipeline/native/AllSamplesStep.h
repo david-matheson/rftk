@@ -11,7 +11,7 @@
 // Produces index and weight buffers for all datapoints (all weights are one)
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType>
+template <class MatrixType, class FloatType, class IntType>
 class AllSamplesStep: public PipelineStepI
 {
 public:
@@ -32,32 +32,32 @@ private:
 };
 
 
-template <class FloatType, class IntType>
-AllSamplesStep<FloatType, IntType>::AllSamplesStep(const BufferId& dataBuffer)
+template <class MatrixType, class FloatType, class IntType>
+AllSamplesStep<MatrixType, FloatType, IntType>::AllSamplesStep(const BufferId& dataBuffer)
 : IndicesBufferId(GetBufferId("IndicesBuffer"))
 , WeightsBufferId(GetBufferId("WeightsBuffer"))
 , mDataBufferId(dataBuffer)
 {}
 
-template <class FloatType, class IntType>
-AllSamplesStep<FloatType, IntType>::~AllSamplesStep()
+template <class MatrixType, class FloatType, class IntType>
+AllSamplesStep<MatrixType, FloatType, IntType>::~AllSamplesStep()
 {}
 
-template <class FloatType, class IntType>
-PipelineStepI* AllSamplesStep<FloatType, IntType>::Clone() const
+template <class MatrixType, class FloatType, class IntType>
+PipelineStepI* AllSamplesStep<MatrixType, FloatType, IntType>::Clone() const
 {
-    AllSamplesStep<FloatType, IntType>* clone = new AllSamplesStep<FloatType, IntType>(*this);
+    AllSamplesStep<MatrixType, FloatType, IntType>* clone = new AllSamplesStep<MatrixType, FloatType, IntType>(*this);
     return clone;
 }
 
-template <class FloatType, class IntType>
-void AllSamplesStep<FloatType, IntType>::ProcessStep(const BufferCollectionStack& readCollection,
+template <class MatrixType, class FloatType, class IntType>
+void AllSamplesStep<MatrixType, FloatType, IntType>::ProcessStep(const BufferCollectionStack& readCollection,
                                                                 BufferCollection& writeCollection) const
 {
-    ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(mDataBufferId));
+    ASSERT(readCollection.HasBuffer< MatrixType >(mDataBufferId));
 
-    const MatrixBufferTemplate<FloatType> & buffer
-          = readCollection.GetBuffer <MatrixBufferTemplate<FloatType> >(mDataBufferId);
+    const MatrixType & buffer
+          = readCollection.GetBuffer <MatrixType >(mDataBufferId);
     VectorBufferTemplate<IntType>& indices
           = writeCollection.GetOrAddBuffer< VectorBufferTemplate<IntType> >(IndicesBufferId);
     VectorBufferTemplate<FloatType>& weights

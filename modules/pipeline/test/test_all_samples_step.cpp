@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
     BufferCollectionStack stack;
     stack.Push(&collection);
 
-    AllSamplesStep<float,int> all_samples_step(xs_key);
+    AllSamplesStep<MatrixBufferTemplate<float>,float,int> all_samples_step(xs_key);
     all_samples_step.ProcessStep(stack, collection);
 
     BOOST_CHECK(collection.HasBuffer< VectorBufferTemplate<float> >(all_samples_step.WeightsBufferId));
