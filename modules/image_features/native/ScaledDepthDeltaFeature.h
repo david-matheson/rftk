@@ -102,12 +102,6 @@ ScaledDepthDeltaFeature<FloatType, IntType>::~ScaledDepthDeltaFeature()
 template <class FloatType, class IntType>
 ScaledDepthDeltaFeatureBinding<FloatType, IntType> ScaledDepthDeltaFeature<FloatType, IntType>::Bind(const BufferCollectionStack& readCollection) const
 {
-    ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(mFloatParamsBufferId));
-    ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<IntType> >(mIntParamsBufferId));
-    ASSERT(readCollection.HasBuffer< VectorBufferTemplate<IntType> >(mIndicesBufferId));
-    ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<IntType> >(mPixelIndicesBufferId));
-    ASSERT(readCollection.HasBuffer< Tensor3BufferTemplate<FloatType> >(mDepthsImgsBufferId));
-
     MatrixBufferTemplate<FloatType> const* floatParams = readCollection.GetBufferPtr< MatrixBufferTemplate<FloatType> >(mFloatParamsBufferId);
     MatrixBufferTemplate<IntType> const* intParams = readCollection.GetBufferPtr< MatrixBufferTemplate<IntType> >(mIntParamsBufferId);
     VectorBufferTemplate<IntType> const* indices = readCollection.GetBufferPtr< VectorBufferTemplate<IntType> >(mIndicesBufferId);
@@ -117,7 +111,6 @@ ScaledDepthDeltaFeatureBinding<FloatType, IntType> ScaledDepthDeltaFeature<Float
     MatrixBufferTemplate<FloatType> const* scales = NULL;
     if( mScalesBufferId != NullKey )
     {
-        ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(mScalesBufferId));
         scales = readCollection.GetBufferPtr< MatrixBufferTemplate<FloatType> >(mScalesBufferId);
     }
 

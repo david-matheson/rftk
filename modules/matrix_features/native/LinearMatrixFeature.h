@@ -73,11 +73,6 @@ LinearMatrixFeature<DataMatrixType, FloatType, IntType>::~LinearMatrixFeature()
 template <class DataMatrixType, class FloatType, class IntType>
 LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType> LinearMatrixFeature<DataMatrixType, FloatType, IntType>::Bind(const BufferCollectionStack& readCollection) const
 {
-    ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(mFloatParamsBufferId));
-    ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<IntType> >(mIntParamsBufferId));
-    ASSERT(readCollection.HasBuffer< VectorBufferTemplate<IntType> >(mIndicesBufferId));
-    ASSERT(readCollection.HasBuffer< DataMatrixType >(mDataMatrixBufferId));
-
     MatrixBufferTemplate<FloatType> const* floatParams = readCollection.GetBufferPtr< MatrixBufferTemplate<FloatType> >(mFloatParamsBufferId);
     MatrixBufferTemplate<IntType> const* intParams = readCollection.GetBufferPtr< MatrixBufferTemplate<IntType> >(mIntParamsBufferId);
     VectorBufferTemplate<IntType> const* indices = readCollection.GetBufferPtr< VectorBufferTemplate<IntType> >(mIndicesBufferId);

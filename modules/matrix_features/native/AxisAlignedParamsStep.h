@@ -72,12 +72,10 @@ void AxisAlignedParamsStep<FloatType,IntType>::ProcessStep(const BufferCollectio
     if(!writeCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(FloatParamsBufferId)
         || !writeCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(IntParamsBufferId))
     {
-        ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(mMatrixDataBufferId))
         const MatrixBufferTemplate<FloatType>& matrixBuffer =
                 readCollection.GetBuffer< MatrixBufferTemplate<FloatType> >(mMatrixDataBufferId);
         const IntType numberOfDimensions = matrixBuffer.GetN();
 
-        ASSERT(readCollection.HasBuffer< VectorBufferTemplate<IntType> >(mNumberOfFeaturesBufferId))
         const VectorBufferTemplate<IntType>& numberOfFeaturesBuffer =
                 readCollection.GetBuffer< VectorBufferTemplate<IntType> >(mNumberOfFeaturesBufferId);
         ASSERT_ARG_DIM_1D(numberOfFeaturesBuffer.GetN(), 1)

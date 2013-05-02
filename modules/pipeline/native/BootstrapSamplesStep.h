@@ -56,8 +56,6 @@ template <class MatrixType, class FloatType, class IntType>
 void BootstrapSamplesStep<MatrixType, FloatType, IntType>::ProcessStep(const BufferCollectionStack& readCollection,
                                                                 BufferCollection& writeCollection) const
 {
-    ASSERT(readCollection.HasBuffer< MatrixType >(mDataBufferId));
-
     const MatrixType & buffer
           = readCollection.GetBuffer< MatrixType >(mDataBufferId);
     VectorBufferTemplate<IntType>& indices

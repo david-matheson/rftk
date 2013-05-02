@@ -96,7 +96,6 @@ void PixelPairGaussianOffsetsStep<FloatType,IntType>::ProcessStep(const BufferCo
     if(!writeCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(FloatParamsBufferId)
         || !writeCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(IntParamsBufferId))
     {
-        ASSERT(readCollection.HasBuffer< VectorBufferTemplate<IntType> >(mNumberOfFeaturesBufferId))
         const VectorBufferTemplate<IntType>& numberOfFeaturesBuffer =
                 readCollection.GetBuffer< VectorBufferTemplate<IntType> >(mNumberOfFeaturesBufferId);
         ASSERT_ARG_DIM_1D(numberOfFeaturesBuffer.GetN(), 1)
