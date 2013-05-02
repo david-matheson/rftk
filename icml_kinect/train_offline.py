@@ -6,7 +6,6 @@ Offline training of kinect random forests
 '''
 
 import numpy as np
-import matplotlib.pyplot as pl
 import cPickle as pickle
 import gzip
 from datetime import datetime
@@ -14,10 +13,8 @@ import argparse
 import os
 
 import rftk.buffers as buffers
-import rftk.forest_data as forest_data
 import rftk.feature_extractors as feature_extractors
 import rftk.best_split as best_splits
-import rftk.predict as predict
 import rftk.train as train
 
 import utils as kinect_utils
