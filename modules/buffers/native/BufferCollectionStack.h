@@ -2,6 +2,7 @@
 
 #include <list>
 #include <asserts.h>
+#include <stdio.h>
 
 #include "BufferCollection.h"
 
@@ -76,6 +77,12 @@ BufferType const* BufferCollectionStack::GetBufferPtr(BufferCollectionKey_t buff
         {
             return (*it)->GetBufferPtr<BufferType>(bufferKey);
         }
+        else if((*it)->HasBuffer(bufferKey))
+        {
+            printf("Warning there is another bufferkey %s of a different type\n", bufferKey.c_str() );
+        }
     }
+    printf("Error bufferkey %s does not exist\n", bufferKey.c_str() );
+    Print();
     return NULL;
 }
