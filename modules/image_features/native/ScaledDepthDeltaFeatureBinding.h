@@ -84,7 +84,7 @@ ScaledDepthDeltaFeatureBinding<FloatType, IntType>& ScaledDepthDeltaFeatureBindi
     mFloatParams = other.mFloatParams;
     mIntParams = other.mIntParams;
     mIndices = other.mIndices;
-    mPixelIndices = other.mPxelIndices;
+    mPixelIndices = other.mPixelIndices;
     mDepthImgs = other.mDepthImgs;
     mScales = other.mScales;
     return *this;
