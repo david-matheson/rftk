@@ -93,7 +93,7 @@ modules_with_deps = [('asserts', []),
                     ('should_split', ['asserts', 'buffers']),
                     ('splitpoints', ['asserts', 'buffers', 'bootstrap', 'pipeline', 'should_split']),
                     ('classification', ['asserts', 'buffers', 'bootstrap', 'pipeline', 'splitpoints', 'should_split']),
-                    ('predict', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'features', 'pipeline', 'should_split', 'splitpoints', 'matrix_features', 'classification']),
+                    ('predict', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'features', 'pipeline', 'should_split', 'splitpoints', 'matrix_features', 'image_features', 'classification']),
                     ('learn', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'classification', 'try_split', 'should_split'])]
 
 install_dependencies = []

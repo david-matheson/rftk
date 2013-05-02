@@ -1,18 +1,16 @@
 import numpy as np
 
-
 import rftk.buffers as buffers
 import rftk.pipeline as pipeline
 import rftk.matrix_features as matrix_features
-import rftk.try_split as try_split
 import rftk.splitpoints as splitpoints
 import rftk.should_split as should_split
-import rftk.forest_data as forest_data
 import rftk.classification as classification
 import rftk.predict as predict
 import learn
+from wrappers import *
+from split_criteria import *
 
-# prepare data -> x_float, y_class
 
 def matrix_classification_data_prepare(**kwargs):
     bufferCollection = buffers.BufferCollection()
@@ -22,46 +20,14 @@ def matrix_classification_data_prepare(**kwargs):
         bufferCollection.AddBuffer(buffers.CLASS_LABELS, kwargs['classes'])
     return bufferCollection
 
-class PredictorWrapper_32f:
-    def __init__(self, forest_predictor, prepare_data):
-        self.forest_predictor = forest_predictor
-        self.prepare_data = prepare_data
-
-    def predict(self, **kwargs):
-        result = buffers.Float32MatrixBuffer()
-        bufferCollection = self.prepare_data(**kwargs)
-        self.forest_predictor.PredictYs(bufferCollection, result)
-        return buffers.as_numpy_array(result)
-
-
-class LearnerWrapper:
-    def __init__(self, prepare_data, create_learner, create_predictor ):
-        self.prepare_data = prepare_data
-        self.create_learner = create_learner
-        self.create_predictor = create_predictor
-
-    def fit(self, **kwargs):
-        learner = self.create_learner(**kwargs)
-        bufferCollection = self.prepare_data(**kwargs)
-        forest = learner.Learn(bufferCollection)
-        forest_predictor_wrapper = self.create_predictor(forest, **kwargs)
-        return forest_predictor_wrapper
-
-def create_try_split_criteria(**kwargs):
-    try_split_criteria_list = []
-    min_node_size = int( kwargs.get('min_node_size', 1) )
-    min_node_size_criteria = try_split.MinNodeSizeCriteria(min_node_size)
-    try_split_criteria_list.append( min_node_size_criteria )
-    if 'max_depth' in kwargs:
-        max_depth = int( kwargs.get('max_depth') )
-        max_depth_criteria = try_split.MaxDepthCriteria(max_depth)
-        try_split_criteria_list.append(max_depth_criteria)
-    if 'max_seconds_to_learn' in kwargs:
-        max_seconds_to_learn = int( kwargs.get('max_seconds_to_learn') )
-        time_limit_criteria = try_split.TimeLimitCriteria(max_seconds_to_learn)
-        try_split_criteria_list.append(time_limit_criteria)
-    return try_split.TrySplitCombinedCriteria(try_split_criteria_list)
-
+def create_matrix_predictor_32f(forest, **kwargs):
+    number_of_classes = int( np.max(kwargs['classes']) + 1 )
+    all_samples_step = pipeline.AllSamplesStep_f32i32(buffers.X_FLOAT_DATA)
+    combiner = classification.ClassProbabilityCombiner_f32(number_of_classes)
+    matrix_feature = matrix_features.LinearFloat32MatrixFeature_f32i32(all_samples_step.IndicesBufferId,
+                                                                        buffers.X_FLOAT_DATA)
+    forest_predicter = predict.LinearMatrixClassificationPredictin_f32i32(forest, matrix_feature, combiner, all_samples_step)
+    return PredictorWrapper_32f(forest_predicter, matrix_classification_data_prepare)
 
 def create_axis_aligned_matrix_learner_32f(**kwargs):
     number_of_trees = int( kwargs.get('number_of_trees', 10) )
@@ -73,6 +39,7 @@ def create_axis_aligned_matrix_learner_32f(**kwargs):
     try_split_criteria = create_try_split_criteria(**kwargs)
 
     if 'bootstrap' in kwargs and kwargs.get('bootstrap'):
+        print 'bootstrap'
         sample_data_step = pipeline.BootstrapSamplesStep_f32i32(buffers.X_FLOAT_DATA)
     else:
         sample_data_step = pipeline.AllSamplesStep_f32i32(buffers.X_FLOAT_DATA)
@@ -116,16 +83,6 @@ def create_axis_aligned_matrix_learner_32f(**kwargs):
     tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
     forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, number_of_classes, number_of_jobs)
     return forest_learner
-
-
-def create_matrix_predictor_32f(forest, **kwargs):
-    number_of_classes = int( np.max(kwargs['classes']) + 1 )
-    all_samples_step = pipeline.AllSamplesStep_f32i32(buffers.X_FLOAT_DATA)
-    combiner = classification.ClassProbabilityCombiner_f32(number_of_classes)
-    matrix_feature = matrix_features.LinearFloat32MatrixFeature_f32i32(all_samples_step.IndicesBufferId,
-                                                                        buffers.X_FLOAT_DATA)
-    forest_predicter = predict.LinearMatrixClassificationPredictin_f32i32(forest, matrix_feature, combiner, all_samples_step)
-    return PredictorWrapper_32f(forest_predicter, matrix_classification_data_prepare)
 
 
 def create_vanilia_classifier():

@@ -30,12 +30,14 @@ public:
     TemplateForestPredictor( const Forest& forest, const Feature& feature, const Combiner& combiner, const PipelineStepI* preSteps );
     ~TemplateForestPredictor();
 
-    void PredictLeafs(const BufferCollection& data, MatrixBufferTemplate<IntType>& leafsOut);
+    void PredictLeafs(const BufferCollection& data, MatrixBufferTemplate<IntType>& leafsOut) const;
     void PredictYs(const BufferCollection& data, MatrixBufferTemplate<FloatType>& ysOut);
 
+    Forest GetForest() const;
+
 private:
-    int walkTree( const typename Feature::FeatureBinding& feature, const Tree& tree, int nodeId, const int index );
-    int nextChild( const typename Feature::FeatureBinding& feature, const Tree& tree, int nodeId, const int index );
+    int walkTree( const typename Feature::FeatureBinding& feature, const Tree& tree, int nodeId, const int index ) const;
+    int nextChild( const typename Feature::FeatureBinding& feature, const Tree& tree, int nodeId, const int index ) const;
 
     const Forest mForest;
     Feature mFeature;
@@ -59,7 +61,7 @@ TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::~TemplateForestP
 
 template <class Feature, class Combiner, class FloatType, class IntType>
 void TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::PredictLeafs( const BufferCollection& data,
-                                                                                  MatrixBufferTemplate<IntType>& leafsOut)
+                                                                                  MatrixBufferTemplate<IntType>& leafsOut) const
 {
     const int numberOfTreesInForest = mForest.mTrees.size();
     BufferCollectionStack stack;
@@ -133,12 +135,17 @@ void TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::PredictYs( 
     delete[] perTreeBufferCollection;
 }
 
+template <class Feature, class Combiner, class FloatType, class IntType>
+Forest TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::GetForest() const
+{
+    return mForest;
+}
 
 template <class Feature, class Combiner, class FloatType, class IntType>
 int TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::walkTree( const typename Feature::FeatureBinding& feature,
                                                                               const Tree& tree,
                                                                               int nodeId,
-                                                                              const int index )
+                                                                              const int index ) const
 {
     const int childNodeId = nextChild( feature, tree, nodeId, index);
     if(childNodeId == NULL_CHILD)
@@ -153,7 +160,7 @@ template <class Feature, class Combiner, class FloatType, class IntType>
 int TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::nextChild(  const typename Feature::FeatureBinding& feature,
                                                                                 const Tree& tree,
                                                                                 int nodeId,
-                                                                                const int index )
+                                                                                const int index ) const
 {
     const FloatType splitpoint = tree.mFloatFeatureParams.Get(nodeId, SPLIT_POINT_INDEX);
     const FloatType featureValue = feature.FeatureValue(nodeId, index);
