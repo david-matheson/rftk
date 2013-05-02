@@ -24,3 +24,6 @@ class PredictorWrapper_32f:
         bufferCollection = self.prepare_data(**kwargs)
         self.forest_predictor.PredictYs(bufferCollection, result)
         return buffers.as_numpy_array(result)
+
+    def get_forest(self):
+        return self.forest_predictor.GetForest()
