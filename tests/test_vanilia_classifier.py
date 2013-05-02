@@ -21,7 +21,12 @@ class TestNew(unittest.TestCase):
         x = np.array([[3,1],[3,2], [3,3], [0,1], [0,2]], dtype=np.float32)
         classes = np.array([0,0,0,1,2], dtype=np.int32)
         predictor = learner.fit(x=x, classes=classes, number_of_features=2, bootstrap=False)
-        result = predictor.predict(x=x)
+        result = predictor.predict(x=x).max()
+        self.assertEqual(result[0], 0)
+        self.assertEqual(result[1], 0)
+        self.assertEqual(result[2], 0)
+        self.assertEqual(result[3], 1)
+        self.assertEqual(result[4], 2)
 
 if __name__ == '__main__':
     unittest.main()
