@@ -14,15 +14,14 @@ from split_criteria import *
 
 def matrix_classification_data_prepare(**kwargs):
     bufferCollection = buffers.BufferCollection()
-    if 'x' in kwargs:
-        bufferCollection.AddBuffer(buffers.X_FLOAT_DATA, kwargs['x'])
+    bufferCollection.AddBuffer(buffers.X_FLOAT_DATA, kwargs['x'])
     if 'classes' in kwargs:
         bufferCollection.AddBuffer(buffers.CLASS_LABELS, kwargs['classes'])
     return bufferCollection
 
 def create_matrix_predictor_32f(forest, **kwargs):
-    number_of_classes = int( np.max(kwargs['classes']) + 1 )
-    all_samples_step = pipeline.AllSamplesStep_f32i32(buffers.X_FLOAT_DATA)
+    number_of_classes = forest.GetTree(0).mYs.GetN()
+    all_samples_step = pipeline.AllSamplesStep_f32f32i32(buffers.X_FLOAT_DATA)
     combiner = classification.ClassProbabilityCombiner_f32(number_of_classes)
     matrix_feature = matrix_features.LinearFloat32MatrixFeature_f32i32(all_samples_step.IndicesBufferId,
                                                                         buffers.X_FLOAT_DATA)
@@ -39,10 +38,9 @@ def create_axis_aligned_matrix_learner_32f(**kwargs):
     try_split_criteria = create_try_split_criteria(**kwargs)
 
     if 'bootstrap' in kwargs and kwargs.get('bootstrap'):
-        print 'bootstrap'
-        sample_data_step = pipeline.BootstrapSamplesStep_f32i32(buffers.X_FLOAT_DATA)
+        sample_data_step = pipeline.BootstrapSamplesStep_f32f32i32(buffers.X_FLOAT_DATA)
     else:
-        sample_data_step = pipeline.AllSamplesStep_f32i32(buffers.X_FLOAT_DATA)
+        sample_data_step = pipeline.AllSamplesStep_f32f32i32(buffers.X_FLOAT_DATA)
 
     number_of_features_buffer = buffers.as_vector_buffer(np.array([number_of_features], dtype=np.int32))
     set_number_features_step = pipeline.SetInt32VectorBufferStep(number_of_features_buffer, pipeline.WHEN_NEW)
