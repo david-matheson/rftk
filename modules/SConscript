@@ -91,7 +91,7 @@ modules_with_deps = [('asserts', []),
                     ('histograms', ['asserts', 'bootstrap', 'buffers', 'pipeline']),
                     ('try_split', ['asserts', 'buffers']),
                     ('should_split', ['asserts', 'buffers']),
-                    ('splitpoints', ['asserts', 'buffers', 'bootstrap', 'pipeline', 'should_split']),
+                    ('splitpoints', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'should_split']),
                     ('classification', ['asserts', 'buffers', 'bootstrap', 'pipeline', 'splitpoints', 'should_split']),
                     ('predict', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'features', 'pipeline', 'should_split', 'splitpoints', 'matrix_features', 'image_features', 'classification']),
                     ('learn', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'classification', 'try_split', 'should_split'])]

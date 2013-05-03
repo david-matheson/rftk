@@ -66,20 +66,18 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_FEATURES_BY_DATAPOINTS)
     Tensor3BufferTemplate<float>& rightStats = 
             bc.GetBuffer< Tensor3BufferTemplate<float> >(splitpointStatsStep.RightStatsBufferId);
 
-    BOOST_CHECK_CLOSE(childCounts.Get(0,0,0), 10, 0.1);
-    BOOST_CHECK_CLOSE(childCounts.Get(0,0,1), 1.5, 0.1);
-    BOOST_CHECK_CLOSE(childCounts.Get(0,2,0), 3, 0.1);
-    BOOST_CHECK_CLOSE(childCounts.Get(0,2,1), 8.5, 0.1);
-    BOOST_CHECK_CLOSE(childCounts.Get(2,0,0), 4, 0.1);
-    BOOST_CHECK_CLOSE(childCounts.Get(2,0,1), 7.5, 0.1);
+    BOOST_CHECK_CLOSE(childCounts.Get(0,0,LEFT_CHILD), 10, 0.1);
+    BOOST_CHECK_CLOSE(childCounts.Get(0,0,RIGHT_CHILD), 1.5, 0.1);
+    BOOST_CHECK_CLOSE(childCounts.Get(0,2,LEFT_CHILD), 3, 0.1);
+    BOOST_CHECK_CLOSE(childCounts.Get(0,2,RIGHT_CHILD), 8.5, 0.1);
+    BOOST_CHECK_CLOSE(childCounts.Get(2,0,LEFT_CHILD), 4, 0.1);
+    BOOST_CHECK_CLOSE(childCounts.Get(2,0,RIGHT_CHILD), 7.5, 0.1);
 
     BOOST_CHECK_CLOSE(leftStats.Get(0,0,0), 2, 0.1);
     BOOST_CHECK_CLOSE(rightStats.Get(0,0,0), 1, 0.1);
 
     BOOST_CHECK_CLOSE(leftStats.Get(1,1,2), 1, 0.1);
     BOOST_CHECK_CLOSE(rightStats.Get(1,1,2), 0.5, 0.1);
-
-
 }
 
 BOOST_AUTO_TEST_SUITE_END()

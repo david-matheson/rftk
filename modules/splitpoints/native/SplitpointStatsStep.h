@@ -7,6 +7,7 @@
 #include "PipelineStepI.h"
 #include "FeatureExtractorStep.h"
 #include "UniqueBufferId.h"
+#include "Constants.h"
 
 // ----------------------------------------------------------------------------
 //
@@ -108,13 +109,13 @@ void SplitpointStatsStep<StatsUpdater>::ProcessStep(const BufferCollectionStack&
                 const typename StatsUpdater::Float splitPointValue = splitpoints.Get(feature, splitpoint);
                 if( featureValue > splitPointValue )
                 {
-                    typename StatsUpdater::Float counts = childCounts.Get(feature, splitpoint, 0);
+                    typename StatsUpdater::Float counts = childCounts.Get(feature, splitpoint, LEFT_CHILD);
                     bindedStatUpdater.UpdateStats(counts, leftStats, feature, splitpoint, sample );
                     childCounts.Set(feature, splitpoint, 0, counts);
                 }
                 else
                 {
-                    typename StatsUpdater::Float counts = childCounts.Get(feature, splitpoint, 1);
+                    typename StatsUpdater::Float counts = childCounts.Get(feature, splitpoint, RIGHT_CHILD);
                     bindedStatUpdater.UpdateStats(counts, rightStats, feature, splitpoint, sample );
                     childCounts.Set(feature, splitpoint, 1, counts);
                 }

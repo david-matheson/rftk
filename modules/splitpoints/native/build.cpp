@@ -5,3 +5,4 @@
 #include "AssignStreamStep.h"
 #include "RandomSplitpointsStep.h"
 #include "SplitpointStatsStep.h"
+#include "TwoStreamSplitpointStatsStep.h"
