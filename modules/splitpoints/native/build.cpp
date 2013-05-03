@@ -1,3 +1,6 @@
 #include "BestSplitpointsWalkingSortedStep.h"
 #include "SplitSelector.h"
 #include "SplitSelectorInfo.h"
+#include "SplitpointsImpurity.h"
+#include "AssignStreamStep.h"
+#include "RandomSplitpointsStep.h"
