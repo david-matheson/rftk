@@ -11,21 +11,17 @@ import rftk.best_split as best_splits
 import rftk.predict as predict
 import rftk.train as train
 
-# import experiment_measurement_tensor as exp_measurement
-# import experiment_utils_tensor as experiment_utils
-
 import experiment_utils.measurements
 import experiment_utils.management
 
-
-
 from joblib import Parallel, delayed
+
 
 def run_experiment(experiment_config, run_config):
     X_train, Y_train, X_test, Y_test = experiment_config.load_data(
         run_config.data_size,
         run_config.number_of_passes_through_data)
-    (x_m,x_n) = X_train.shape
+    (x_m,x_dim) = X_train.shape
     y_dim = int(np.max(Y_train) + 1)
 
     data = buffers.BufferCollection()
@@ -35,8 +31,8 @@ def run_experiment(experiment_config, run_config):
 
     feature_extractor = feature_extractors.Float32AxisAlignedFeatureExtractor(
         run_config.number_of_features,
-        x_n,
-        True)
+        x_dim,
+        False) # choose number of features from poisson?
     
     node_data_collector = train.AllNodeDataCollectorFactory()
     class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(
@@ -55,7 +51,7 @@ def run_experiment(experiment_config, run_config):
         class_infogain_best_split,
         split_criteria,
         run_config.number_of_trees,
-        1000)
+        100000)
     sampling_config = train.OfflineSamplingParams(x_m, run_config.use_bootstrap)
 
     depth_first_learner = train.DepthFirstParallelForestLearner(train_config)
@@ -85,7 +81,7 @@ def run_experiment(experiment_config, run_config):
     return forest_measurement
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Sklearn accuracy on data')
+    parser = argparse.ArgumentParser(description='Offline accuracy on data')
     parser.add_argument('-c', '--config_file', help='experiment config file', required=True)
     parser.add_argument('-o', '--out', help='output file name', required=True)
     args = parser.parse_args()

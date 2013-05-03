@@ -26,13 +26,13 @@ def run_experiment(experiment_config, run_config):
 
     data = buffers.BufferCollection()
     data.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffers.as_matrix_buffer(X_train))
-    data.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffers.as_vector_buffer(Y_train))
-    indices = buffers.as_vector_buffer( np.array(np.arange(x_m), dtype=np.int32) )
+    data.AddInt32VectorBuffer(buffers.CLASS_LABELS, buffers.Int32Vector(Y_train))
+    indices = buffers.Int32Vector( np.array(np.arange(x_m), dtype=np.int32) )
 
     feature_extractor = feature_extractors.Float32AxisAlignedFeatureExtractor(
         run_config.number_of_features,
         x_dim,
-        True)
+        True) # choose number of features from poisson?
     
     if not run_config.use_two_streams:
         node_data_collector = train.RandomThresholdHistogramDataCollectorFactory(
@@ -52,7 +52,7 @@ def run_experiment(experiment_config, run_config):
             run_config.number_of_thresholds,
             run_config.null_probability,
             run_config.impurity_probability)
-        
+                
         class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(
             y_dim,
             buffers.IMPURITY_HISTOGRAM_LEFT,
@@ -75,7 +75,7 @@ def run_experiment(experiment_config, run_config):
         class_infogain_best_split,
         split_criteria,
         run_config.number_of_trees,
-        10000)
+        100000)
     sampling_config = train.OnlineSamplingParams(False, 1.0)
 
     # Train online forest

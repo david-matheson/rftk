@@ -48,10 +48,10 @@ class DataConfig(object):
     def __init__(self):
         self.data_file_train = "source_data/usps"
         self.data_file_test = "source_data/usps.t"
-        self.data_size = [20, 50, 100, 200, 500, 1000, 2000, 5000, 7291]
-        #self.data_size = [20, 50, 100, 200, 500, 1000, 2000]
-        self.number_of_passes_through_data = 10
-        self.job_id = [1,2,3]
+        self.data_size = map(int, np.exp(np.linspace(np.log(20), np.log(7291), 10)))
+
+        self.number_of_passes_through_data = 15
+        self.job_id = range(10)
 
 class OnlineConfig(DataConfig):
     def __init__(self):
@@ -60,9 +60,9 @@ class OnlineConfig(DataConfig):
         self.number_of_trees = 100
         self.number_of_features = 10
         self.number_of_thresholds = 10
-        self.split_rate = 1.000001
-        self.number_of_data_to_split_root = 1
-        self.number_of_data_to_force_split_root = 1000
+        self.split_rate = 1.01
+        self.number_of_data_to_split_root = 10
+        self.number_of_data_to_force_split_root = 10000
         self.use_two_streams = True
         self.null_probability = 0
         self.impurity_probability = 0.5
@@ -73,10 +73,10 @@ class OnlineSaffariConfig(DataConfig):
     def __init__(self):
         DataConfig.__init__(self)
 
-        self.number_of_trees = 100 
+        self.number_of_trees = 100
         self.number_of_features = 10
         self.number_of_thresholds = 10
-        self.min_samples_split = 729 
+        self.min_samples_split = 50
         self.max_depth = 50
         self.null_probability = 0
         self.min_impurity_gain = 0.1

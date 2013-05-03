@@ -1,4 +1,5 @@
 import cPickle as pickle
+import numpy as np
 
 import dist_utils
 
@@ -25,7 +26,7 @@ class ExperimentConfig(object):
 class DataConfig(object):
     def __init__(self):
         self.pickle_data_file = "source_data/mog_5class_100000.pkl"
-        self.data_size = [100, 500, 1000, 5000, 10000, 20000, 30000]
+        self.data_size = map(int, np.exp(np.linspace(np.log(100), np.log(30000), 10)))
         self.number_of_passes_through_data = 1
         self.job_id = range(10)
         self.bayes_accuracy = 0.666

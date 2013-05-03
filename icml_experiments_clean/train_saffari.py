@@ -2,18 +2,15 @@ import os
 import numpy as np
 import argparse
 import itertools
-import time
 import random as random
 import cPickle as pickle
 
 import rftk.buffers as buffers
-import rftk.forest_data  as forest_data
+import rftk.forest_data as forest_data
 import rftk.feature_extractors as feature_extractors
 import rftk.best_split as best_splits
 import rftk.predict as predict
 import rftk.train as train
-
-#import rftk.utils.forest as forest_utils
 
 import experiment_utils.measurements
 import experiment_utils.management
@@ -36,7 +33,7 @@ def run_experiment(experiment_config, run_config):
     feature_extractor = feature_extractors.Float32AxisAlignedFeatureExtractor(
         run_config.number_of_features,
         x_dim,
-        False)
+        False) # choose number of features from poisson?
     
     node_data_collector = train.RandomThresholdHistogramDataCollectorFactory(
         y_dim,
@@ -63,7 +60,7 @@ def run_experiment(experiment_config, run_config):
         split_criteria,
         run_config.number_of_trees,
         100000)
-    sampling_config = train.OnlineSamplingParams(False, 1.0)
+    sampling_config = train.OnlineSamplingParams(True, 1.0)
 
     # Train online forest
     online_learner = train.OnlineForestLearner(train_config, sampling_config, 10000)
@@ -91,15 +88,15 @@ def run_experiment(experiment_config, run_config):
     online_forest_data = online_learner.GetForest()
     for tree_id in range(online_forest_data.GetNumberOfTrees()):
         single_tree_forest_data = forest_data.Forest([online_forest_data.GetTree(tree_id)])
-        single_tree_forest_predictor = predict_utils.MatrixForestPredictor(single_tree_forest_data)
+        single_tree_forest_predictor = predict.MatrixForestPredictor(single_tree_forest_data)
         y_probs = single_tree_forest_predictor.predict_proba(X_test)
         accuracy = np.mean(Y_test == y_probs.argmax(axis=1))
-        tree_measurement = exp_measurement.AccuracyMeasurement(
+        tree_measurement = experiment_utils.measurements.AccuracyMeasurement(
             accuracy=accuracy)
         tree_measurements.append(tree_measurement)
 
     return forest_measurement, tree_measurements
-    
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Online Random Forest Training')
@@ -134,9 +131,9 @@ if __name__ == "__main__":
         tree_measurement_grids = []
         for i in xrange(run_config_template.number_of_trees):
             tree_measurement_grids.append(
-                exp_measurement.MeasurementGrid(
+                experiment_utils.management.MeasurementGrid(
                     configuration_domain,
-                    exp_measurement.AccuracyMeasurement))
+                    experiment_utils.measurements.AccuracyMeasurement))
 
     for position, forest_measurement, tree_measurements in job_results:
         forest_measurement_grid.record_at(position, forest_measurement)
@@ -153,11 +150,13 @@ if __name__ == "__main__":
     pickle.dump(results, open(args.out.format("forest"), "wb"))
 
     if experiment_config.measure_tree_accuracy:
-        for i, tree_measurement_grid in enumerate(tree_measurement_grids):
-            results = {
-                'measurements': tree_measurement_grid,
-                'experiment_config': experiment_config,
-                'run_config': run_config_template,
-            }
-            pickle.dump(results, open(args.out.format(
-                "tree%05d" % i), "wb"))
+        with open(args.out.format("trees"), 'wb') as tree_results_file:
+            tree_results = [
+                {
+                    'measurements': tree_measurement_grid,
+                    'experiment_config': experiment_config,
+                    'run_config': run_config_template,
+                }
+                for tree_measurement_grid in tree_measurement_grids
+                ]
+            pickle.dump(tree_results, tree_results_file)
