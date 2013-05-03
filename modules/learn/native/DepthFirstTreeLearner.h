@@ -23,14 +23,13 @@ public:
     DepthFirstTreeLearner( const TrySplitCriteriaI* trySplitCriteria,
                             const PipelineStepI* treeSteps,
                             const PipelineStepI* nodeSteps,
-                            const SplitSelector<FloatType, IntType>* splitSelector,
-                            unsigned int seed = 0);
+                            const SplitSelector<FloatType, IntType>* splitSelector);
     DepthFirstTreeLearner(const DepthFirstTreeLearner<FloatType, IntType> & other);
 
     virtual ~DepthFirstTreeLearner();
 
     virtual TreeLearnerI* Clone() const;
-    virtual void Learn( const BufferCollection& data, Tree& tree ) const;
+    virtual void Learn( const BufferCollection& data, Tree& tree, unsigned int seed ) const;
 
 private:
     void ProcessNode( boost::mt19937& gen,
@@ -44,20 +43,17 @@ private:
     const PipelineStepI* mTreeSteps;
     const PipelineStepI* mNodeSteps;
     const SplitSelector<FloatType, IntType>* mSplitSelector;
-    const unsigned int mSeed;
 };
 
 template <class FloatType, class IntType>
 DepthFirstTreeLearner<FloatType, IntType>::DepthFirstTreeLearner( const TrySplitCriteriaI* trySplitCriteria,
                                                                   const PipelineStepI* treeSteps,
                                                                   const PipelineStepI* nodeSteps,
-                                                                  const SplitSelector<FloatType, IntType>* splitSelector,
-                                                                  unsigned int seed)
+                                                                  const SplitSelector<FloatType, IntType>* splitSelector)
 : mTrySplitCriteria( trySplitCriteria->Clone() )
 , mTreeSteps( treeSteps->Clone() )
 , mNodeSteps( nodeSteps->Clone() )
 , mSplitSelector( splitSelector->Clone() )
-, mSeed(seed)
 {}
 
 template <class FloatType, class IntType>
@@ -66,7 +62,6 @@ DepthFirstTreeLearner<FloatType, IntType>::DepthFirstTreeLearner(const DepthFirs
 , mTreeSteps( other.mTreeSteps->Clone() )
 , mNodeSteps( other.mNodeSteps->Clone() )
 , mSplitSelector( other.mSplitSelector->Clone() )
-, mSeed(other.mSeed)
 {
 }
 
@@ -88,15 +83,15 @@ TreeLearnerI* DepthFirstTreeLearner<FloatType, IntType>::Clone() const
 
 
 template <class FloatType, class IntType>
-void DepthFirstTreeLearner<FloatType, IntType>::Learn( const BufferCollection& data, Tree& tree ) const
+void DepthFirstTreeLearner<FloatType, IntType>::Learn( const BufferCollection& data, Tree& tree, unsigned int seed ) const
 {
     boost::mt19937 gen;
-    gen.seed(mSeed);
+    gen.seed(seed);
 
     BufferCollectionStack stack;
     stack.Push(&data);
     BufferCollection treeData;
-    mTreeSteps->ProcessStep(stack, treeData);
+    mTreeSteps->ProcessStep(stack, treeData, gen);
     stack.Push(&treeData);
 
     //emptyIndicesCollection is pushed so subsequent leftIndicesBufCol and rightIndicesBufCol
@@ -127,7 +122,7 @@ void DepthFirstTreeLearner<FloatType, IntType>::ProcessNode( boost::mt19937& gen
         {
             BufferCollection nodeData;
             stack.Push(&nodeData);
-            mNodeSteps->ProcessStep(stack, nodeData);
+            mNodeSteps->ProcessStep(stack, nodeData, gen);
             SplitSelectorInfo<FloatType, IntType> selectorInfo = mSplitSelector->ProcessSplits(stack, depth);
             doSplit = selectorInfo.ValidSplit();
             if(doSplit)

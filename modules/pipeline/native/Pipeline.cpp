@@ -20,11 +20,12 @@ Pipeline::~Pipeline()
 }
 
 void Pipeline::ProcessStep( const BufferCollectionStack& readCollection,
-                            BufferCollection& writeCollection) const
+                            BufferCollection& writeCollection,
+                            boost::mt19937& gen) const
 {
     for (std::vector<PipelineStepI*>::const_iterator it = mSteps.begin(); it != mSteps.end(); ++it)
     {
-        (*it)->ProcessStep(readCollection, writeCollection);
+        (*it)->ProcessStep(readCollection, writeCollection, gen);
     }
 }
 

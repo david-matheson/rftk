@@ -20,7 +20,8 @@ public:
     virtual PipelineStepI* Clone() const;
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
-                                BufferCollection& writeCollection) const;
+                                BufferCollection& writeCollection,
+                                boost::mt19937& gen) const;
 
     // Read only output buffer
     const BufferId SlicedBufferId;
@@ -51,8 +52,10 @@ PipelineStepI* SliceBufferStep<BufType, IntType>::Clone() const
 
 template <class BufType, class IntType>
 void SliceBufferStep<BufType, IntType>::ProcessStep(const BufferCollectionStack& readCollection,
-                                        BufferCollection& writeCollection) const
+                                        BufferCollection& writeCollection,
+                                        boost::mt19937& gen) const
 {
+    UNUSED_PARAM(gen);
     const BufType& buffer = readCollection.GetBuffer<BufType>(mBufferBufferId);
     const VectorBufferTemplate<IntType>& indices =
           readCollection.GetBuffer< VectorBufferTemplate<IntType> >(mIndicesBufferId);

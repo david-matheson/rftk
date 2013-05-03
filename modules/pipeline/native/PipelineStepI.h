@@ -1,5 +1,9 @@
 #pragma once
 
+#include <boost/random.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/normal_distribution.hpp>
+
 #include <BufferCollection.h>
 #include <BufferCollectionStack.h>
 
@@ -18,7 +22,8 @@ public:
     virtual PipelineStepI* Clone() const = 0;
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
-                                BufferCollection& writeCollection) const = 0;
+                                BufferCollection& writeCollection,
+                                boost::mt19937& gen) const = 0;
 };
 
 enum SetRule

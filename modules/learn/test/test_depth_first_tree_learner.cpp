@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_CASE(test_Learn)
 
     DepthFirstTreeLearner<float, int> depthFirstTreeLearner = CreateDepthFirstLearner(xs_key, classes_key, numberOfClasses, featureOrdering, minNodeSize);
     Tree tree(1, 3, 3, numberOfClasses );
-    depthFirstTreeLearner.Learn(collection, tree);
+    depthFirstTreeLearner.Learn(collection, tree, 0);
 
     int expected_path_data[] = { 1,2,
                         -1,-1,
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(test_Learn_DATAPOINTS_BY_FEATURES)
 
     DepthFirstTreeLearner<float, int> depthFirstTreeLearner = CreateDepthFirstLearner(xs_key, classes_key, numberOfClasses, featureOrdering, minNodeSize);
     Tree tree(1, 4, 3, numberOfClasses );
-    depthFirstTreeLearner.Learn(collection, tree);
+    depthFirstTreeLearner.Learn(collection, tree, 0);
 
     int expected_path_data[] = { 1,2,
                         -1,-1,
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(test_Learn_minsize)
 
     DepthFirstTreeLearner<float, int> depthFirstTreeLearner = CreateDepthFirstLearner(xs_key, classes_key, numberOfClasses, featureOrdering, minNodeSize);
     Tree tree(1, 3, 3, numberOfClasses );
-    depthFirstTreeLearner.Learn(collection, tree);
+    depthFirstTreeLearner.Learn(collection, tree, 0);
 
     int expected_path_data[] = { 1,2,
                         -1,-1,

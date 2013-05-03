@@ -63,7 +63,8 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_features_by_datapoints)
     FeatureExtractorStep< TestFeature<double,int> > feature_extractor(test_feature, FEATURES_BY_DATAPOINTS);
 
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<double> >(feature_extractor.FeatureValuesBufferId));
-    feature_extractor.ProcessStep(stack, collection);
+    boost::mt19937 gen(0);
+    feature_extractor.ProcessStep(stack, collection, gen);
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<double> >(feature_extractor.FeatureValuesBufferId));
 
     MatrixBufferTemplate<double>& feature_values =
@@ -87,7 +88,8 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_datapoints_by_features)
     FeatureExtractorStep< TestFeature<double,int> > feature_extractor(test_feature, DATAPOINTS_BY_FEATURES);
 
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<double> >(feature_extractor.FeatureValuesBufferId));
-    feature_extractor.ProcessStep(stack, collection);
+    boost::mt19937 gen(0);
+    feature_extractor.ProcessStep(stack, collection, gen);
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<double> >(feature_extractor.FeatureValuesBufferId));
 
     MatrixBufferTemplate<double>& feature_values =

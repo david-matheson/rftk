@@ -1,3 +1,4 @@
+#include <ctime>
 
 #include "BufferCollectionStack.h"
 #include "Forest.h"
@@ -19,7 +20,7 @@ void TrainTrees(    const TreeLearnerI* treeLearner,
 {
     for(int i=treeStartIndex; i<numberOfTrees; i+=treeStride)
     {
-        treeLearner->Learn(data, forestOut->mTrees[i]);
+        treeLearner->Learn(data, forestOut->mTrees[i], i + static_cast<unsigned int>(std::time(NULL)) );
     }
 }
 

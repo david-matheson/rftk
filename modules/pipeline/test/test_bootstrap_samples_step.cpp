@@ -21,7 +21,8 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
     stack.Push(&collection);
 
     BootstrapSamplesStep<MatrixBufferTemplate<float>,float,int> bootstrap_step(xs_key);
-    bootstrap_step.ProcessStep(stack, collection);
+    boost::mt19937 gen(0);
+    bootstrap_step.ProcessStep(stack, collection, gen);
 
     BOOST_CHECK(collection.HasBuffer< VectorBufferTemplate<float> >(bootstrap_step.WeightsBufferId));
     BOOST_CHECK(collection.HasBuffer< VectorBufferTemplate<int> >(bootstrap_step.IndicesBufferId));

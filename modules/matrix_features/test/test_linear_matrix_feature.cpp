@@ -119,7 +119,8 @@ BOOST_AUTO_TEST_CASE(test_FeatureExtractor_linear_combination)
 
     FeatureExtractorStep< LinearMatrixFeature<MatrixBufferTemplate<double>, double, int> > fe(matrix_feature, FEATURES_BY_DATAPOINTS);
 
-    fe.ProcessStep(stack, collection);
+    boost::mt19937 gen(0);
+    fe.ProcessStep(stack, collection, gen);
 
     MatrixBufferTemplate<double> feature_values =
           collection.GetBuffer< MatrixBufferTemplate<double> >(fe.FeatureValuesBufferId);

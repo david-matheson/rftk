@@ -63,6 +63,9 @@ template <class Feature, class Combiner, class FloatType, class IntType>
 void TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::PredictLeafs( const BufferCollection& data,
                                                                                   MatrixBufferTemplate<IntType>& leafsOut) const
 {
+    boost::mt19937 gen;
+    gen.seed(0);
+
     const int numberOfTreesInForest = mForest.mTrees.size();
     BufferCollectionStack stack;
     stack.Push(&data);
@@ -74,7 +77,7 @@ void TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::PredictLeaf
         BufferCollection& bc = perTreeBufferCollection[treeId];
         bc.AddBuffer< MatrixBufferTemplate<FloatType> >(mFeature.mFloatParamsBufferId, mForest.mTrees[treeId].mFloatFeatureParams);
         bc.AddBuffer< MatrixBufferTemplate<IntType> >(mFeature.mIntParamsBufferId, mForest.mTrees[treeId].mIntFeatureParams);
-        mPreSteps->ProcessStep(stack, bc);
+        mPreSteps->ProcessStep(stack, bc, gen);
 
         stack.Push(&bc);
         featureBindings[treeId] = mFeature.Bind(stack);
@@ -100,6 +103,9 @@ template <class Feature, class Combiner, class FloatType, class IntType>
 void TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::PredictYs( const BufferCollection& data,
                                                                               MatrixBufferTemplate<FloatType>& ysOut)
 {
+    boost::mt19937 gen;
+    gen.seed(0);
+
     const int numberOfTreesInForest = mForest.mTrees.size();
     BufferCollectionStack stack;
     stack.Push(&data);
@@ -111,7 +117,7 @@ void TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::PredictYs( 
         BufferCollection& bc = perTreeBufferCollection[treeId];
         bc.AddBuffer< MatrixBufferTemplate<FloatType> >(mFeature.mFloatParamsBufferId, mForest.mTrees[treeId].mFloatFeatureParams);
         bc.AddBuffer< MatrixBufferTemplate<IntType> >(mFeature.mIntParamsBufferId, mForest.mTrees[treeId].mIntFeatureParams);
-        mPreSteps->ProcessStep(stack, bc);
+        mPreSteps->ProcessStep(stack, bc, gen);
 
         stack.Push(&bc);
         featureBindings[treeId] = mFeature.Bind(stack);

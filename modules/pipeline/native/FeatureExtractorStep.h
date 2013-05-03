@@ -29,7 +29,8 @@ public:
     virtual PipelineStepI* Clone() const;
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
-                                BufferCollection& writeCollection) const;
+                                BufferCollection& writeCollection,
+                                boost::mt19937& gen) const;
 
     // Read only output buffer
     const BufferId FeatureValuesBufferId;
@@ -58,8 +59,10 @@ PipelineStepI* FeatureExtractorStep<FeatureType>::Clone() const
 
 template <class FeatureType>
 void FeatureExtractorStep<FeatureType>::ProcessStep(const BufferCollectionStack& readCollection,
-                                                BufferCollection& writeCollection) const
+                                                BufferCollection& writeCollection,
+                                                boost::mt19937& gen) const
 {
+    UNUSED_PARAM(gen);
     typename FeatureType::FeatureBinding featureBinding = mFeature.Bind(readCollection);
 
     typename FeatureType::Int numberOfFeatures = featureBinding.GetNumberOfFeatures();

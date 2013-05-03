@@ -30,7 +30,8 @@ public:
     virtual PipelineStepI* Clone() const;
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
-                                BufferCollection& writeCollection) const;
+                                BufferCollection& writeCollection,
+                                boost::mt19937& gen) const;
 
     // Read only output buffer
     const BufferId ImpurityBufferId;
@@ -75,8 +76,11 @@ PipelineStepI* BestSplitpointsWalkingSortedStep<ImpurityWalker>::Clone() const
 
 template <class ImpurityWalker>
 void BestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(const BufferCollectionStack& readCollection,
-                                                              BufferCollection& writeCollection) const
+                                                              BufferCollection& writeCollection,
+                                                              boost::mt19937& gen) const
 {
+    UNUSED_PARAM(gen);
+    
     // Bind input buffers
     ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<typename ImpurityWalker::Float> >(mFeatureValuesBufferId));
     MatrixBufferTemplate<typename ImpurityWalker::Float> const& featureValues

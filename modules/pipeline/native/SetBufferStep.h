@@ -23,7 +23,8 @@ public:
     virtual PipelineStepI* Clone() const;
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
-                                BufferCollection& writeCollection) const;
+                                BufferCollection& writeCollection,
+                                boost::mt19937& gen) const;
 
     // Read only output buffer
     const BufferId OutputBufferId;
@@ -53,9 +54,11 @@ PipelineStepI* SetBufferStep<BufType>::Clone() const
 
 template <class BufType>
 void SetBufferStep<BufType>::ProcessStep(const BufferCollectionStack& readCollection,
-                                        BufferCollection& writeCollection) const
+                                        BufferCollection& writeCollection,
+                                        boost::mt19937& gen) const
 {
     UNUSED_PARAM(readCollection);
+    UNUSED_PARAM(gen);
 
     if(!writeCollection.HasBuffer<BufType>(OutputBufferId) || mSetRule == EVERY_PROCESS)
     {

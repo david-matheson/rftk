@@ -1,11 +1,5 @@
 #pragma once
 
-#include <ctime>
-
-#include <boost/random.hpp>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/normal_distribution.hpp>
-
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
@@ -32,14 +26,14 @@ public:
                             const FloatType ux,
                             const FloatType uy, 
                             const FloatType vx, 
-                            const FloatType vy,
-                            IntType seed = static_cast<unsigned int>(std::time(NULL)) );
+                            const FloatType vy  );
     virtual ~PixelPairGaussianOffsetsStep();
 
     virtual PipelineStepI* Clone() const;
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
-                                BufferCollection& writeCollection) const;
+                                BufferCollection& writeCollection,
+                                boost::mt19937& gen) const;
 
     // Read only output buffers
     const BufferId FloatParamsBufferId;
@@ -65,8 +59,7 @@ PixelPairGaussianOffsetsStep<FloatType,IntType>::PixelPairGaussianOffsetsStep(  
                                                                 const FloatType ux,
                                                                 const FloatType uy, 
                                                                 const FloatType vx, 
-                                                                const FloatType vy,
-                                                                IntType seed )
+                                                                const FloatType vy )
 : FloatParamsBufferId(GetBufferId("FloatParams"))
 , IntParamsBufferId(GetBufferId("IntParams"))
 , mNumberOfFeaturesBufferId(numberOfFeaturesBufferId)
@@ -74,7 +67,6 @@ PixelPairGaussianOffsetsStep<FloatType,IntType>::PixelPairGaussianOffsetsStep(  
 , mUy(uy)
 , mVx(vx)
 , mVy(vy)
-, mGen(seed)
 {}
 
 template <class FloatType, class IntType>
@@ -91,7 +83,8 @@ PipelineStepI* PixelPairGaussianOffsetsStep<FloatType,IntType>::Clone() const
 
 template <class FloatType, class IntType>
 void PixelPairGaussianOffsetsStep<FloatType,IntType>::ProcessStep(const BufferCollectionStack& readCollection,
-                                                          BufferCollection& writeCollection) const
+                                                          BufferCollection& writeCollection,
+                                                          boost::mt19937& gen) const
 {
     if(!writeCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(FloatParamsBufferId)
         || !writeCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(IntParamsBufferId))
@@ -107,7 +100,7 @@ void PixelPairGaussianOffsetsStep<FloatType,IntType>::ProcessStep(const BufferCo
         MatrixBufferTemplate<IntType>& intParams =
                 writeCollection.GetOrAddBuffer< MatrixBufferTemplate<IntType> >(IntParamsBufferId);
 
-        SampleParams(numberOfFeatures, floatParams, intParams, mGen);
+        SampleParams(numberOfFeatures, floatParams, intParams, gen);
     }
 }
 

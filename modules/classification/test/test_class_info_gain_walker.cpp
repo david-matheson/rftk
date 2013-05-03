@@ -136,7 +136,8 @@ BOOST_AUTO_TEST_CASE(test_ClassInfoGainWalker_BestSplitpointsWalkingSortedStep_P
 {
     ClassInfoGainWalker<float, int> classInfoGainWalker(weights_key, classes_key, number_of_classes);
     BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<float, int> > bestsplits(classInfoGainWalker, fm_key, FEATURES_BY_DATAPOINTS);
-    bestsplits.ProcessStep(stack, collection);
+    boost::mt19937 gen(0);
+    bestsplits.ProcessStep(stack, collection, gen);
 
     BOOST_CHECK( collection.HasBuffer< MatrixBufferTemplate<float> >( bestsplits.SplitpointBufferId ) );
     MatrixBufferTemplate<float>& best_thresholds = collection.GetBuffer< MatrixBufferTemplate<float> >( bestsplits.SplitpointBufferId );

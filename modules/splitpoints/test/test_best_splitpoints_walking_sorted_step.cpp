@@ -106,7 +106,8 @@ BOOST_AUTO_TEST_CASE(test_BestSplitpointsWalkingSortedStep_ProcessStep_FEATURES_
     BOOST_CHECK( fm == stack.GetBuffer< MatrixBufferTemplate<double> >(fm_key) );
     TestBufferWalker<double, int> walker(im, left, right);
     BestSplitpointsWalkingSortedStep< TestBufferWalker<double, int> > bestsplits(walker, fm_key, FEATURES_BY_DATAPOINTS);
-    bestsplits.ProcessStep(stack, collection);
+    boost::mt19937 gen;
+    bestsplits.ProcessStep(stack, collection, gen);
 
     BOOST_CHECK( collection.HasBuffer< MatrixBufferTemplate<double> >( bestsplits.ImpurityBufferId ) );
     MatrixBufferTemplate<double>& best_impurity = collection.GetBuffer< MatrixBufferTemplate<double> >( bestsplits.ImpurityBufferId );
@@ -156,7 +157,8 @@ BOOST_AUTO_TEST_CASE(test_BestSplitpointsWalkingSortedStep_ProcessStep_DATAPOINT
     BOOST_CHECK( fm == stack.GetBuffer< MatrixBufferTemplate<double> >(fm_key) );
     TestBufferWalker<double, int> walker(im, left, right);
     BestSplitpointsWalkingSortedStep< TestBufferWalker<double, int> > bestsplits(walker, fm_key, DATAPOINTS_BY_FEATURES);
-    bestsplits.ProcessStep(stack, collection);
+    boost::mt19937 gen;
+    bestsplits.ProcessStep(stack, collection, gen);
 
     BOOST_CHECK( collection.HasBuffer< MatrixBufferTemplate<double> >( bestsplits.ImpurityBufferId ) );
     MatrixBufferTemplate<double>& best_impurity = collection.GetBuffer< MatrixBufferTemplate<double> >( bestsplits.ImpurityBufferId );

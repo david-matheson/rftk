@@ -66,7 +66,8 @@ BOOST_AUTO_TEST_CASE(test_SliceBuffer_ProcessStep_matrix_buffer)
     const SliceBufferStep< MatrixBufferTemplate<double>, int> sliceBufferStep(xs_key, indices_key);
 
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<double> >(sliceBufferStep.SlicedBufferId));
-    sliceBufferStep.ProcessStep(stack, collection);
+    boost::mt19937 gen(0);
+    sliceBufferStep.ProcessStep(stack, collection, gen);
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<double> >(sliceBufferStep.SlicedBufferId));
 
     double data[] = {5, 6, 7, 8, 9, 15, 16, 17, 18, 19};
@@ -81,7 +82,8 @@ BOOST_AUTO_TEST_CASE(test_SliceBuffer_ProcessStep_vector_buffer)
     const SliceBufferStep< VectorBufferTemplate<long long>, int> sliceBufferStep(ys_key, indices_key);
 
     BOOST_CHECK(!collection.HasBuffer< VectorBufferTemplate<long long> >(sliceBufferStep.SlicedBufferId));
-    sliceBufferStep.ProcessStep(stack, collection);
+    boost::mt19937 gen(0);
+    sliceBufferStep.ProcessStep(stack, collection, gen);
     BOOST_CHECK(collection.HasBuffer< VectorBufferTemplate<long long> >(sliceBufferStep.SlicedBufferId));
 
     long long data[] = {5, 11};

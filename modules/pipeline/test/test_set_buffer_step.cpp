@@ -46,7 +46,8 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
     const SetBufferStep< MatrixBufferTemplate<double> > setBufferStep(buffer1, WHEN_NEW);
 
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId));
-    setBufferStep.ProcessStep(stack, collection);
+    boost::mt19937 gen(0);
+    setBufferStep.ProcessStep(stack, collection, gen);
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId));
     BOOST_CHECK(collection.GetBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId) == buffer1);
 }
@@ -56,7 +57,8 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_when_new)
     const SetBufferStep< MatrixBufferTemplate<double> > setBufferStep(buffer1, WHEN_NEW);
     collection.AddBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId, buffer2);
     BOOST_CHECK(collection.GetBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId) == buffer2);
-    setBufferStep.ProcessStep(stack, collection);
+    boost::mt19937 gen(0);
+    setBufferStep.ProcessStep(stack, collection, gen);
     BOOST_CHECK(collection.GetBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId) == buffer2);
 }
 
@@ -65,7 +67,8 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_every_process)
     const SetBufferStep< MatrixBufferTemplate<double> > setBufferStep(buffer1, EVERY_PROCESS);
     collection.AddBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId, buffer2);
     BOOST_CHECK(collection.GetBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId) == buffer2);
-    setBufferStep.ProcessStep(stack, collection);
+    boost::mt19937 gen(0);
+    setBufferStep.ProcessStep(stack, collection, gen);
     BOOST_CHECK(collection.GetBuffer< MatrixBufferTemplate<double> >(setBufferStep.OutputBufferId) == buffer1);
 }
 

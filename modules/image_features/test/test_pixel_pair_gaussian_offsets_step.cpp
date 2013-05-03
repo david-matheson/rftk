@@ -46,7 +46,8 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<double> >(pixelPairOffsetStep.FloatParamsBufferId));
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<int> >(pixelPairOffsetStep.IntParamsBufferId));
 
-    pixelPairOffsetStep.ProcessStep(stack, collection);
+    boost::mt19937 gen(0);
+    pixelPairOffsetStep.ProcessStep(stack, collection, gen);
 
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<double> >(pixelPairOffsetStep.FloatParamsBufferId));
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<int> >(pixelPairOffsetStep.IntParamsBufferId));    

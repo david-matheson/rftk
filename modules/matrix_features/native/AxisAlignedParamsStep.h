@@ -28,7 +28,8 @@ public:
     virtual PipelineStepI* Clone() const;
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
-                                BufferCollection& writeCollection) const;
+                                BufferCollection& writeCollection,
+                                boost::mt19937& gen) const;
 
     // Read only output buffers
     const BufferId FloatParamsBufferId;
@@ -67,8 +68,10 @@ PipelineStepI* AxisAlignedParamsStep<FloatType,IntType>::Clone() const
 
 template <class FloatType, class IntType>
 void AxisAlignedParamsStep<FloatType,IntType>::ProcessStep(const BufferCollectionStack& readCollection,
-                                                          BufferCollection& writeCollection) const
+                                                          BufferCollection& writeCollection,
+                                                          boost::mt19937& gen) const
 {
+    UNUSED_PARAM(gen)
     if(!writeCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(FloatParamsBufferId)
         || !writeCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(IntParamsBufferId))
     {
