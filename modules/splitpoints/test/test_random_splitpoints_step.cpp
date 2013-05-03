@@ -12,15 +12,16 @@ BOOST_AUTO_TEST_SUITE(RandomSplitpointsStepTest)
 
 BOOST_AUTO_TEST_CASE(test_ProcessStep_FEATURES_BY_DATAPOINTS)
 {
+    BufferCollection bc;
+    BufferCollectionStack stack;
+    stack.Push(&bc);
+
     BufferId feature_values_key = "feature_values";
     float feature_values_data[] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0,
                                    1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0,
                                    1.001, 1.002, 1.003, 1.004, 1.005, 1.006, 0, 0, 0, 0 };
     MatrixBufferTemplate<float> feature_values(&feature_values_data[0], 3, 10);
-    BufferCollection bc;
     bc.AddBuffer(feature_values_key, feature_values);
-    BufferCollectionStack stack;
-    stack.Push(&bc);
 
     const int maxNumberOfSplitpoints = 4;
     RandomSplitpointsStep<float, int> randomSplitpointsStep(feature_values_key, maxNumberOfSplitpoints, FEATURES_BY_DATAPOINTS);
@@ -39,15 +40,16 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_FEATURES_BY_DATAPOINTS)
 
 BOOST_AUTO_TEST_CASE(test_ProcessStep_DATAPOINTS_BY_FEATURES)
 {
+    BufferCollection bc;
+    BufferCollectionStack stack;
+    stack.Push(&bc);
+
     BufferId feature_values_key = "feature_values";
     float feature_values_data[] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0,
                                    1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0,
                                    1.001, 1.002, 1.003, 1.004, 1.005, 1.006, 0, 0, 0, 0 };
     MatrixBufferTemplate<float> feature_values(&feature_values_data[0], 3, 10);
-    BufferCollection bc;
     bc.AddBuffer(feature_values_key, feature_values.Transpose());
-    BufferCollectionStack stack;
-    stack.Push(&bc);
 
     const int maxNumberOfSplitpoints = 4;
     RandomSplitpointsStep<float, int> randomSplitpointsStep(feature_values_key, maxNumberOfSplitpoints, DATAPOINTS_BY_FEATURES);
@@ -66,20 +68,21 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_DATAPOINTS_BY_FEATURES)
 
 BOOST_AUTO_TEST_CASE(test_ProcessStep_SEQUENTUAL)
 {
-    BufferId feature_values_key = "feature_values";
     BufferCollection bc;
     BufferCollectionStack stack;
     stack.Push(&bc);
 
-    boost::mt19937 gen;
-    const int maxNumberOfSplitpoints = 5;
-    RandomSplitpointsStep<float, int> randomSplitpointsStep(feature_values_key, maxNumberOfSplitpoints, FEATURES_BY_DATAPOINTS);
-
+    BufferId feature_values_key = "feature_values";
     float feature_values1_data[] = {1.0, 2.0, 3.0, 4.0, 5.0,
                                    1.0, 1.0, 1.0, 1.0, 1.0, 
                                    1.001, 1.002, 1.003, 1.004, 1.005 };
     MatrixBufferTemplate<float> feature_values1(&feature_values1_data[0], 3, 5);
     bc.AddBuffer(feature_values_key, feature_values1);
+
+    boost::mt19937 gen;
+    const int maxNumberOfSplitpoints = 5;
+    RandomSplitpointsStep<float, int> randomSplitpointsStep(feature_values_key, maxNumberOfSplitpoints, FEATURES_BY_DATAPOINTS);
+
     randomSplitpointsStep.ProcessStep(stack, bc, gen);
     MatrixBufferTemplate<float> splitPoints1 = 
             bc.GetBuffer< MatrixBufferTemplate<float> >(randomSplitpointsStep.SplitpointsBufferId);
