@@ -2,6 +2,7 @@ import argparse
 import glob
 import numpy as np
 import cPickle as pickle
+import matplotlib
 import matplotlib.pyplot as plt
 
 
@@ -36,20 +37,32 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     samples_to_plot = eval(args.list_of_samples_to_plot)
-    print samples_to_plot
+
+    params = {
+            'axes.labelsize' : 20,
+            'font.size' : 20,
+            'text.fontsize' : 20,
+            'legend.fontsize': 20,
+            'xtick.labelsize' : 15,
+            'ytick.labelsize' : 15,
+            }
+    matplotlib.rcParams.update(params)
 
     saffari_folders = glob.glob(args.saffari_folders)
+    print saffari_folders
     x_axis, d = load_data(saffari_folders, samples_to_plot,  1, 1)
-    plot_line(x_axis=x_axis, data=d, line_type='-', color='g', label='uniform random')
+    plot_line(x_axis=x_axis, data=d, line_type='-', color='g', label='Saffari et al. (2009)')
 
     online_folders = glob.glob(args.online_folders)
-    x_axis, d = load_data(folders, samples_to_plot,  1, 1)
-    plot_line(x_axis=x_axis, data=d, line_type='-', color='r', label='at points')
+    print online_folders
+    x_axis, d = load_data(online_folders, samples_to_plot,  1, 1)
+    plot_line(x_axis=x_axis, data=d, line_type='-', color='b', label='$\\alpha(d)=10\\cdot(1.01^d)$')
 
     plt.title('Forest Accuracy')
     plt.xlabel('Number of sampled pixels (1000 per image)')
     plt.ylabel('Accuracy')
 
-    plt.legend(loc = (0.5, 0.05))
+    plt.xscale('log')
+    plt.legend(loc = (0.38, 0.05))
     plt.savefig(args.out_plot_file)
     plt.show()
