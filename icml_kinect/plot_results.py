@@ -1,6 +1,7 @@
+import argparse
+import glob
 import numpy as np
 import cPickle as pickle
-import argparse
 import matplotlib.pyplot as plt
 
 
@@ -27,27 +28,22 @@ def plot_line(x_axis, data, line_type, color, label, plot_standard_deviation=Tru
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Forest performance')
-    parser.add_argument('-o', '--out_plot_file', type=str, required=True)
+    parser = argparse.ArgumentParser(description='Plot forest performance')
+    parser.add_argument('--list_of_samples_to_plot', type=str, required=True)  
+    parser.add_argument('--saffari_folders', type=str, required=True)   
+    parser.add_argument('--online_folders', type=str, required=True)  
+    parser.add_argument('--out_plot_file', type=str, required=True)
     args = parser.parse_args()
 
-    online_samples = [(0,100), (0, 200), (0, 500), (0, 1000), (0, 2000), (0, 5000),
-                        (0, 10000), (0, 25000), (0, 50000), (0, 100000), (0, 250000), (0, 500000),
-                        (0,973909),(1,973909),(2,973909)]
+    samples_to_plot = eval(args.list_of_samples_to_plot)
+    print samples_to_plot
 
-    online_samples = [(0,100), (0, 200), (0, 500), (0, 1000)]
-
-    # folders = ['/media/data/projects/rftk-3/icml_kinect/experiment_data_online_iid/online-iid-tree-25-n-1000-m-10-splitrate-1.00-splitroot-10.00-evalperiod-5-maxdepth-500-2013-03-28-14-33-24.598709',
-    #             '/media/data/projects/rftk/icml_kinect/experiment_data_online_iid/online-iid-tree-25-n-1000-m-10-splitrate-1.00-splitroot-10.00-evalperiod-5-maxdepth-500-2013-03-28-14-37-50.788713']
-    # x_axis, d = load_data(folders, online_samples,  1, 1)
-    # plot_line(x_axis=x_axis, data=d, line_type='-', color='b', label='Combined')
-
-    folders = ['/media/data/projects/rftk-3/icml_kinect/experiment_data_online_iid/online-iid-tree-25-n-1000-m-10-splitrate-1.00-splitroot-10.00-evalperiod-5-maxdepth-500-2013-03-28-14-33-24.598709']
-    x_axis, d = load_data(folders, online_samples,  1, 1)
+    saffari_folders = glob.glob(args.saffari_folders)
+    x_axis, d = load_data(saffari_folders, samples_to_plot,  1, 1)
     plot_line(x_axis=x_axis, data=d, line_type='-', color='g', label='uniform random')
 
-    folders = ['/media/data/projects/rftk/icml_kinect/experiment_data_online_iid/online-iid-tree-25-n-1000-m-10-splitrate-1.00-splitroot-10.00-evalperiod-5-maxdepth-500-2013-03-28-14-37-50.788713']
-    x_axis, d = load_data(folders, online_samples,  1, 1)
+    online_folders = glob.glob(args.online_folders)
+    x_axis, d = load_data(folders, samples_to_plot,  1, 1)
     plot_line(x_axis=x_axis, data=d, line_type='-', color='r', label='at points')
 
     plt.title('Forest Accuracy')
