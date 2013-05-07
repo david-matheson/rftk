@@ -50,7 +50,6 @@ class KinectOnlineConfig(object):
                                                                     min_impurity_gain,
                                                                     number_datapoints_split_root)
 
-        max_number_of_nodes = 1000
         max_number_of_node_in_frontier = 1000000
 
         extractor_list = [feature_extractor]
@@ -58,8 +57,7 @@ class KinectOnlineConfig(object):
                                                 node_data_collector,
                                                 class_infogain_best_split,
                                                 split_criteria,
-                                                number_of_trees,
-                                                max_number_of_nodes)
+                                                number_of_trees )
         sampling_config = train.OnlineSamplingParams(False, 1.0, eval_split_period)
         online_learner = train.OnlineForestLearner(train_config, sampling_config, max_number_of_node_in_frontier)
         return online_learner
@@ -69,26 +67,34 @@ class KinectOnlineConfig(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build body part classification trees online')
-    parser.add_argument('-i', '--pose_files_input_path', type=str, required=True)
-    parser.add_argument('-p', '--poses_to_use_file', type=str, required=True)
-    parser.add_argument('-n', '--number_of_images', type=int, required=True)
+    parser.add_argument('-p', '--train_poses', type=str, required=True)
     parser.add_argument('-m', '--number_of_passes_through_data', type=int, required=True)
     parser.add_argument('-t', '--number_of_trees', type=int, required=True)
     parser.add_argument('-r', '--number_datapoints_split_root', type=float, required=True)
     parser.add_argument('-e', '--eval_split_period', type=int, required=True)
     parser.add_argument('-d', '--max_depth', type=int, required=True)
+    parser.add_argument('--list_of_sample_counts', type=str, required=True)
     args = parser.parse_args()
 
-    poses_to_include_file = open(args.poses_to_use_file, 'r')
-    pose_filenames = poses_to_include_file.read().split('\n')
-    poses_to_include_file.close()
-    pose_filenames = pose_filenames[0:args.number_of_images]
+    f = open(args.train_poses, 'rb')
+    depths = np.load(f)
+    labels = np.load(f)
+    pixel_indices = np.load(f)
+    pixel_labels = np.load(f)
+    depths_buffer = buffers.as_tensor_buffer(depths)
+    pixel_indices_buffer = buffers.as_matrix_buffer(pixel_indices)
+    pixel_labels_buffer = buffers.as_vector_buffer(pixel_labels)
+    del depths
+    del labels
+    pixel_indices_buffer = buffers.as_matrix_buffer(pixel_indices)
+    del pixel_indices
+    pixel_labels_buffer = buffers.as_vector_buffer(pixel_labels)
+    del pixel_labels
 
-
-    online_run_folder = ("experiment_data_saffari_iid/online-saffari-iid-tree-%d-n-%d-m-%d-splitroot-%0.2f-evalperiod-%d-maxdepth-%s-%s") % (
-                            args.number_of_trees,
-                            args.number_of_images,
+    online_run_folder = ("experiment_results/saffari-iid-n-%d-m-%d-tree-%d-splitroot-%0.2f-evalperiod-%d-maxdepth-%s-%s") % (
+                            depths_buffer.GetL(),
                             args.number_of_passes_through_data,
+                            args.number_of_trees,
                             args.number_datapoints_split_root,
                             args.eval_split_period,
                             args.max_depth,
@@ -104,12 +110,39 @@ if __name__ == "__main__":
 
     print "Starting %s" % online_run_folder
 
-    depths_buffer, pixel_indices_buffer, pixel_labels_buffer = kinect_utils.load_data_and_sample(args.pose_files_input_path,
-                                                                pose_filenames[0:args.number_of_images],
-                                                                config.number_of_pixels_per_image)
+    # Randomly offset scales
+    number_of_datapoints = pixel_indices_buffer.GetM()
+    offset_scales = np.array(np.random.uniform(0.8, 1.2, (number_of_datapoints, 2)), dtype=np.float32)
 
+    # Package buffers for learner
+    bufferCollection = buffers.BufferCollection()
+    bufferCollection.AddFloat32Tensor3Buffer(buffers.DEPTH_IMAGES, depths_buffer)
+    bufferCollection.AddFloat32MatrixBuffer(buffers.OFFSET_SCALES, buffers.as_matrix_buffer(offset_scales))
+    bufferCollection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, pixel_indices_buffer)
+    bufferCollection.AddInt32VectorBuffer(buffers.CLASS_LABELS, pixel_labels_buffer)
 
-    for pass_id in range(args.number_of_passes_through_data):
+    # On the first pass through data learn for each sample counts
+    list_of_sample_counts = eval(args.list_of_sample_counts)
+    clipped_list_of_sample_counts = [min(s, pixel_labels_buffer.GetN()) for s in list_of_sample_counts]
+    clipped_list_of_sample_ranges = zip([0] + clipped_list_of_sample_counts[:-1], clipped_list_of_sample_counts)
+    print clipped_list_of_sample_ranges
+    pass_id = 0
+    for (start_index, end_index) in clipped_list_of_sample_ranges:
+        datapoint_indices = np.array(np.arange(start_index, end_index), dtype=np.int32)
+        online_learner.Train(bufferCollection, buffers.Int32Vector(datapoint_indices))
+
+        #pickle forest and data used for training
+        forest_pickle_filename = "%s/forest-%d-%d.pkl" % (online_run_folder, pass_id, end_index)
+        pickle.dump(online_learner.GetForest(), gzip.open(forest_pickle_filename, 'wb'))
+
+        # Print forest stats
+        forestStats = online_learner.GetForest().GetForestStats()
+        forestStats.Print()
+
+    # For the rest of the passes use all of the data
+    start_index = 0
+    end_index = clipped_list_of_sample_counts[-1]
+    for pass_id in range(1, args.number_of_passes_through_data):
 
         # Randomize the order
         perm = buffers.as_vector_buffer(np.array(np.random.permutation(pixel_labels_buffer.GetN()), dtype=np.int32))
@@ -127,26 +160,13 @@ if __name__ == "__main__":
         bufferCollection.AddInt32MatrixBuffer(buffers.PIXEL_INDICES, pixel_indices_buffer)
         bufferCollection.AddInt32VectorBuffer(buffers.CLASS_LABELS, pixel_labels_buffer)
 
-        print "len ", pixel_labels_buffer.GetN()
+        datapoint_indices = np.array(np.arange(0, end_index), dtype=np.int32)
+        online_learner.Train(bufferCollection, buffers.Int32Vector(datapoint_indices))
 
-        # Update learner
-        # for (start_index, end_index) in [(0,100), (100, 500)]:
-        for (start_index, end_index) in [(0,100), (100, 200), (200,500), (500,1000),
-                                        (1000, 2000), (2000, 5000), (5000, 10000),
-                                        (10000, 25000), (25000, 50000), (50000, 100000),
-                                        (100000, 250000), (250000, 500000), (500000, pixel_labels_buffer.GetN())]:
-            datapoint_indices = np.array(np.arange(start_index, end_index), dtype=np.int32)
-            online_learner.Train(bufferCollection, buffers.Int32Vector(datapoint_indices))
+        #pickle forest and data used for training
+        forest_pickle_filename = "%s/forest-%d-%d.pkl" % (online_run_folder, pass_id, end_index)
+        pickle.dump(online_learner.GetForest(), gzip.open(forest_pickle_filename, 'wb'))
 
-            #pickle forest and data used for training
-            forest_pickle_filename = "%s/forest-%d-%d.pkl" % (online_run_folder, pass_id, end_index)
-            pickle.dump(online_learner.GetForest(), gzip.open(forest_pickle_filename, 'wb'))
-
-            # Print forest stats
-            forestStats = online_learner.GetForest().GetForestStats()
-            forestStats.Print()
-
-            for i in range(online_learner.GetForest().GetNumberOfTrees() ):
-                print "tree %d" % i
-                treeStats = online_learner.GetForest().GetTreeStats(i)
-                treeStats.Print()
+        # Print forest stats
+        forestStats = online_learner.GetForest().GetForestStats()
+        forestStats.Print()

@@ -3,6 +3,7 @@
 #include <set>
 #include <utility>
 #include <vector>
+#include <limits>
 
 #include <Forest.h>
 
@@ -18,7 +19,8 @@ public:
 
     OnlineForestLearner( const TrainConfigParams& trainConfigParams,
                           const OnlineSamplingParams& samplingParams,
-                          const unsigned int maxFrontierSize);
+                          const unsigned int maxFrontierSize,
+                          const int maxDepth = std::numeric_limits<float>::max());
     ~OnlineForestLearner();
 
     Forest GetForest() const;
@@ -30,6 +32,7 @@ private:
     TrainConfigParams mTrainConfigParams;
     OnlineSamplingParams mOnlineSamplingParams;
     unsigned int mMaxFrontierSize;
+    int mMaxDepth;
 
     Forest mForest;
     ProbabilityOfErrorFrontierQueue mFrontierQueue;

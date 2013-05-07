@@ -94,7 +94,7 @@ if __name__ == "__main__":
     pose_filenames = pose_filenames[0:args.number_of_images]
 
 
-    online_run_folder = ("experiment_data_online/online-tree-%d-n-%d-m-%d-splitrate-%0.2f-splitroot-%0.2f-evalperiod-%d-maxdepth-%s-%s") % (
+    online_run_folder = ("experiment_results/online-tree-%d-n-%d-m-%d-splitrate-%0.2f-splitroot-%0.2f-evalperiod-%d-maxdepth-%s-%s") % (
                             args.number_of_trees,
                             args.number_of_images,
                             args.number_of_passes_through_data,

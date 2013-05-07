@@ -40,15 +40,6 @@ class KinectOfflineConfig(object):
         feature_extractor = feature_extractors.DepthScaledDepthDeltaFeatureExtractor(sigma_x, sigma_y, number_of_features, True)
         node_data_collector = train.AllNodeDataCollectorFactory()
         class_infogain_best_split = best_splits.ClassInfoGainAllThresholdsBestSplit(1.0, 1, y_dim)
-
-        # node_data_collector = train.TwoStreamRandomThresholdHistogramDataCollectorFactory(y_dim,
-        #                                                                                     10,
-        #                                                                                     0,
-        #                                                                                     0.5)
-        # class_infogain_best_split = best_splits.ClassInfoGainHistogramsBestSplit(y_dim,
-        #         buffers.IMPURITY_HISTOGRAM_LEFT, buffers.IMPURITY_HISTOGRAM_RIGHT,
-        #         buffers.YS_HISTOGRAM_LEFT, buffers.YS_HISTOGRAM_RIGHT)
-
         split_criteria = train.OfflineSplitCriteria(max_depth, min_impurity_gain,
                                                     min_samples_split, min_samples_leaf)
 
@@ -57,8 +48,7 @@ class KinectOfflineConfig(object):
                                                 node_data_collector,
                                                 class_infogain_best_split,
                                                 split_criteria,
-                                                number_of_trees,
-                                                1000)
+                                                number_of_trees)
         depth_first_learner = train.DepthFirstParallelForestLearner(train_config)
         return depth_first_learner
 
@@ -69,31 +59,39 @@ class KinectOfflineConfig(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build body part classification trees online')
-    parser.add_argument('-i', '--pose_files_input_path', type=str, required=True)
-    parser.add_argument('-p', '--poses_to_use_file', type=str, required=True)
-    parser.add_argument('-n', '--number_of_images', type=int, required=True)
+    parser.add_argument('-p', '--train_poses', type=str, required=True)
+    parser.add_argument('-n', '--number_of_samples', type=str, required=True)
     parser.add_argument('-t', '--number_of_trees', type=int, required=True)
     args = parser.parse_args()
 
-    offline_run_folder = ("experiment_data_offline/offline-tree-%d-n-%d-%s-standard") % (
+    f = open(args.train_poses, 'rb')
+    depths = np.load(f)
+    labels = np.load(f)
+    pixel_indices = np.load(f)
+    pixel_labels = np.load(f)
+    depths_buffer = buffers.as_tensor_buffer(depths)
+    pixel_indices_buffer = buffers.as_matrix_buffer(pixel_indices)
+    pixel_labels_buffer = buffers.as_vector_buffer(pixel_labels)
+    del depths
+    del labels
+    pixel_indices_buffer = buffers.as_matrix_buffer(pixel_indices)
+    del pixel_indices
+    pixel_labels_buffer = buffers.as_vector_buffer(pixel_labels)
+    del pixel_labels
+
+    number_of_datapoints = min(args.number_of_samples, pixel_labels_buffer.GetN())
+
+    offline_run_folder = ("experiment_results/offline-n-%d-m-%d-tree-%d-%s") % (
+                            depths_buffer.GetL(),
+                            number_of_datapoints,
                             args.number_of_trees,
-                            args.number_of_images,
                             str(datetime.now()).replace(':', '-').replace(' ', '-'))
     if not os.path.exists(offline_run_folder):
         os.makedirs(offline_run_folder)
 
     config = KinectOfflineConfig()
 
-    poses_to_include_file = open(args.poses_to_use_file, 'r')
-    pose_filenames = poses_to_include_file.read().split('\n')
-    poses_to_include_file.close()
-
-    depths_buffer, pixel_indices_buffer, pixel_labels_buffer = kinect_utils.load_data_and_sample(args.pose_files_input_path,
-                                                                        pose_filenames[0:args.number_of_images],
-                                                                        config.number_of_pixels_per_image)
-
     # Randomly offset scales
-    number_of_datapoints = pixel_indices_buffer.GetM()
     offset_scales = np.array(np.random.uniform(0.8, 1.2, (number_of_datapoints, 2)), dtype=np.float32)
     datapoint_indices = np.array(np.arange(number_of_datapoints), dtype=np.int32)
 
@@ -112,9 +110,8 @@ if __name__ == "__main__":
 
     # Print forest stats
     forestStats = forest.GetForestStats()
-    print forest.GetNumberOfTrees()
     forestStats.Print()
 
-    #pickle forest and data used for training
-    forest_pickle_filename = "%s/forest-1-%d.pkl" % (offline_run_folder, args.number_of_images)
+    #pickle forest 
+    forest_pickle_filename = "%s/forest-0-%d.pkl" % (offline_run_folder, number_of_datapoints)
     pickle.dump(forest, gzip.open(forest_pickle_filename, 'wb'))

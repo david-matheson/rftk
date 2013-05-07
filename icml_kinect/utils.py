@@ -129,7 +129,7 @@ def load_depth( filename ):
 
     depth = np.fromstring(fileH.channel("Z", FLOAT), dtype = np.float32)
     depth.shape = (size[1], size[0]) # Numpy arrays are (row, col)
-    return np.array(np.clip(depth / 10, 0.0, 6.0), dtype=np.float32)
+    return np.array(np.clip(depth/10, 0.0, 6.0), dtype=np.float32)
 
 # Reconstruct depth image
 def reconstruct_depth_image(depth, labels):
@@ -207,15 +207,19 @@ def load_data_and_sample(pose_path, list_of_poses, number_of_pixels_per_image):
         pixel_indices[:,0] = i
 
         depths_buffer = buffers.as_tensor_buffer(depths)
+        labels_buffer = buffers.as_tensor_buffer(labels)
+
         pixel_labels_buffer = buffers.as_vector_buffer(pixel_labels)
         pixel_indices_buffer = buffers.as_matrix_buffer(pixel_indices)
 
         if concat:
             complete_depths_buffer.Append(depths_buffer)
+            complete_labels_buffer.Append(labels_buffer)
             complete_pixel_labels_buffer.Append(pixel_labels_buffer)
             complete_pixel_indices_buffer.Append(pixel_indices_buffer)
         else:
             complete_depths_buffer = depths_buffer
+            complete_labels_buffer = labels_buffer
             complete_pixel_labels_buffer = pixel_labels_buffer
             complete_pixel_indices_buffer = pixel_indices_buffer
             concat = True
@@ -228,45 +232,33 @@ def load_data_and_sample(pose_path, list_of_poses, number_of_pixels_per_image):
     complete_pixel_indices_buffer = complete_pixel_indices_buffer.Slice(perm)
 
     assert(complete_pixel_labels_buffer.GetN() == complete_pixel_indices_buffer.GetM())
-    return complete_depths_buffer, complete_pixel_indices_buffer, complete_pixel_labels_buffer
+    return complete_depths_buffer, complete_labels_buffer, complete_pixel_indices_buffer, complete_pixel_labels_buffer
 
-def load_data(pose_path, list_of_poses):
-    concat = False
-    for i, pose_filename in enumerate(list_of_poses):
-        print "Loading %d - %s" % (i, pose_filename)
+# def load_data(pose_path, list_of_poses):
+#     concat = False
+#     for i, pose_filename in enumerate(list_of_poses):
+#         print "Loading %d - %s" % (i, pose_filename)
 
-        # Load single pose depth and class labels
-        depths = load_depth("%s%s.exr" % (pose_path, pose_filename))#depths = pickle.load(open("%s%s_depth.pkl" % (pose_path, pose_filename), 'rb'))
-        labels = pickle.load(open("%s%s_classlabels.pkl" % (pose_path, pose_filename), 'rb'))
+#         # Load single pose depth and class labels
+#         depths = load_depth("%s%s.exr" % (pose_path, pose_filename))#depths = pickle.load(open("%s%s_depth.pkl" % (pose_path, pose_filename), 'rb'))
+#         labels = pickle.load(open("%s%s_classlabels.pkl" % (pose_path, pose_filename), 'rb'))
 
-        depths_buffer = buffers.as_tensor_buffer(depths)
-        labels_buffer = buffers.as_tensor_buffer(labels)
+#         depths_buffer = buffers.as_tensor_buffer(depths)
+#         labels_buffer = buffers.as_tensor_buffer(labels)
 
-        if concat:
-            complete_depths_buffer.Append(depths_buffer)
-            complete_labels_buffer.Append(labels_buffer)
-        else:
-            complete_depths_buffer = depths_buffer
-            complete_labels_buffer = labels_buffer
-            concat = True
+#         if concat:
+#             complete_depths_buffer.Append(depths_buffer)
+#             complete_labels_buffer.Append(labels_buffer)
+#         else:
+#             complete_depths_buffer = depths_buffer
+#             complete_labels_buffer = labels_buffer
+#             concat = True
 
-    assert(complete_depths_buffer.GetL() == complete_labels_buffer.GetL())
-    assert(complete_depths_buffer.GetM() == complete_labels_buffer.GetM())
-    assert(complete_depths_buffer.GetN() == complete_labels_buffer.GetN())
+#     assert(complete_depths_buffer.GetL() == complete_labels_buffer.GetL())
+#     assert(complete_depths_buffer.GetM() == complete_labels_buffer.GetM())
+#     assert(complete_depths_buffer.GetN() == complete_labels_buffer.GetN())
 
-    return complete_depths_buffer, complete_labels_buffer
-
-
-# def build_closest_image(img, depth):
-#     (M,N) = depth.shape
-#     cloestImg = np.zeros(img.shape)
-
-#     for m in range(M):
-#         for n in range(N):
-#             colorId = find_closest(img[m][n])
-#             colorValueAsArray = get_color(colorId)
-#             cloestImg[m][n] = colorValueAsArray / 255.0
-#     return cloestImg
+#     return complete_depths_buffer, complete_labels_buffer
 
 
 # Reconstruct image from labels
@@ -278,7 +270,6 @@ def reconstruct_label_image(depth, labels):
         img[labels == body_part] =  colors[body_part] / 255.0
 
     return img
-
 
 # Reconstruct image from labels
 def reconstruct_label_image_ushort(depth, labels, ground_labels):
@@ -300,7 +291,6 @@ def reconstruct_label_image_min_probability_ushort(depth, labels, ground_labels,
 
     return img
 
-
 def classify_pixels(depth, forest):
     buffer_collection = buffers.BufferCollection()
     assert(depth.ndim == 2)
@@ -318,6 +308,7 @@ def classify_pixels(depth, forest):
     img_yprobs = yprobs.reshape((m,n,ydim))
     img_yhat = np.argmax(img_yprobs, axis=2)
     return img_yhat, img_yprobs.max(axis=2)
+
 
 def classify_body_pixels(depth, ground_labels, forest):
     buffer_collection = buffers.BufferCollection()
@@ -352,7 +343,6 @@ def classification_accuracy_image(imgId):
     global labelsGlobal
 
     (numberOfImgs,_,_) = depthsGlobal.shape
-    print "Img %d of %d" % (imgId, numberOfImgs)
     groundTruthLabels = labelsGlobal[imgId,:,:]
     (m,n) = groundTruthLabels.shape
     pred_labels, pred_probs = classify_body_pixels(depthsGlobal[imgId,:,:], labelsGlobal[imgId,:,:], classificationTreesGlobal)
@@ -375,7 +365,7 @@ def classification_accuracy(depthsIn, labelsIn, classificationTreesIn, number_of
     incorrectClassificationCount = 0
     nonBackgroundCount = 0
 
-    counts = Parallel(n_jobs=10)(delayed(classification_accuracy_image)(imgId)
+    counts = Parallel(n_jobs=number_of_jobs)(delayed(classification_accuracy_image)(imgId)
       for imgId in range(numberOfImgs))
 
     incorrectClassificationCount = sum([x[0] for x in counts])
