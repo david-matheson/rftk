@@ -1,0 +1,5 @@
+python kinect_train_online.py -p source_data/kinect_train_2000.np -m 1 -t 25 -s 1.01 -r 50 -e 10 -d 500 --list_of_sample_counts '[250, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000]' >> train_online.log
+python kinect_train_saffari.py -p source_data/kinect_train_2000.np -m 1 -t 25 -r 50 -e 10 -d 8 --list_of_sample_counts '[250, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000]' >> kinect_train_saffari.log
+python kinect_measure_accuracy.py -p source_data/kinect_test.np -n 500 -f 'results/kinect-online*'
+python kinect_measure_accuracy.py -p source_data/kinect_test.np -n 500 -f 'results/kinect-saffari*'
+python kinect_plot_results.py --online_folders 'results/kinect-online*' --saffari_folders 'results/kinect-saffari*' --out_plot_file 'kinect.pdf' --list_of_samples_to_plot '[(0,250), (0,500), (0,1000), (0,2000), (0,5000), (0,10000), (0,20000), (0,50000), (0,100000), (0,200000), (0,500000), (0,1000000), (0,2000000), (0,1940599)]'
