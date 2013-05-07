@@ -13,11 +13,13 @@
 
 OnlineForestLearner::OnlineForestLearner( const TrainConfigParams& trainConfigParams,
                                           const OnlineSamplingParams& samplingParams,
-                                          const unsigned int maxFrontierSize
+                                          const unsigned int maxFrontierSize,
+                                          const int maxDepth
  )
 : mTrainConfigParams(trainConfigParams)
 , mOnlineSamplingParams(samplingParams)
 , mMaxFrontierSize(maxFrontierSize)
+, mMaxDepth(maxDepth)
 , mForest(  mTrainConfigParams.mNumberOfTrees,
             mTrainConfigParams.mInitialNumberOfNodes,
             mTrainConfigParams.GetIntParamsMaxDim(),
@@ -118,8 +120,13 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
                     mActiveFrontierLeaves.erase(treeNodeKey);
                     delete activeSplit;
 
+                    // Only add nodes to the priority queue if they're less than the max depth
+                    if( treeDepth+1 < mMaxDepth )
+                    {
+                        mFrontierQueue.ProcessSplit(mForest, treeIndex, nodeIndex, leftNode, rightNode);
+                    }
+
                     // Update the frontier priority queue
-                    mFrontierQueue.ProcessSplit(mForest, treeIndex, nodeIndex, leftNode, rightNode);
                     UpdateActiveFrontier();
                 }
             }
