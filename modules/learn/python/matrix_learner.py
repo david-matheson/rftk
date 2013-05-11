@@ -162,7 +162,7 @@ def create_axis_aligned_matrix_two_stream_learner_32f(**kwargs):
     number_of_splitpoints = int( kwargs.get('number_of_splitpoints', 1 ))
     number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
     number_of_classes = int( np.max(kwargs['classes']) + 1 )
-    probability_of_impurity_stream = float(kwargs.get('number_of_jobs', 0.5) )
+    probability_of_impurity_stream = float(kwargs.get('probability_of_impurity_stream', 0.5) )
 
     try_split_criteria = create_try_split_criteria(**kwargs)
 
