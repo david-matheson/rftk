@@ -91,8 +91,8 @@ void DepthFirstTreeLearner<FloatType, IntType>::Learn( const BufferCollection& d
     BufferCollectionStack stack;
     stack.Push(&data);
     BufferCollection treeData;
-    mTreeSteps->ProcessStep(stack, treeData, gen);
     stack.Push(&treeData);
+    mTreeSteps->ProcessStep(stack, treeData, gen);
 
     //emptyIndicesCollection is pushed so subsequent leftIndicesBufCol and rightIndicesBufCol
     //can be popped before adding the next layer down
