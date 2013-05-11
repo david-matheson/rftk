@@ -2,6 +2,7 @@
 %{
     #define SWIG_FILE_WITH_INIT
     #include "RandomSplitpointsStep.h"
+    #include "AssignStreamStep.h"
 %}
 
 %include <exception.i>
@@ -11,6 +12,7 @@
 %include <splitpoints_external.i>
 
 %include "RandomSplitpointsStep.h"
+%include "AssignStreamStep.h"
 
 %include "std_vector.i"
 
@@ -20,3 +22,4 @@ namespace std {
 
 %template(SplitSelector_f32i32) SplitSelector<float, int>;
 %template(RandomSplitpointsStep_f32i32) RandomSplitpointsStep<float, int>;
+%template(AssignStreamStep_f32i32) AssignStreamStep<float, int>;
