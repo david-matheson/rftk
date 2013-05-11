@@ -1,19 +1,16 @@
 %module splitpoints
 %{
     #define SWIG_FILE_WITH_INIT
-    #include "SplitSelectorBuffers.h"
-    #include "SplitSelector.h"
-    #include "SplitSelectorInfo.h"
+    #include "RandomSplitpointsStep.h"
 %}
 
 %include <exception.i>
 %import(module="rftk.asserts") "asserts.i"
 %import(module="rftk.buffers") "buffers.i"
 %import(module="rftk.pipeline") "pipeline_external.i"
+%include <splitpoints_external.i>
 
-%include "SplitSelectorBuffers.h"
-%include "SplitSelector.h"
-%include "SplitSelectorInfo.h"
+%include "RandomSplitpointsStep.h"
 
 %include "std_vector.i"
 
@@ -22,3 +19,4 @@ namespace std {
 }
 
 %template(SplitSelector_f32i32) SplitSelector<float, int>;
+%template(RandomSplitpointsStep_f32i32) RandomSplitpointsStep<float, int>;

@@ -36,7 +36,7 @@ public:
     const BufferId ChildCountsImpurityBufferId;
     const BufferId LeftImpurityStatsBufferId;
     const BufferId RightImpurityStatsBufferId;
-    
+
     const BufferId ChildCountsEstimatorBufferId;
     const BufferId LeftEstimatorStatsBufferId;
     const BufferId RightEstimatorStatsBufferId;
@@ -142,13 +142,13 @@ void TwoStreamSplitpointStatsStep<StatsUpdater>::ProcessStep(const BufferCollect
                     {
                         typename StatsUpdater::Float counts = childCountsImpurity.Get(feature, splitpoint, LEFT_CHILD);
                         bindedStatUpdater.UpdateStats(counts, leftImpurityStats, feature, splitpoint, sample );
-                        childCountsImpurity.Set(feature, splitpoint, LEFT_CHILD, counts);  
+                        childCountsImpurity.Set(feature, splitpoint, LEFT_CHILD, counts);
                     }
                     else if(streamType == STREAM_ESTIMATION)
                     {
                         typename StatsUpdater::Float counts = childCountsEstimator.Get(feature, splitpoint, LEFT_CHILD);
                         bindedStatUpdater.UpdateStats(counts, leftEstimatorStats, feature, splitpoint, sample );
-                        childCountsEstimator.Set(feature, splitpoint, LEFT_CHILD, counts);  
+                        childCountsEstimator.Set(feature, splitpoint, LEFT_CHILD, counts);
                     }
                 }
                 else
@@ -157,13 +157,13 @@ void TwoStreamSplitpointStatsStep<StatsUpdater>::ProcessStep(const BufferCollect
                     {
                         typename StatsUpdater::Float counts = childCountsImpurity.Get(feature, splitpoint, RIGHT_CHILD);
                         bindedStatUpdater.UpdateStats(counts, rightImpurityStats, feature, splitpoint, sample );
-                        childCountsImpurity.Set(feature, splitpoint, RIGHT_CHILD, counts);  
+                        childCountsImpurity.Set(feature, splitpoint, RIGHT_CHILD, counts);
                     }
                     else if(streamType == STREAM_ESTIMATION)
                     {
                         typename StatsUpdater::Float counts = childCountsEstimator.Get(feature, splitpoint, RIGHT_CHILD);
                         bindedStatUpdater.UpdateStats(counts, rightEstimatorStats, feature, splitpoint, sample );
-                        childCountsEstimator.Set(feature, splitpoint, RIGHT_CHILD, counts);  
+                        childCountsEstimator.Set(feature, splitpoint, RIGHT_CHILD, counts);
                     }
                 }
             }

@@ -7,7 +7,6 @@
 #include "PipelineStepI.h"
 #include "UniqueBufferId.h"
 
-#include "FeatureExtractorStep.h"
 
 // ----------------------------------------------------------------------------
 //

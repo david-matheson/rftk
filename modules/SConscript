@@ -92,7 +92,7 @@ modules_with_deps = [('asserts', []),
                     ('try_split', ['asserts', 'buffers']),
                     ('should_split', ['asserts', 'buffers']),
                     ('splitpoints', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'should_split']),
-                    ('classification', ['asserts', 'buffers', 'bootstrap', 'pipeline', 'splitpoints', 'should_split']),
+                    ('classification', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'should_split']),
                     ('predict', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'features', 'pipeline', 'should_split', 'splitpoints', 'matrix_features', 'image_features', 'classification']),
                     ('learn', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'classification', 'try_split', 'should_split'])]
 
@@ -147,7 +147,7 @@ def build_and_run_unit_tests(test_exec, variant, cpp_files, depends):
 
 
 build_and_run_unit_tests('test-cpp', variant, Glob('*/test/*.cpp'),
-                        ['asserts','buffers','pipeline', 'bootstrap', 'forest_data', 
+                        ['asserts','buffers','pipeline', 'bootstrap', 'forest_data',
                         'matrix_features', 'image_features',
                         'splitpoints', 'classification',
                         'try_split', 'should_split', 'learn', 'predict'])

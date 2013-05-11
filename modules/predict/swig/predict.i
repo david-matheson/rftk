@@ -10,7 +10,7 @@
 %import(module="rftk.bootstrap") "bootstrap.i"
 %import(module="rftk.forest_data") "forest_data.i"
 %import(module="rftk.pipeline") "pipeline_external.i"
-%import(module="rftk.splitpoints") "splitpoints.i"
+%import(module="rftk.splitpoints") "splitpoints_external.i"
 
 
 %include <matrix_features.i>
