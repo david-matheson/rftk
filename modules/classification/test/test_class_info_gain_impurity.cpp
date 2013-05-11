@@ -4,7 +4,7 @@
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
 #include "BufferCollectionStack.h"
-#include "ClassInfoGain.h"
+#include "ClassInfoGainImpurity.h"
 #include "SplitpointsImpurity.h"
 
 
