@@ -74,7 +74,7 @@ def create_axis_aligned_matrix_walking_learner_32f(**kwargs):
                                                           matrix_feature_extractor_step.FeatureValuesBufferId,
                                                           feature_ordering,
                                                           sample_data_step.IndicesBufferId)
-    should_split_criteria = should_split.ShouldSplitNoCriteria()
+    should_split_criteria = create_should_split_criteria(**kwargs)
     finalizer = classification.ClassEstimatorFinalizer_f32()
     split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer )
 
@@ -146,7 +146,7 @@ def create_axis_aligned_matrix_one_stream_learner_32f(**kwargs):
                                                           matrix_feature_extractor_step.FeatureValuesBufferId,
                                                           feature_ordering,
                                                           sample_data_step.IndicesBufferId)
-    should_split_criteria = should_split.ShouldSplitNoCriteria()
+    should_split_criteria = create_should_split_criteria(**kwargs)
     finalizer = classification.ClassEstimatorFinalizer_f32()
     split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer )
 
@@ -221,7 +221,7 @@ def create_axis_aligned_matrix_two_stream_learner_32f(**kwargs):
                                                           matrix_feature_extractor_step.FeatureValuesBufferId,
                                                           feature_ordering,
                                                           sample_data_step.IndicesBufferId)
-    should_split_criteria = should_split.ShouldSplitNoCriteria()
+    should_split_criteria = create_should_split_criteria(**kwargs)
     finalizer = classification.ClassEstimatorFinalizer_f32()
     split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer )
 
@@ -243,3 +243,4 @@ def create_two_stream_classifier():
     return LearnerWrapper(  matrix_classification_data_prepare,
                             create_axis_aligned_matrix_two_stream_learner_32f,
                             create_matrix_predictor_32f)
+

@@ -85,7 +85,7 @@ def create_scaled_depth_delta_learner_32f(**kwargs):
                                                           depth_delta_feature_extractor_step.FeatureValuesBufferId,
                                                           feature_ordering,
                                                           sample_data_step.IndicesBufferId)
-    should_split_criteria = should_split.ShouldSplitNoCriteria()
+    should_split_criteria = create_should_split_criteria(**kwargs)
     finalizer = classification.ClassEstimatorFinalizer_f32()
     split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer )
 
