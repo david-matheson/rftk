@@ -25,7 +25,6 @@ public:
 private:
     VectorBufferTemplate<FloatType> const* mSampleWeights;
     VectorBufferTemplate<IntType> const* mClasses;
-    int mNumberOfClasses;
 };
 
 template <class FloatType, class IntType>
