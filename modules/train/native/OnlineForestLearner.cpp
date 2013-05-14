@@ -76,7 +76,7 @@ void OnlineForestLearner::Train(BufferCollection data, Int32VectorBuffer indices
             mFrontierQueue.IncrDatapoints(treeIndex, static_cast<long long>(sampleWeight));
 
             int treeDepth = 0;
-            const int nodeIndex = walkTree( tree, 0, data, indices.Get(sampleIndex), treeDepth );
+            const int nodeIndex = walkTree_old( tree, 0, data, indices.Get(sampleIndex), treeDepth );
 
             // Update class histogram (this needs to be moved to a seperate class to support regression)
             const Int32VectorBuffer& classLabels = data.GetInt32VectorBuffer(CLASS_LABELS);

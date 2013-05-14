@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(test_Learn)
     DepthFirstTreeLearner<float, int> depthFirstTreeLearner = CreateDepthFirstLearner(xs_key, classes_key, numberOfClasses, featureOrdering, minNodeSize);
 
     ParallelForestLearner parallelForestLearner(&depthFirstTreeLearner, 100, 3, 3, numberOfClasses, 10);
-    Forest& forest = parallelForestLearner.Learn(collection);
+    Forest forest = parallelForestLearner.Learn(collection);
     Tree tree = forest.mTrees[99];
 
     int expected_path_data[] = { 1,2,

@@ -41,7 +41,7 @@ void ForestPredictLeafs(const Forest& forest, BufferCollection& data, const int 
         for(int treeId=0; treeId<numberOfTreesInForest; treeId++)
         {
             int treeDepthOut = 0;
-            int leafNodeId = walkTree(forest.mTrees[treeId], 0, data, i, treeDepthOut);
+            int leafNodeId = walkTree_old(forest.mTrees[treeId], 0, data, i, treeDepthOut);
             leafsOut.Set(i, treeId, leafNodeId);
         }
     }
@@ -62,7 +62,7 @@ void ForestPredictYs(const Forest& forest, BufferCollection& data, const int num
         for(int treeId=0; treeId<numberOfTreesInForest; treeId++)
         {
             int treeDepthOut = 0;
-            const int leafNodeId = walkTree(forest.mTrees[treeId], 0, data, i, treeDepthOut);
+            const int leafNodeId = walkTree_old(forest.mTrees[treeId], 0, data, i, treeDepthOut);
             for(int c=0; c<yDim; c++)
             {
                 const float delta = forest.mTrees[treeId].mYs.Get(leafNodeId, c) * invNumberTrees;
@@ -80,7 +80,7 @@ void ForestPredictYs(const Forest& forest, BufferCollection& data, const int num
 
 int nextChild( const Tree& tree, int nodeId, BufferCollection& data, const int index );
 
-int walkTree( const Tree& tree, int nodeId, BufferCollection& data, const int index, int& treeDepthOut )
+int walkTree_old( const Tree& tree, int nodeId, BufferCollection& data, const int index, int& treeDepthOut )
 {
     const int childNodeId = nextChild( tree, nodeId, data, index);
     if(childNodeId == NULL_CHILD)
@@ -88,7 +88,7 @@ int walkTree( const Tree& tree, int nodeId, BufferCollection& data, const int in
        return nodeId;
     }
     treeDepthOut++;
-    return walkTree(tree, childNodeId, data, index, treeDepthOut);
+    return walkTree_old(tree, childNodeId, data, index, treeDepthOut);
 }
 
 int nextChild( const Tree& tree, int nodeId, BufferCollection& data, const int index )
