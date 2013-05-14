@@ -7,10 +7,15 @@
 class ParallelForestLearner
 {
 public:
-    ParallelForestLearner( const TreeLearnerI* treeLearner, int numberOfTrees, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim, int numberOfJobs );
+    ParallelForestLearner( const TreeLearnerI* treeLearner, 
+                            int numberOfTrees, 
+                            int maxIntParamsDim, 
+                            int maxFloatParamsDim, 
+                            int maxEstimatorParamsDim, 
+                            int numberOfJobs );
     ~ParallelForestLearner();
 
-    Forest& Learn( const BufferCollection& data );
+    Forest Learn( const BufferCollection& data );
 private:
     ParallelForestLearner( const ParallelForestLearner& other );
     ParallelForestLearner& operator=( const ParallelForestLearner& rhs );

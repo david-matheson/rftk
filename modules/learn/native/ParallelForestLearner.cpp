@@ -37,7 +37,7 @@ ParallelForestLearner::~ParallelForestLearner()
     delete mTreeLearner;
 }
 
-Forest& ParallelForestLearner::Learn( const BufferCollection& data )
+Forest ParallelForestLearner::Learn( const BufferCollection& data )
 {
 #if USE_BOOST_THREAD
     std::vector< boost::shared_ptr< boost::thread > > threadVec;
