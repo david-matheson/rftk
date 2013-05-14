@@ -73,7 +73,7 @@ void AxisAlignedParamsStep<FloatType,IntType>::ProcessStep(const BufferCollectio
 {
     UNUSED_PARAM(gen)
     if(!writeCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(FloatParamsBufferId)
-        || !writeCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(IntParamsBufferId))
+        || !writeCollection.HasBuffer< MatrixBufferTemplate<IntType> >(IntParamsBufferId))
     {
         const MatrixBufferTemplate<FloatType>& matrixBuffer =
                 readCollection.GetBuffer< MatrixBufferTemplate<FloatType> >(mMatrixDataBufferId);
