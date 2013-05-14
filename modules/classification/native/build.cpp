@@ -1,6 +1,8 @@
 #include "ClassEntropyUtils.h"
 #include "ClassEstimatorFinalizer.h"
+#include "ClassEstimatorUpdater.h"
 #include "ClassInfoGainImpurity.h"
 #include "ClassInfoGainWalker.h"
 #include "ClassStatsUpdater.h"
 #include "ClassProbabilityCombiner.h"
+#include "ClassProbabilityOfError.h"

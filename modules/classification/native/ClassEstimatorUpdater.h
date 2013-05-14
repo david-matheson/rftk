@@ -52,8 +52,8 @@ BindedClassEstimatorUpdater<FloatType, IntType>::BindedClassEstimatorUpdater(
 
 template <class FloatType, class IntType>
 void BindedClassEstimatorUpdater<FloatType, IntType>::UpdateEstimator(Tree& tree, 
-                                                                                  const int nodeIndex,
-                                                                                  int sampleIndex ) const
+                                                                      const int nodeIndex,
+                                                                      int sampleIndex ) const
 {
     const FloatType weight = mSampleWeights->Get(sampleIndex);
     const IntType classId = mClasses->Get(sampleIndex);

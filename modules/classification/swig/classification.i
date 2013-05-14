@@ -6,6 +6,7 @@
     #include "BestSplitpointsWalkingSortedStep.h"
     #include "FinalizerI.h"
     #include "ClassEstimatorFinalizer.h"
+    #include "ClassEstimatorUpdater.h"
     #include "ClassProbabilityCombiner.h"
     #include "ClassStatsUpdater.h"
 
@@ -25,6 +26,7 @@
 %include "BestSplitpointsWalkingSortedStep.h"
 %include "FinalizerI.h"
 %include "ClassEstimatorFinalizer.h"
+%include "ClassEstimatorUpdater.h"
 %include "ClassProbabilityCombiner.h"
 %include "ClassStatsUpdater.h"
 
@@ -37,6 +39,7 @@
 %template(ClassInfoGainSplitpointsImpurity_f32i32) SplitpointsImpurity< ClassInfoGainImpurity<float>, int >;
 %template(FinalizerI_f32) FinalizerI<float>;
 %template(ClassEstimatorFinalizer_f32) ClassEstimatorFinalizer<float>;
+%template(ClassEstimatorUpdater_f32i32) ClassEstimatorUpdater<float, int>;
 %template(ClassProbabilityCombiner_f32) ClassProbabilityCombiner<float>;
 %template(ClassStatsUpdater_f32i32) ClassStatsUpdater<float,int>;
 %template(ClassStatsUpdaterOneStreamStep_f32i32) SplitpointStatsStep< ClassStatsUpdater<float,int> >;
