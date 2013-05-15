@@ -45,3 +45,16 @@ def create_should_split_criteria(**kwargs):
         should_split_no_criteria = should_split.ShouldSplitNoCriteria()
         should_split_criteria_list.append(should_split_no_criteria)
     return should_split.ShouldSplitCombinedCriteria(should_split_criteria_list)
+
+
+def create_should_split_consistent_criteria(**kwargs):
+
+    min_impurity = float( kwargs.get('min_impurity') )
+    number_of_data_to_split_root = float( kwargs.get('number_of_data_to_split_root') )
+    number_of_data_to_force_split_root = float( kwargs.get('number_of_data_to_force_split_root') )
+    split_rate_growth = float( kwargs.get('split_rate_growth') )
+
+    return should_split.OnlineConsistentCriteria(  min_impurity,
+                                                    number_of_data_to_split_root,
+                                                    number_of_data_to_force_split_root,
+                                                    split_rate_growth)
