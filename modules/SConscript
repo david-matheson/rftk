@@ -94,7 +94,7 @@ modules_with_deps = [('asserts', []),
                     ('splitpoints', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'should_split']),
                     ('classification', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'should_split']),
                     ('predict', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'features', 'pipeline', 'should_split', 'splitpoints', 'matrix_features', 'image_features', 'classification']),
-                    ('learn', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'classification', 'try_split', 'should_split'])]
+                    ('learn', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'matrix_features', 'image_features', 'classification', 'try_split', 'should_split', 'predict'])]
 
 install_dependencies = []
 external_libs = ['boost_thread']
