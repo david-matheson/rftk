@@ -5,6 +5,7 @@
     #include "MinChildSizeCriteria.h"
     #include "MinChildSizeSumCriteria.h"
     #include "MinImpurityCriteria.h"
+    #include "OnlineConsistentCriteria.h"
     #include "ShouldSplitCombinedCriteria.h"
     #include "ShouldSplitNoCriteria.h"
 %}
@@ -25,5 +26,6 @@ namespace std {
 %include "MinChildSizeCriteria.h"
 %include "MinChildSizeSumCriteria.h"
 %include "MinImpurityCriteria.h"
+%include "OnlineConsistentCriteria.h"
 %include "ShouldSplitCombinedCriteria.h"
 %include "ShouldSplitNoCriteria.h"

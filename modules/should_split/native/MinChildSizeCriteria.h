@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ShouldSplitCriteriaI.h"
+
 // ----------------------------------------------------------------------------
 //
 // MinChildSizeCriteria checks if the number of datapoints of both children
