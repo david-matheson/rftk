@@ -20,6 +20,8 @@ namespace std {
     %template(SplitSelectorBufferVector) std::vector<SplitSelectorBuffers>;
 }
 
+%template(SplitSelectorI_f32i32) SplitSelectorI<float, int>;
 %template(SplitSelector_f32i32) SplitSelector<float, int>;
+%template(WaitForBestSplitSelector_f32i32) WaitForBestSplitSelector<float, int>;
 %template(RandomSplitpointsStep_f32i32) RandomSplitpointsStep<float, int>;
 %template(AssignStreamStep_f32i32) AssignStreamStep<float, int>;

@@ -10,7 +10,8 @@
 #include "SplitSelectorBuffers.h"
 #include "ShouldSplitCriteriaI.h"
 #include "FinalizerI.h"
-#include "SplitSelectorInfo.h"
+#include "SplitSelectorI.h"
+
 
 // ----------------------------------------------------------------------------
 //
@@ -18,17 +19,17 @@
 //
 // ----------------------------------------------------------------------------
 template <class FloatType, class IntType>
-class SplitSelector
+class SplitSelector: public SplitSelectorI<FloatType, IntType>
 {
 public:
     SplitSelector(const std::vector<SplitSelectorBuffers>& splitBuffers,
                   const ShouldSplitCriteriaI* shouldSplitCriteria,
                   const FinalizerI<FloatType>* finalizer);
-    ~SplitSelector();
+    virtual ~SplitSelector();
 
-    SplitSelectorInfo<FloatType, IntType> ProcessSplits(const BufferCollectionStack& bufferCollectionStack, int depth) const;
+    virtual SplitSelectorInfo<FloatType, IntType> ProcessSplits(const BufferCollectionStack& bufferCollectionStack, int depth) const;
 
-    SplitSelector<FloatType, IntType>* Clone() const;
+    virtual SplitSelectorI<FloatType, IntType>* Clone() const;
 
 private:
     std::vector<SplitSelectorBuffers> mSplitSelectorBuffers;
@@ -61,7 +62,7 @@ SplitSelectorInfo<FloatType, IntType> SplitSelector<FloatType, IntType>::Process
     int bestFeature = SPLIT_SELECTOR_NO_SPLIT;
     int bestThreshold = SPLIT_SELECTOR_NO_SPLIT;
 
-    for(int s=0; s<mSplitSelectorBuffers.size(); s++)
+    for(unsigned int s=0; s<mSplitSelectorBuffers.size(); s++)
     {
         const SplitSelectorBuffers& ssb = mSplitSelectorBuffers[s];
 
@@ -98,7 +99,7 @@ SplitSelectorInfo<FloatType, IntType> SplitSelector<FloatType, IntType>::Process
 }
 
 template <class FloatType, class IntType>
-SplitSelector<FloatType, IntType>* SplitSelector<FloatType, IntType>::Clone() const
+SplitSelectorI<FloatType, IntType>* SplitSelector<FloatType, IntType>::Clone() const
 {
     SplitSelector* clone = new SplitSelector<FloatType, IntType>(mSplitSelectorBuffers, mShouldSplitCriteria, mFinalizer);
     return clone;
