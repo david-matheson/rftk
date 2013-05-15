@@ -37,7 +37,7 @@ public:
                         const PipelineStepI* statsUpdateNodeSteps,
                         const PipelineStepI* impurityUpdateNodeSteps,
                         const int impurityUpdatePeriod,
-                        const SplitSelector<FloatType, IntType>* splitSelector,
+                        const SplitSelectorI<FloatType, IntType>* splitSelector,
                         int maxFrontierSize,
                         int numberOfTrees,
                         int maxIntParamsDim,
@@ -61,7 +61,7 @@ private:
     const PipelineStepI* mStatsUpdateNodeSteps;
     const PipelineStepI* mImpurityUpdateNodeSteps;
     const int mImpurityUpdatePeriod;
-    const SplitSelector<FloatType, IntType>* mSplitSelector;
+    const SplitSelectorI<FloatType, IntType>* mSplitSelector;
 
     const int mMaxFrontierSize;
 
@@ -84,7 +84,7 @@ OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatType, In
                       const PipelineStepI* statsUpdateNodeSteps,
                       const PipelineStepI* impurityUpdateNodeSteps,
                       const int impurityUpdatePeriod,
-                      const SplitSelector<FloatType, IntType>* splitSelector,
+                      const SplitSelectorI<FloatType, IntType>* splitSelector,
                       int maxFrontierSize,
                       int numberOfTrees,
                       int maxIntParamsDim,

@@ -12,7 +12,7 @@
 #include "Tree.h"
 #include "TrySplitCriteriaI.h"
 #include "PipelineStepI.h"
-#include "SplitSelector.h"
+#include "SplitSelectorI.h"
 #include "TreeLearnerI.h"
 
 
@@ -23,7 +23,7 @@ public:
     DepthFirstTreeLearner( const TrySplitCriteriaI* trySplitCriteria,
                             const PipelineStepI* treeSteps,
                             const PipelineStepI* nodeSteps,
-                            const SplitSelector<FloatType, IntType>* splitSelector);
+                            const SplitSelectorI<FloatType, IntType>* splitSelector);
     DepthFirstTreeLearner(const DepthFirstTreeLearner<FloatType, IntType> & other);
 
     virtual ~DepthFirstTreeLearner();
@@ -42,14 +42,14 @@ private:
     const TrySplitCriteriaI* mTrySplitCriteria;
     const PipelineStepI* mTreeSteps;
     const PipelineStepI* mNodeSteps;
-    const SplitSelector<FloatType, IntType>* mSplitSelector;
+    const SplitSelectorI<FloatType, IntType>* mSplitSelector;
 };
 
 template <class FloatType, class IntType>
 DepthFirstTreeLearner<FloatType, IntType>::DepthFirstTreeLearner( const TrySplitCriteriaI* trySplitCriteria,
                                                                   const PipelineStepI* treeSteps,
                                                                   const PipelineStepI* nodeSteps,
-                                                                  const SplitSelector<FloatType, IntType>* splitSelector)
+                                                                  const SplitSelectorI<FloatType, IntType>* splitSelector)
 : mTrySplitCriteria( trySplitCriteria->Clone() )
 , mTreeSteps( treeSteps->Clone() )
 , mNodeSteps( nodeSteps->Clone() )
