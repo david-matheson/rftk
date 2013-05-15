@@ -59,8 +59,6 @@ void PoissonSamplesStep<MatrixType, FloatType, IntType>::ProcessStep(const Buffe
                                                                 BufferCollection& writeCollection,
                                                                 boost::mt19937& gen) const
 {
-    UNUSED_PARAM(gen);
-
     const MatrixType & buffer
           = readCollection.GetBuffer< MatrixType >(mDataBufferId);
     VectorBufferTemplate<IntType>& indices

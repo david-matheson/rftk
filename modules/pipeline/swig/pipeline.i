@@ -7,6 +7,7 @@
     #include "AllSamplesStep.h"
     #include "BootstrapSamplesStep.h"
     #include "PoissonSamplesStep.h"
+    #include "PoissonStep.h"
     #include "SetBufferStep.h"
     #include "SliceBufferStep.h"
     #include "FeatureExtractorStep.h"
@@ -29,6 +30,7 @@ namespace std {
 %include "AllSamplesStep.h"
 %include "BootstrapSamplesStep.h"
 %include "PoissonSamplesStep.h"
+%include "PoissonStep.h"
 %include "SetBufferStep.h"
 %include "SliceBufferStep.h"
 %include "FeatureExtractorStep.h"
@@ -38,6 +40,8 @@ namespace std {
 %template(BootstrapSamplesStep_f32f32i32) BootstrapSamplesStep< MatrixBufferTemplate<float>, float, int >;
 %template(BootstrapSamplesStep_i32f32i32) BootstrapSamplesStep< MatrixBufferTemplate<int>, float, int >;
 %template(PoissonSamplesStep_f32i32) PoissonSamplesStep< MatrixBufferTemplate<float>, float, int >;
+
+%template(PoissonStep_f32i32) PoissonStep< float, int >;
 
 %template(SetFloat32VectorBufferStep) SetBufferStep< VectorBufferTemplate<float> >;
 %template(SetFloat64VectorBufferStep) SetBufferStep< VectorBufferTemplate<double> >;
