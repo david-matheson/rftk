@@ -45,9 +45,9 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_FEATURES_BY_DATAPOINTS)
     bc.AddBuffer(split_points_counts_key, split_points_counts);
 
     BufferId stream_type_key = "stream_type";
-    int steam_type_data[] = {STREAM_IMPURITY,STREAM_IMPURITY,STREAM_ESTIMATION,STREAM_IMPURITY,
-                              STREAM_ESTIMATION,STREAM_ESTIMATION,STREAM_ESTIMATION,STREAM_IMPURITY,
-                              STREAM_ESTIMATION,STREAM_IMPURITY};
+    int steam_type_data[] = {STREAM_STRUCTURE,STREAM_STRUCTURE,STREAM_ESTIMATION,STREAM_STRUCTURE,
+                              STREAM_ESTIMATION,STREAM_ESTIMATION,STREAM_ESTIMATION,STREAM_STRUCTURE,
+                              STREAM_ESTIMATION,STREAM_STRUCTURE};
     VectorBufferTemplate<int> steam_type(&steam_type_data[0], 10);
     bc.AddBuffer(stream_type_key, steam_type);
 

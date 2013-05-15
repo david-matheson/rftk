@@ -9,6 +9,7 @@
 #include "PipelineStepI.h"
 #include "UniqueBufferId.h"
 #include "FeatureExtractorStep.h"
+#include "AssignStreamStep.h"
 
 // ----------------------------------------------------------------------------
 //
@@ -21,7 +22,12 @@ class RandomSplitpointsStep : public PipelineStepI
 public:
     RandomSplitpointsStep(const BufferId& featureValuesBufferId, 
                           int maxSplitpointsPerFeature, 
-                          FeatureValueOrdering featureValueOrdering);
+                          FeatureValueOrdering featureValueOrdering );
+
+    RandomSplitpointsStep(const BufferId& featureValuesBufferId, 
+                          int maxSplitpointsPerFeature, 
+                          FeatureValueOrdering featureValueOrdering,
+                          const BufferId& streamTypeBufferId );
 
     virtual PipelineStepI* Clone() const;
 
@@ -42,18 +48,34 @@ private:
     const BufferId mFeatureValuesBufferId;
     const int mMaxSplitpointPerFeature;
     const FeatureValueOrdering mFeatureValueOrdering;
+    const BufferId mStreamTypeBufferId;
 };
 
 template <class FloatType, class IntType>
 RandomSplitpointsStep<FloatType, IntType>::RandomSplitpointsStep(const BufferId& featureValuesBufferId, 
                                                             int maxSplitpointsPerFeature, 
-                                                            FeatureValueOrdering featureValueOrdering)
+                                                            FeatureValueOrdering featureValueOrdering )
 : SplitpointsBufferId(GetBufferId("Splitpoints"))
 , SplitpointsCountsBufferId(GetBufferId("SplitpointsCounts"))
 , mFeatureValuesBufferId(featureValuesBufferId)
 , mMaxSplitpointPerFeature(maxSplitpointsPerFeature)
 , mFeatureValueOrdering(featureValueOrdering)
+, mStreamTypeBufferId("NoStreamType")
 {}
+
+template <class FloatType, class IntType>
+RandomSplitpointsStep<FloatType, IntType>::RandomSplitpointsStep(const BufferId& featureValuesBufferId, 
+                                                            int maxSplitpointsPerFeature, 
+                                                            FeatureValueOrdering featureValueOrdering,
+                                                            const BufferId& streamTypeBufferId )
+: SplitpointsBufferId(GetBufferId("Splitpoints"))
+, SplitpointsCountsBufferId(GetBufferId("SplitpointsCounts"))
+, mFeatureValuesBufferId(featureValuesBufferId)
+, mMaxSplitpointPerFeature(maxSplitpointsPerFeature)
+, mFeatureValueOrdering(featureValueOrdering)
+, mStreamTypeBufferId(streamTypeBufferId)
+{}
+
 
 template <class FloatType, class IntType>
 PipelineStepI* RandomSplitpointsStep<FloatType, IntType>::Clone() const
@@ -79,6 +101,12 @@ void RandomSplitpointsStep<FloatType, IntType>::ProcessStep(const BufferCollecti
     VectorBufferTemplate<IntType>& splitPointsCounts =
             writeCollection.GetOrAddBuffer< VectorBufferTemplate<IntType> >(SplitpointsCountsBufferId);
 
+    VectorBufferTemplate<IntType> const* streamType = NULL;
+    if(readCollection.HasBuffer< VectorBufferTemplate<IntType> >(mStreamTypeBufferId))
+    {
+        streamType = readCollection.GetBufferPtr< VectorBufferTemplate<IntType> >(mStreamTypeBufferId);
+    }
+
     const int numberOfFeatures =  mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? featureValues.GetM() : featureValues.GetN();
     const int numberOfSamples =  mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? featureValues.GetN() : featureValues.GetM();
    
@@ -93,12 +121,15 @@ void RandomSplitpointsStep<FloatType, IntType>::ProcessStep(const BufferCollecti
     for(int j=0; j<numberOfSamples && !IsFull(splitPointsCounts); j++)
     {
         const int i = randomOrder.at(j);
-        for(int f=0; f<numberOfFeatures; f++)
+        if(streamType == NULL || streamType->Get(i) == STREAM_STRUCTURE)
         {
-            const int r = (mFeatureValueOrdering == FEATURES_BY_DATAPOINTS) ? f : i;
-            const int c = (mFeatureValueOrdering == FEATURES_BY_DATAPOINTS) ? i : f;
-            const float featureValue = featureValues.Get(r,c);
-            AddSplitpoint(splitPoints, splitPointsCounts, f, featureValue);
+            for(int f=0; f<numberOfFeatures; f++)
+            {
+                const int r = (mFeatureValueOrdering == FEATURES_BY_DATAPOINTS) ? f : i;
+                const int c = (mFeatureValueOrdering == FEATURES_BY_DATAPOINTS) ? i : f;
+                const float featureValue = featureValues.Get(r,c);
+                AddSplitpoint(splitPoints, splitPointsCounts, f, featureValue);
+            }
         }
     }
 }

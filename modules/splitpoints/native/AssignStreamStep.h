@@ -14,7 +14,7 @@
 enum
 {
     STREAM_ESTIMATION = 0,
-    STREAM_IMPURITY = 1,
+    STREAM_STRUCTURE = 1,
 };
 
 // ----------------------------------------------------------------------------

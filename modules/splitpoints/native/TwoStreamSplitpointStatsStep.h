@@ -138,7 +138,7 @@ void TwoStreamSplitpointStatsStep<StatsUpdater>::ProcessStep(const BufferCollect
                 const typename StatsUpdater::Float splitPointValue = splitpoints.Get(feature, splitpoint);
                 if( featureValue > splitPointValue )
                 {
-                    if(streamType == STREAM_IMPURITY)
+                    if(streamType == STREAM_STRUCTURE)
                     {
                         typename StatsUpdater::Float counts = childCountsImpurity.Get(feature, splitpoint, LEFT_CHILD);
                         bindedStatUpdater.UpdateStats(counts, leftImpurityStats, feature, splitpoint, sample );
@@ -153,7 +153,7 @@ void TwoStreamSplitpointStatsStep<StatsUpdater>::ProcessStep(const BufferCollect
                 }
                 else
                 {
-                    if(streamType == STREAM_IMPURITY)
+                    if(streamType == STREAM_STRUCTURE)
                     {
                         typename StatsUpdater::Float counts = childCountsImpurity.Get(feature, splitpoint, RIGHT_CHILD);
                         bindedStatUpdater.UpdateStats(counts, rightImpurityStats, feature, splitpoint, sample );
