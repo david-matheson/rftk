@@ -19,13 +19,17 @@ except AttributeError:
     numpy_include = numpy.get_numpy_include()
 
 ###############################################################################
-env = Environment(SWIGFLAGS=['-python', '-c++', '-Werror', '-w490', '-w362'],
+env = Environment(
+                  CC='clang',
+                  CXX='clang',
+                  SWIGFLAGS=['-python', '-c++', '-Werror', '-w490', '-w362'],
                   CPPPATH=[distutils.sysconfig.get_python_inc(), numpy_include],
                   CCFLAGS=ccflags,
                   CPPDEFINES=cppdefines,
                   LIBPATH=[Dir('.').abspath],
                   RPATH=['%s/lib' % Dir(install_path).abspath]
                   )
+
 non_swig_warnings = ['-Wall', '-Wextra', '-Weffc++', '-Werror']
 
 ###############################################################################
@@ -55,10 +59,11 @@ def build_rftk_module(env, non_swig_warnings, variant_name, module_name, depends
 
     python_lib = env_python_wrapper.SharedLibrary(target=('_%s' % module_name),
                                         source=['%s/swig/%s.i' % (module_name, module_name)],
-                                        LIBS=module_name)
+                                        LIBS=depends+[module_name])
     env_python_wrapper.Alias('%s-%s' % (module_name, variant_name), python_lib)
 
-    [Depends(shared_lib, d) for d in depends]
+
+    [Depends(shared_lib, 'lib%s.so' % d) for d in depends]
     Depends(python_lib, shared_lib)
 
     lib_install_folder = '%s/lib' % (install_path)
@@ -75,12 +80,16 @@ def build_rftk_module(env, non_swig_warnings, variant_name, module_name, depends
 modules_with_deps = [('asserts', []),
                     ('bootstrap', ['asserts']),
                     ('buffers', ['asserts']),
-                    ('best_split', ['asserts', 'bootstrap', 'buffers']),
                     ('forest_data', ['asserts', 'buffers']),
-                    ('features', ['asserts', 'buffers']),
-                    ('feature_extractors', ['asserts', 'bootstrap', 'buffers', 'features']),
-                    ('predict', ['asserts', 'buffers', 'forest_data', 'features']),
-                    ('train', ['asserts', 'buffers', 'bootstrap', 'best_split', 'forest_data', 'feature_extractors', 'predict'])]
+                    ('pipeline', ['asserts', 'buffers', 'bootstrap']),
+                    ('matrix_features', ['asserts', 'bootstrap', 'buffers', 'forest_data', 'pipeline']),
+                    ('image_features', ['asserts', 'bootstrap', 'buffers', 'forest_data', 'pipeline']),
+                    ('try_split', ['asserts', 'buffers']),
+                    ('should_split', ['asserts', 'buffers']),
+                    ('splitpoints', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'should_split']),
+                    ('classification', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'should_split']),
+                    ('predict', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'matrix_features', 'image_features', 'classification']),
+                    ('learn', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'matrix_features', 'image_features', 'classification', 'try_split', 'should_split', 'predict'])]
 
 install_dependencies = []
 external_libs = ['boost_thread']
@@ -93,6 +102,8 @@ for (module_name, depends) in modules_with_deps:
                                       external_libs=external_libs)
     install_dependencies.extend(module_install_alias)
 
+###############################################################################
+# Install
 
 # Create the root __init__.py to import all the modules that were built
 python_init_filename = '%s/__init__.py' % Dir('#/modules').abspath
@@ -108,3 +119,31 @@ install_dependencies.append(init_install)
 
 # Alias to install shared libraries and python wrappers
 env.Alias('install-%s'%variant, install_dependencies)
+
+
+
+###############################################################################
+# Unit tests
+def build_and_run_unit_tests(test_exec, variant, cpp_files, depends):
+    # Build one or more test runners.
+    program = env.Program(test_exec,
+                          source=cpp_files + ['test_framework/boosttestrunner.cpp'],
+                          LIBS=['boost_unit_test_framework']+depends,
+                          CPPPATH=['%s/native' % x for x in depends])
+    # Depend on the runner to ensure that it's built before running it - Note: using abspath.
+    # Allow just one variant to run
+    test_alias_variant = Alias('test-native-%s' % variant, [program], program[0].abspath)
+    # Simply required.  Without it, 'test' is never considered out of date.
+    AlwaysBuild(test_alias_variant)
+
+    # Run all variants
+    test_alias = Alias('test-native', test_alias_variant)
+    AlwaysBuild(test_alias)
+
+
+build_and_run_unit_tests('test-cpp', variant, Glob('*/test/*.cpp'),
+                        ['asserts','buffers','pipeline', 'bootstrap', 'forest_data',
+                        'matrix_features', 'image_features',
+                        'splitpoints', 'classification',
+                        'try_split', 'should_split', 'learn', 'predict'])
+

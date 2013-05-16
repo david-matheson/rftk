@@ -33,6 +33,10 @@ public:
     T GetMax() const;
     T GetMin() const;
 
+    T Sum() const;
+    void Normalize();
+    VectorBufferTemplate<T> Normalized() const;
+
     void Append(const VectorBufferTemplate<T>& buffer);
     VectorBufferTemplate<T> Slice(const VectorBufferTemplate<int>& indices) const;
 
@@ -40,6 +44,8 @@ public:
     void AsNumpy1dFloat64(double* outdouble1d, int n) const;
     void AsNumpy1dInt32(int* outint1d, int n) const;
     void AsNumpy1dInt64(long long* outlong1d, int n) const;
+
+    bool operator==(VectorBufferTemplate<T> const& other) const;
 
     void Print() const;
 
@@ -188,6 +194,35 @@ T VectorBufferTemplate<T>::GetMin() const
 }
 
 template <class T>
+T VectorBufferTemplate<T>::Sum() const
+{
+    T sum = Get(0);
+    for(int c=1; c<mN; c++)
+    {
+        sum += Get(c);
+    }
+    return sum;
+}
+
+template <class T>
+void VectorBufferTemplate<T>::Normalize()
+{
+    T sum = Sum();
+    for(int c=0; c<mN && sum > T(0); c++)
+    {
+        mData[c] /= sum;
+    }
+}
+
+template <class T>
+VectorBufferTemplate<T> VectorBufferTemplate<T>::Normalized() const
+{
+    VectorBufferTemplate<T> result = *this;
+    result.Normalize();
+    return result;
+}
+
+template <class T>
 void VectorBufferTemplate<T>::Append(const VectorBufferTemplate<T>& buffer)
 {
     const int oldN = mN;
@@ -250,6 +285,15 @@ void VectorBufferTemplate<T>::AsNumpy1dInt64(long long* outlong1d, int n) const
     }
 }
 
+template<class T>
+bool VectorBufferTemplate<T>::operator==(VectorBufferTemplate<T> const& other) const
+{
+    if (GetN() != other.GetN()) {
+        return false;
+    }
+
+    return std::equal(mData.begin(), mData.end(), other.mData.begin());
+}
 
 template <class T>
 void VectorBufferTemplate<T>::Print() const

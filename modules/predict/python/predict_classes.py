@@ -7,30 +7,21 @@ import rftk.forest_data as forest_data
 import predict
 
 
-def as_predict_forest( tree_data_list ):
-    predict_trees = [forest_data.Tree(buffers.as_matrix_buffer(t.paths),
-                                    buffers.as_matrix_buffer(t.int_params),
-                                    buffers.as_matrix_buffer(t.float_params),
-                                    buffers.as_matrix_buffer(t.depth),
-                                    buffers.as_matrix_buffer(t.counts),
-                                    buffers.as_matrix_buffer(t.ys)) for t in tree_data_list]
-    predict_forest = forest_data.Forest(predict_trees)
-    return predict_forest
-
-def vec_predict_ys(vec_predict_forest, x):
-    (m,n) = x.shape
-    buffer_collection = buffers.BufferCollection()
-    buffer_collection.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffers.as_matrix_buffer(x))
-
-    yhat_buffer = buffers.Float32MatrixBuffer()
-    vec_predict_forest.PredictYs(buffer_collection, m, yhat_buffer)
-    return buffers.as_numpy_array(yhat_buffer)
-
-
 class MatrixForestPredictor:
     def __init__(self, forest_data):
-        self.predict_forest = predict.ForestPredictor(forest_data)
+        self.forest_data = forest_data
 
     def predict_proba(self, x):
-        y_probs = vec_predict_ys(self.predict_forest, x)
-        return y_probs
+        buffer_collection = buffers.BufferCollection()
+        buffer_collection.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffers.as_matrix_buffer(x))
+
+        number_of_classes = self.forest_data.GetTree(0).mYs.GetN()
+        all_samples_step = pipeline.AllSamplesStep_f32f32i32(buffers.X_FLOAT_DATA)
+        combiner = classification.ClassProbabilityCombiner_f32(number_of_classes)
+        matrix_feature = matrix_features.LinearFloat32MatrixFeature_f32i32(all_samples_step.IndicesBufferId,
+                                                                            buffers.X_FLOAT_DATA)
+        forest_predicter = predict.LinearMatrixClassificationPredictin_f32i32(forest_data, matrix_feature, combiner, all_samples_step)
+
+        result = buffers.Float32MatrixBuffer()
+        forest_predicter.PredictYs(bufferCollection, result)
+        return buffers.as_numpy_array(result)

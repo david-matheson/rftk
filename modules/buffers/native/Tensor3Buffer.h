@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include <asserts.h>
+#include "VectorBuffer.h"
 
 template <class T>
 class Tensor3BufferTemplate {
@@ -28,14 +29,21 @@ public:
     T GetUnsafe(int l, int m, int n) const;
     void Incr(int l, int m, int n, T value);
 
-
     const T* GetRowPtrUnsafe(int l, int m) const;
     void Append(const Tensor3BufferTemplate<T>& buffer);
+
+    void SetRow(int l, int m, const VectorBufferTemplate<T>& row);
+    T SumRow(int l, int m) const;
+    void NormalizeRow(int l, int m);
+
+    VectorBufferTemplate<T> SliceRow(int l, int m) const;
 
     void AsNumpy3dFloat32(float* outfloat3d, int l, int m, int n) const;
     void AsNumpy3dFloat64(double* outdouble3d, int l, int m, int n) const;
     void AsNumpy3dInt32(int* outint3d, int l, int m, int n) const;
     void AsNumpy3dInt64(long long* outlong3d, int l, int m, int n) const;
+
+    bool operator==(Tensor3BufferTemplate<T> const& other) const;
 
     void Print() const;
 
@@ -214,6 +222,49 @@ void Tensor3BufferTemplate<T>::Append(const Tensor3BufferTemplate<T>& buffer)
 }
 
 template <class T>
+void Tensor3BufferTemplate<T>::SetRow(int l, int m, const VectorBufferTemplate<T>& row)
+{
+    ASSERT_ARG_DIM_1D(mN, row.GetN());
+    const int maxColumn = std::min(mN, row.GetN());
+    for(int i=0; i<maxColumn; i++)
+    {
+        Set(l, m, i, row.Get(i));
+    }
+}
+
+template <class T>
+T Tensor3BufferTemplate<T>::SumRow(int l, int m) const
+{
+    T sum = Get(l,m,0);
+    for(int c=1; c<mN; c++)
+    {
+        sum += Get(l,m,c);
+    }
+    return sum;
+}
+
+template <class T>
+void Tensor3BufferTemplate<T>::NormalizeRow(int l, int m)
+{
+    T sum = SumRow(l, m);
+    for(int c=0; c<mN && sum > T(0); c++)
+    {
+        mData[ l*mM*mN + m*mN + c] /= sum;
+    }
+}
+
+template <class T>
+VectorBufferTemplate<T> Tensor3BufferTemplate<T>::SliceRow(int l, int m) const
+{
+    VectorBufferTemplate<T> sliced(mN);
+    for(int c=0; c<mN; c++)
+    {
+        sliced.Set(c, Get(l, m, c));
+    }
+    return sliced;
+}
+
+template <class T>
 void Tensor3BufferTemplate<T>::AsNumpy3dFloat32(float* outfloat3d, int l, int m, int n) const
 {
     ASSERT_ARG_DIM_3D(l, m, n, mL, mM, mN)
@@ -253,6 +304,15 @@ void Tensor3BufferTemplate<T>::AsNumpy3dInt64(long long* outlong3d, int l, int m
     }
 }
 
+template<class T>
+bool Tensor3BufferTemplate<T>::operator==(Tensor3BufferTemplate<T> const& other) const
+{
+    if (GetL() != other.GetL() || GetM() != other.GetM() || GetN() != other.GetN()) {
+        return false;
+    }
+
+    return std::equal(mData.begin(), mData.end(), other.mData.begin());
+}
 
 template <class T>
 void Tensor3BufferTemplate<T>::Print() const

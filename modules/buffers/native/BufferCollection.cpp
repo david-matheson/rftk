@@ -1,6 +1,8 @@
-#include <asserts.h>
+#include <stdio.h>
 
+#include <asserts.h>
 #include "BufferCollection.h"
+
 
 BufferCollection::BufferCollection()
     : mBuffers()
@@ -47,8 +49,16 @@ DEFINE_BUFFER_SWIG_INTERFACE_FOR_TYPE(Float64Tensor3Buffer)
 DEFINE_BUFFER_SWIG_INTERFACE_FOR_TYPE(Int32Tensor3Buffer)
 DEFINE_BUFFER_SWIG_INTERFACE_FOR_TYPE(Int64Tensor3Buffer)
 
+
 bool BufferCollection::HasBuffer(std::string name) const
 {
     return (mBuffers.find(name) != mBuffers.end());
 }
 
+void BufferCollection::Print() const
+{
+    for(BufferMapType::const_iterator iter = mBuffers.begin(); iter != mBuffers.end(); ++iter)
+    {
+        printf("%s\n", iter->first.c_str());
+    }
+}

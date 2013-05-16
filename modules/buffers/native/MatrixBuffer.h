@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <limits>
+#include <cmath>
 #include <iostream>
 
 #include <asserts.h>
@@ -34,6 +35,7 @@ public:
     void Incr(int m, int n, T value);
 
     const T* GetRowPtrUnsafe(int m) const;
+    void SetRow(int m, const VectorBufferTemplate<T>& row);
 
     T GetMax() const;
     T GetMin() const;
@@ -45,6 +47,9 @@ public:
     MatrixBufferTemplate<T> Transpose() const;
     MatrixBufferTemplate<T> Slice(const VectorBufferTemplate<int>& indices) const;
     MatrixBufferTemplate<T> SliceRow(const int row) const;
+    VectorBufferTemplate<T> SliceRowAsVector(const int row) const;
+    VectorBufferTemplate<T> SliceColumnAsVector(const int column) const;
+
 
     void AsNumpy2dFloat32(float* outfloat2d, int m, int n) const;
     void AsNumpy2dFloat64(double* outdouble2d, int m, int n) const;
@@ -52,6 +57,7 @@ public:
     void AsNumpy2dInt64(long long* outlong2d, int m, int n) const;
 
     bool operator==(MatrixBufferTemplate<T> const& other) const;
+    bool AlmostEqual(MatrixBufferTemplate<T> const& other) const;
 
     void Print() const;
 
@@ -208,6 +214,17 @@ const T* MatrixBufferTemplate<T>::GetRowPtrUnsafe(int m) const
 }
 
 template <class T>
+void MatrixBufferTemplate<T>::SetRow(int m, const VectorBufferTemplate<T>& row)
+{
+    ASSERT(row.GetN() <= mN);
+    const int maxColumn = std::min(mN, row.GetN());
+    for(int i=0; i<maxColumn; i++)
+    {
+        Set(m, i, row.Get(i));
+    }
+}
+
+template <class T>
 T MatrixBufferTemplate<T>::GetMax() const
 {
     T max = std::numeric_limits<T>::min();
@@ -244,7 +261,7 @@ template <class T>
 void MatrixBufferTemplate<T>::NormalizeRow(int m)
 {
     T sum = SumRow(m);
-    for(int c=0; c<mN; c++)
+    for(int c=0; c<mN && sum > T(0); c++)
     {
         mData[ m*mN + c] /= sum;
     }
@@ -307,6 +324,31 @@ MatrixBufferTemplate<T> MatrixBufferTemplate<T>::SliceRow(const int row) const
 }
 
 template <class T>
+VectorBufferTemplate<T> MatrixBufferTemplate<T>::SliceRowAsVector(const int row) const
+{
+    VectorBufferTemplate<T> sliced(mN);
+    for(int c=0; c<mN; c++)
+    {
+        sliced.Set(c, Get(row, c));
+    }
+
+    return sliced;
+}
+
+template <class T>
+VectorBufferTemplate<T> MatrixBufferTemplate<T>::SliceColumnAsVector(const int column) const
+{
+    VectorBufferTemplate<T> sliced(mM);
+    for(int r=0; r<mM; r++)
+    {
+        sliced.Set(r, Get(r, column));
+    }
+
+    return sliced;
+}
+
+
+template <class T>
 void MatrixBufferTemplate<T>::AsNumpy2dFloat32(float* outfloat2d, int m, int n) const
 {
     ASSERT_ARG_DIM_2D(m, n, mM, mN)
@@ -355,6 +397,22 @@ bool MatrixBufferTemplate<T>::operator==(MatrixBufferTemplate<T> const& other) c
     }
 
     return std::equal(mData.begin(), mData.end(), other.mData.begin());
+}
+
+template<class T>
+bool almostEqual(T i, T j) {
+  return (std::abs(i-j) < std::numeric_limits<T>::epsilon());
+}
+
+template<class T>
+bool MatrixBufferTemplate<T>::AlmostEqual(MatrixBufferTemplate<T> const& other) const
+{
+    if (GetM() != other.GetM() || GetN() != other.GetN()) {
+        return false;
+    }
+
+    return std::equal(mData.begin(), mData.end(), other.mData.begin(), almostEqual<T>);
+
 }
 
 template <class T>
