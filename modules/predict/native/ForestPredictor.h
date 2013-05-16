@@ -6,24 +6,6 @@
 #include <Constants.h>
 #include <PipelineStepI.h>
 
-class ForestPredictor
-{
-public:
-    ForestPredictor( const Forest& forest );
-
-    void PredictLeafs(BufferCollection& data, const int numberOfindices, Int32MatrixBuffer& leafsOut);
-    void PredictYs(BufferCollection& data, const int numberOfindices, Float32MatrixBuffer& ysOut);
-    // void PredictMaxYs(BufferCollection& data, const int numberOfindices, Int32VectorBuffer& maxYsOut);
-
-    Forest mForest;
-};
-
-void ForestPredictLeafs(const Forest& forest, BufferCollection& data, const int numberOfindices, Int32MatrixBuffer& leafsOut);
-void ForestPredictYs(const Forest& forest, BufferCollection& data, const int numberOfindices, Float32MatrixBuffer& ysOut);
-// void ForestPredictMaxYs(const Forest& forest, BufferCollection& data, const int numberOfindices, Int32VectorBuffer& maxYsOut);
-int walkTree_old( const Tree& tree, int nodeId, BufferCollection& data, const int index, int& treeDepthOut );
-
-
 template <class FeatureBinding, class FloatType, class IntType>
 IntType nextChild(  const FeatureBinding& feature,
                     const Tree& tree,

@@ -80,20 +80,15 @@ def build_rftk_module(env, non_swig_warnings, variant_name, module_name, depends
 modules_with_deps = [('asserts', []),
                     ('bootstrap', ['asserts']),
                     ('buffers', ['asserts']),
-                    ('best_split', ['asserts', 'bootstrap', 'buffers']),
                     ('forest_data', ['asserts', 'buffers']),
-                    ('features', ['asserts', 'buffers']),
-                    ('feature_extractors', ['asserts', 'bootstrap', 'buffers', 'features']),
-                    ('train', ['asserts', 'buffers', 'bootstrap', 'best_split', 'forest_data', 'feature_extractors', 'predict', 'pipeline']),
                     ('pipeline', ['asserts', 'buffers', 'bootstrap']),
                     ('matrix_features', ['asserts', 'bootstrap', 'buffers', 'forest_data', 'pipeline']),
                     ('image_features', ['asserts', 'bootstrap', 'buffers', 'forest_data', 'pipeline']),
-                    ('histograms', ['asserts', 'bootstrap', 'buffers', 'pipeline']),
                     ('try_split', ['asserts', 'buffers']),
                     ('should_split', ['asserts', 'buffers']),
                     ('splitpoints', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'should_split']),
                     ('classification', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'should_split']),
-                    ('predict', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'features', 'pipeline', 'should_split', 'splitpoints', 'matrix_features', 'image_features', 'classification']),
+                    ('predict', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'matrix_features', 'image_features', 'classification']),
                     ('learn', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'matrix_features', 'image_features', 'classification', 'try_split', 'should_split', 'predict'])]
 
 install_dependencies = []
