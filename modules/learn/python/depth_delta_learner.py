@@ -111,14 +111,11 @@ def create_online_scaled_depth_delta_one_stream_learner_32f(**kwargs):
     try_split_criteria = create_try_split_criteria(**kwargs)
 
     if 'bootstrap' in kwargs and kwargs.get('bootstrap'):
-        print 'bootstrap'
         sample_data_step = pipeline.BootstrapSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
     elif 'poisson_sample' in kwargs:
         poisson_sample_mean = float(kwargs.get('poisson_sample'))
-        print 'poisson_sample %f' % poisson_sample_mean
         sample_data_step = pipeline.PoissonSamplesStep_i32i32(buffers.PIXEL_INDICES, poisson_sample_mean)
     else:
-        print 'sample_all'
         sample_data_step = pipeline.AllSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
 
     number_of_features_buffer = buffers.as_vector_buffer(np.array([number_of_features], dtype=np.int32))
@@ -209,14 +206,11 @@ def create_online_scaled_depth_delta_two_stream_consistent_learner_32f(**kwargs)
     try_split_criteria = create_try_split_criteria(**kwargs)
 
     if 'bootstrap' in kwargs and kwargs.get('bootstrap'):
-        print 'bootstrap'
         sample_data_step = pipeline.BootstrapSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
     elif 'poisson_sample' in kwargs:
         poisson_sample_mean = float(kwargs.get('poisson_sample'))
-        print 'poisson_sample %f' % poisson_sample_mean
         sample_data_step = pipeline.PoissonSamplesStep_i32i32(buffers.PIXEL_INDICES, poisson_sample_mean)
     else:
-        print 'sample_all'
         sample_data_step = pipeline.AllSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
 
     assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.IndicesBufferId, probability_of_impurity_stream)
