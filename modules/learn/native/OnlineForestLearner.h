@@ -15,7 +15,7 @@
 #include <ForestPredictor.h>
 #include <TrySplitCriteriaI.h>
 #include <PipelineStepI.h>
-#include <SplitSelector.h>
+#include <SplitSelectorI.h>
 
 #include "ActiveLeaf.h"
 #include "ProbabilityOfErrorFrontierQueue.h"
