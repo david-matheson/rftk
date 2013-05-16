@@ -9,6 +9,8 @@
     #include "OnlineForestLearner.h"
     #include "AxisAlignedParamsStep.h"
     #include "LinearMatrixFeature.h"
+    #include "PixelPairGaussianOffsetsStep.h"
+    #include "ScaledDepthDeltaFeature.h"
     #include "ClassEstimatorUpdater.h"
     #include "ClassProbabilityOfError.h"
     #include "SplitSelectorBuffers.h"
@@ -40,6 +42,7 @@
 %import(module="rftk.pipeline") "pipeline_external.i"
 
 %import(module="rftk.matrix_features") "matrix_features.i"
+%import(module="rftk.image_features") "image_features.i"
 %import(module="rftk.classification") "classification.i"
 %import(module="rftk.splitpoints") "splitpoints.i"
 
@@ -52,6 +55,8 @@
 
 %include "AxisAlignedParamsStep.h"
 %include "LinearMatrixFeature.h"
+%include "PixelPairGaussianOffsetsStep.h"
+#include "ScaledDepthDeltaFeature.h"
 %include "ClassEstimatorUpdater.h"
 %include "ClassProbabilityOfError.h"
 %include "SplitSelectorBuffers.h"
@@ -74,3 +79,5 @@
 %include "AssignStreamStep.h"
 
 %template(OnlineForestMatrixClassLearner_f32i32)  OnlineForestLearner< LinearMatrixFeature< MatrixBufferTemplate<float>, float, int >, ClassEstimatorUpdater< float, int >, ClassProbabilityOfError, float, int >;
+
+%template(OnlineForestScaledDepthDeltaClassLearner_f32i32)  OnlineForestLearner< ScaledDepthDeltaFeature< float, int >, ClassEstimatorUpdater< float, int >, ClassProbabilityOfError, float, int >;

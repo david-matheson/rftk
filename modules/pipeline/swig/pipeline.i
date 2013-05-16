@@ -40,6 +40,7 @@ namespace std {
 %template(BootstrapSamplesStep_f32f32i32) BootstrapSamplesStep< MatrixBufferTemplate<float>, float, int >;
 %template(BootstrapSamplesStep_i32f32i32) BootstrapSamplesStep< MatrixBufferTemplate<int>, float, int >;
 %template(PoissonSamplesStep_f32i32) PoissonSamplesStep< MatrixBufferTemplate<float>, float, int >;
+%template(PoissonSamplesStep_i32i32) PoissonSamplesStep< MatrixBufferTemplate<int>, float, int >;
 
 %template(PoissonStep_f32i32) PoissonStep< float, int >;
 
