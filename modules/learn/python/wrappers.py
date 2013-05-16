@@ -5,11 +5,13 @@ class LearnerWrapper:
         self.prepare_data = prepare_data
         self.create_learner = create_learner
         self.create_predictor = create_predictor
+        self.learner = None
 
     def fit(self, **kwargs):
-        learner = self.create_learner(**kwargs)
+        if self.learner is None:
+            self.learner = self.create_learner(**kwargs)
         bufferCollection = self.prepare_data(**kwargs)
-        forest = learner.Learn(bufferCollection)
+        forest = self.learner.Learn(bufferCollection)
         forest_predictor_wrapper = self.create_predictor(forest, **kwargs)
         return forest_predictor_wrapper
 
