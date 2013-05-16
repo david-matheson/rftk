@@ -1,15 +1,17 @@
 import rftk.buffers as buffers
 
 class LearnerWrapper:
-    def __init__(self, prepare_data, create_learner, create_predictor ):
+    def __init__(self, prepare_data, create_learner, create_predictor, kwargs ):
         self.prepare_data = prepare_data
         self.create_learner = create_learner
         self.create_predictor = create_predictor
         self.learner = None
+        self.init_kwargs = kwargs
 
     def fit(self, **kwargs):
         if self.learner is None:
-            self.learner = self.create_learner(**kwargs)
+            all_kwargs = dict(self.init_kwargs.items() + kwargs.items())
+            self.learner = self.create_learner(**all_kwargs)
         bufferCollection = self.prepare_data(**kwargs)
         forest = self.learner.Learn(bufferCollection)
         forest_predictor_wrapper = self.create_predictor(forest, **kwargs)

@@ -11,7 +11,6 @@ import learn
 from wrappers import *
 from split_criteria import *
 
-
 def matrix_classification_data_prepare(**kwargs):
     bufferCollection = buffers.BufferCollection()
     bufferCollection.AddBuffer(buffers.X_FLOAT_DATA, kwargs['x'])
@@ -229,20 +228,23 @@ def create_axis_aligned_matrix_two_stream_learner_32f(**kwargs):
     forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, number_of_classes, number_of_jobs)
     return forest_learner
 
-def create_vanilia_classifier():
+def create_vanilia_classifier(**kwargs):
     return LearnerWrapper(  matrix_classification_data_prepare,
                             create_axis_aligned_matrix_walking_learner_32f,
-                            create_matrix_predictor_32f)
+                            create_matrix_predictor_32f,
+                            kwargs)
 
-def create_one_stream_classifier():
+def create_one_stream_classifier(**kwargs):
     return LearnerWrapper(  matrix_classification_data_prepare,
                             create_axis_aligned_matrix_one_stream_learner_32f,
-                            create_matrix_predictor_32f)
+                            create_matrix_predictor_32f,
+                            kwargs)
 
-def create_two_stream_classifier():
+def create_two_stream_classifier(**kwargs):
     return LearnerWrapper(  matrix_classification_data_prepare,
                             create_axis_aligned_matrix_two_stream_learner_32f,
-                            create_matrix_predictor_32f)
+                            create_matrix_predictor_32f,
+                            kwargs)
 
 def create_online_axis_aligned_matrix_one_stream_learner_32f(**kwargs):
     number_of_trees = int( kwargs.get('number_of_trees', 10) )
@@ -337,10 +339,11 @@ def create_online_axis_aligned_matrix_one_stream_learner_32f(**kwargs):
                                                 matrix_feature_prediction, estimator_params_updater)
     return forest_learner
 
-def create_online_one_stream_classifier():
+def create_online_one_stream_classifier(**kwargs):
     return LearnerWrapper(  matrix_classification_data_prepare,
                             create_online_axis_aligned_matrix_one_stream_learner_32f,
-                            create_matrix_predictor_32f)
+                            create_matrix_predictor_32f,
+                            kwargs)
 
 
 def create_online_axis_aligned_matrix_two_stream_consistent_learner_32f(**kwargs):
@@ -445,7 +448,8 @@ def create_online_axis_aligned_matrix_two_stream_consistent_learner_32f(**kwargs
                                                 matrix_feature_prediction, estimator_params_updater)
     return forest_learner
 
-def create_online_two_stream_consistent_classifier():
+def create_online_two_stream_consistent_classifier(**kwargs):
     return LearnerWrapper(  matrix_classification_data_prepare,
                             create_online_axis_aligned_matrix_two_stream_consistent_learner_32f,
-                            create_matrix_predictor_32f)
+                            create_matrix_predictor_32f,
+                            kwargs)

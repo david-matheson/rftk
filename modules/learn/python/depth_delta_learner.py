@@ -301,17 +301,20 @@ def create_online_scaled_depth_delta_two_stream_consistent_learner_32f(**kwargs)
                                                 feature_prediction, estimator_params_updater)
     return forest_learner
 
-def create_vanilia_scaled_depth_delta_classifier():
+def create_vanilia_scaled_depth_delta_classifier(**kwargs):
     return LearnerWrapper(  depth_delta_classification_data_prepare,
                             create_scaled_depth_delta_learner_32f,
-                            create_depth_delta_predictor_32f)
+                            create_depth_delta_predictor_32f,
+                            kwargs)
 
-def create_online_one_stream_depth_delta_classifier():
+def create_online_one_stream_depth_delta_classifier(**kwargs):
     return LearnerWrapper(  depth_delta_classification_data_prepare,
                             create_online_scaled_depth_delta_one_stream_learner_32f,
-                            create_depth_delta_predictor_32f)
+                            create_depth_delta_predictor_32f,
+                            kwargs)
 
-def create_online_two_stream_consistent_depth_delta_classifier():
+def create_online_two_stream_consistent_depth_delta_classifier(**kwargs):
     return LearnerWrapper(  depth_delta_classification_data_prepare,
                             create_online_scaled_depth_delta_two_stream_consistent_learner_32f,
-                            create_depth_delta_predictor_32f)
+                            create_depth_delta_predictor_32f,
+                            kwargs)
