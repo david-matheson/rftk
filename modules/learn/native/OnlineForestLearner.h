@@ -187,7 +187,7 @@ Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatT
             std::pair<int,int> treeNodeKey = std::make_pair(treeIndex, nodeIndex);
             if( mActiveFrontierLeaves.find(treeNodeKey) != mActiveFrontierLeaves.end() )
             {
-                ActiveLeaf leaf = mActiveFrontierLeaves[treeNodeKey];
+                ActiveLeaf& leaf = mActiveFrontierLeaves[treeNodeKey];
                 stack.Push(leaf.mNodeData);
                 if( !leaf.mIsInitialized )
                 {
