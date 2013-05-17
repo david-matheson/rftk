@@ -21,8 +21,8 @@ template <class FloatType, class IntType>
 class AxisAlignedParamsStep: public PipelineStepI
 {
 public:
-    AxisAlignedParamsStep( const BufferId numberOfFeaturesBufferId,
-                            const BufferId matrixDataBufferId );
+    AxisAlignedParamsStep( const BufferId& numberOfFeaturesBufferId,
+                            const BufferId& matrixDataBufferId );
     virtual ~AxisAlignedParamsStep();
 
     virtual PipelineStepI* Clone() const;
@@ -47,8 +47,8 @@ private:
 
 
 template <class FloatType, class IntType>
-AxisAlignedParamsStep<FloatType,IntType>::AxisAlignedParamsStep(  const BufferId numberOfFeaturesBufferId,
-                                                                  const BufferId matrixDataBufferId )
+AxisAlignedParamsStep<FloatType,IntType>::AxisAlignedParamsStep(  const BufferId& numberOfFeaturesBufferId,
+                                                                  const BufferId& matrixDataBufferId )
 : FloatParamsBufferId(GetBufferId("FloatParams"))
 , IntParamsBufferId(GetBufferId("IntParams"))
 , mNumberOfFeaturesBufferId(numberOfFeaturesBufferId)
