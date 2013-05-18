@@ -1,7 +1,6 @@
 import numpy as np
 
 import rftk.buffers as buffers
-import rftk.features as features
 import rftk.forest_data as forest_data
 
 import predict
