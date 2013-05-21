@@ -118,8 +118,8 @@ void ClassInfoGainWalker<FloatType, IntType>::Reset()
     {
         const FloatType logClass = mAllClassHistogram.Get(c) > 0.0f ? log2(mAllClassHistogram.Get(c)) : 0.0f;
         mLeftLogClassHistogram.Set(c, logClass);
-        mStartEntropy = calcDiscreteEntropy<FloatType>(mLeftClassHistogram.Sum(), mLeftClassHistogram, mLeftLogClassHistogram);
     }
+    mStartEntropy = calcDiscreteEntropy<FloatType>(mLeftClassHistogram.Sum(), mLeftClassHistogram, mLeftLogClassHistogram);
 }
 
 template <class FloatType, class IntType>
