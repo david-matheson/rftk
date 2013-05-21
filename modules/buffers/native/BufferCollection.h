@@ -148,6 +148,7 @@ BufferType* BufferCollection::GetBufferPtr(BufferCollectionKey_t name)
 #define X_FLOAT_DATA    "x_float"
 #define SAMPLE_WEIGHTS  "SampleWeights"
 #define CLASS_LABELS    "y_class"
+#define YS              "ys"
 #define FEATURE_VALUES  "Feature_Values"
 #define HISTOGRAM_LEFT            "Histogram_Left"
 #define HISTOGRAM_RIGHT           "Histogram_Right"

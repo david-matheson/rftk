@@ -18,7 +18,7 @@ public:
     BindedClassStatsUpdater(VectorBufferTemplate<FloatType> const* sampleWeights,
                             VectorBufferTemplate<IntType> const* mClasses);
 
-    void UpdateStats(FloatType& counts, Tensor3BufferTemplate<FloatType>& stats, 
+    void UpdateStats(FloatType& counts, Tensor3BufferTemplate<FloatType>& stats,
                 int feature, int threshold, int sampleIndex) const;
 
 
@@ -35,7 +35,7 @@ BindedClassStatsUpdater<FloatType, IntType>::BindedClassStatsUpdater(VectorBuffe
 {}
 
 template <class FloatType, class IntType>
-void BindedClassStatsUpdater<FloatType, IntType>::UpdateStats(FloatType& counts, Tensor3BufferTemplate<FloatType>& stats, 
+void BindedClassStatsUpdater<FloatType, IntType>::UpdateStats(FloatType& counts, Tensor3BufferTemplate<FloatType>& stats,
                                                           int feature, int threshold, int sampleIndex) const
 {
     const FloatType weight = mSampleWeights->Get(sampleIndex);
@@ -60,7 +60,7 @@ public:
                        const int numberOfClasses);
 
     BindedClassStatsUpdater<FloatType, IntType> Bind(const BufferCollectionStack& readCollection) const;
-    int GetNumberOfClasses() const;
+    int GetDimension() const;
 
     typedef FloatType Float;
     typedef IntType Int;
@@ -82,20 +82,20 @@ ClassStatsUpdater<FloatType, IntType>::ClassStatsUpdater(const BufferId& sampleW
 {}
 
 template <class FloatType, class IntType>
-BindedClassStatsUpdater<FloatType, IntType> 
+BindedClassStatsUpdater<FloatType, IntType>
 ClassStatsUpdater<FloatType, IntType>::Bind(const BufferCollectionStack& readCollection) const
 {
-    VectorBufferTemplate<FloatType> const* sampleWeights = 
+    VectorBufferTemplate<FloatType> const* sampleWeights =
           readCollection.GetBufferPtr< VectorBufferTemplate<FloatType> >(mSampleWeightsBufferId);
 
-    VectorBufferTemplate<IntType> const* classes = 
+    VectorBufferTemplate<IntType> const* classes =
           readCollection.GetBufferPtr< VectorBufferTemplate<IntType> >(mClassesBufferId);
 
     return BindedClassStatsUpdater<FloatType, IntType>(sampleWeights, classes);
 }
 
 template <class FloatType, class IntType>
-int ClassStatsUpdater<FloatType, IntType>::GetNumberOfClasses() const
+int ClassStatsUpdater<FloatType, IntType>::GetDimension() const
 {
     return mNumberOfClasses;
 }

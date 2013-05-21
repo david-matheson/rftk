@@ -90,11 +90,11 @@ void SplitpointStatsStep<StatsUpdater>::ProcessStep(const BufferCollectionStack&
 
     Tensor3BufferTemplate<typename StatsUpdater::Float>& leftStats =
           writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::Float> >(LeftStatsBufferId);
-    leftStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetNumberOfClasses());
+    leftStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetDimension());
 
     Tensor3BufferTemplate<typename StatsUpdater::Float>& rightStats =
           writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::Float> >(RightStatsBufferId);
-    rightStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetNumberOfClasses());
+    rightStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetDimension());
 
     for(int c=0; c<featureValues.GetM(); c++)
     {

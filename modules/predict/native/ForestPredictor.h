@@ -10,7 +10,7 @@ template <class FeatureBinding, class FloatType, class IntType>
 IntType nextChild(  const FeatureBinding& feature,
                     const Tree& tree,
                     const IntType nodeId,
-                    const IntType index ) 
+                    const IntType index )
 {
     const FloatType splitpoint = tree.mFloatFeatureParams.Get(nodeId, SPLIT_POINT_INDEX);
     const FloatType featureValue = feature.FeatureValue(nodeId, index);
@@ -24,7 +24,7 @@ template <class FeatureBinding, class FloatType, class IntType>
 IntType walkTree( const FeatureBinding& feature,
                   const Tree& tree,
                   const IntType nodeId,
-                  const IntType index ) 
+                  const IntType index )
 {
     const IntType childNodeId = nextChild<FeatureBinding,FloatType,IntType>( feature, tree, nodeId, index);
     if(childNodeId == NULL_CHILD)
@@ -142,9 +142,10 @@ void TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::PredictYs( 
         mCombiner.Reset();
         for(IntType treeId=0; treeId<numberOfTreesInForest; treeId++)
         {
+            const Tree& tree = mForest.mTrees[treeId];
             IntType leafNodeId = walkTree<typename Feature::FeatureBinding, FloatType, IntType>(
-                                        featureBindings[treeId], mForest.mTrees[treeId], 0, i);
-            mCombiner.Combine(leafNodeId, mForest.mTrees[treeId].mYs);
+                                        featureBindings[treeId], tree, 0, i);
+            mCombiner.Combine(leafNodeId, tree.mCounts.Get(leafNodeId), tree.mYs);
         }
         mCombiner.WriteResult(i, ysOut);
     }

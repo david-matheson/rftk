@@ -4,14 +4,14 @@
 
 // ----------------------------------------------------------------------------
 //
-// Average the probabilities of each class across trees
+// Combine the mean and variance across trees
 //
 // ----------------------------------------------------------------------------
 template <class FloatType>
-class ClassProbabilityCombiner
+class MeanVarianceCombiner
 {
 public:
-    ClassProbabilityCombiner(int numberOfClasses);
+    MeanVarianceCombiner(int numberOfDimensions);
     void Reset();
     void Combine(int nodeId, FloatType count, const MatrixBufferTemplate<FloatType>& estimatorParameters);
     void WriteResult(int row, MatrixBufferTemplate<FloatType>& results);
@@ -20,48 +20,51 @@ public:
 private:
     VectorBufferTemplate<FloatType> mCombinedResults;
     FloatType mNumberOfTrees;
-
+    FloatType mCounts;
 };
 
 template <class FloatType>
-ClassProbabilityCombiner<FloatType>::ClassProbabilityCombiner(int numberOfClasses)
-: mCombinedResults(numberOfClasses)
+MeanVarianceCombiner<FloatType>::MeanVarianceCombiner(int numberOfDimensions)
+: mCombinedResults(numberOfDimensions*2)
 , mNumberOfTrees(FloatType(0))
+, mCounts(FloatType(0))
 {
 }
 
 template <class FloatType>
-void ClassProbabilityCombiner<FloatType>::Reset()
+void MeanVarianceCombiner<FloatType>::Reset()
 {
     mCombinedResults.Zero();
     mNumberOfTrees = FloatType(0);
+    mCounts = FloatType(0);
 }
 
 template <class FloatType>
-void ClassProbabilityCombiner<FloatType>::Combine(int nodeId, FloatType count, const MatrixBufferTemplate<FloatType>& estimatorParameters)
+void MeanVarianceCombiner<FloatType>::Combine(int nodeId, FloatType count, const MatrixBufferTemplate<FloatType>& estimatorParameters)
 {
-    UNUSED_PARAM(count)
     ASSERT_ARG_DIM_1D(mCombinedResults.GetN(), estimatorParameters.GetN())
     for(int i=0; i<mCombinedResults.GetN(); i++)
     {
         mCombinedResults.Incr(i, estimatorParameters.Get(nodeId, i));
+
     }
     mNumberOfTrees += FloatType(1);
+    mCounts += count;
 }
 
 template <class FloatType>
-void ClassProbabilityCombiner<FloatType>::WriteResult(int row, MatrixBufferTemplate<FloatType>& results)
+void MeanVarianceCombiner<FloatType>::WriteResult(int row, MatrixBufferTemplate<FloatType>& results)
 {
-    ASSERT_ARG_DIM_1D(mCombinedResults.GetN(), results.GetN())
-    FloatType numberOfTreeInv = mNumberOfTrees > FloatType(0) ? FloatType(1) / mNumberOfTrees : FloatType(0);
-    for(int i=0; i<mCombinedResults.GetN(); i++)
+    ASSERT_ARG_DIM_1D(mCombinedResults.GetN()/2, results.GetN())
+    FloatType numberOfTreesInv = mNumberOfTrees > FloatType(0) ? FloatType(1) / mNumberOfTrees : FloatType(0);
+    for(int i=0; i<results.GetN(); i++)
     {
-        results.Set(row, i, numberOfTreeInv * mCombinedResults.Get(i));
+        results.Set(row, i, numberOfTreesInv * mCombinedResults.Get(i));
     }
 }
 
 template <class FloatType>
-int ClassProbabilityCombiner<FloatType>::GetResultDim() const
+int MeanVarianceCombiner<FloatType>::GetResultDim() const
 {
-    return mCombinedResults.GetN();
+    return mCombinedResults.GetN()/2;
 }

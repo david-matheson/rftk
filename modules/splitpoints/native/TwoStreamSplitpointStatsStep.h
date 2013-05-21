@@ -106,11 +106,11 @@ void TwoStreamSplitpointStatsStep<StatsUpdater>::ProcessStep(const BufferCollect
 
     Tensor3BufferTemplate<typename StatsUpdater::Float>& leftImpurityStats =
           writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::Float> >(LeftImpurityStatsBufferId);
-    leftImpurityStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetNumberOfClasses());
+    leftImpurityStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetDimension());
 
     Tensor3BufferTemplate<typename StatsUpdater::Float>& rightImpurityStats =
           writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::Float> >(RightImpurityStatsBufferId);
-    rightImpurityStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetNumberOfClasses());
+    rightImpurityStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetDimension());
 
     Tensor3BufferTemplate<typename StatsUpdater::Float>& childCountsEstimator =
           writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::Float> >(ChildCountsEstimatorBufferId);
@@ -118,11 +118,11 @@ void TwoStreamSplitpointStatsStep<StatsUpdater>::ProcessStep(const BufferCollect
 
     Tensor3BufferTemplate<typename StatsUpdater::Float>& leftEstimatorStats =
           writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::Float> >(LeftEstimatorStatsBufferId);
-    leftEstimatorStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetNumberOfClasses());
+    leftEstimatorStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetDimension());
 
     Tensor3BufferTemplate<typename StatsUpdater::Float>& rightEstimatorStats =
           writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::Float> >(RightEstimatorStatsBufferId);
-    rightEstimatorStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetNumberOfClasses());
+    rightEstimatorStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetDimension());
 
     for(int c=0; c<featureValues.GetM(); c++)
     {
