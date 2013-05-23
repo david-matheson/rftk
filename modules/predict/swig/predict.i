@@ -23,3 +23,4 @@
 %template(LinearMatrixClassificationPredictin_f32i32) TemplateForestPredictor< LinearMatrixFeature< MatrixBufferTemplate<float>, float, int >, ClassProbabilityCombiner<float>, float, int>;
 %template(LinearMatrixRegressionPredictin_f32i32) TemplateForestPredictor< LinearMatrixFeature< MatrixBufferTemplate<float>, float, int >, MeanVarianceCombiner<float>, float, int>;
 %template(ScaledDepthDeltaClassificationPredictin_f32i32) TemplateForestPredictor< ScaledDepthDeltaFeature< float, int >, ClassProbabilityCombiner<float>, float, int>;
+%template(ScaledDepthDeltaRegressionPrediction_f32i32) TemplateForestPredictor< ScaledDepthDeltaFeature< float, int >, MeanVarianceCombiner<float>, float, int>;
