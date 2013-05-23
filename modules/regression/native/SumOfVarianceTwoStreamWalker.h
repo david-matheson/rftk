@@ -23,8 +23,8 @@ class SumOfVarianceTwoStreamWalker
 {
 public:
     SumOfVarianceTwoStreamWalker (const BufferId& sampleWeights,
-                        const BufferId& ys,
                         const BufferId& streamType,
+                        const BufferId& ys,
                         const int ydim );
     virtual ~SumOfVarianceTwoStreamWalker();
 
@@ -50,13 +50,13 @@ public:
 
 private:
     const BufferId mSampleWeightsBufferId;
-    const BufferId mYsBufferId;
     const BufferId mStreamTypeBufferId;
+    const BufferId mYsBufferId;
     const int mYdim;
 
     VectorBufferTemplate<FloatType> const* mSampleWeights;
-    MatrixBufferTemplate<FloatType> const* mYs;
     VectorBufferTemplate<IntType> const* mStreamType;
+    MatrixBufferTemplate<FloatType> const* mYs;
 
     FloatType mStartEstimationCounts;
     FloatType mStartStructureCounts;
@@ -77,16 +77,16 @@ private:
 
 template <class FloatType, class IntType>
 SumOfVarianceTwoStreamWalker<FloatType, IntType>::SumOfVarianceTwoStreamWalker(const BufferId& sampleWeights,
-                                                          const BufferId& ys,
                                                           const BufferId& streamType,
+                                                          const BufferId& ys,
                                                           const int ydim )
 : mSampleWeightsBufferId(sampleWeights)
+, mStreamTypeBufferId(streamType)
 , mYsBufferId(ys)
 , mYdim(ydim)
-, mStreamTypeBufferId(streamType)
 , mSampleWeights(NULL)
-, mYs(NULL)
 , mStreamType(NULL)
+, mYs(NULL)
 , mStartEstimationCounts(0)
 , mStartStructureCounts(0)
 , mStartEstimationMeanVariance(ydim*2)

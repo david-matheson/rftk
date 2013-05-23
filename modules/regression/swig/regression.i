@@ -23,4 +23,5 @@
 %template(FinalizerI_reg_f32) FinalizerI<float>;
 %template(MeanVarianceEstimatorFinalizer_f32) MeanVarianceEstimatorFinalizer< float >;
 
+%template(SumOfVarianceTwoStreamWalker_f32i32) SumOfVarianceTwoStreamWalker<float, int>;
 %template(SumOfVarianceTwoStreamBestSplitpointsWalkingSortedStep_f32i32) TwoStreamBestSplitpointsWalkingSortedStep< SumOfVarianceTwoStreamWalker<float, int> >;
