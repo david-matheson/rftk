@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <limits>
 #include <cmath>
 
@@ -7,15 +8,19 @@
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
 #include "FeatureExtractorStep.h"
+#include "bootstrap.h"
 #include "PipelineStepI.h"
 #include "UniqueBufferId.h"
 #include "FeatureSorter.h"
+#include "AssignStreamStep.h"
 
 // ----------------------------------------------------------------------------
 //
 // Finds the split point with the highest impurity for each feature.  It does
 // this by sorting the feature values and walking the sorted values to find
-// the split point with the highest impurity.
+// the split point with the highest impurity.  This uses a two stream
+// walker where some points are used for calculating the impurity and some
+// points are used for calculating the estimators
 //
 // ----------------------------------------------------------------------------
 template <class ImpurityWalker>
@@ -23,8 +28,10 @@ class TwoStreamBestSplitpointsWalkingSortedStep : public PipelineStepI
 {
 public:
     TwoStreamBestSplitpointsWalkingSortedStep (const ImpurityWalker& impurityWalker,
+                              const BufferId& streamTypeBufferId,
                               const BufferId& featureValues,
-                              FeatureValueOrdering featureValueOrdering );
+                              FeatureValueOrdering featureValueOrdering,
+                              const float inBoundsSamplingRate);
     virtual ~TwoStreamBestSplitpointsWalkingSortedStep();
 
     virtual PipelineStepI* Clone() const;
@@ -43,16 +50,19 @@ public:
     const BufferId RightEstimationYsBufferId;
 private:
     const ImpurityWalker mImpurityWalker;
+    const BufferId mStreamTypeBufferId;
     const BufferId mFeatureValuesBufferId;
     const FeatureValueOrdering mFeatureValueOrdering;
-
+    const float mInBoundsSamplingRate;
 };
 
 
 template <class ImpurityWalker>
 TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::TwoStreamBestSplitpointsWalkingSortedStep(const ImpurityWalker& impurityWalker,
-                                                                      const BufferId& featureValues,
-                                                                      FeatureValueOrdering featureValueOrdering )
+                                                                                                  const BufferId& streamTypeBufferId,
+                                                                                                  const BufferId& featureValues,
+                                                                                                  FeatureValueOrdering featureValueOrdering,
+                                                                                                  const float inBoundsSamplingRate )
 : ImpurityBufferId( GetBufferId("Impurity") )
 , SplitpointBufferId( GetBufferId("Splitpoints") )
 , SplitpointCountsBufferId( GetBufferId("SplitpointsCounts") )
@@ -60,8 +70,10 @@ TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::TwoStreamBestSplitpoi
 , LeftEstimationYsBufferId( GetBufferId("LeftYs") )
 , RightEstimationYsBufferId( GetBufferId("RightYs") )
 , mImpurityWalker(impurityWalker)
+, mStreamTypeBufferId(streamTypeBufferId)
 , mFeatureValuesBufferId(featureValues)
 , mFeatureValueOrdering(featureValueOrdering)
+, mInBoundsSamplingRate(inBoundsSamplingRate)
 {}
 
 template <class ImpurityWalker>
@@ -91,6 +103,9 @@ void TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(cons
     ImpurityWalker impurityWalker = mImpurityWalker;
     impurityWalker.Bind(readCollection);
     const int numberOfFeatures =  mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? featureValues.GetM() : featureValues.GetN();
+
+    const VectorBufferTemplate<typename ImpurityWalker::Int>& streamTypes =
+          readCollection.GetBuffer< VectorBufferTemplate<typename ImpurityWalker::Int> >(mStreamTypeBufferId);
 
     // Bind output buffers
     MatrixBufferTemplate<typename ImpurityWalker::Float>& impurities
@@ -130,14 +145,37 @@ void TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(cons
 
         FeatureSorter<typename ImpurityWalker::Float> sorter(featureValues, mFeatureValueOrdering, f);
         sorter.Sort();
-        for(int sortedIndex=0; sortedIndex<sorter.GetNumberOfSamples()-1; sortedIndex++)
+
+        const int numberOfSamples = sorter.GetNumberOfSamples();
+        std::vector<int> inboundSamples(numberOfSamples);
+        const int numberOfInBoundsSamples = static_cast<int>(0.5f + mInBoundsSamplingRate * static_cast<float>(numberOfSamples));
+        sampleWithOutReplacement(&inboundSamples[0], numberOfSamples, numberOfInBoundsSamples);
+
+        typename ImpurityWalker::Float boundsMin = std::numeric_limits<typename ImpurityWalker::Float>::max();
+        typename ImpurityWalker::Float boundsMax = std::numeric_limits<typename ImpurityWalker::Float>::min();
+
+        for(int sortedIndex=0; sortedIndex<numberOfSamples; sortedIndex++)
+        {
+            if(inboundSamples[sortedIndex] 
+                && streamTypes.Get(sorter.GetUnSortedIndex(sortedIndex)) == STREAM_STRUCTURE)
+            {
+                boundsMin = std::min(boundsMin, sorter.GetFeatureValue(sortedIndex));
+                boundsMax = std::max(boundsMax, sorter.GetFeatureValue(sortedIndex));
+            }
+        }
+
+        for(int sortedIndex=0; sortedIndex<numberOfSamples-1; sortedIndex++)
         {
             const int i = sorter.GetUnSortedIndex(sortedIndex);
-
             impurityWalker.MoveLeftToRight(i);
 
-            const typename ImpurityWalker::Float consecutiveFeatureDelta = sorter.GetFeatureValue(sortedIndex+1) - sorter.GetFeatureValue(sortedIndex);
+            const typename ImpurityWalker::Float featureValue = sorter.GetFeatureValue(sortedIndex);
+            const typename ImpurityWalker::Float nextFeatureValue = sorter.GetFeatureValue(sortedIndex+1);            
+            const typename ImpurityWalker::Float consecutiveFeatureDelta = nextFeatureValue - featureValue;
             if((std::abs(consecutiveFeatureDelta) > std::numeric_limits<typename ImpurityWalker::Float>::epsilon())
+              && (featureValue >= boundsMin)
+              && (featureValue <= boundsMax)
+              && streamTypes.Get(i) == STREAM_STRUCTURE
               && impurityWalker.Impurity() > bestImpurity)
             {
                 bestImpurity = impurityWalker.Impurity();
