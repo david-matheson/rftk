@@ -2,8 +2,10 @@
 %{
     #define SWIG_FILE_WITH_INIT
     #include "SumOfVarianceWalker.h"
+    #include "SumOfVarianceTwoStreamWalker.h"
     #include "SumOfVarianceImpurity.h"
     #include "BestSplitpointsWalkingSortedStep.h"
+    #include "TwoStreamBestSplitpointsWalkingSortedStep.h"
     #include "FinalizerI.h"
     #include "MeanVarianceEstimatorFinalizer.h"
     #include "MeanVarianceCombiner.h"
@@ -17,8 +19,10 @@
 %import(module="rftk.splitpoints") "splitpoints_external.i"
 
 %include "SumOfVarianceWalker.h"
+%include "SumOfVarianceTwoStreamWalker.h"
 %include "SumOfVarianceImpurity.h"
 %include "BestSplitpointsWalkingSortedStep.h"
+%include "TwoStreamBestSplitpointsWalkingSortedStep.h"
 %include "FinalizerI.h"
 %include "MeanVarianceEstimatorFinalizer.h"
 %include "MeanVarianceCombiner.h"

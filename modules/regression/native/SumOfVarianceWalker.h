@@ -58,8 +58,6 @@ private:
     VectorBufferTemplate<FloatType> mRightMeanVariance;
 
     FloatType mStartVariance;
-
-    std::vector<bool> mRecomputeClassLog;
 };
 
 

@@ -1,4 +1,5 @@
 #include "BestSplitpointsWalkingSortedStep.h"
+#include "TwoStreamBestSplitpointsWalkingSortedStep.h"
 #include "SplitSelector.h"
 #include "WaitForBestSplitSelector.h"
 #include "SplitSelectorInfo.h"

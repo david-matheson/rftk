@@ -1,4 +1,5 @@
 #include "SumOfVarianceWalker.h"
+#include "SumOfVarianceTwoStreamWalker.h"
 #include "SumOfVarianceImpurity.h"
 #include "MeanVarianceEstimatorFinalizer.h"
 #include "MeanVarianceCombiner.h"
