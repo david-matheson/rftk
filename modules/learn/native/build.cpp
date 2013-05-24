@@ -1,6 +1,7 @@
 #include "DepthFirstTreeLearner.h"
 #include "OnlineForestLearner.h"
 #include "ProbabilityOfErrorFrontierQueue.h"
+#include "Biau2008TreeLearner.h"
 
 #include "LinearMatrixFeature.h"
 #include "ClassEstimatorUpdater.h"
