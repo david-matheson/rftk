@@ -20,6 +20,7 @@
 %template(MeanVarianceCombiner_f32) MeanVarianceCombiner<float>;
 %template(SumOfVarianceWalker_f32i32) SumOfVarianceWalker<float, int>;
 %template(SumOfVarianceBestSplitpointsWalkingSortedStep_f32i32) BestSplitpointsWalkingSortedStep< SumOfVarianceWalker<float, int> >;
+%template(SumOfVarianceRandomGapSplitpointsStep_f32i32) RandomGapSplitpointsStep< SumOfVarianceWalker<float, int> >;
 %template(FinalizerI_reg_f32) FinalizerI<float>;
 %template(MeanVarianceEstimatorFinalizer_f32) MeanVarianceEstimatorFinalizer< float >;
 

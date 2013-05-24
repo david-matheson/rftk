@@ -1,5 +1,6 @@
 #include "BestSplitpointsWalkingSortedStep.h"
 #include "TwoStreamBestSplitpointsWalkingSortedStep.h"
+#include "RandomGapSplitpointsStep.h"
 #include "SplitSelector.h"
 #include "WaitForBestSplitSelector.h"
 #include "SplitSelectorInfo.h"
