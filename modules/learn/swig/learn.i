@@ -3,6 +3,7 @@
     #define SWIG_FILE_WITH_INIT
     #include "TreeLearnerI.h"
     #include "DepthFirstTreeLearner.h"
+    #include "BreadthFirstTreeLearner.h"
     #include "Biau2008TreeLearner.h"
     #include "ParallelForestLearner.h"
     #include "OnlineForestLearner.h"
@@ -27,6 +28,7 @@
 
 %include "TreeLearnerI.h"
 %include "DepthFirstTreeLearner.h"
+%include "BreadthFirstTreeLearner.h"
 %include "Biau2008TreeLearner.h"
 %include "ParallelForestLearner.h"
 %include "OnlineForestLearner.h"
@@ -37,6 +39,8 @@
 %include "ClassProbabilityOfError.h"
 
 %template(DepthFirstTreeLearner_f32i32) DepthFirstTreeLearner<float, int>;
+
+%template(BreadthFirstTreeLearner_f32i32) BreadthFirstTreeLearner<float, int>;
 
 %template(Biau2008TreeLearner_f32i32) Biau2008TreeLearner<float, int>;
 

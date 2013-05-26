@@ -1,4 +1,5 @@
 #include "DepthFirstTreeLearner.h"
+#include "BreadthFirstTreeLearner.h"
 #include "OnlineForestLearner.h"
 #include "ProbabilityOfErrorFrontierQueue.h"
 #include "Biau2008TreeLearner.h"

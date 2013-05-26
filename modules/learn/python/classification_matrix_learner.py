@@ -77,7 +77,11 @@ def create_axis_aligned_matrix_walking_learner_32f(**kwargs):
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
     split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_indices)
 
-    tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
+    if 'tree_order' in kwargs and kwargs.get('tree_order') == 'breadth_first':
+        tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
+    else:    
+        tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
+        
     forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, number_of_classes, number_of_jobs)
     return forest_learner
 
@@ -136,7 +140,11 @@ def create_class_pair_difference_matrix_walking_learner_32f(**kwargs):
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
     split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_indices )
 
-    tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
+    if 'tree_order' in kwargs and kwargs.get('tree_order') == 'breadth_first':
+        tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
+    else:    
+        tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
+
     forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, kwargs['x'].shape[1]+3, kwargs['x'].shape[1]+3, number_of_classes, number_of_jobs)
     return forest_learner
 
@@ -207,7 +215,11 @@ def create_axis_aligned_matrix_one_stream_learner_32f(**kwargs):
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
     split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_indices )
 
-    tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
+    if 'tree_order' in kwargs and kwargs.get('tree_order') == 'breadth_first':
+        tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
+    else:    
+        tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
+
     forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, number_of_classes, number_of_jobs)
     return forest_learner
 
@@ -282,7 +294,10 @@ def create_axis_aligned_matrix_two_stream_learner_32f(**kwargs):
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
     split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_indices )
 
-    tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
+    if 'tree_order' in kwargs and kwargs.get('tree_order') == 'breadth_first':
+        tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
+    else:    
+        tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
     forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, number_of_classes, number_of_jobs)
     return forest_learner
 
