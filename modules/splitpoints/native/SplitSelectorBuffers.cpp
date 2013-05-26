@@ -12,7 +12,6 @@ SplitSelectorBuffers::SplitSelectorBuffers()
 , mIntParamsBufferId()
 , mFeatureValuesBufferId()
 , mOrdering(FEATURES_BY_DATAPOINTS)
-, mIndicesBufferId()
 {}
 
 SplitSelectorBuffers::SplitSelectorBuffers(const BufferId& impurityBufferId,
@@ -24,8 +23,7 @@ SplitSelectorBuffers::SplitSelectorBuffers(const BufferId& impurityBufferId,
                                             const BufferId& floatParamsBufferId,
                                             const BufferId& intParamsBufferId,
                                             const BufferId& featureValuesBufferId,
-                                            FeatureValueOrdering ordering,
-                                            const BufferId& indicesBufferId)
+                                            FeatureValueOrdering ordering)
 : mImpurityBufferId(impurityBufferId)
 , mSplitpointsBufferId(splitpointsBufferId)
 , mSplitpointsCountsBufferId(splitpointsCountsBufferId)
@@ -36,6 +34,5 @@ SplitSelectorBuffers::SplitSelectorBuffers(const BufferId& impurityBufferId,
 , mIntParamsBufferId(intParamsBufferId)
 , mFeatureValuesBufferId(featureValuesBufferId)
 , mOrdering(ordering)
-, mIndicesBufferId(indicesBufferId)
 {}
 

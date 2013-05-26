@@ -4,6 +4,7 @@
 #include "SplitSelector.h"
 #include "WaitForBestSplitSelector.h"
 #include "SplitSelectorInfo.h"
+#include "SplitBuffersIndices.h"
 #include "SplitpointsImpurity.h"
 #include "AssignStreamStep.h"
 #include "RandomSplitpointsStep.h"

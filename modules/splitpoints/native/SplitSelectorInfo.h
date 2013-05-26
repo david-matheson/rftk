@@ -8,6 +8,7 @@
 #include "SplitSelectorBuffers.h"
 #include "ShouldSplitCriteriaI.h"
 #include "FinalizerI.h"
+#include "SplitBuffersI.h"
 
 // ----------------------------------------------------------------------------
 //
@@ -22,6 +23,7 @@ public:
     SplitSelectorInfo(const SplitSelectorBuffers& splitStatistics,
                       const BufferCollectionStack& bufferCollectionStack,
                       const FinalizerI<FloatType>* finalizer,
+                      const SplitBuffersI* bufferSplitter,
                       int bestFeature,
                       int bestSplitpoints,
                       int depth);
@@ -35,13 +37,16 @@ public:
                           MatrixBufferTemplate<IntType>& treeIntFeatureParams,
                           MatrixBufferTemplate<FloatType>& treeFloatEstimatorParams ) const;
 
-    void SplitBuffers(BufferCollection& leftBuffers, BufferCollection& rightBuffers,
-                      FloatType& leftSize, FloatType& rightSize) const;
+    void SplitBuffers(BufferCollection& leftBuffers, 
+                      BufferCollection& rightBuffers,
+                      FloatType& leftSize, 
+                      FloatType& rightSize) const;
 
 private:
     const SplitSelectorBuffers& mSplitSelectorBuffers;
     const BufferCollectionStack& mReadCollection;
     const FinalizerI<FloatType>* mFinalizer;
+    const SplitBuffersI* mBufferSplitter;
     const int mBestFeature;
     const int mBestSplitpoint;
     const int mDepth;
@@ -61,12 +66,14 @@ template <class FloatType, class IntType>
 SplitSelectorInfo<FloatType, IntType>::SplitSelectorInfo(const SplitSelectorBuffers& splitStatistics,
                                                         const BufferCollectionStack& bufferCollectionStack,
                                                         const FinalizerI<FloatType>* finalizer,
+                                                        const SplitBuffersI* bufferSplitter,
                                                         int bestFeature,
                                                         int bestSplitpoints,
                                                         int depth)
 : mSplitSelectorBuffers(splitStatistics)
 , mReadCollection(bufferCollectionStack)
 , mFinalizer(finalizer)
+, mBufferSplitter(bufferSplitter)
 , mBestFeature(bestFeature)
 , mBestSplitpoint(bestSplitpoints)
 , mDepth(depth)
@@ -135,51 +142,23 @@ void SplitSelectorInfo<FloatType, IntType>::SplitBuffers(BufferCollection& leftB
 {
     ASSERT(ValidSplit())
 
-    const VectorBufferTemplate<IntType>& indices
-          = mReadCollection.GetBuffer< VectorBufferTemplate<IntType> >(mSplitSelectorBuffers.mIndicesBufferId);
-
-    const MatrixBufferTemplate<FloatType>& featureValuesMatrix
-          = mReadCollection.GetBuffer< MatrixBufferTemplate<FloatType> >(mSplitSelectorBuffers.mFeatureValuesBufferId);
-
-    const MatrixBufferTemplate<FloatType>& splitpoints
-          = mReadCollection.GetBuffer< MatrixBufferTemplate<FloatType> >(mSplitSelectorBuffers.mSplitpointsBufferId);
-
-    const FloatType bestSplitpointValue = splitpoints.Get(mBestFeature, mBestSplitpoint);
-    VectorBufferTemplate<FloatType> featureValues;
-    if( mSplitSelectorBuffers.mOrdering == FEATURES_BY_DATAPOINTS )
-    {
-        featureValues = featureValuesMatrix.SliceRowAsVector(mBestFeature);
-    }
-    else if ( mSplitSelectorBuffers.mOrdering == DATAPOINTS_BY_FEATURES )
-    {
-        featureValues = featureValuesMatrix.SliceColumnAsVector(mBestFeature);
-    }
-    ASSERT_ARG_DIM_1D(featureValues.GetN(), indices.GetN())
-
-    std::vector<IntType> leftIndices;
-    std::vector<IntType> rightIndices;
-    for(int i=0; i<indices.GetN(); i++)
-    {
-        const FloatType featureValue = featureValues.Get(i);
-        const IntType index = indices.Get(i);
-        if( featureValue > bestSplitpointValue )
-        {
-            leftIndices.push_back(index);
-        }
-        else
-        {
-            rightIndices.push_back(index);
-        }
-    }
-    VectorBufferTemplate<IntType> leftIndicesBuf(&leftIndices[0], leftIndices.size());
-    leftBuffers.AddBuffer< VectorBufferTemplate<IntType> >(mSplitSelectorBuffers.mIndicesBufferId, leftIndicesBuf );
-
-    VectorBufferTemplate<IntType> rightIndicesBuf(&rightIndices[0], rightIndices.size());
-    rightBuffers.AddBuffer< VectorBufferTemplate<IntType> >(mSplitSelectorBuffers.mIndicesBufferId, rightIndicesBuf );
-
     const Tensor3BufferTemplate<FloatType>& childCounts
            = mReadCollection.GetBuffer< Tensor3BufferTemplate<FloatType> >(mSplitSelectorBuffers.mChildCountsBufferId);
-           
     leftSize = childCounts.Get(mBestFeature, mBestSplitpoint, LEFT_CHILD_INDEX);
     rightSize = childCounts.Get(mBestFeature, mBestSplitpoint, RIGHT_CHILD_INDEX); 
+
+    if( mBufferSplitter == NULL)
+    {
+        printf("Error: trying to split a node's buffers without a SplitBuffersI.\n");
+        printf("Did you forget to pass SplitBuffersIndices() to SplitSelector or WaitForBestSplitSelector?\n");
+    }
+    else
+    {
+        mBufferSplitter->SplitBuffers(mSplitSelectorBuffers,
+                                mBestFeature,
+                                mBestSplitpoint,
+                                mReadCollection,
+                                leftBuffers,
+                                rightBuffers);
+    }
 }

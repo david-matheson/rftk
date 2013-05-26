@@ -10,6 +10,7 @@
 #include "MinChildSizeCriteria.h"
 #include "ClassEstimatorFinalizer.h"
 #include "SplitSelectorBuffers.h"
+#include "SplitBuffersIndices.h"
 #include "SplitSelectorInfo.h"
 #include "SplitSelector.h"
 
@@ -206,13 +207,13 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_NoCriteria)
 {
     SplitSelectorBuffers buffers(im_key, splitpoints_key, number_splitpoints_key, childcounts_key,
                               left_key, right_key, feature_floatparams_key, feature_intparams_key,
-                              NullKey, FEATURES_BY_DATAPOINTS, NullKey);
+                              NullKey, FEATURES_BY_DATAPOINTS);
     std::vector<SplitSelectorBuffers> split_select_buffers;
     split_select_buffers.push_back(buffers);
 
     ShouldSplitNoCriteria no_criteria;
     ClassEstimatorFinalizer<double> classEsimatorFinalizer;
-    SplitSelector<double, int> splitselector(split_select_buffers, &no_criteria, &classEsimatorFinalizer);
+    SplitSelector<double, int> splitselector(split_select_buffers, &no_criteria, &classEsimatorFinalizer, NULL);
 
 
     const int depth = 5;
@@ -248,7 +249,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_NoValidSplit)
 {
     SplitSelectorBuffers buffers(im_key, splitpoints_key, number_splitpoints_key, childcounts_key,
                               left_key, right_key, feature_floatparams_key, feature_intparams_key,
-                              NullKey, FEATURES_BY_DATAPOINTS, NullKey);
+                              NullKey, FEATURES_BY_DATAPOINTS);
     std::vector<SplitSelectorBuffers> split_select_buffers;
     split_select_buffers.push_back(buffers);
 
@@ -265,7 +266,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_MinChildSizeCriteria)
 {
     SplitSelectorBuffers buffers(im_key, splitpoints_key, number_splitpoints_key, childcounts_key,
                               left_key, right_key, feature_floatparams_key, feature_intparams_key,
-                              NullKey, FEATURES_BY_DATAPOINTS, NullKey);
+                              NullKey, FEATURES_BY_DATAPOINTS);
     std::vector<SplitSelectorBuffers> split_select_buffers;
     split_select_buffers.push_back(buffers);
 
@@ -306,10 +307,10 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_two_SplitSelectorBuffers)
 {
     SplitSelectorBuffers buffers(im_key, splitpoints_key, number_splitpoints_key, childcounts_key,
                               left_key, right_key, feature_floatparams_key, feature_intparams_key,
-                              NullKey, FEATURES_BY_DATAPOINTS, NullKey);
+                              NullKey, FEATURES_BY_DATAPOINTS);
     SplitSelectorBuffers buffers2(im_2_key, splitpoints_key, number_splitpoints_key, childcounts_key,
                               left_key, right_key, feature_floatparams_key, feature_intparams_key,
-                              NullKey, FEATURES_BY_DATAPOINTS, NullKey);
+                              NullKey, FEATURES_BY_DATAPOINTS);
     std::vector<SplitSelectorBuffers> split_select_buffers;
     split_select_buffers.push_back(buffers);
     split_select_buffers.push_back(buffers2);
@@ -352,13 +353,14 @@ BOOST_AUTO_TEST_CASE(test_SplitBuffers_FEATURES_BY_DATAPOINTS)
 {
     SplitSelectorBuffers buffers(im_key, splitpoints_key, number_splitpoints_key, childcounts_key,
                               left_key, right_key, feature_floatparams_key, feature_intparams_key,
-                              feature_values_key, FEATURES_BY_DATAPOINTS, indices_key);
+                              feature_values_key, FEATURES_BY_DATAPOINTS);
     std::vector<SplitSelectorBuffers> split_select_buffers;
     split_select_buffers.push_back(buffers);
 
     MinChildSizeCriteria min_child_size_criteria(10);
     ClassEstimatorFinalizer<double> classEsimatorFinalizer;
-    SplitSelector<double, int> splitselector(split_select_buffers, &min_child_size_criteria, &classEsimatorFinalizer);
+    SplitBuffersIndices<double, int> splitIndices(indices_key);
+    SplitSelector<double, int> splitselector(split_select_buffers, &min_child_size_criteria, &classEsimatorFinalizer, &splitIndices);
 
     const int depth = 5;
     SplitSelectorInfo<double, int> selectorInfo = splitselector.ProcessSplits(stack, depth);
@@ -385,13 +387,14 @@ BOOST_AUTO_TEST_CASE(test_SplitBuffers_DATAPOINTS_BY_FEATURES)
 
     SplitSelectorBuffers buffers(im_key, splitpoints_key, number_splitpoints_key, childcounts_key,
                               left_key, right_key, feature_floatparams_key, feature_intparams_key,
-                              feature_values_key, DATAPOINTS_BY_FEATURES, indices_key);
+                              feature_values_key, DATAPOINTS_BY_FEATURES);
     std::vector<SplitSelectorBuffers> split_select_buffers;
     split_select_buffers.push_back(buffers);
 
     MinChildSizeCriteria min_child_size_criteria(10);
     ClassEstimatorFinalizer<double> classEsimatorFinalizer;
-    SplitSelector<double, int> splitselector(split_select_buffers, &min_child_size_criteria, &classEsimatorFinalizer);
+    SplitBuffersIndices<double, int> splitIndices(indices_key);
+    SplitSelector<double, int> splitselector(split_select_buffers, &min_child_size_criteria, &classEsimatorFinalizer, &splitIndices);
 
     const int depth = 5;
     SplitSelectorInfo<double, int> selectorInfo = splitselector.ProcessSplits(stack, depth);

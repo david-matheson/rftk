@@ -24,6 +24,12 @@ public:
     WaitForBestSplitSelector(const std::vector<SplitSelectorBuffers>& splitBuffers,
                   const ShouldSplitCriteriaI* shouldSplitCriteria,
                   const FinalizerI<FloatType>* finalizer);
+
+    WaitForBestSplitSelector(const std::vector<SplitSelectorBuffers>& splitBuffers,
+                  const ShouldSplitCriteriaI* shouldSplitCriteria,
+                  const FinalizerI<FloatType>* finalizer,
+                  const SplitBuffersI* bufferSplitter);
+
     virtual ~WaitForBestSplitSelector();
 
     virtual SplitSelectorInfo<FloatType, IntType> ProcessSplits(const BufferCollectionStack& bufferCollectionStack, int depth) const;
@@ -34,6 +40,7 @@ private:
     std::vector<SplitSelectorBuffers> mSplitSelectorBuffers;
     const ShouldSplitCriteriaI* mShouldSplitCriteria;
     const FinalizerI<FloatType>* mFinalizer;
+    const SplitBuffersI* mBufferSplitter;
 };
 
 template <class FloatType, class IntType>
@@ -43,6 +50,18 @@ WaitForBestSplitSelector<FloatType, IntType>::WaitForBestSplitSelector( const st
 : mSplitSelectorBuffers(splitBuffers)
 , mShouldSplitCriteria(shouldSplitCriteria->Clone())
 , mFinalizer(finalizer->Clone())
+, mBufferSplitter(NULL)
+{}
+
+template <class FloatType, class IntType>
+WaitForBestSplitSelector<FloatType, IntType>::WaitForBestSplitSelector( const std::vector<SplitSelectorBuffers>& splitBuffers,
+                                                  const ShouldSplitCriteriaI* shouldSplitCriteria,
+                                                  const FinalizerI<FloatType>* finalizer,
+                                                  const SplitBuffersI* bufferSplitter)
+: mSplitSelectorBuffers(splitBuffers)
+, mShouldSplitCriteria(shouldSplitCriteria->Clone())
+, mFinalizer(finalizer->Clone())
+, mBufferSplitter((bufferSplitter != NULL) ? bufferSplitter->Clone() : NULL)
 {}
 
 template <class FloatType, class IntType>
@@ -50,6 +69,7 @@ WaitForBestSplitSelector<FloatType, IntType>::~WaitForBestSplitSelector()
 {
     mSplitSelectorBuffers.clear();
     delete mShouldSplitCriteria;
+    delete mBufferSplitter;
     delete mFinalizer;
 }
 
@@ -112,12 +132,16 @@ SplitSelectorInfo<FloatType, IntType> WaitForBestSplitSelector<FloatType, IntTyp
     }
 
     return SplitSelectorInfo<FloatType, IntType>(mSplitSelectorBuffers[bestWaitForBestmSplitSelectorBuffers],
-                                            readCollection, mFinalizer, bestFeature, bestSplitpoint, depth);
+                                            readCollection, mFinalizer, mBufferSplitter,
+                                            bestFeature, bestSplitpoint, depth);
 }
 
 template <class FloatType, class IntType>
 SplitSelectorI<FloatType, IntType>* WaitForBestSplitSelector<FloatType, IntType>::Clone() const
 {
-    WaitForBestSplitSelector* clone = new WaitForBestSplitSelector<FloatType, IntType>(mSplitSelectorBuffers, mShouldSplitCriteria, mFinalizer);
+    WaitForBestSplitSelector* clone = new WaitForBestSplitSelector<FloatType, IntType>(mSplitSelectorBuffers, 
+                                                                                      mShouldSplitCriteria, 
+                                                                                      mFinalizer, 
+                                                                                      mBufferSplitter);
     return clone;
 }

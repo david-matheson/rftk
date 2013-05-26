@@ -22,8 +22,7 @@ public:
                     const BufferId& floatParamsBufferId,
                     const BufferId& intParamsBufferId,
                     const BufferId& featureValuesBufferId,
-                    FeatureValueOrdering ordering,
-                    const BufferId& indicesBufferId);
+                    FeatureValueOrdering ordering);
 
     // BufferIds are non-const for vector assignment operator
     BufferId mImpurityBufferId;
@@ -36,6 +35,5 @@ public:
     BufferId mIntParamsBufferId;
     BufferId mFeatureValuesBufferId;
     FeatureValueOrdering mOrdering;
-    BufferId mIndicesBufferId;
 };
 

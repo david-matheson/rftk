@@ -1,4 +1,5 @@
 #include "CreateDepthFirstLearner.h"
+#include "SplitBuffersIndices.h"
 
 DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t xs_key, 
                                                           BufferCollectionKey_t classes_key, 
@@ -51,11 +52,11 @@ DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t
                                                 featureParams.FloatParamsBufferId,
                                                 featureParams.IntParamsBufferId,
                                                 featureExtractor.FeatureValuesBufferId,
-                                                featureOrdering,
-                                                allSamplesStep.IndicesBufferId));
+                                                featureOrdering));
     ShouldSplitNoCriteria noCriteria;
     ClassEstimatorFinalizer<float> classFinalizer;
-    SplitSelector<float, int> splitSelector(splitBuffers, &noCriteria, &classFinalizer);
+    SplitBuffersIndices<float, int> splitIndices(allSamplesStep.IndicesBufferId);
+    SplitSelector<float, int> splitSelector(splitBuffers, &noCriteria, &classFinalizer, &splitIndices);
     
     return DepthFirstTreeLearner<float, int>(&trySplitCriteria, &treeStepsPipeline, &nodeStepsPipeline, &splitSelector);
 }

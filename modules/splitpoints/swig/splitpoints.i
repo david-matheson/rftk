@@ -25,3 +25,5 @@ namespace std {
 %template(WaitForBestSplitSelector_f32i32) WaitForBestSplitSelector<float, int>;
 %template(RandomSplitpointsStep_f32i32) RandomSplitpointsStep<float, int>;
 %template(AssignStreamStep_f32i32) AssignStreamStep<float, int>;
+
+%template(SplitIndices_f32i32) SplitBuffersIndices<float, int>;

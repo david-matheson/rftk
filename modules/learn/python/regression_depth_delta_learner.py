@@ -87,11 +87,11 @@ def create_regression_scaled_depth_delta_learner_32f(**kwargs):
                                                           feature_params_step.FloatParamsBufferId,
                                                           feature_params_step.IntParamsBufferId,
                                                           depth_delta_feature_extractor_step.FeatureValuesBufferId,
-                                                          feature_ordering,
-                                                          sample_data_step.IndicesBufferId)
+                                                          feature_ordering)
     should_split_criteria = create_should_split_criteria(**kwargs)
     finalizer = regression.MeanVarianceEstimatorFinalizer_f32()
-    split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer )
+    split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
+    split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_indices )
 
     tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
     forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, dimension_of_y*2, number_of_jobs)
@@ -153,11 +153,11 @@ def create_biau2008_regression_scaled_depth_delta_learner_32f(**kwargs):
                                                           feature_params_step.FloatParamsBufferId,
                                                           feature_params_step.IntParamsBufferId,
                                                           depth_delta_feature_extractor_step.FeatureValuesBufferId,
-                                                          feature_ordering,
-                                                          sample_data_step.IndicesBufferId)
+                                                          feature_ordering)
     should_split_criteria = min_child_size_criteria = should_split.MinChildSizeCriteria(1)
     finalizer = regression.MeanVarianceEstimatorFinalizer_f32()
-    split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer )
+    split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
+    split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_indices )
 
     tree_learner = learn.Biau2008TreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector, number_of_leaves)
     forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, dimension_of_y*2, number_of_jobs)
@@ -224,11 +224,11 @@ def create_consistent_two_stream_regression_scaled_depth_delta_learner_32f(**kwa
                                                           feature_params_step.FloatParamsBufferId,
                                                           feature_params_step.IntParamsBufferId,
                                                           depth_delta_feature_extractor_step.FeatureValuesBufferId,
-                                                          feature_ordering,
-                                                          sample_data_step.IndicesBufferId)
+                                                          feature_ordering)
     should_split_criteria = create_should_split_criteria(**kwargs)
     finalizer = regression.MeanVarianceEstimatorFinalizer_f32()
-    split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer )
+    split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
+    split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_indices )
 
     tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
     forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, dimension_of_y*2, number_of_jobs)
