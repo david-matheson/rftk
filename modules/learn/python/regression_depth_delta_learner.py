@@ -105,7 +105,8 @@ def create_biau2008_regression_scaled_depth_delta_learner_32f(**kwargs):
     vy = float( kwargs.get('vy') )
 
     number_of_trees = int( kwargs.get('number_of_trees', 10) )
-    number_of_leaves = int( kwargs.get('number_of_leaves', 10) )
+    number_of_splits = int( kwargs.get('number_of_splits', 10) )
+    number_of_split_retries = int( kwargs.get('number_of_split_retries', 10) )
     number_of_features = 1
     feature_ordering = int( kwargs.get('feature_ordering', pipeline.FEATURES_BY_DATAPOINTS) )
     number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
@@ -159,7 +160,7 @@ def create_biau2008_regression_scaled_depth_delta_learner_32f(**kwargs):
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
     split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_indices )
 
-    tree_learner = learn.Biau2008TreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector, number_of_leaves)
+    tree_learner = learn.Biau2008TreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector, number_of_splits, number_of_split_retries)
     forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, dimension_of_y*2, number_of_jobs)
     return forest_learner
 
