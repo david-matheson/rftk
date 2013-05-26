@@ -71,7 +71,7 @@ private:
 
     Forest mForest;
     ProbabilityOfErrorFrontierQueue<ProbabilityOfError> mFrontierQueue;
-    std::map< std::pair<int, int>, ActiveLeaf > mActiveFrontierLeaves;
+    std::map< std::pair<int, int>, ActiveOnlineLeaf > mActiveFrontierLeaves;
 
     const BufferId mIndicesBufferId;
     const BufferId mWeightsBufferId;
@@ -121,7 +121,7 @@ template <class Feature, class EstimatorUpdater, class ProbabilityOfError,  clas
 OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatType, IntType>
 ::~OnlineForestLearner()
 {
-    typedef std::map< std::pair<int, int>, ActiveLeaf >::iterator it_type;
+    typedef std::map< std::pair<int, int>, ActiveOnlineLeaf >::iterator it_type;
     for(it_type iterator = mActiveFrontierLeaves.begin(); iterator != mActiveFrontierLeaves.end(); ++iterator)
     {
         delete iterator->second.mNodeData;
@@ -191,7 +191,7 @@ Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatT
             std::pair<int,int> treeNodeKey = std::make_pair(treeIndex, nodeIndex);
             if( mActiveFrontierLeaves.find(treeNodeKey) != mActiveFrontierLeaves.end() )
             {
-                ActiveLeaf& leaf = mActiveFrontierLeaves[treeNodeKey];
+                ActiveOnlineLeaf& leaf = mActiveFrontierLeaves[treeNodeKey];
                 stack.Push(leaf.mNodeData);
                 if( !leaf.mIsInitialized )
                 {
@@ -267,6 +267,6 @@ void OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatTyp
     while( mActiveFrontierLeaves.size() < static_cast<size_t>(mMaxFrontierSize) && !mFrontierQueue.IsEmpty() )
     {
         std::pair<int,int> treeNodeKey = mFrontierQueue.PopBest(mForest);
-        mActiveFrontierLeaves[treeNodeKey] = ActiveLeaf(new BufferCollection());
+        mActiveFrontierLeaves[treeNodeKey] = ActiveOnlineLeaf(new BufferCollection());
     }
 }
