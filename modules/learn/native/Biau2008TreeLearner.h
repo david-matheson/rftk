@@ -167,7 +167,7 @@ void Biau2008TreeLearner<FloatType, IntType>::ProcessActiveLeaf( boost::mt19937&
         Biau2008ActiveLeaf<FloatType, IntType> rightActiveLeaf(rightNodeIndex, activeLeaf.mDepth+1);
         FloatType leftSize = std::numeric_limits<FloatType>::min();
         FloatType rightSize = std::numeric_limits<FloatType>::min();
-        selectorInfo.SplitIndices(leftActiveLeaf.mIndices, rightActiveLeaf.mIndices, leftSize, rightSize);
+        selectorInfo.SplitBuffers(leftActiveLeaf.mIndices, rightActiveLeaf.mIndices, leftSize, rightSize);
 
         if(mTrySplitCriteria->TrySplit(leftActiveLeaf.mDepth, leftSize))
         {

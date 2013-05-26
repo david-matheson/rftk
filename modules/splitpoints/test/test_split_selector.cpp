@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_two_SplitSelectorBuffers)
     BOOST_CHECK( estimatorParams.SliceRowAsVector(rightNodeId) == right.SliceRow(bestFeature, bestSplitpoint).Normalized());
 }
 
-BOOST_AUTO_TEST_CASE(test_SplitIndices_FEATURES_BY_DATAPOINTS)
+BOOST_AUTO_TEST_CASE(test_SplitBuffers_FEATURES_BY_DATAPOINTS)
 {
     SplitSelectorBuffers buffers(im_key, splitpoints_key, number_splitpoints_key, childcounts_key,
                               left_key, right_key, feature_floatparams_key, feature_intparams_key,
@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE(test_SplitIndices_FEATURES_BY_DATAPOINTS)
     BufferCollection leftBufCol;
     BufferCollection rightBufCol;
     double leftSize, rightSize;
-    selectorInfo.SplitIndices(leftBufCol, rightBufCol, leftSize, rightSize);
+    selectorInfo.SplitBuffers(leftBufCol, rightBufCol, leftSize, rightSize);
     BOOST_CHECK_CLOSE(leftSize, 11.0, 0.1);
     BOOST_CHECK_CLOSE(rightSize, 12.0, 0.1);
 
@@ -378,7 +378,7 @@ BOOST_AUTO_TEST_CASE(test_SplitIndices_FEATURES_BY_DATAPOINTS)
     BOOST_CHECK(rightBufCol.GetBuffer< VectorBufferTemplate<int> >(indices_key) == CreateVector<int>(rightExpectedIndexData, 3));
 }
 
-BOOST_AUTO_TEST_CASE(test_SplitIndices_DATAPOINTS_BY_FEATURES)
+BOOST_AUTO_TEST_CASE(test_SplitBuffers_DATAPOINTS_BY_FEATURES)
 {
     MatrixBufferTemplate<double>& fv = collection.GetBuffer< MatrixBufferTemplate<double> >(feature_values_key);
     fv = fv.Transpose();
@@ -400,7 +400,7 @@ BOOST_AUTO_TEST_CASE(test_SplitIndices_DATAPOINTS_BY_FEATURES)
     BufferCollection leftBufCol;
     BufferCollection rightBufCol;
     double leftSize, rightSize;
-    selectorInfo.SplitIndices(leftBufCol, rightBufCol, leftSize, rightSize);
+    selectorInfo.SplitBuffers(leftBufCol, rightBufCol, leftSize, rightSize);
     BOOST_CHECK_CLOSE(leftSize, 11.0, 0.1);
     BOOST_CHECK_CLOSE(rightSize, 12.0, 0.1);
 

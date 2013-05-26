@@ -35,7 +35,7 @@ public:
                           MatrixBufferTemplate<IntType>& treeIntFeatureParams,
                           MatrixBufferTemplate<FloatType>& treeFloatEstimatorParams ) const;
 
-    void SplitIndices(BufferCollection& leftIndicesBufCol, BufferCollection& rightIndicesBufCol,
+    void SplitBuffers(BufferCollection& leftBuffers, BufferCollection& rightBuffers,
                       FloatType& leftSize, FloatType& rightSize) const;
 
 private:
@@ -130,7 +130,7 @@ void SplitSelectorInfo<FloatType, IntType>::WriteToTree(int nodeId, int leftNode
 }
 
 template <class FloatType, class IntType>
-void SplitSelectorInfo<FloatType, IntType>::SplitIndices(BufferCollection& leftIndicesBufCol, BufferCollection& rightIndicesBufCol,
+void SplitSelectorInfo<FloatType, IntType>::SplitBuffers(BufferCollection& leftBuffers, BufferCollection& rightBuffers,
                                                           FloatType& leftSize, FloatType& rightSize) const
 {
     ASSERT(ValidSplit())
@@ -172,10 +172,10 @@ void SplitSelectorInfo<FloatType, IntType>::SplitIndices(BufferCollection& leftI
         }
     }
     VectorBufferTemplate<IntType> leftIndicesBuf(&leftIndices[0], leftIndices.size());
-    leftIndicesBufCol.AddBuffer< VectorBufferTemplate<IntType> >(mSplitSelectorBuffers.mIndicesBufferId, leftIndicesBuf );
+    leftBuffers.AddBuffer< VectorBufferTemplate<IntType> >(mSplitSelectorBuffers.mIndicesBufferId, leftIndicesBuf );
 
     VectorBufferTemplate<IntType> rightIndicesBuf(&rightIndices[0], rightIndices.size());
-    rightIndicesBufCol.AddBuffer< VectorBufferTemplate<IntType> >(mSplitSelectorBuffers.mIndicesBufferId, rightIndicesBuf );
+    rightBuffers.AddBuffer< VectorBufferTemplate<IntType> >(mSplitSelectorBuffers.mIndicesBufferId, rightIndicesBuf );
 
     const Tensor3BufferTemplate<FloatType>& childCounts
            = mReadCollection.GetBuffer< Tensor3BufferTemplate<FloatType> >(mSplitSelectorBuffers.mChildCountsBufferId);

@@ -136,7 +136,7 @@ void DepthFirstTreeLearner<FloatType, IntType>::ProcessNode( boost::mt19937& gen
                 tree.mPath.Set(nodeIndex, 0, leftNodeIndex);
                 tree.mPath.Set(nodeIndex, 1, rightNodeIndex);
 
-                selectorInfo.SplitIndices(leftIndicesBufCol, rightIndicesBufCol, leftSize, rightSize);
+                selectorInfo.SplitBuffers(leftIndicesBufCol, rightIndicesBufCol, leftSize, rightSize);
             }
             stack.Pop(); //stack.Push(nodeData);
         }
