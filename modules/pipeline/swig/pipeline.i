@@ -11,6 +11,8 @@
     #include "SetBufferStep.h"
     #include "SliceBufferStep.h"
     #include "FeatureExtractorStep.h"
+    #include "FeatureEqualI.h"
+    #include "FeatureEqualQuantized.h"
 %}
 
 %include <exception.i>
@@ -34,6 +36,8 @@ namespace std {
 %include "SetBufferStep.h"
 %include "SliceBufferStep.h"
 %include "FeatureExtractorStep.h"
+%include "FeatureEqualI.h"
+%include "FeatureEqualQuantized.h"
 
 %template(AllSamplesStep_f32f32i32) AllSamplesStep< MatrixBufferTemplate<float>, float, int >;
 %template(AllSamplesStep_i32f32i32) AllSamplesStep< MatrixBufferTemplate<int>, float, int >;
@@ -57,3 +61,6 @@ namespace std {
 %template(SliceFloat32MatrixBufferStep_i32) SliceBufferStep< MatrixBufferTemplate<float>, int >;
 %template(SliceFloat32VectorBufferStep_i32) SliceBufferStep< VectorBufferTemplate<float>, int >;
 %template(SliceInt32VectorBufferStep_i32) SliceBufferStep< VectorBufferTemplate<int>, int >;
+
+%template(FeatureEqualI_f32i32) FeatureEqualI< float, int >;
+%template(FeatureEqualQuantized_f32i32) FeatureEqualQuantized< float, int >;

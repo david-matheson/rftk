@@ -4,6 +4,7 @@
     #include "UniqueBufferId.h"
     #include "PipelineStepI.h"
     #include "FeatureExtractorStep.h"
+    #include "FeatureEqualI.h"
 %}
 
 %include <exception.i>
@@ -13,4 +14,5 @@
 %include "UniqueBufferId.h"
 %include "PipelineStepI.h"
 %include "FeatureExtractorStep.h"
+%include "FeatureEqualI.h"
 
