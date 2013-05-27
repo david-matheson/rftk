@@ -44,6 +44,7 @@ public:
     void NormalizeRow(int m);
 
     void Append(const MatrixBufferTemplate<T>& buffer);
+    void AppendRow(const VectorBufferTemplate<T>& buffer);
     MatrixBufferTemplate<T> Transpose() const;
     MatrixBufferTemplate<T> Slice(const VectorBufferTemplate<int>& indices) const;
     MatrixBufferTemplate<T> SliceRow(const int row) const;
@@ -279,6 +280,18 @@ void MatrixBufferTemplate<T>::Append(const MatrixBufferTemplate<T>& buffer)
         {
             Set(r+oldM, c, buffer.Get(r, c));
         }
+    }
+}
+
+template <class T>
+void MatrixBufferTemplate<T>::AppendRow(const VectorBufferTemplate<T>& buffer)
+{
+    ASSERT_ARG_DIM_1D(mN, buffer.GetN())
+    const int oldM = mM;
+    Resize(mM + 1, mN);
+    for(int c=0; c<mN; c++)
+    {
+        Set(oldM, c, buffer.Get(c));
     }
 }
 
