@@ -2,8 +2,7 @@
 %{
     #define SWIG_FILE_WITH_INIT
     #include "SplitSelectorBuffers.h"
-    #include "SplitBuffersI.h"
-    #include "SplitBuffersIndices.h"
+
     #include "SplitSelectorI.h"
     #include "SplitSelector.h"
     #include "WaitForBestSplitSelector.h"
@@ -21,8 +20,7 @@
 %import(module="rftk.pipeline") "pipeline_external.i"
 
 %include "SplitSelectorBuffers.h"
-%include "SplitBuffersI.h"
-%include "SplitBuffersIndices.h"
+
 %include "SplitSelectorI.h"
 %include "SplitSelector.h"
 %include "WaitForBestSplitSelector.h"

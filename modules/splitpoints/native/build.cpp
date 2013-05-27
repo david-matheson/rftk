@@ -10,3 +10,5 @@
 #include "RandomSplitpointsStep.h"
 #include "SplitpointStatsStep.h"
 #include "TwoStreamSplitpointStatsStep.h"
+#include "RangeMidpointStep.h"
+#include "SplitBuffersFeatureRange.h"

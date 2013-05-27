@@ -41,8 +41,6 @@ FeatureEqualI<FloatType, IntType>* FeatureEqualQuantized<FloatType, IntType>::Cl
     return clone;
 }
 
-#include <stdio.h>
-
 template <class FloatType, class IntType>
 bool FeatureEqualQuantized<FloatType, IntType>::IsEqual(const MatrixBufferTemplate<FloatType>& floatParams,
                         const MatrixBufferTemplate<IntType>& intParams,

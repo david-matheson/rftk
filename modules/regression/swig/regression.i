@@ -26,3 +26,7 @@
 
 %template(SumOfVarianceTwoStreamWalker_f32i32) SumOfVarianceTwoStreamWalker<float, int>;
 %template(SumOfVarianceTwoStreamBestSplitpointsWalkingSortedStep_f32i32) TwoStreamBestSplitpointsWalkingSortedStep< SumOfVarianceTwoStreamWalker<float, int> >;
+
+%template(MeanVarianceStatsUpdater_f32i32) MeanVarianceStatsUpdater<float,int>;
+%template(SumOfVarianceTwoStreamStep_f32i32) TwoStreamSplitpointStatsStep< MeanVarianceStatsUpdater<float,int> >;
+%template(SumOfVarianceSplitpointsImpurity_f32i32) SplitpointsImpurity< SumOfVarianceImpurity<float>, int >;
