@@ -69,6 +69,7 @@ struct DepthFirstTreeLearnerFixture {
     {
         collection.AddBuffer(xs_key, xs);
         collection.AddBuffer(classes_key, classes);
+        stack.Push(&collection);
     }
 
     ~DepthFirstTreeLearnerFixture()
@@ -80,6 +81,7 @@ struct DepthFirstTreeLearnerFixture {
     const BufferCollectionKey_t classes_key;
     const VectorBufferTemplate<int> classes;    
     BufferCollection collection;
+    BufferCollectionStack stack;
 };
 
 DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t xs_key, 

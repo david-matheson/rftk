@@ -29,7 +29,7 @@ public:
     virtual ~DepthFirstTreeLearner();
 
     virtual TreeLearnerI* Clone() const;
-    virtual void Learn( const BufferCollection& data, Tree& tree, unsigned int seed ) const;
+    virtual void Learn( BufferCollectionStack stack, Tree& tree, unsigned int seed ) const;
 
 private:
     void ProcessNode( boost::mt19937& gen,
@@ -83,13 +83,11 @@ TreeLearnerI* DepthFirstTreeLearner<FloatType, IntType>::Clone() const
 
 
 template <class FloatType, class IntType>
-void DepthFirstTreeLearner<FloatType, IntType>::Learn( const BufferCollection& data, Tree& tree, unsigned int seed ) const
+void DepthFirstTreeLearner<FloatType, IntType>::Learn( BufferCollectionStack stack, Tree& tree, unsigned int seed ) const
 {
     boost::mt19937 gen;
     gen.seed(seed);
 
-    BufferCollectionStack stack;
-    stack.Push(&data);
     BufferCollection treeData;
     stack.Push(&treeData);
     mTreeSteps->ProcessStep(stack, treeData, gen);

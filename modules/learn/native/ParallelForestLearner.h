@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BufferCollectionStack.h"
+#include "PipelineStepI.h"
 #include "TreeLearnerI.h"
 #include "Forest.h"
 
@@ -13,6 +14,15 @@ public:
                             int maxFloatParamsDim, 
                             int maxEstimatorParamsDim, 
                             int numberOfJobs );
+
+    ParallelForestLearner( const TreeLearnerI* treeLearner, 
+                            const PipelineStepI* forestSteps,
+                            int numberOfTrees, 
+                            int maxIntParamsDim, 
+                            int maxFloatParamsDim, 
+                            int maxEstimatorParamsDim, 
+                            int numberOfJobs );
+
     ~ParallelForestLearner();
 
     Forest Learn( const BufferCollection& data );
@@ -22,6 +32,7 @@ private:
     
     Forest* mForest;  // because multiple threads write to mForest, it must be on the heap
     const TreeLearnerI* mTreeLearner;
+    const PipelineStepI* mForestSteps;
     const int mNumberOfTrees;
     const int mNumberOfJobs;
 };
