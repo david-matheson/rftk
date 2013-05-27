@@ -197,6 +197,8 @@ def create_biau2012_regression_scaled_depth_delta_learner_32f(**kwargs):
     depth_delta_feature_extractor_step = image_features.ScaledDepthDeltaFeatureExtractorStep_f32i32(depth_delta_feature, feature_ordering)
     slice_ys_step = pipeline.SliceFloat32MatrixBufferStep_i32(buffers.YS, sample_data_step.IndicesBufferId)
     slice_weights_step = pipeline.SliceFloat32VectorBufferStep_i32(sample_data_step.WeightsBufferId, sample_data_step.IndicesBufferId)
+    slice_assign_stream_step = pipeline.SliceInt32VectorBufferStep_i32(assign_stream_step.StreamTypeBufferId, sample_data_step.IndicesBufferId)
+
 
     quantized_feature_equal = pipeline.FeatureEqualQuantized_f32i32(1.0)
 
@@ -211,7 +213,7 @@ def create_biau2012_regression_scaled_depth_delta_learner_32f(**kwargs):
 
     two_stream_split_stats_step = regression.SumOfVarianceTwoStreamStep_f32i32(midpoint_step.SplitpointsBufferId,
                                                                           midpoint_step.SplitpointsCountsBufferId,
-                                                                          assign_stream_step.StreamTypeBufferId,
+                                                                          slice_assign_stream_step.SlicedBufferId,
                                                                           depth_delta_feature_extractor_step.FeatureValuesBufferId,
                                                                           feature_ordering,
                                                                           mean_variance_stats_updater)
@@ -223,7 +225,7 @@ def create_biau2012_regression_scaled_depth_delta_learner_32f(**kwargs):
                                                                           two_stream_split_stats_step.RightImpurityStatsBufferId)
 
     node_steps_pipeline = pipeline.Pipeline([feature_params_step, depth_delta_feature_extractor_step,
-                                            slice_ys_step, slice_weights_step, 
+                                            slice_ys_step, slice_weights_step, slice_assign_stream_step,
                                             midpoint_step, two_stream_split_stats_step, impurity_step])
 
     split_buffers = splitpoints.SplitSelectorBuffers(impurity_step.ImpurityBufferId,
