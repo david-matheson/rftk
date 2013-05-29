@@ -62,6 +62,7 @@ Forest ParallelForestLearner::Learn( const BufferCollection& data )
     if( mForestSteps != NULL)
     {
         boost::mt19937 gen;
+        setSeed(static_cast<unsigned int>(std::time(NULL))); //set bootstrap seed
         gen.seed(static_cast<unsigned int>(std::time(NULL)));
 
         BufferCollection* forestData = new BufferCollection();
