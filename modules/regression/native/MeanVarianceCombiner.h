@@ -48,7 +48,7 @@ void MeanVarianceCombiner<FloatType>::Combine(int nodeId, FloatType count, const
         mCombinedResults.Incr(i, estimatorParameters.Get(nodeId, i));
 
     }
-    mNumberOfTrees += FloatType(1);
+    mNumberOfTrees += (count > 0.1) ? FloatType(1) : FloatType(0);
     mCounts += count;
 }
 
