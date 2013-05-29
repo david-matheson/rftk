@@ -80,7 +80,7 @@ VectorBufferTemplate<T>::VectorBufferTemplate(float* data, int n)
 }
 
 template <class T>
-VectorBufferTemplate<T>::VectorBufferTemplate(double* data, int n)
+VectorBufferTemplate<T>::VectorBufferTemplate(int* data, int n)
 : mData( n )
 , mN(n)
 {
@@ -91,7 +91,7 @@ VectorBufferTemplate<T>::VectorBufferTemplate(double* data, int n)
 }
 
 template <class T>
-VectorBufferTemplate<T>::VectorBufferTemplate(int* data, int n)
+VectorBufferTemplate<T>::VectorBufferTemplate(double* data, int n)
 : mData( n )
 , mN(n)
 {
@@ -305,6 +305,17 @@ void VectorBufferTemplate<T>::Print() const
         std::cout << Get(n) << " ";
     }
     std::cout << "]" << std::endl;
+}
+
+template <class From, class To>
+VectorBufferTemplate<To> ConvertVectorBufferTemplate(const VectorBufferTemplate<From>& from)
+{
+    VectorBufferTemplate<To> to(from.GetN());
+    for(int i=0; i<from.GetN(); i++)
+    {
+        to.Set(i, static_cast<To>(from.Get(i)));
+    }
+    return to;
 }
 
 typedef VectorBufferTemplate<float> Float32VectorBuffer;
