@@ -24,8 +24,8 @@ class PixelPairGaussianOffsetsStep: public PipelineStepI
 public:
     PixelPairGaussianOffsetsStep( const BufferId numberOfFeaturesBufferId,
                             const FloatType ux,
-                            const FloatType uy, 
-                            const FloatType vx, 
+                            const FloatType uy,
+                            const FloatType vx,
                             const FloatType vy  );
     virtual ~PixelPairGaussianOffsetsStep();
 
@@ -57,8 +57,8 @@ private:
 template <class FloatType, class IntType>
 PixelPairGaussianOffsetsStep<FloatType,IntType>::PixelPairGaussianOffsetsStep(  const BufferId numberOfFeaturesBufferId,
                                                                 const FloatType ux,
-                                                                const FloatType uy, 
-                                                                const FloatType vx, 
+                                                                const FloatType uy,
+                                                                const FloatType vx,
                                                                 const FloatType vy )
 : FloatParamsBufferId(GetBufferId("FloatParams"))
 , IntParamsBufferId(GetBufferId("IntParams"))
@@ -92,7 +92,7 @@ void PixelPairGaussianOffsetsStep<FloatType,IntType>::ProcessStep(const BufferCo
         const VectorBufferTemplate<IntType>& numberOfFeaturesBuffer =
                 readCollection.GetBuffer< VectorBufferTemplate<IntType> >(mNumberOfFeaturesBufferId);
         ASSERT_ARG_DIM_1D(numberOfFeaturesBuffer.GetN(), 1)
-        const IntType numberOfFeatures = numberOfFeaturesBuffer.Get(0);
+        const IntType numberOfFeatures = std::max(1, numberOfFeaturesBuffer.Get(0));
 
         MatrixBufferTemplate<FloatType>& floatParams =
                 writeCollection.GetOrAddBuffer< MatrixBufferTemplate<FloatType> >(FloatParamsBufferId);

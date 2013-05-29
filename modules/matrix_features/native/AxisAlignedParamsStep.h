@@ -82,7 +82,7 @@ void AxisAlignedParamsStep<FloatType,IntType>::ProcessStep(const BufferCollectio
         const VectorBufferTemplate<IntType>& numberOfFeaturesBuffer =
                 readCollection.GetBuffer< VectorBufferTemplate<IntType> >(mNumberOfFeaturesBufferId);
         ASSERT_ARG_DIM_1D(numberOfFeaturesBuffer.GetN(), 1)
-        const IntType numberOfFeatures = std::min(numberOfFeaturesBuffer.Get(0), numberOfDimensions);
+        const IntType numberOfFeatures = std::min( std::max(1, numberOfFeaturesBuffer.Get(0)), numberOfDimensions);
 
         MatrixBufferTemplate<FloatType>& floatParams =
                 writeCollection.GetOrAddBuffer< MatrixBufferTemplate<FloatType> >(FloatParamsBufferId);
