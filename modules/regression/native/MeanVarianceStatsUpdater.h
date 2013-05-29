@@ -44,14 +44,20 @@ void BindedMeanVarianceStatsUpdater<FloatType, IntType>::UpdateStats(FloatType& 
 
     ASSERT_ARG_DIM_1D(yDim, stats.GetN()/2);
 
-    counts += weight;
-
+    const FloatType newCounts = weight + counts;
     for(int d=0; d<y.GetN(); d++)
     {
         const FloatType y_i = y.Get(d);
-        stats.Incr(feature, threshold, d, weight*y_i);
-        stats.Incr(feature, threshold, d+yDim, weight*y_i*y_i);
+        // old unstable sufficient stats 
+        // stats.Incr(feature, threshold, d, weight*y_i);
+        // stats.Incr(feature, threshold, d+yDim, weight*y_i*y_i);
+        const FloatType mean = stats.Get(feature, threshold, d);
+        const FloatType delta = y_i - mean;
+        const FloatType r = delta * weight / newCounts;
+        stats.Incr(feature, threshold, d, r);
+        stats.Incr(feature, threshold, d+yDim, counts*delta*r);
     }
+    counts = newCounts;
 }
 
 

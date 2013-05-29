@@ -23,11 +23,12 @@ void MeanVarianceEstimatorFinalizer<FloatType>::Finalize(FloatType count, Vector
 {
     UNUSED_PARAM(count);
     UNUSED_PARAM(estimator);
-    for(int d=0; d<estimator.GetN()/2; d++)
-    {
-        FloatType value = estimator.Get(d);
-        estimator.Set(d, value/count);
-    }
+    // Switched to online method that maintains the mean
+    // for(int d=0; d<estimator.GetN()/2; d++)
+    // {
+    //     FloatType value = estimator.Get(d);
+    //     estimator.Set(d, value/count);
+    // }
 }
 
 template <class FloatType>

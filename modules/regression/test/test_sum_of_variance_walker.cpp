@@ -56,7 +56,7 @@ BOOST_FIXTURE_TEST_SUITE( SumOfVarianceWalkerTests,  SumOfVarianceWalkerFixture 
 
 BOOST_AUTO_TEST_CASE(test_SumOfVarianceWalker_Impurity)
 {
-    SumOfVarianceWalker<float, int> sumOfVarianceWalker(weights_key, ys_key, ydim);
+    SumOfVarianceWalker<float, int, double> sumOfVarianceWalker(weights_key, ys_key, ydim);
     sumOfVarianceWalker.Bind(stack);
     BOOST_CHECK_CLOSE(sumOfVarianceWalker.Impurity(), 0.0, 1);
 
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(test_SumOfVarianceWalker_Impurity)
 
 BOOST_AUTO_TEST_CASE(test_SumOfVarianceWalker_Reset)
 {
-    SumOfVarianceWalker<float, int> sumOfVarianceWalker(weights_key, ys_key, ydim);
+    SumOfVarianceWalker<float, int, double> sumOfVarianceWalker(weights_key, ys_key, ydim);
     sumOfVarianceWalker.Bind(stack);
     BOOST_CHECK_CLOSE(sumOfVarianceWalker.Impurity(), 0.0, 1);
 

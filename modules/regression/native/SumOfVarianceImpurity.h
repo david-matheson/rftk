@@ -41,14 +41,32 @@ FloatType SumOfVarianceImpurity<FloatType>::Impurity(int feature, int splitpoint
     const int yDim = leftStats.GetN()/2;
     for(int d=0; d<yDim; d++)
     {
-        const FloatType leftY = leftStats.Get(feature, splitpoint, d);
-        const FloatType leftYSquared = leftStats.Get(feature, splitpoint, d+yDim);
-        const FloatType rightY = rightStats.Get(feature, splitpoint, d);
-        const FloatType rightYSquared = rightStats.Get(feature, splitpoint, d+yDim);
+        // old unstable sufficient stats 
+        // const FloatType leftY = leftStats.Get(feature, splitpoint, d);
+        // const FloatType leftYSquared = leftStats.Get(feature, splitpoint, d+yDim);
+        // const FloatType rightY = rightStats.Get(feature, splitpoint, d);
+        // const FloatType rightYSquared = rightStats.Get(feature, splitpoint, d+yDim);
 
-        startSumOfVariance += (leftYSquared + rightYSquared)/countsTotal -  pow((leftY + rightY) / countsTotal, 2);
-        leftSumOfVariance += (countsLeft>0.0) ? leftYSquared/countsLeft -  pow(leftY/countsLeft, 2) : 0.0;
-        rightSumOfVariance += (countsRight>0.0) ? rightYSquared/countsRight -  pow(rightY/countsRight, 2) : 0.0;
+        // startSumOfVariance += (leftYSquared + rightYSquared)/countsTotal -  pow((leftY + rightY) / countsTotal, 2);
+        // leftSumOfVariance += (countsLeft>0.0) ? leftYSquared/countsLeft -  pow(leftY/countsLeft, 2) : 0.0;
+        // rightSumOfVariance += (countsRight>0.0) ? rightYSquared/countsRight -  pow(rightY/countsRight, 2) : 0.0;
+
+        const FloatType leftY1 = leftStats.Get(feature, splitpoint, d);
+        const FloatType leftY2 = leftStats.Get(feature, splitpoint, d+yDim);
+        const FloatType rightY1 = rightStats.Get(feature, splitpoint, d);
+        const FloatType rightY2 = rightStats.Get(feature, splitpoint, d+yDim);
+
+        const FloatType leftVariance = (countsLeft>0.0) ? leftY2/countsLeft : 0.0;
+        const FloatType rightVariance = (countsRight>0.0) ? rightY2/countsRight : 0.0;
+
+        const FloatType startMean = (countsLeft/countsTotal)*leftY1 + (countsRight/countsTotal)*rightY1;
+        const FloatType startVariance = (countsLeft/countsTotal)*(leftVariance+leftY1*leftY1)
+                                        + (countsRight/countsTotal)*(rightVariance+rightY1*rightY1)
+                                        - (startMean*startMean);
+
+        startSumOfVariance += startVariance;
+        leftSumOfVariance += leftVariance;
+        rightSumOfVariance += rightVariance;
     }
 
     const FloatType varianceGain = startSumOfVariance
