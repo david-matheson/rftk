@@ -79,9 +79,9 @@ def create_axis_aligned_matrix_walking_learner_32f(**kwargs):
 
     if 'tree_order' in kwargs and kwargs.get('tree_order') == 'breadth_first':
         tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
-    else:    
+    else:
         tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
-        
+
     forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, number_of_classes, number_of_jobs)
     return forest_learner
 
@@ -142,7 +142,7 @@ def create_class_pair_difference_matrix_walking_learner_32f(**kwargs):
 
     if 'tree_order' in kwargs and kwargs.get('tree_order') == 'breadth_first':
         tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
-    else:    
+    else:
         tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
 
     forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, kwargs['x'].shape[1]+3, kwargs['x'].shape[1]+3, number_of_classes, number_of_jobs)
@@ -217,7 +217,7 @@ def create_axis_aligned_matrix_one_stream_learner_32f(**kwargs):
 
     if 'tree_order' in kwargs and kwargs.get('tree_order') == 'breadth_first':
         tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
-    else:    
+    else:
         tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
 
     forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, number_of_classes, number_of_jobs)
@@ -242,7 +242,7 @@ def create_axis_aligned_matrix_two_stream_learner_32f(**kwargs):
 
     number_of_features_buffer = buffers.as_vector_buffer(np.array([number_of_features], dtype=np.int32))
     set_number_features_step = pipeline.SetInt32VectorBufferStep(number_of_features_buffer, pipeline.WHEN_NEW)
-    assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.IndicesBufferId, probability_of_impurity_stream)
+    assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.WeightsBufferId, probability_of_impurity_stream)
     tree_steps_pipeline = pipeline.Pipeline([sample_data_step, set_number_features_step, assign_stream_step])
 
     feature_params_step = matrix_features.AxisAlignedParamsStep_f32i32(set_number_features_step.OutputBufferId, buffers.X_FLOAT_DATA)
@@ -296,7 +296,7 @@ def create_axis_aligned_matrix_two_stream_learner_32f(**kwargs):
 
     if 'tree_order' in kwargs and kwargs.get('tree_order') == 'breadth_first':
         tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
-    else:    
+    else:
         tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
     forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, number_of_classes, number_of_jobs)
     return forest_learner
@@ -442,7 +442,7 @@ def create_online_axis_aligned_matrix_two_stream_consistent_learner_32f(**kwargs
     else:
         sample_data_step = pipeline.AllSamplesStep_f32f32i32(buffers.X_FLOAT_DATA)
 
-    assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.IndicesBufferId, probability_of_impurity_stream)
+    assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.WeightsBufferId, probability_of_impurity_stream)
     tree_steps_pipeline = pipeline.Pipeline([sample_data_step, assign_stream_step])
 
     # On init

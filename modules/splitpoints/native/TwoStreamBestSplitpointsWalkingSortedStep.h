@@ -31,7 +31,7 @@ public:
                               const BufferId& streamTypeBufferId,
                               const BufferId& featureValues,
                               FeatureValueOrdering featureValueOrdering,
-                              const float inBoundsSamplingRate);
+                              const int numberOfInBoundsDatapoints );
     virtual ~TwoStreamBestSplitpointsWalkingSortedStep();
 
     virtual PipelineStepI* Clone() const;
@@ -53,7 +53,7 @@ private:
     const BufferId mStreamTypeBufferId;
     const BufferId mFeatureValuesBufferId;
     const FeatureValueOrdering mFeatureValueOrdering;
-    const float mInBoundsSamplingRate;
+    const int mNumberOfInBoundsDatapoints;
 };
 
 
@@ -62,7 +62,7 @@ TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::TwoStreamBestSplitpoi
                                                                                                   const BufferId& streamTypeBufferId,
                                                                                                   const BufferId& featureValues,
                                                                                                   FeatureValueOrdering featureValueOrdering,
-                                                                                                  const float inBoundsSamplingRate )
+                                                                                                  const int numberOfInBoundsDatapoints )
 : ImpurityBufferId( GetBufferId("Impurity") )
 , SplitpointBufferId( GetBufferId("Splitpoints") )
 , SplitpointCountsBufferId( GetBufferId("SplitpointsCounts") )
@@ -73,7 +73,7 @@ TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::TwoStreamBestSplitpoi
 , mStreamTypeBufferId(streamTypeBufferId)
 , mFeatureValuesBufferId(featureValues)
 , mFeatureValueOrdering(featureValueOrdering)
-, mInBoundsSamplingRate(inBoundsSamplingRate)
+, mNumberOfInBoundsDatapoints(numberOfInBoundsDatapoints)
 {}
 
 template <class ImpurityWalker>
@@ -134,29 +134,19 @@ void TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(cons
 
     for(int f=0; f<numberOfFeatures; f++)
     {
-        impurityWalker.Reset();
-
-        typename ImpurityWalker::Float bestImpurity = std::numeric_limits<typename ImpurityWalker::Float>::min();
-        typename ImpurityWalker::Float bestThreshold = std::numeric_limits<typename ImpurityWalker::Float>::min();
-        typename ImpurityWalker::Float bestLeftChildCounts = typename ImpurityWalker::Float(0);
-        typename ImpurityWalker::Float bestRightChildCounts = typename ImpurityWalker::Float(0);
-        VectorBufferTemplate<typename ImpurityWalker::Float> bestLeftYs(impurityWalker.GetYDim());
-        VectorBufferTemplate<typename ImpurityWalker::Float> bestRightYs(impurityWalker.GetYDim());
-
         FeatureSorter<typename ImpurityWalker::Float> sorter(featureValues, mFeatureValueOrdering, f);
         sorter.Sort();
 
         const int numberOfSamples = sorter.GetNumberOfSamples();
         std::vector<int> inboundSamples(numberOfSamples);
-        const int numberOfInBoundsSamples = static_cast<int>(0.5f + mInBoundsSamplingRate * static_cast<float>(numberOfSamples));
+        const int numberOfInBoundsSamples = std::min(numberOfSamples, mNumberOfInBoundsDatapoints);
         sampleWithOutReplacement(&inboundSamples[0], numberOfSamples, numberOfInBoundsSamples);
 
         typename ImpurityWalker::Float boundsMin = std::numeric_limits<typename ImpurityWalker::Float>::max();
         typename ImpurityWalker::Float boundsMax = std::numeric_limits<typename ImpurityWalker::Float>::min();
-
         for(int sortedIndex=0; sortedIndex<numberOfSamples; sortedIndex++)
         {
-            if(inboundSamples[sortedIndex] 
+            if(inboundSamples[sortedIndex]
                 && streamTypes.Get(sorter.GetUnSortedIndex(sortedIndex)) == STREAM_STRUCTURE)
             {
                 boundsMin = std::min(boundsMin, sorter.GetFeatureValue(sortedIndex));
@@ -164,13 +154,22 @@ void TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(cons
             }
         }
 
+        impurityWalker.Reset();
+
+        typename ImpurityWalker::Float bestImpurity = -std::numeric_limits<typename ImpurityWalker::Float>::max();
+        typename ImpurityWalker::Float bestThreshold = std::numeric_limits<typename ImpurityWalker::Float>::min();
+        typename ImpurityWalker::Float bestLeftChildCounts = typename ImpurityWalker::Float(0);
+        typename ImpurityWalker::Float bestRightChildCounts = typename ImpurityWalker::Float(0);
+        VectorBufferTemplate<typename ImpurityWalker::Float> bestLeftYs(impurityWalker.GetYDim());
+        VectorBufferTemplate<typename ImpurityWalker::Float> bestRightYs(impurityWalker.GetYDim());
+
         for(int sortedIndex=0; sortedIndex<numberOfSamples-1; sortedIndex++)
         {
             const int i = sorter.GetUnSortedIndex(sortedIndex);
             impurityWalker.MoveLeftToRight(i);
 
             const typename ImpurityWalker::Float featureValue = sorter.GetFeatureValue(sortedIndex);
-            const typename ImpurityWalker::Float nextFeatureValue = sorter.GetFeatureValue(sortedIndex+1);            
+            const typename ImpurityWalker::Float nextFeatureValue = sorter.GetFeatureValue(sortedIndex+1);
             const typename ImpurityWalker::Float consecutiveFeatureDelta = nextFeatureValue - featureValue;
             if((std::abs(consecutiveFeatureDelta) > std::numeric_limits<typename ImpurityWalker::Float>::epsilon())
               && (featureValue >= boundsMin)

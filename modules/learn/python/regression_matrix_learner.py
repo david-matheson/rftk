@@ -29,10 +29,12 @@ def create_matrix_regression_predictor_32f(forest, **kwargs):
 def create_regression_axis_aligned_matrix_learner_32f(**kwargs):
     number_of_trees = int( kwargs.get('number_of_trees', 10) )
     number_of_leaves = int( kwargs.get('number_of_leaves', kwargs['y'].shape[0] / 5 + 1) )
-    number_of_features = int( kwargs.get('number_of_features', (kwargs['x'].shape[1]))/3 + 0.5 )
+    number_of_features = int( kwargs.get('number_of_features', (kwargs['x'].shape[1])/3 + 0.5))
     feature_ordering = int( kwargs.get('feature_ordering', pipeline.FEATURES_BY_DATAPOINTS) )
     number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
     dimension_of_y = int( kwargs['y'].shape[1] )
+
+    print("number_of_trees=%d, number_of_leaves=%d, number_of_features=%d" % (number_of_trees, number_of_leaves, number_of_features))
 
     try_split_criteria = create_try_split_criteria(**kwargs)
 
@@ -91,6 +93,8 @@ def create_biau2008_regression_axis_aligned_matrix_learner_32f(**kwargs):
     number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
     dimension_of_y = int( kwargs['y'].shape[1] )
 
+    print("number_of_trees=%d, number_of_leaves=%d, number_of_features=%d" % (number_of_trees, number_of_leaves, number_of_features))
+
     try_split_criteria = try_split.MinNodeSizeCriteria(2)
 
     sample_data_step = pipeline.AllSamplesStep_f32f32i32(buffers.X_FLOAT_DATA)
@@ -142,11 +146,13 @@ def create_biau2008_regression_axis_aligned_matrix_learner_32f(**kwargs):
 def create_biau2012_regression_axis_aligned_matrix_learner_32f(**kwargs):
     number_of_trees = int( kwargs.get('number_of_trees', 10) )
     number_of_leaves = int( kwargs.get('number_of_leaves', kwargs['y'].shape[0] / 5 + 1) )
-    number_of_features = int( kwargs.get('number_of_features', (kwargs['x'].shape[1]))/3 + 0.5 )
+    number_of_features = int( kwargs.get('number_of_features', (kwargs['x'].shape[1])/3 + 0.5))
     feature_ordering = int( kwargs.get('feature_ordering', pipeline.FEATURES_BY_DATAPOINTS) )
     number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
     dimension_of_y = int(  kwargs['y'].shape[1] )
     probability_of_impurity_stream = float(kwargs.get('probability_of_impurity_stream', 0.5) )
+
+    print("number_of_trees=%d, number_of_leaves=%d, number_of_features=%d" % (number_of_trees, number_of_leaves, number_of_features))
 
     try_split_criteria = create_try_split_criteria(**kwargs)
 
@@ -158,7 +164,7 @@ def create_biau2012_regression_axis_aligned_matrix_learner_32f(**kwargs):
     feature_range_buffer = buffers.as_vector_buffer(np.array([-1, 1], dtype=np.float32))
     set_feature_range_buffer_step = pipeline.SetFloat32VectorBufferStep(feature_range_buffer, pipeline.WHEN_NEW)
 
-    assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.IndicesBufferId, probability_of_impurity_stream, False)
+    assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.WeightsBufferId, probability_of_impurity_stream, False)
     forest_steps_pipeline = pipeline.Pipeline([sample_data_step, set_number_features_step, set_feature_range_buffer_step, assign_stream_step])
     tree_steps_pipeline = pipeline.Pipeline([])
 
@@ -233,13 +239,15 @@ def create_biau2012_regression_axis_aligned_matrix_learner_32f(**kwargs):
 def create_consistent_two_stream_regression_axis_aligned_matrix_learner_32f(**kwargs):
     number_of_trees = int( kwargs.get('number_of_trees', 10) )
     number_of_leaves = int( kwargs.get('number_of_leaves', kwargs['y'].shape[0] / 5 + 1) )
-    number_of_features = int( kwargs.get('number_of_features', (kwargs['x'].shape[1]))/3 + 0.5 )
+    number_of_features = int( kwargs.get('number_of_features', (kwargs['x'].shape[1])/3 + 0.5))
     feature_ordering = int( kwargs.get('feature_ordering', pipeline.FEATURES_BY_DATAPOINTS) )
     number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
     dimension_of_y = int(  kwargs['y'].shape[1] )
 
+    print("number_of_trees=%d, number_of_leaves=%d, number_of_features=%d" % (number_of_trees, number_of_leaves, number_of_features))
+
     probability_of_impurity_stream = float(kwargs.get('probability_of_impurity_stream', 0.5) )
-    in_bounds_sampling_rate = float(kwargs.get('in_bounds_sampling_rate', 0.9) )
+    in_bounds_number_of_points = int(kwargs.get('in_bounds_number_of_points', kwargs['y'].shape[0]/2) )
 
     try_split_criteria = create_try_split_criteria(**kwargs)
 
@@ -249,7 +257,7 @@ def create_consistent_two_stream_regression_axis_aligned_matrix_learner_32f(**kw
         sample_data_step = pipeline.AllSamplesStep_f32f32i32(buffers.X_FLOAT_DATA)
 
     set_number_features_step = pipeline.PoissonStep_f32i32(number_of_features, 1)
-    assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.IndicesBufferId, probability_of_impurity_stream)
+    assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.WeightsBufferId, probability_of_impurity_stream)
     tree_steps_pipeline = pipeline.Pipeline([sample_data_step, set_number_features_step, assign_stream_step])
 
     feature_params_step = matrix_features.AxisAlignedParamsStep_f32i32(set_number_features_step.OutputBufferId, buffers.X_FLOAT_DATA)
@@ -272,7 +280,7 @@ def create_consistent_two_stream_regression_axis_aligned_matrix_learner_32f(**kw
                                                                         slice_stream_step.SlicedBufferId,
                                                                         matrix_feature_extractor_step.FeatureValuesBufferId,
                                                                         feature_ordering,
-                                                                        in_bounds_sampling_rate)
+                                                                        in_bounds_number_of_points)
 
     node_steps_pipeline = pipeline.Pipeline([feature_params_step, matrix_feature_extractor_step,
                                             slice_ys_step, slice_weights_step, slice_stream_step, best_splitpint_step])

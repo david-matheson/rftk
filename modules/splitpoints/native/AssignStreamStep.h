@@ -27,7 +27,7 @@ template <class FloatType, class IntType>
 class AssignStreamStep : public PipelineStepI
 {
 public:
-    AssignStreamStep(const BufferId& indicesBufferId,
+    AssignStreamStep(const BufferId& weightsBufferId,
                      FloatType probabiltyOfImpurityStream );
 
     AssignStreamStep(const BufferId& indicesBufferId,
@@ -42,27 +42,27 @@ public:
 
     const BufferId StreamTypeBufferId;
 private:
-    const BufferId mIndicesBufferId;
+    const BufferId mWeightsBufferId;
     const FloatType mProbabilityOfImpurityStream;
     const bool mIid;
 };
 
 
 template <class FloatType, class IntType>
-AssignStreamStep<FloatType, IntType>::AssignStreamStep(const BufferId& indicesBufferId,
+AssignStreamStep<FloatType, IntType>::AssignStreamStep(const BufferId& weightsBufferId,
                                                         FloatType probabiltyOfImpurityStream )
 : StreamTypeBufferId(GetBufferId("StreamType"))
-, mIndicesBufferId(indicesBufferId)
+, mWeightsBufferId(weightsBufferId)
 , mProbabilityOfImpurityStream(probabiltyOfImpurityStream)
 , mIid(true)
 {}
 
 template <class FloatType, class IntType>
-AssignStreamStep<FloatType, IntType>::AssignStreamStep(const BufferId& indicesBufferId,
+AssignStreamStep<FloatType, IntType>::AssignStreamStep(const BufferId& weightsBufferId,
                                                         FloatType probabiltyOfImpurityStream,
                                                         bool iid )
 : StreamTypeBufferId(GetBufferId("StreamType"))
-, mIndicesBufferId(indicesBufferId)
+, mWeightsBufferId(weightsBufferId)
 , mProbabilityOfImpurityStream(probabiltyOfImpurityStream)
 , mIid(iid)
 {}
@@ -80,33 +80,34 @@ void AssignStreamStep<FloatType, IntType>::ProcessStep(const BufferCollectionSta
                                         BufferCollection& writeCollection,
                                         boost::mt19937& gen) const
 {
-    const VectorBufferTemplate<IntType>& indices =
-          readCollection.GetBuffer< VectorBufferTemplate<IntType> >(mIndicesBufferId);
+    const VectorBufferTemplate<FloatType>& weights =
+          readCollection.GetBuffer< VectorBufferTemplate<FloatType> >(mWeightsBufferId);
 
     VectorBufferTemplate<IntType>& streamType =
             writeCollection.GetOrAddBuffer< VectorBufferTemplate<IntType> >(StreamTypeBufferId);
-    streamType.Resize( indices.GetN() );
+    const int numberOfDatapoints = weights.GetN();
+    streamType.Resize( numberOfDatapoints );
 
     if( mIid )
     {
         boost::bernoulli_distribution<> impuritystream_bernoulli(mProbabilityOfImpurityStream);
         boost::variate_generator<boost::mt19937&,boost::bernoulli_distribution<> > var_impuritystream_bernoulli(gen, impuritystream_bernoulli);
 
-        for(IntType i=0; i<indices.GetN(); i++)
+        for(IntType i=0; i<numberOfDatapoints; i++)
         {
             streamType.Set( i, var_impuritystream_bernoulli());
-        }      
+        }
     }
     else
     {
         // Sample without replacement so a dimension is not choosen multiple times
-        std::vector<int> streamTypeVec(indices.GetN());
-        sampleWithOutReplacement(&streamTypeVec[0], streamTypeVec.size(), 
-                                      static_cast<IntType>(static_cast<FloatType>(indices.GetN())*mProbabilityOfImpurityStream));
+        std::vector<int> streamTypeVec(numberOfDatapoints);
+        sampleWithOutReplacement(&streamTypeVec[0], streamTypeVec.size(),
+                                      static_cast<IntType>(static_cast<FloatType>(numberOfDatapoints)*mProbabilityOfImpurityStream));
 
-        for(IntType i=0; i<indices.GetN(); i++)
+        for(IntType i=0; i<numberOfDatapoints; i++)
         {
             streamType.Set( i, streamTypeVec[i]);
-        } 
+        }
     }
 }

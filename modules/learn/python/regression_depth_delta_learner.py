@@ -183,7 +183,7 @@ def create_biau2012_regression_scaled_depth_delta_learner_32f(**kwargs):
     feature_range_buffer = buffers.as_vector_buffer(np.array([-6, 6], dtype=np.float32))
     set_feature_range_buffer_step = pipeline.SetFloat32VectorBufferStep(feature_range_buffer, pipeline.WHEN_NEW)
 
-    assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.IndicesBufferId, probability_of_impurity_stream, False)
+    assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.WeightsBufferId, probability_of_impurity_stream, False)
     forest_steps_pipeline = pipeline.Pipeline([sample_data_step, set_number_features_step, set_feature_range_buffer_step, assign_stream_step])
     tree_steps_pipeline = pipeline.Pipeline([])
 
@@ -248,9 +248,9 @@ def create_biau2012_regression_scaled_depth_delta_learner_32f(**kwargs):
                                                                         quantized_feature_equal)
     split_steps = splitpoints.SplitBuffersList([split_indices, split_midpoint_ranges])
 
-    split_selector = splitpoints.SplitSelector_f32i32([split_buffers], 
-                                                        should_split_criteria, 
-                                                        finalizer, 
+    split_selector = splitpoints.SplitSelector_f32i32([split_buffers],
+                                                        should_split_criteria,
+                                                        finalizer,
                                                         split_steps)
 
     tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector, number_of_leaves)
@@ -271,7 +271,7 @@ def create_consistent_two_stream_regression_scaled_depth_delta_learner_32f(**kwa
     number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
     dimension_of_y = int( kwargs['y'].GetN() )
     probability_of_impurity_stream = float(kwargs.get('probability_of_impurity_stream', 0.5) )
-    in_bounds_sampling_rate = float(kwargs.get('in_bounds_sampling_rate', 0.9) )
+    in_bounds_number_of_points = int(kwargs.get('in_bounds_number_of_points', kwargs['y'].GetM()/2) )
 
     try_split_criteria = create_try_split_criteria(**kwargs)
 
@@ -281,7 +281,7 @@ def create_consistent_two_stream_regression_scaled_depth_delta_learner_32f(**kwa
         sample_data_step = pipeline.AllSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
 
     set_number_features_step = pipeline.PoissonStep_f32i32(number_of_features, 1)
-    assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.IndicesBufferId, probability_of_impurity_stream)
+    assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.WeightsBufferId, probability_of_impurity_stream)
     tree_steps_pipeline = pipeline.Pipeline([sample_data_step, set_number_features_step, assign_stream_step])
 
     feature_params_step = image_features.PixelPairGaussianOffsetsStep_f32i32(set_number_features_step.OutputBufferId, ux, uy, vx, vy )
@@ -305,7 +305,7 @@ def create_consistent_two_stream_regression_scaled_depth_delta_learner_32f(**kwa
                                                                         slice_stream_step.SlicedBufferId,
                                                                         depth_delta_feature_extractor_step.FeatureValuesBufferId,
                                                                         feature_ordering,
-                                                                        in_bounds_sampling_rate)
+                                                                        in_bounds_number_of_points)
 
     node_steps_pipeline = pipeline.Pipeline([feature_params_step, depth_delta_feature_extractor_step,
                                             slice_ys_step, slice_weights_step, slice_stream_step, best_splitpint_step])
@@ -348,7 +348,7 @@ def create_biau2012_scaled_depth_delta_regression(**kwargs):
                             create_regression_depth_delta_predictor_32f,
                             kwargs)
 
-    
+
 
 def create_consistent_scaled_depth_delta_regression(**kwargs):
     return LearnerWrapper(  depth_delta_regression_data_prepare,

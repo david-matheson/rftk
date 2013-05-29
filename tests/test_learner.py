@@ -65,11 +65,11 @@ class TestNew(unittest.TestCase):
         self.assertEqual(result[5], 2)
         self.assertEqual(result[6], 2)
 
-    def test_vanilia_regression(self):
-        learner = rftk.learn.create_vanilia_regression()
+    def test_standard_regression(self):
+        learner = rftk.learn.create_standard_regression()
         x = np.array([[3,1],[3,2], [3,3], [0,1], [0.5,1.5], [1,1.8], [1.5,2]], dtype=np.float32)
         y = np.array([[0,0],[0,0],[0,0],[1,3],[1,3],[2,-1],[2,-1]], dtype=np.float32)
-        predictor = learner.fit(x=x, y=y, bootstrap=False, number_of_features=2, number_of_trees=10)
+        predictor = learner.fit(x=x, y=y, bootstrap=False, number_of_features=2, number_of_trees=10, number_of_leaves=10000000)
         result = predictor.predict(x=x)
         self.assertEqual(result[0,0], 0)
         self.assertEqual(result[0,1], 0)

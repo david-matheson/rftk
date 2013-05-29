@@ -12,21 +12,21 @@ BOOST_AUTO_TEST_SUITE( AssignStreamStepTest )
 
 BOOST_AUTO_TEST_CASE(test_ProcessStep)
 {
-    BufferId indices_key = "indices";
-    VectorBufferTemplate<int> indices(1000);
+    BufferId weights_key = "weights";
+    VectorBufferTemplate<float> weights(1000);
     BufferCollection bc;
-    bc.AddBuffer(indices_key, indices);
+    bc.AddBuffer(weights_key, weights);
     BufferCollectionStack stack;
     stack.Push(&bc);
 
-    AssignStreamStep<float, int> assignStreamStep(indices_key, 0.25);
+    AssignStreamStep<float, int> assignStreamStep(weights_key, 0.25);
     boost::mt19937 gen;
     assignStreamStep.ProcessStep(stack, bc, gen);
 
     VectorBufferTemplate<int>& streamType = bc.GetBuffer< VectorBufferTemplate<int> >(assignStreamStep.StreamTypeBufferId);
 
     int counts[] = {0, 0};
-    for(int i=0; i<indices.GetN(); i++)
+    for(int i=0; i<weights.GetN(); i++)
     {
         int stream = streamType.Get(i);
         counts[stream]++;

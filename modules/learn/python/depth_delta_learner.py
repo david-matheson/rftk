@@ -17,7 +17,7 @@ def depth_delta_classification_data_prepare(**kwargs):
     bufferCollection.AddBuffer(buffers.DEPTH_IMAGES, kwargs['depth_images'])
     bufferCollection.AddBuffer(buffers.PIXEL_INDICES, kwargs['pixel_indices'])
     if 'offset_scales' in kwargs:
-        bufferCollection.AddBuffer(buffers.OFFSET_SCALES, kwargs['offset_scales'])    
+        bufferCollection.AddBuffer(buffers.OFFSET_SCALES, kwargs['offset_scales'])
     if 'classes' in kwargs:
         bufferCollection.AddBuffer(buffers.CLASS_LABELS, kwargs['classes'])
     return bufferCollection
@@ -146,7 +146,7 @@ def create_online_scaled_depth_delta_one_stream_learner_32f(**kwargs):
                                                                           feature_ordering,
                                                                           class_stats_updater)
     update_stats_node_steps_pipeline = pipeline.Pipeline([depth_delta_feature_extractor_step,
-                                                          slice_classes_step, 
+                                                          slice_classes_step,
                                                           slice_weights_step,
                                                           random_splitpoint_selection_step,
                                                           one_stream_split_stats_step])
@@ -176,9 +176,9 @@ def create_online_scaled_depth_delta_one_stream_learner_32f(**kwargs):
                                                                               buffers.DEPTH_IMAGES)
     estimator_params_updater = classification.ClassEstimatorUpdater_f32i32(sample_data_step.WeightsBufferId, buffers.CLASS_LABELS, number_of_classes)
     forest_learner = learn.OnlineForestScaledDepthDeltaClassLearner_f32i32(
-                                                              try_split_criteria, 
-                                                              tree_steps_pipeline, 
-                                                              init_node_steps_pipeline, 
+                                                              try_split_criteria,
+                                                              tree_steps_pipeline,
+                                                              init_node_steps_pipeline,
                                                               update_stats_node_steps_pipeline,
                                                               update_impurity_node_steps_pipeline,
                                                               impurity_update_period, split_selector,
@@ -212,7 +212,7 @@ def create_online_scaled_depth_delta_two_stream_consistent_learner_32f(**kwargs)
     else:
         sample_data_step = pipeline.AllSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
 
-    assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.IndicesBufferId, probability_of_impurity_stream)
+    assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.WeightsBufferId, probability_of_impurity_stream)
     tree_steps_pipeline = pipeline.Pipeline([sample_data_step, assign_stream_step])
 
     # On init
@@ -282,9 +282,9 @@ def create_online_scaled_depth_delta_two_stream_consistent_learner_32f(**kwargs)
                                                                               buffers.DEPTH_IMAGES)
     estimator_params_updater = classification.ClassEstimatorUpdater_f32i32(sample_data_step.WeightsBufferId, buffers.CLASS_LABELS, number_of_classes)
     forest_learner = learn.OnlineForestScaledDepthDeltaClassLearner_f32i32(
-                                                try_split_criteria, 
-                                                tree_steps_pipeline, 
-                                                init_node_steps_pipeline, 
+                                                try_split_criteria,
+                                                tree_steps_pipeline,
+                                                init_node_steps_pipeline,
                                                 update_stats_node_steps_pipeline,
                                                 update_impurity_node_steps_pipeline,
                                                 impurity_update_period, split_selector,
