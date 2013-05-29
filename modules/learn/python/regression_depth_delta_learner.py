@@ -280,10 +280,15 @@ def create_consistent_two_stream_regression_scaled_depth_delta_learner_32f(**kwa
     else:
         sample_data_step = pipeline.AllSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
 
-    set_number_features_step = pipeline.PoissonStep_f32i32(number_of_features, 1)
     assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.WeightsBufferId, probability_of_impurity_stream)
-    tree_steps_pipeline = pipeline.Pipeline([sample_data_step, set_number_features_step, assign_stream_step])
+    tree_steps_pipeline = pipeline.Pipeline([sample_data_step, assign_stream_step])
 
+    # if 'poisson_number_of_features' in kwargs and kwargs.get('poisson_number_of_features'):
+    #     set_number_features_step = pipeline.PoissonStep_f32i32(number_of_features, 1)
+    # else:
+    #     number_of_features_buffer = buffers.as_vector_buffer(np.array([number_of_features], dtype=np.int32))
+    #     set_number_features_step = pipeline.SetInt32VectorBufferStep(number_of_features_buffer, pipeline.WHEN_NEW)
+    set_number_features_step = pipeline.PoissonStep_f32i32(number_of_features, 1)
     feature_params_step = image_features.PixelPairGaussianOffsetsStep_f32i32(set_number_features_step.OutputBufferId, ux, uy, vx, vy )
     depth_delta_feature = image_features.ScaledDepthDeltaFeature_f32i32(feature_params_step.FloatParamsBufferId,
                                                                       feature_params_step.IntParamsBufferId,
@@ -307,7 +312,7 @@ def create_consistent_two_stream_regression_scaled_depth_delta_learner_32f(**kwa
                                                                         feature_ordering,
                                                                         in_bounds_number_of_points)
 
-    node_steps_pipeline = pipeline.Pipeline([feature_params_step, depth_delta_feature_extractor_step,
+    node_steps_pipeline = pipeline.Pipeline([set_number_features_step, feature_params_step, depth_delta_feature_extractor_step,
                                             slice_ys_step, slice_weights_step, slice_stream_step, best_splitpint_step])
 
     split_buffers = splitpoints.SplitSelectorBuffers(best_splitpint_step.ImpurityBufferId,
