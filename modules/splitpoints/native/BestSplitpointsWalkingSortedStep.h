@@ -80,7 +80,7 @@ void BestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(const BufferC
                                                               boost::mt19937& gen) const
 {
     UNUSED_PARAM(gen);
-    
+
     // Bind input buffers
     ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<typename ImpurityWalker::Float> >(mFeatureValuesBufferId));
     MatrixBufferTemplate<typename ImpurityWalker::Float> const& featureValues
@@ -120,7 +120,7 @@ void BestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(const BufferC
     {
         impurityWalker.Reset();
 
-        typename ImpurityWalker::Float bestImpurity = std::numeric_limits<typename ImpurityWalker::Float>::min();
+        typename ImpurityWalker::Float bestImpurity = -std::numeric_limits<typename ImpurityWalker::Float>::max();
         typename ImpurityWalker::Float bestThreshold = std::numeric_limits<typename ImpurityWalker::Float>::min();
         typename ImpurityWalker::Float bestLeftChildCounts = typename ImpurityWalker::Float(0);
         typename ImpurityWalker::Float bestRightChildCounts = typename ImpurityWalker::Float(0);

@@ -143,7 +143,7 @@ void TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(cons
         sampleWithOutReplacement(&inboundSamples[0], numberOfSamples, numberOfInBoundsSamples);
 
         typename ImpurityWalker::Float boundsMin = std::numeric_limits<typename ImpurityWalker::Float>::max();
-        typename ImpurityWalker::Float boundsMax = std::numeric_limits<typename ImpurityWalker::Float>::min();
+        typename ImpurityWalker::Float boundsMax = -std::numeric_limits<typename ImpurityWalker::Float>::max();
         for(int sortedIndex=0; sortedIndex<numberOfSamples; sortedIndex++)
         {
             if(inboundSamples[sortedIndex]
