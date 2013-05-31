@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <limits>  
+#include <limits>
 
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
@@ -77,7 +77,7 @@ SplitSelector<FloatType, IntType>::~SplitSelector()
 template <class FloatType, class IntType>
 SplitSelectorInfo<FloatType, IntType> SplitSelector<FloatType, IntType>::ProcessSplits(const BufferCollectionStack& readCollection, int depth) const
 {
-    FloatType maxImpurity = std::numeric_limits<FloatType>::min();
+    FloatType maxImpurity = -std::numeric_limits<FloatType>::max();
     int bestSplitSelectorBuffers = SPLIT_SELECTOR_NO_SPLIT;
     int bestFeature = SPLIT_SELECTOR_NO_SPLIT;
     int bestThreshold = SPLIT_SELECTOR_NO_SPLIT;
@@ -102,7 +102,7 @@ SplitSelectorInfo<FloatType, IntType> SplitSelector<FloatType, IntType>::Process
                 const FloatType impurity = impurities.Get(f,t);
                 const FloatType leftCounts = childCounts.Get(f,t,0);
                 const FloatType rightCounts = childCounts.Get(f,t,1);
-                if( impurity > maxImpurity 
+                if( impurity > maxImpurity
                     && mShouldSplitCriteria->ShouldSplit(depth, impurity, leftCounts+rightCounts, leftCounts, rightCounts) )
                 {
                     maxImpurity = impurity;
@@ -111,10 +111,10 @@ SplitSelectorInfo<FloatType, IntType> SplitSelector<FloatType, IntType>::Process
                     bestThreshold = t;
                 }
             }
-        } 
+        }
     }
-    
-    return SplitSelectorInfo<FloatType, IntType>(mSplitSelectorBuffers[bestSplitSelectorBuffers], 
+
+    return SplitSelectorInfo<FloatType, IntType>(mSplitSelectorBuffers[bestSplitSelectorBuffers],
                                             readCollection, mFinalizer, mBufferSplitter,
                                             bestFeature, bestThreshold, depth);;
 }
