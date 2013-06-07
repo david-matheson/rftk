@@ -37,7 +37,8 @@ class TestNew(unittest.TestCase):
         predictor = learner.fit(x=x, classes=classes,
                                 bootstrap=False,
                                 number_of_features=2,
-                                number_of_splitpoints=10)
+                                number_of_splitpoints=10,
+                                min_child_size=1)
         result = predictor.predict(x=x).argmax(axis=1)
         self.assertEqual(result[0], 0)
         self.assertEqual(result[1], 0)
@@ -54,7 +55,8 @@ class TestNew(unittest.TestCase):
                                 number_of_trees=100,
                                 number_of_features=2,
                                 number_of_splitpoints=10,
-                                probability_of_impurity_stream=0.5)
+                                probability_of_impurity_stream=0.5,
+                                min_child_size=1)
         result_prob = predictor.predict(x=x)
         result = predictor.predict(x=x).argmax(axis=1)
         self.assertEqual(result[0], 0)
