@@ -1,3 +1,5 @@
+#include <limits>
+
 #include "asserts.h" // for UNUSED_PARAM
 #include "MinImpurityCriteria.h"
 
@@ -18,9 +20,10 @@ ShouldSplitCriteriaI* MinImpurityCriteria::Clone() const
 bool MinImpurityCriteria::ShouldSplit(int depth, float impurity,
                                       int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints) const
 {
+
     UNUSED_PARAM(depth)
     UNUSED_PARAM(numberOfDatapoints)
     UNUSED_PARAM(leftNumberOfDataponts)
     UNUSED_PARAM(rightNumberOfDatapoints)
-    return (impurity >= mMinImpurity);
+    return impurity > (mMinImpurity +  std::numeric_limits<float>::epsilon());
 }

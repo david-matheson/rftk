@@ -21,7 +21,7 @@
 #include "BestSplitpointsWalkingSortedStep.h"
 #include "Pipeline.h"
 
-#include "ShouldSplitNoCriteria.h"
+#include "MinImpurityCriteria.h"
 #include "ClassEstimatorFinalizer.h"
 #include "SplitSelector.h"
 

@@ -53,10 +53,10 @@ DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t
                                                 featureParams.IntParamsBufferId,
                                                 featureExtractor.FeatureValuesBufferId,
                                                 featureOrdering));
-    ShouldSplitNoCriteria noCriteria;
+    const MinImpurityCriteria minImpurityCriteria(0.0);
     ClassEstimatorFinalizer<float> classFinalizer;
     SplitBuffersIndices<float, int> splitIndices(allSamplesStep.IndicesBufferId);
-    SplitSelector<float, int> splitSelector(splitBuffers, &noCriteria, &classFinalizer, &splitIndices);
+    SplitSelector<float, int> splitSelector(splitBuffers, &minImpurityCriteria, &classFinalizer, &splitIndices);
     
     return DepthFirstTreeLearner<float, int>(&trySplitCriteria, &treeStepsPipeline, &nodeStepsPipeline, &splitSelector);
 }

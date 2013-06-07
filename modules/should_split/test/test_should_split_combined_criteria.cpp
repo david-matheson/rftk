@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE(test_TrySplit)
 
     ShouldSplitCombinedCriteria combinedCriteria(criterias);
 
-    BOOST_CHECK( combinedCriteria.ShouldSplit(0, minImpurity, 0, minChildSize, minChildSize));
+    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity, 0, minChildSize, minChildSize));
     BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity, 0, minChildSize-1, minChildSize));
     BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity, 0, minChildSize, minChildSize-1));
     BOOST_CHECK( combinedCriteria.ShouldSplit(0, minImpurity+0.1, 0, minChildSize, minChildSize));
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(test_Clone)
     ShouldSplitCriteriaI* clone = combinedCriteria->Clone();
     delete combinedCriteria;
 
-    BOOST_CHECK( clone->ShouldSplit(0, minImpurity, 0, minChildSize, minChildSize));
+    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity, 0, minChildSize, minChildSize));
     BOOST_CHECK( !clone->ShouldSplit(0, minImpurity, 0, minChildSize-1, minChildSize));
     BOOST_CHECK( !clone->ShouldSplit(0, minImpurity, 0, minChildSize, minChildSize-1));
     BOOST_CHECK( clone->ShouldSplit(0, minImpurity+0.1, 0, minChildSize, minChildSize));
