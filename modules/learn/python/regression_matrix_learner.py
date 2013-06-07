@@ -29,8 +29,8 @@ def create_matrix_regression_predictor_32f(forest, **kwargs):
 def create_regression_axis_aligned_matrix_learner_32f(**kwargs):
     number_of_trees = int( kwargs.get('number_of_trees', 10) )
     number_of_leaves = int( kwargs.get('number_of_leaves', kwargs['y'].shape[0] / 5 + 1) )
-    # number_of_features = int( kwargs.get('number_of_features', (kwargs['x'].shape[1])/3 + 0.5))
-    number_of_features = int( kwargs.get('number_of_features', np.sqrt(kwargs['x'].shape[1])))
+    number_of_features = int( kwargs.get('number_of_features', (kwargs['x'].shape[1])/3 + 0.5))
+    # number_of_features = int( kwargs.get('number_of_features', np.sqrt(kwargs['x'].shape[1])))
     feature_ordering = int( kwargs.get('feature_ordering', pipeline.FEATURES_BY_DATAPOINTS) )
     number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
     dimension_of_y = int( kwargs['y'].shape[1] )
@@ -147,8 +147,8 @@ def create_biau2008_regression_axis_aligned_matrix_learner_32f(**kwargs):
 def create_biau2012_regression_axis_aligned_matrix_learner_32f(**kwargs):
     number_of_trees = int( kwargs.get('number_of_trees', 10) )
     number_of_leaves = int( kwargs.get('number_of_leaves', kwargs['y'].shape[0] / 5 + 1) )
-    # number_of_features = int( kwargs.get('number_of_features', (kwargs['x'].shape[1])/3 + 0.5))
-    number_of_features = int( kwargs.get('number_of_features', np.sqrt(kwargs['x'].shape[1])))
+    number_of_features = int( kwargs.get('number_of_features', (kwargs['x'].shape[1])/3 + 0.5))
+    # number_of_features = int( kwargs.get('number_of_features', np.sqrt(kwargs['x'].shape[1])))
     feature_ordering = int( kwargs.get('feature_ordering', pipeline.FEATURES_BY_DATAPOINTS) )
     number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
     dimension_of_y = int(  kwargs['y'].shape[1] )
@@ -241,8 +241,8 @@ def create_biau2012_regression_axis_aligned_matrix_learner_32f(**kwargs):
 def create_consistent_two_stream_regression_axis_aligned_matrix_learner_32f(**kwargs):
     number_of_trees = int( kwargs.get('number_of_trees', 10) )
     number_of_leaves = int( kwargs.get('number_of_leaves', kwargs['y'].shape[0] / 5 + 1) )
-    # number_of_features = int( kwargs.get('number_of_features', (kwargs['x'].shape[1])/3 + 0.5))
-    number_of_features = int( kwargs.get('number_of_features', np.sqrt(kwargs['x'].shape[1])))
+    number_of_features = int( kwargs.get('number_of_features', (kwargs['x'].shape[1])/3 + 0.5))
+    # number_of_features = int( kwargs.get('number_of_features', np.sqrt(kwargs['x'].shape[1])))
     feature_ordering = int( kwargs.get('feature_ordering', pipeline.FEATURES_BY_DATAPOINTS) )
     number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
     dimension_of_y = int(  kwargs['y'].shape[1] )
