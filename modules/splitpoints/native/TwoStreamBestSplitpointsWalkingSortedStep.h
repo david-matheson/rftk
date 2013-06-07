@@ -156,6 +156,7 @@ void TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(cons
 
         impurityWalker.Reset();
 
+        bool hasValidSplit = false;
         typename ImpurityWalker::Float bestImpurity = -std::numeric_limits<typename ImpurityWalker::Float>::max();
         typename ImpurityWalker::Float bestThreshold = std::numeric_limits<typename ImpurityWalker::Float>::min();
         typename ImpurityWalker::Float bestLeftChildCounts = typename ImpurityWalker::Float(0);
@@ -177,6 +178,7 @@ void TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(cons
               && streamTypes.Get(i) == STREAM_STRUCTURE
               && impurityWalker.Impurity() > bestImpurity)
             {
+                hasValidSplit = true;
                 bestImpurity = impurityWalker.Impurity();
                 bestThreshold = sorter.GetFeatureValue(sortedIndex) + 0.5*consecutiveFeatureDelta;
                 bestLeftChildCounts = impurityWalker.GetLeftEstimationChildCounts();
@@ -188,7 +190,7 @@ void TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(cons
 
         impurities.Set(f, 0, bestImpurity);
         thresholds.Set(f, 0, bestThreshold);
-        thresholdCounts.Set(f, 1);
+        thresholdCounts.Set(f, hasValidSplit ? 1 : 0);
         childCounts.Set(f, 0, 0, bestLeftChildCounts);
         childCounts.Set(f, 0, 1, bestRightChildCounts);
         leftYs.SetRow(f, 0, bestLeftYs );
