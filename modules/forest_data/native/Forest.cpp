@@ -2,6 +2,7 @@
 
 #include <asserts.h>
 #include "Forest.h"
+#include "ForestStats.h"
 
 Forest::Forest()
 : mTrees(0)

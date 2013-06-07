@@ -2,6 +2,7 @@
 %{
     #define SWIG_FILE_WITH_INIT
     #include "Tree.h"
+    #include "ForestStats.h"
     #include "Forest.h"
 %}
 
@@ -17,6 +18,7 @@ namespace std {
 
 
 %include "Tree.h"
+%include "ForestStats.h"
 %include "Forest.h"
 
 %extend Tree {
