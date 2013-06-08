@@ -2,6 +2,7 @@
 %{
     #define SWIG_FILE_WITH_INIT
     #include "AxisAlignedParamsStep.h"
+    #include "DimensionPairDifferenceParamsStep.h"
     #include "ClassPairDifferenceParamsStep.h"
     #include "LinearMatrixFeature.h"
 %}
@@ -12,6 +13,7 @@
 %import(module="rftk.pipeline") "pipeline_external.i"
 
 %include "AxisAlignedParamsStep.h"
+%include "DimensionPairDifferenceParamsStep.h"
 %include "ClassPairDifferenceParamsStep.h"
 %include "LinearMatrixFeature.h"
 
