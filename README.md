@@ -8,7 +8,7 @@ Key Features
 + Customizable pipeline for determining best split
 + Pipeline steps can be run per forest, per tree or per node
 + Different forest building strategies including offline (depth first and breadth first) and online (fixed fringe)
-+ Factories for common forest configurations (Briemen, Shotton, etc) 
++ Factories for common forest configurations (Breiman, Shotton, etc) 
 + Lazy evaluation of features allow features to be function of an index and the data 
 + Generic indexing allows a datapoint to be a row of a matrix or a pixel in an image
 + Support for different buffer precision (ie 32 bit vs 64 bit) and sparse buffers
@@ -69,11 +69,11 @@ How to use the library
                             number_of_trees=100,
                             number_of_jobs=5)
     forest = learner.fit(x=X_train, classes=Y_train)
-    
+
 
 Under the hood
 --------------
-The core unit of work is a pipeline step.  A pipeline step reads from input buffers and writes to output buffers. Pipeline steps are chained into a pipeline. Below is simplified pipeline where "->"" lines are the steps, "-" lines are the buffers that are read at each step and "+" lines are the buffers that are written to by each step. 
+The core unit of work is a pipeline step.  A pipeline step reads from inputt buffers and writes to output buffers. Pipeline steps are chained into a pipeline. Below is simplified pipeline where "->"" lines are the steps, "-" lines are the buffers that are read at each step and "+" lines are the buffers that are written to by each step. 
 
   -> sample feature parameters and random split points
       + feature_params_buffer
