@@ -75,18 +75,18 @@ Under the hood
 --------------
 The core unit of work is a pipeline step.  A pipeline step reads from inputt buffers and writes to output buffers. Pipeline steps are chained into a pipeline. Below is simplified pipeline where "->"" lines are the steps, "-" lines are the buffers that are read at each step and "+" lines are the buffers that are written to by each step. 
 
-  -> sample feature parameters and random split points
-      + feature_params_buffer
-      + split_points_buffer
-  -> extract features
-      - feature_params_buffer
-      + feature_values_buffer
-  -> estimate sufficient statistics for 
-      - split_points_buffer
-      - feature_values_buffer
-      + statistics_buffer
-  -> measure information gain  
-      - statistics_buffer
-      + information_gain_of_splitpoints
+    -> sample feature parameters and random split points
+        + feature_params_buffer
+        + split_points_buffer
+    -> extract features
+        - feature_params_buffer
+        + feature_values_buffer
+    -> estimate sufficient statistics for 
+        - split_points_buffer
+        - feature_values_buffer
+        + statistics_buffer
+    -> measure information gain  
+        - statistics_buffer
+        + information_gain_of_splitpoints
 
 
