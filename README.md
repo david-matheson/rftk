@@ -73,7 +73,7 @@ How to use the library
 
 Under the hood
 --------------
-The core unit of work is a pipeline step.  A pipeline step reads from inputt buffers and writes to output buffers. Pipeline steps are chained into a pipeline. Below is simplified pipeline where "->"" lines are the steps, "-" lines are the buffers that are read at each step and "+" lines are the buffers that are written to by each step. 
+The core unit of work is a pipeline step.  A pipeline step reads from input buffers and writes to output buffers. Pipeline steps are chained into a pipeline. Below is simplified pipeline where "->"" lines are the steps, "-" lines are the input buffers at each step and "+" lines are the output buffers at each step. 
 
     -> sample feature parameters and random split points
         + feature_params_buffer
