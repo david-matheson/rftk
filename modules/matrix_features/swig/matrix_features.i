@@ -1,6 +1,7 @@
 %module matrix_features
 %{
     #define SWIG_FILE_WITH_INIT
+    #include "BufferTypes.h"
     #include "FeatureExtractorStep.h"
 %}
 
@@ -12,7 +13,7 @@
 
 %include "FeatureExtractorStep.h"
 
-%template(AxisAlignedParamsStep_f32i32) AxisAlignedParamsStep<float, int>;
+%template(AxisAlignedParamsStep_f32i32) AxisAlignedParamsStep< DefaultBufferTypes >;
 %template(DimensionPairDifferenceParamsStep_f32i32) DimensionPairDifferenceParamsStep<float, int>;
 %template(ClassPairDifferenceParamsStep_f32i32) ClassPairDifferenceParamsStep<float, int>;
 %template(LinearFloat32MatrixFeature_f32i32) LinearMatrixFeature< MatrixBufferTemplate<float>, float, int >;

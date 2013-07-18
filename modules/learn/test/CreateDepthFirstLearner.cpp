@@ -1,3 +1,4 @@
+#include "BufferTypes.h"
 #include "CreateDepthFirstLearner.h"
 #include "SplitBuffersIndices.h"
 
@@ -21,7 +22,7 @@ DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t
 
     // Node steps
     std::vector<PipelineStepI*> nodeSteps;
-    AxisAlignedParamsStep<float, int> featureParams(numberOfFeatures.OutputBufferId, xs_key);
+    AxisAlignedParamsStep<DefaultBufferTypes> featureParams(numberOfFeatures.OutputBufferId, xs_key);
     nodeSteps.push_back(&featureParams);
     LinearMatrixFeature<MatrixBufferTemplate<float>, float, int> feature(featureParams.FloatParamsBufferId,
                                                                           featureParams.IntParamsBufferId,

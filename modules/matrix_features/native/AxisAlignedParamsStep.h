@@ -17,7 +17,7 @@
 // the input matrix and is choosen uniformily from all dimensions.
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType>
+template <class BufferTypes>
 class AxisAlignedParamsStep: public PipelineStepI
 {
 public:
@@ -36,80 +36,80 @@ public:
     const BufferId IntParamsBufferId;
 private:
     enum { DIMENSION_OF_PARAMETERS = PARAM_START_INDEX + 1 };
-    void SampleParams(IntType numberOfFeatures,
-                      IntType numberOfDimensions,
-                      MatrixBufferTemplate<FloatType>& floatParams,
-                      MatrixBufferTemplate<IntType>& intParams ) const;
+    void SampleParams(typename BufferTypes::Index numberOfFeatures,
+                      typename BufferTypes::Index numberOfDimensions,
+                        MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams,
+                        MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams) const;
 
     const BufferId mNumberOfFeaturesBufferId;
     const BufferId mMatrixDataBufferId;
 };
 
 
-template <class FloatType, class IntType>
-AxisAlignedParamsStep<FloatType,IntType>::AxisAlignedParamsStep(  const BufferId& numberOfFeaturesBufferId,
-                                                                  const BufferId& matrixDataBufferId )
+template <class BufferTypes>
+AxisAlignedParamsStep<BufferTypes>::AxisAlignedParamsStep(  const BufferId& numberOfFeaturesBufferId,
+                                                            const BufferId& matrixDataBufferId )
 : FloatParamsBufferId(GetBufferId("FloatParams"))
 , IntParamsBufferId(GetBufferId("IntParams"))
 , mNumberOfFeaturesBufferId(numberOfFeaturesBufferId)
 , mMatrixDataBufferId(matrixDataBufferId)
 {}
 
-template <class FloatType, class IntType>
-AxisAlignedParamsStep<FloatType,IntType>::~AxisAlignedParamsStep()
+template <class BufferTypes>
+AxisAlignedParamsStep<BufferTypes>::~AxisAlignedParamsStep()
 {}
 
-template <class FloatType, class IntType>
-PipelineStepI* AxisAlignedParamsStep<FloatType,IntType>::Clone() const
+template <class BufferTypes>
+PipelineStepI* AxisAlignedParamsStep<BufferTypes>::Clone() const
 {
-    AxisAlignedParamsStep* clone = new AxisAlignedParamsStep<FloatType,IntType>(*this);
+    AxisAlignedParamsStep* clone = new AxisAlignedParamsStep<BufferTypes>(*this);
     return clone;
 }
 
-template <class FloatType, class IntType>
-void AxisAlignedParamsStep<FloatType,IntType>::ProcessStep(const BufferCollectionStack& readCollection,
+template <class BufferTypes>
+void AxisAlignedParamsStep<BufferTypes>::ProcessStep(const BufferCollectionStack& readCollection,
                                                           BufferCollection& writeCollection,
                                                           boost::mt19937& gen) const
 {
     UNUSED_PARAM(gen)
-    if(!writeCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(FloatParamsBufferId)
-        || !writeCollection.HasBuffer< MatrixBufferTemplate<IntType> >(IntParamsBufferId))
+    if(!writeCollection.HasBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(FloatParamsBufferId)
+        || !writeCollection.HasBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(IntParamsBufferId))
     {
-        const MatrixBufferTemplate<FloatType>& matrixBuffer =
-                readCollection.GetBuffer< MatrixBufferTemplate<FloatType> >(mMatrixDataBufferId);
-        const IntType numberOfDimensions = matrixBuffer.GetN();
+        const MatrixBufferTemplate<typename BufferTypes::SourceContinuous>& matrixBuffer =
+                readCollection.GetBuffer< MatrixBufferTemplate<typename BufferTypes::SourceContinuous> >(mMatrixDataBufferId);
+        const typename BufferTypes::Index numberOfDimensions = matrixBuffer.GetN();
 
-        const VectorBufferTemplate<IntType>& numberOfFeaturesBuffer =
-                readCollection.GetBuffer< VectorBufferTemplate<IntType> >(mNumberOfFeaturesBufferId);
+        const VectorBufferTemplate<typename BufferTypes::SourceInteger>& numberOfFeaturesBuffer =
+                readCollection.GetBuffer< VectorBufferTemplate<typename BufferTypes::SourceInteger> >(mNumberOfFeaturesBufferId);
         ASSERT_ARG_DIM_1D(numberOfFeaturesBuffer.GetN(), 1)
-        const IntType numberOfFeatures = std::min( std::max(1, numberOfFeaturesBuffer.Get(0)), numberOfDimensions);
+        const typename BufferTypes::Index numberOfFeatures = std::min( std::max(1, numberOfFeaturesBuffer.Get(0)), numberOfDimensions);
 
-        MatrixBufferTemplate<FloatType>& floatParams =
-                writeCollection.GetOrAddBuffer< MatrixBufferTemplate<FloatType> >(FloatParamsBufferId);
+        MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams =
+                writeCollection.GetOrAddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(FloatParamsBufferId);
 
-        MatrixBufferTemplate<IntType>& intParams =
-                writeCollection.GetOrAddBuffer< MatrixBufferTemplate<IntType> >(IntParamsBufferId);
+        MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams =
+                writeCollection.GetOrAddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(IntParamsBufferId);
 
         SampleParams(numberOfFeatures, numberOfDimensions, floatParams, intParams);
     }
 }
 
-template <class FloatType, class IntType>
-void AxisAlignedParamsStep<FloatType,IntType>::SampleParams(IntType numberOfFeatures,
-                                                            IntType numberOfDimensions,
-                                                            MatrixBufferTemplate<FloatType>& floatParams,
-                                                            MatrixBufferTemplate<IntType>& intParams ) const
+template <class BufferTypes>
+void AxisAlignedParamsStep<BufferTypes>::SampleParams(typename BufferTypes::Index numberOfFeatures,
+                                                        typename BufferTypes::Index numberOfDimensions,
+                                                        MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams,
+                                                        MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams ) const
 {
     floatParams.Resize(numberOfFeatures, DIMENSION_OF_PARAMETERS);
     intParams.Resize(numberOfFeatures, DIMENSION_OF_PARAMETERS);
 
     // Sample without replacement so a dimension is not choosen multiple times
-    std::vector<IntType> candidateDimensions(numberOfFeatures);
+    std::vector<typename BufferTypes::Index> candidateDimensions(numberOfFeatures);
     sampleIndicesWithOutReplacement(&candidateDimensions[0], numberOfFeatures, numberOfDimensions);
 
     for(int i=0; i<numberOfFeatures; i++)
     {
-        floatParams.Set(i, PARAM_START_INDEX, static_cast<FloatType>(1.0)); // use a weight of 1.0 since there is 1 component
+        floatParams.Set(i, PARAM_START_INDEX, static_cast<typename BufferTypes::ParamsContinuous>(1.0)); // use a weight of 1.0 since there is 1 component
         intParams.Set(i, FEATURE_TYPE_INDEX, MATRIX_FEATURES); // feature type
         intParams.Set(i, NUMBER_OF_DIMENSIONS_INDEX, 1); // how many dimensions in projection
         intParams.Set(i, PARAM_START_INDEX, candidateDimensions[i]); // dimension index

@@ -1,3 +1,4 @@
+#include "BufferTypes.h"
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "FeatureExtractorStep.h"
@@ -7,6 +8,6 @@
 #include "LinearMatrixFeature.h"
 #include "LinearMatrixFeatureBinding.h"
 
-template class AxisAlignedParamsStep<float, int>;
+template class AxisAlignedParamsStep< DefaultBufferTypes >;
 template class LinearMatrixFeature< MatrixBufferTemplate<float>, float, int >;
 template class FeatureExtractorStep< LinearMatrixFeature<MatrixBufferTemplate<float>, float, int> >;

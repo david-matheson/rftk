@@ -6,6 +6,7 @@
     #include "SparseMatrixBuffer.h"
     #include "Tensor3Buffer.h"
     #include "BufferCollection.h"
+    #include "BufferTypes.h"
 %}
 
 %include <exception.i>
@@ -150,3 +151,6 @@ DECLARE_EXTEND_WRAPPER_FOR_BUFFER(SparseMatrixBufferTemplate<float>, as_sparse_m
 DECLARE_EXTEND_WRAPPER_FOR_BUFFER(SparseMatrixBufferTemplate<double>, as_sparse_matrix_buffer)
 DECLARE_EXTEND_WRAPPER_FOR_BUFFER(SparseMatrixBufferTemplate<int>, as_sparse_matrix_buffer)
 DECLARE_EXTEND_WRAPPER_FOR_BUFFER(SparseMatrixBufferTemplate<long long>, as_sparse_matrix_buffer)
+
+%include "BufferTypes.h"
+
