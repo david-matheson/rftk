@@ -24,12 +24,12 @@ DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t
     std::vector<PipelineStepI*> nodeSteps;
     AxisAlignedParamsStep<DefaultBufferTypes> featureParams(numberOfFeatures.OutputBufferId, xs_key);
     nodeSteps.push_back(&featureParams);
-    LinearMatrixFeature<MatrixBufferTemplate<float>, float, int> feature(featureParams.FloatParamsBufferId,
+    LinearMatrixFeature<DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous > > feature(featureParams.FloatParamsBufferId,
                                                                           featureParams.IntParamsBufferId,
                                                                           allSamplesStep.IndicesBufferId,
                                                                           xs_key); 
-    FeatureExtractorStep< LinearMatrixFeature<MatrixBufferTemplate<float>, float, int> > featureExtractor(feature, 
-                                                                                                            featureOrdering);
+    FeatureExtractorStep< LinearMatrixFeature<DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous > > > featureExtractor(feature, 
+                                                                                                                                featureOrdering);
     nodeSteps.push_back(&featureExtractor);
     SliceBufferStep< VectorBufferTemplate<int>, int> sliceClasses(classes_key, allSamplesStep.IndicesBufferId);
     nodeSteps.push_back(&sliceClasses);

@@ -1,3 +1,4 @@
+#include "BufferTypes.h"
 #include "DepthFirstTreeLearner.h"
 #include "BreadthFirstTreeLearner.h"
 #include "OnlineForestLearner.h"
@@ -8,4 +9,4 @@
 #include "ClassEstimatorUpdater.h"
 #include "ClassProbabilityOfError.h"
 
-template class OnlineForestLearner< LinearMatrixFeature< MatrixBufferTemplate<float>, float, int >, ClassEstimatorUpdater< float, int >, ClassProbabilityOfError, float, int >;
+template class OnlineForestLearner< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, ClassEstimatorUpdater< float, int >, ClassProbabilityOfError, float, int >;

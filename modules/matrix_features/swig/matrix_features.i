@@ -14,7 +14,8 @@
 %include "FeatureExtractorStep.h"
 
 %template(AxisAlignedParamsStep_f32i32) AxisAlignedParamsStep< DefaultBufferTypes >;
-%template(DimensionPairDifferenceParamsStep_f32i32) DimensionPairDifferenceParamsStep<float, int>;
-%template(ClassPairDifferenceParamsStep_f32i32) ClassPairDifferenceParamsStep<float, int>;
-%template(LinearFloat32MatrixFeature_f32i32) LinearMatrixFeature< MatrixBufferTemplate<float>, float, int >;
-%template(LinearFloat32MatrixFeatureExtractorStep_f32i32) FeatureExtractorStep< LinearMatrixFeature<MatrixBufferTemplate<float>, float, int> >;
+%template(DimensionPairDifferenceParamsStep_f32i32) DimensionPairDifferenceParamsStep< DefaultBufferTypes >;
+%template(ClassPairDifferenceParamsStep_f32i32) ClassPairDifferenceParamsStep< DefaultBufferTypes >;
+
+%template(LinearFloat32MatrixFeature_f32i32) LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
+%template(LinearFloat32MatrixFeatureExtractorStep_f32i32) FeatureExtractorStep< LinearMatrixFeature<DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> > >;

@@ -14,13 +14,13 @@ const int PARAM_START_INDEX = NUMBER_OF_DIMENSIONS_INDEX + 1;  // Move this to a
 // each sample (row).
 //
 // ----------------------------------------------------------------------------
-template <class DataMatrixType, class FloatType, class IntType>
+template <class BufferTypes, class DataMatrixType>
 class LinearMatrixFeatureBinding
 {
 public:
-    LinearMatrixFeatureBinding( MatrixBufferTemplate<FloatType> const* floatParams,
-                                 MatrixBufferTemplate<IntType> const* intParams,
-                                 VectorBufferTemplate<IntType> const* indices,
+    LinearMatrixFeatureBinding( MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> const* floatParams,
+                                 MatrixBufferTemplate<typename BufferTypes::ParamsInteger> const* intParams,
+                                 VectorBufferTemplate<typename BufferTypes::Index> const* indices,
                                  DataMatrixType const* dataMatrix);
     LinearMatrixFeatureBinding();
     ~LinearMatrixFeatureBinding();
@@ -28,23 +28,23 @@ public:
     LinearMatrixFeatureBinding(const LinearMatrixFeatureBinding& other);
     LinearMatrixFeatureBinding & operator=(const LinearMatrixFeatureBinding & other);
 
-    FloatType FeatureValue( const int featureIndex, const int relativeSampleIndex) const;
+    typename BufferTypes::FeatureValue FeatureValue( const typename BufferTypes::Index featureIndex, const typename BufferTypes::Index relativeSampleIndex) const;
 
-    IntType GetNumberOfFeatures() const;
-    IntType GetNumberOfDatapoints() const;
+    typename BufferTypes::Index GetNumberOfFeatures() const;
+    typename BufferTypes::Index GetNumberOfDatapoints() const;
 
 private:
-    MatrixBufferTemplate<FloatType> const* mFloatParams;
-    MatrixBufferTemplate<IntType> const* mIntParams;
-    VectorBufferTemplate<IntType> const* mIndices;
+    MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> const* mFloatParams;
+    MatrixBufferTemplate<typename BufferTypes::ParamsInteger> const* mIntParams;
+    VectorBufferTemplate<typename BufferTypes::Index> const* mIndices;
     DataMatrixType const* mDataMatrix;
 
 };
 
-template <class DataMatrixType, class FloatType, class IntType>
-LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::LinearMatrixFeatureBinding( MatrixBufferTemplate<FloatType> const* floatParams,
-                                                                                         MatrixBufferTemplate<IntType> const* intParams,
-                                                                                         VectorBufferTemplate<IntType> const* indices,
+template <class BufferTypes, class DataMatrixType>
+LinearMatrixFeatureBinding<BufferTypes, DataMatrixType>::LinearMatrixFeatureBinding( MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> const* floatParams,
+                                                                                         MatrixBufferTemplate<typename BufferTypes::ParamsInteger> const* intParams,
+                                                                                         VectorBufferTemplate<typename BufferTypes::Index> const* indices,
                                                                                          DataMatrixType const* dataMatrix )
 : mFloatParams(floatParams)
 , mIntParams(intParams)
@@ -52,24 +52,24 @@ LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::LinearMatrixFeat
 , mDataMatrix(dataMatrix)
 {}
 
-template <class DataMatrixType, class FloatType, class IntType>
-LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::LinearMatrixFeatureBinding()
+template <class BufferTypes, class DataMatrixType>
+LinearMatrixFeatureBinding<BufferTypes, DataMatrixType>::LinearMatrixFeatureBinding()
 : mFloatParams(NULL)
 , mIntParams(NULL)
 , mIndices(NULL)
 , mDataMatrix(NULL)
 {}
 
-template <class DataMatrixType, class FloatType, class IntType>
-LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::LinearMatrixFeatureBinding( const LinearMatrixFeatureBinding& other )
+template <class BufferTypes, class DataMatrixType>
+LinearMatrixFeatureBinding<BufferTypes, DataMatrixType>::LinearMatrixFeatureBinding( const LinearMatrixFeatureBinding& other )
 : mFloatParams(other.mFloatParams)
 , mIntParams(other.mIntParams)
 , mIndices(other.mIndices)
 , mDataMatrix(other.mDataMatrix)
 {}
 
-template <class DataMatrixType, class FloatType, class IntType>
-LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>& LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::operator=(const LinearMatrixFeatureBinding & other)
+template <class BufferTypes, class DataMatrixType>
+LinearMatrixFeatureBinding<BufferTypes, DataMatrixType>& LinearMatrixFeatureBinding<BufferTypes, DataMatrixType>::operator=(const LinearMatrixFeatureBinding & other)
 {
     mFloatParams = other.mFloatParams;
     mIntParams = other.mIntParams;
@@ -78,33 +78,33 @@ LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>& LinearMatrixFeat
     return *this;
 }
 
-template <class DataMatrixType, class FloatType, class IntType>
-LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::~LinearMatrixFeatureBinding()
+template <class BufferTypes, class DataMatrixType>
+LinearMatrixFeatureBinding<BufferTypes, DataMatrixType>::~LinearMatrixFeatureBinding()
 {}
 
 
-template <class DataMatrixType, class FloatType, class IntType>
-FloatType LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::FeatureValue( const int featureIndex, const int relativeSampleIndex) const
+template <class BufferTypes, class DataMatrixType>
+typename BufferTypes::FeatureValue LinearMatrixFeatureBinding<BufferTypes, DataMatrixType>::FeatureValue( const typename BufferTypes::Index featureIndex, const typename BufferTypes::Index relativeSampleIndex) const
 {
-    FloatType featureValue = static_cast<FloatType>(0.0);
-    const IntType numberOfDimensions = mIntParams->Get(featureIndex, NUMBER_OF_DIMENSIONS_INDEX);
+    typename BufferTypes::FeatureValue featureValue = static_cast<typename BufferTypes::FeatureValue>(0.0);
+    const typename BufferTypes::Index numberOfDimensions = mIntParams->Get(featureIndex, NUMBER_OF_DIMENSIONS_INDEX);
     for(int i=PARAM_START_INDEX; i<numberOfDimensions + PARAM_START_INDEX; i++)
     {
-        const IntType dimension = mIntParams->Get(featureIndex, i);
-        const IntType matrixIndex = mIndices->Get(relativeSampleIndex);
+        const typename BufferTypes::Index dimension = mIntParams->Get(featureIndex, i);
+        const typename BufferTypes::Index matrixIndex = mIndices->Get(relativeSampleIndex);
         featureValue += mFloatParams->Get(featureIndex, i) * mDataMatrix->Get(matrixIndex, dimension);
     }
     return featureValue;
 }
 
-template <class DataMatrixType, class FloatType, class IntType>
-IntType LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::GetNumberOfFeatures() const
+template <class BufferTypes, class DataMatrixType>
+typename BufferTypes::Index LinearMatrixFeatureBinding<BufferTypes, DataMatrixType>::GetNumberOfFeatures() const
 {
     return mIntParams->GetM();
 }
 
-template <class DataMatrixType, class FloatType, class IntType>
-IntType LinearMatrixFeatureBinding<DataMatrixType, FloatType, IntType>::GetNumberOfDatapoints() const
+template <class BufferTypes, class DataMatrixType>
+typename BufferTypes::Index LinearMatrixFeatureBinding<BufferTypes, DataMatrixType>::GetNumberOfDatapoints() const
 {
     return mIndices->GetN();
 }
