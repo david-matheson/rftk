@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "BufferTypes.h"
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
@@ -41,7 +42,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
     numberFeaturesBuffer.Set(0, numberOfFeatures);
     stack.Push(&collection);
 
-    const PixelPairGaussianOffsetsStep<double, int> pixelPairOffsetStep(number_of_features_key, offsets[0], offsets[1], offsets[2], offsets[3]);
+    const PixelPairGaussianOffsetsStep< BufferTypes<double, int, int, double, int, double, double, int> > pixelPairOffsetStep(number_of_features_key, offsets[0], offsets[1], offsets[2], offsets[3]);
 
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<double> >(pixelPairOffsetStep.FloatParamsBufferId));
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<int> >(pixelPairOffsetStep.IntParamsBufferId));

@@ -1,5 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
+#include "BufferTypes.h"
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
@@ -24,7 +25,7 @@ struct ScaledDepthDeltaFeatureFixture {
                               2.0, 1.0, 1.0, 1.0};
         collection.AddBuffer(depth_imgs_key, Tensor3BufferTemplate<float>(&depth_data[0], 1, 3, 4));
         int pixel_indices_data[] = {0,0,1,
-                                    0,2,0,
+                                    0,2,0, 
                                     0,0,1,
                                     0,0,1};
         collection.AddBuffer(pixel_indices_key, MatrixBufferTemplate<int>(&pixel_indices_data[0], 4, 3));
@@ -51,8 +52,9 @@ struct ScaledDepthDeltaFeatureFixture {
     BufferCollection collection;
     BufferCollectionStack stack;
 
-    typedef ScaledDepthDeltaFeature<float, int> ScaledDepthDeltaFeature_t;
-    typedef ScaledDepthDeltaFeatureBinding<float, int> ScaledDepthDeltaFeatureBinding_t;
+    typedef BufferTypes<float, int, int, float, int, float, float, int> BufferTypes_t;
+    typedef ScaledDepthDeltaFeature< BufferTypes_t > ScaledDepthDeltaFeature_t;
+    typedef ScaledDepthDeltaFeatureBinding< BufferTypes_t > ScaledDepthDeltaFeatureBinding_t;
 };
 
 BOOST_FIXTURE_TEST_SUITE( ScaledDepthDeltaFeatureTests,  ScaledDepthDeltaFeatureFixture)

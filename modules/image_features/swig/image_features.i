@@ -1,6 +1,7 @@
 %module image_features
 %{
     #define SWIG_FILE_WITH_INIT
+    #include "BufferTypes.h"
     #include "FeatureExtractorStep.h"
 %}
 
@@ -12,6 +13,6 @@
 
 %include "FeatureExtractorStep.h"
 
-%template(PixelPairGaussianOffsetsStep_f32i32) PixelPairGaussianOffsetsStep<float, int>;
-%template(ScaledDepthDeltaFeature_f32i32) ScaledDepthDeltaFeature< float, int >;
-%template(ScaledDepthDeltaFeatureExtractorStep_f32i32) FeatureExtractorStep< ScaledDepthDeltaFeature<float, int> >;
+%template(PixelPairGaussianOffsetsStep_f32i32) PixelPairGaussianOffsetsStep< DefaultBufferTypes >;
+%template(ScaledDepthDeltaFeature_f32i32) ScaledDepthDeltaFeature< DefaultBufferTypes >;
+%template(ScaledDepthDeltaFeatureExtractorStep_f32i32) FeatureExtractorStep< ScaledDepthDeltaFeature< DefaultBufferTypes > >;

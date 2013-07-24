@@ -15,7 +15,7 @@
 // ScaledDepthDeltaFeature is the depth delta of a pair of pixels
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType>
+template <class BufferTypes>
 class ScaledDepthDeltaFeature
 {
 public:
@@ -38,12 +38,12 @@ public:
 
     ~ScaledDepthDeltaFeature();
 
-    ScaledDepthDeltaFeatureBinding<FloatType, IntType> Bind(const BufferCollectionStack& readCollection) const;
+    ScaledDepthDeltaFeatureBinding<BufferTypes> Bind(const BufferCollectionStack& readCollection) const;
 
 
-    typedef FloatType Float;
-    typedef IntType Int;
-    typedef ScaledDepthDeltaFeatureBinding<FloatType, IntType> FeatureBinding;
+    typedef typename BufferTypes::FeatureValue Float;
+    typedef typename BufferTypes::Index Int;
+    typedef ScaledDepthDeltaFeatureBinding<BufferTypes> FeatureBinding;
 
     const BufferId mFloatParamsBufferId;
     const BufferId mIntParamsBufferId;
@@ -53,8 +53,8 @@ public:
     const BufferId mDepthsImgsBufferId;
 };
 
-template <class FloatType, class IntType>
-ScaledDepthDeltaFeature<FloatType, IntType>::ScaledDepthDeltaFeature( const BufferId& floatParamsBufferId,
+template <class BufferTypes>
+ScaledDepthDeltaFeature<BufferTypes>::ScaledDepthDeltaFeature( const BufferId& floatParamsBufferId,
                                                                       const BufferId& intParamsBufferId,
                                                                       const BufferId& indicesBufferId,
                                                                       const BufferId& pixelIndicesBufferId,
@@ -68,8 +68,8 @@ ScaledDepthDeltaFeature<FloatType, IntType>::ScaledDepthDeltaFeature( const Buff
 , mDepthsImgsBufferId(depthsDataBufferId)
 {}
 
-template <class FloatType, class IntType>
-ScaledDepthDeltaFeature<FloatType, IntType>::ScaledDepthDeltaFeature( const BufferId& floatParamsBufferId,
+template <class BufferTypes>
+ScaledDepthDeltaFeature<BufferTypes>::ScaledDepthDeltaFeature( const BufferId& floatParamsBufferId,
                                                                       const BufferId& intParamsBufferId,
                                                                       const BufferId& indicesBufferId,
                                                                       const BufferId& pixelIndicesBufferId,
@@ -83,8 +83,8 @@ ScaledDepthDeltaFeature<FloatType, IntType>::ScaledDepthDeltaFeature( const Buff
 {}
 
 
-template <class FloatType, class IntType>
-ScaledDepthDeltaFeature<FloatType, IntType>::ScaledDepthDeltaFeature( const BufferId& indicesBufferId,
+template <class BufferTypes>
+ScaledDepthDeltaFeature<BufferTypes>::ScaledDepthDeltaFeature( const BufferId& indicesBufferId,
                                                                       const BufferId& pixelIndicesBufferId,
                                                                       const BufferId& depthsDataBufferId )
 : mFloatParamsBufferId(GetBufferId("floatParams"))
@@ -95,27 +95,32 @@ ScaledDepthDeltaFeature<FloatType, IntType>::ScaledDepthDeltaFeature( const Buff
 , mDepthsImgsBufferId(depthsDataBufferId)
 {}
 
-template <class FloatType, class IntType>
-ScaledDepthDeltaFeature<FloatType, IntType>::~ScaledDepthDeltaFeature()
+template <class BufferTypes>
+ScaledDepthDeltaFeature<BufferTypes>::~ScaledDepthDeltaFeature()
 {}
 
-template <class FloatType, class IntType>
-ScaledDepthDeltaFeatureBinding<FloatType, IntType> ScaledDepthDeltaFeature<FloatType, IntType>::Bind(const BufferCollectionStack& readCollection) const
+template <class BufferTypes>
+ScaledDepthDeltaFeatureBinding<BufferTypes> ScaledDepthDeltaFeature<BufferTypes>::Bind(const BufferCollectionStack& readCollection) const
 {
-    MatrixBufferTemplate<FloatType> const* floatParams = readCollection.GetBufferPtr< MatrixBufferTemplate<FloatType> >(mFloatParamsBufferId);
-    MatrixBufferTemplate<IntType> const* intParams = readCollection.GetBufferPtr< MatrixBufferTemplate<IntType> >(mIntParamsBufferId);
-    VectorBufferTemplate<IntType> const* indices = readCollection.GetBufferPtr< VectorBufferTemplate<IntType> >(mIndicesBufferId);
-    MatrixBufferTemplate<IntType> const* pixelIndices = readCollection.GetBufferPtr< MatrixBufferTemplate<IntType> >(mPixelIndicesBufferId);
-    Tensor3BufferTemplate<FloatType> const* depthImgs = readCollection.GetBufferPtr< Tensor3BufferTemplate<FloatType> >(mDepthsImgsBufferId);
+    MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> const* floatParams = 
+        readCollection.GetBufferPtr< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFloatParamsBufferId);
+    MatrixBufferTemplate<typename BufferTypes::ParamsInteger> const* intParams = 
+        readCollection.GetBufferPtr< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mIntParamsBufferId);
+    VectorBufferTemplate<typename BufferTypes::Index> const* indices = 
+        readCollection.GetBufferPtr< VectorBufferTemplate<typename BufferTypes::Index> >(mIndicesBufferId);
+    MatrixBufferTemplate<typename BufferTypes::Index> const* pixelIndices = 
+        readCollection.GetBufferPtr< MatrixBufferTemplate<typename BufferTypes::Index> >(mPixelIndicesBufferId);
+    Tensor3BufferTemplate<typename BufferTypes::SourceContinuous> const* depthImgs = 
+        readCollection.GetBufferPtr< Tensor3BufferTemplate<typename BufferTypes::SourceContinuous> >(mDepthsImgsBufferId);
     
-    MatrixBufferTemplate<FloatType> const* scales = NULL;
+    MatrixBufferTemplate<typename BufferTypes::SourceContinuous> const* scales = NULL;
     if( mScalesBufferId != NullKey )
     {
-        scales = readCollection.GetBufferPtr< MatrixBufferTemplate<FloatType> >(mScalesBufferId);
+        scales = readCollection.GetBufferPtr< MatrixBufferTemplate<typename BufferTypes::SourceContinuous> >(mScalesBufferId);
     }
 
     ASSERT_ARG_DIM_1D(floatParams->GetN(), intParams->GetN());
 
-    return ScaledDepthDeltaFeatureBinding<FloatType, IntType>(floatParams, intParams, indices, pixelIndices, depthImgs, scales);
+    return ScaledDepthDeltaFeatureBinding<BufferTypes>(floatParams, intParams, indices, pixelIndices, depthImgs, scales);
 }
 

@@ -22,5 +22,5 @@
 
 %template(LinearMatrixClassificationPredictin_f32i32) TemplateForestPredictor< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, ClassProbabilityCombiner<float>, float, int>;
 %template(LinearMatrixRegressionPredictin_f32i32) TemplateForestPredictor< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, MeanVarianceCombiner<float>, float, int>;
-%template(ScaledDepthDeltaClassificationPredictin_f32i32) TemplateForestPredictor< ScaledDepthDeltaFeature< float, int >, ClassProbabilityCombiner<float>, float, int>;
-%template(ScaledDepthDeltaRegressionPrediction_f32i32) TemplateForestPredictor< ScaledDepthDeltaFeature< float, int >, MeanVarianceCombiner<float>, float, int>;
+%template(ScaledDepthDeltaClassificationPredictin_f32i32) TemplateForestPredictor< ScaledDepthDeltaFeature< DefaultBufferTypes >, ClassProbabilityCombiner<float>, float, int>;
+%template(ScaledDepthDeltaRegressionPrediction_f32i32) TemplateForestPredictor< ScaledDepthDeltaFeature< DefaultBufferTypes >, MeanVarianceCombiner<float>, float, int>;
