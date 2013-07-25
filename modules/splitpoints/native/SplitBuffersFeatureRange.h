@@ -8,7 +8,7 @@
 #include "SplitBuffersI.h"
 #include "FeatureEqualI.h"
 
-template <class FloatType, class IntType>
+template <class BufferTypes>
 class SplitBuffersFeatureRange : public SplitBuffersI
 {
 public:
@@ -16,7 +16,7 @@ public:
                             const BufferId& pastIntParamsBufferId,
                             const BufferId& pastRangesBufferId,
                             const BufferId& initialRangeBufferId,
-                            const FeatureEqualI<FloatType, IntType>* featureEqual);
+                            const FeatureEqualI<BufferTypes>* featureEqual);
     SplitBuffersFeatureRange(const SplitBuffersFeatureRange& other);
     virtual ~SplitBuffersFeatureRange();
 
@@ -34,15 +34,15 @@ private:
     const BufferId mPastIntParamsBufferId;
     const BufferId mPastRangesBufferId;
     const BufferId mInitialRangeBufferId;
-    const FeatureEqualI<FloatType, IntType>* mFeatureEqual;
+    const FeatureEqualI<BufferTypes>* mFeatureEqual;
 };
 
-template <class FloatType, class IntType>
-SplitBuffersFeatureRange< FloatType, IntType>::SplitBuffersFeatureRange(const BufferId& pastFloatParamsBufferId,
+template <class BufferTypes>
+SplitBuffersFeatureRange< BufferTypes>::SplitBuffersFeatureRange(const BufferId& pastFloatParamsBufferId,
                                                                       const BufferId& pastIntParamsBufferId,
                                                                       const BufferId& pastRangesBufferId,
                                                                       const BufferId& initialRangeBufferId,
-                                                                      const FeatureEqualI<FloatType, IntType>* featureEqual )
+                                                                      const FeatureEqualI<BufferTypes>* featureEqual )
 : mPastFloatParamsBufferId(pastFloatParamsBufferId)
 , mPastIntParamsBufferId(pastIntParamsBufferId)
 , mPastRangesBufferId(pastRangesBufferId)
@@ -50,8 +50,8 @@ SplitBuffersFeatureRange< FloatType, IntType>::SplitBuffersFeatureRange(const Bu
 , mFeatureEqual(featureEqual->Clone())
 {}
 
-template <class FloatType, class IntType>
-SplitBuffersFeatureRange< FloatType, IntType>::SplitBuffersFeatureRange(const SplitBuffersFeatureRange& other )
+template <class BufferTypes>
+SplitBuffersFeatureRange< BufferTypes>::SplitBuffersFeatureRange(const SplitBuffersFeatureRange& other )
 : mPastFloatParamsBufferId(other.mPastFloatParamsBufferId)
 , mPastIntParamsBufferId(other.mPastIntParamsBufferId)
 , mPastRangesBufferId(other.mPastRangesBufferId)
@@ -59,41 +59,41 @@ SplitBuffersFeatureRange< FloatType, IntType>::SplitBuffersFeatureRange(const Sp
 , mFeatureEqual(other.mFeatureEqual->Clone())
 {}
 
-template <class FloatType, class IntType>
-SplitBuffersFeatureRange<FloatType, IntType>::~SplitBuffersFeatureRange()
+template <class BufferTypes>
+SplitBuffersFeatureRange<BufferTypes>::~SplitBuffersFeatureRange()
 {
     delete mFeatureEqual;
 }
 
-template <class FloatType, class IntType>
-void SplitBuffersFeatureRange<FloatType, IntType>::SplitBuffers(const SplitSelectorBuffers& splitSelectorBuffers,
+template <class BufferTypes>
+void SplitBuffersFeatureRange<BufferTypes>::SplitBuffers(const SplitSelectorBuffers& splitSelectorBuffers,
                                                         int bestFeature,
                                                         int bestSplitpoint,
                                                         const BufferCollectionStack& readBuffers,
                                                         BufferCollection& leftBuffers, 
                                                         BufferCollection& rightBuffers) const
 {
-    const MatrixBufferTemplate<FloatType>& floatParams
-           = readBuffers.GetBuffer< MatrixBufferTemplate<FloatType> >(splitSelectorBuffers.mFloatParamsBufferId);
+    const MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams
+           = readBuffers.GetBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(splitSelectorBuffers.mFloatParamsBufferId);
 
-    const MatrixBufferTemplate<IntType>& intParams
-           = readBuffers.GetBuffer< MatrixBufferTemplate<IntType> >(splitSelectorBuffers.mIntParamsBufferId); 
+    const MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams
+           = readBuffers.GetBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(splitSelectorBuffers.mIntParamsBufferId); 
 
     const int NO_MATCH = -1;
     int matchIndex = NO_MATCH;
 
-    MatrixBufferTemplate<FloatType> pastFloatParams;
-    MatrixBufferTemplate<IntType> pastIntParams;
-    MatrixBufferTemplate<FloatType> pastRanges;
+    MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> pastFloatParams;
+    MatrixBufferTemplate<typename BufferTypes::ParamsInteger> pastIntParams;
+    MatrixBufferTemplate<typename BufferTypes::FeatureValue> pastRanges;
 
-    if(!readBuffers.HasBuffer< MatrixBufferTemplate<FloatType> >(mPastFloatParamsBufferId))
+    if(!readBuffers.HasBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mPastFloatParamsBufferId))
     {
         // Create for the first time
         pastFloatParams = floatParams.SliceRow(bestFeature);
         pastIntParams = intParams.SliceRow(bestFeature);
 
-        const VectorBufferTemplate<FloatType>& initialRanges =
-              readBuffers.GetBuffer< VectorBufferTemplate<FloatType> >(mInitialRangeBufferId);
+        const VectorBufferTemplate<typename BufferTypes::SourceContinuous>& initialRanges =
+              readBuffers.GetBuffer< VectorBufferTemplate<typename BufferTypes::SourceContinuous> >(mInitialRangeBufferId);
         pastRanges.Resize(1, initialRanges.GetN());
         pastRanges.SetRow(0, initialRanges);
 
@@ -101,16 +101,16 @@ void SplitBuffersFeatureRange<FloatType, IntType>::SplitBuffers(const SplitSelec
     }
     else
     {
-        pastFloatParams = readBuffers.GetBuffer< MatrixBufferTemplate<FloatType> >(mPastFloatParamsBufferId);
-        pastIntParams = readBuffers.GetBuffer< MatrixBufferTemplate<IntType> >(mPastIntParamsBufferId);
-        pastRanges = readBuffers.GetBuffer< MatrixBufferTemplate<FloatType> >(mPastRangesBufferId);
+        pastFloatParams = readBuffers.GetBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mPastFloatParamsBufferId);
+        pastIntParams = readBuffers.GetBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mPastIntParamsBufferId);
+        pastRanges = readBuffers.GetBuffer< MatrixBufferTemplate<typename BufferTypes::FeatureValue> >(mPastRangesBufferId);
 
         ASSERT_ARG_DIM_1D(pastFloatParams.GetM(), pastIntParams.GetM())
         ASSERT_ARG_DIM_1D(pastFloatParams.GetM(), pastRanges.GetM())
 
         // Do a linear search to see if best params match any past params
-        const int numberOfPastFeatures = pastFloatParams.GetM();
-        for(int pastFeature=0; (pastFeature<numberOfPastFeatures) && (matchIndex == NO_MATCH); pastFeature++)
+        const typename BufferTypes::Index numberOfPastFeatures = pastFloatParams.GetM();
+        for(typename BufferTypes::Index pastFeature=0; (pastFeature<numberOfPastFeatures) && (matchIndex == NO_MATCH); pastFeature++)
         {
             const bool isEqual = mFeatureEqual->IsEqual(floatParams, intParams, bestFeature,
                                                         pastFloatParams, pastIntParams, pastFeature);
@@ -126,8 +126,8 @@ void SplitBuffersFeatureRange<FloatType, IntType>::SplitBuffers(const SplitSelec
             pastFloatParams.Append(floatParams.SliceRow(bestFeature));
             pastIntParams.Append(intParams.SliceRow(bestFeature));
 
-            const VectorBufferTemplate<FloatType>& initialRanges =
-                  readBuffers.GetBuffer< VectorBufferTemplate<FloatType> >(mInitialRangeBufferId);
+            const VectorBufferTemplate<typename BufferTypes::SourceContinuous>& initialRanges =
+                  readBuffers.GetBuffer< VectorBufferTemplate<typename BufferTypes::SourceContinuous> >(mInitialRangeBufferId);
             pastRanges.AppendRow(initialRanges);
 
             matchIndex = pastRanges.GetM() - 1;
@@ -137,32 +137,32 @@ void SplitBuffersFeatureRange<FloatType, IntType>::SplitBuffers(const SplitSelec
         } 
     }
 
-    const MatrixBufferTemplate<FloatType>& splitpoints
-          = readBuffers.GetBuffer< MatrixBufferTemplate<FloatType> >(splitSelectorBuffers.mSplitpointsBufferId);
+    const MatrixBufferTemplate<typename BufferTypes::FeatureValue>& splitpoints
+          = readBuffers.GetBuffer< MatrixBufferTemplate<typename BufferTypes::FeatureValue> >(splitSelectorBuffers.mSplitpointsBufferId);
 
     // Double check that the split point was the midpoint (the initial use for this is to implement Biau2012)
-    const FloatType midpoint = splitpoints.Get(bestFeature, bestSplitpoint);
-    ASSERT(fabs(0.5*(pastRanges.Get(matchIndex,0)+pastRanges.Get(matchIndex,1)) - midpoint) < std::numeric_limits<FloatType>::epsilon())
+    const typename BufferTypes::FeatureValue midpoint = splitpoints.Get(bestFeature, bestSplitpoint);
+    ASSERT(fabs(0.5*(pastRanges.Get(matchIndex,0)+pastRanges.Get(matchIndex,1)) - midpoint) < std::numeric_limits<typename BufferTypes::FeatureValue>::epsilon())
 
     // Update ranges for left and right children
-    MatrixBufferTemplate<FloatType> pastRangesLeft = pastRanges;
+    MatrixBufferTemplate<typename BufferTypes::FeatureValue> pastRangesLeft = pastRanges;
     pastRangesLeft.Set(matchIndex, 1, midpoint); //make midpoint lower bound for going left
-    MatrixBufferTemplate<FloatType> pastRangesRight = pastRanges;
+    MatrixBufferTemplate<typename BufferTypes::FeatureValue> pastRangesRight = pastRanges;
     pastRangesRight.Set(matchIndex, 0, midpoint); //make midpoint upper bound for going right
 
     // Write out to left and right children buffers
-    leftBuffers.AddBuffer< MatrixBufferTemplate<FloatType> >(mPastFloatParamsBufferId, pastFloatParams );
-    leftBuffers.AddBuffer< MatrixBufferTemplate<IntType> >(mPastIntParamsBufferId, pastIntParams );
-    leftBuffers.AddBuffer< MatrixBufferTemplate<FloatType> >(mPastRangesBufferId, pastRangesLeft );    
+    leftBuffers.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mPastFloatParamsBufferId, pastFloatParams );
+    leftBuffers.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mPastIntParamsBufferId, pastIntParams );
+    leftBuffers.AddBuffer< MatrixBufferTemplate<typename BufferTypes::FeatureValue> >(mPastRangesBufferId, pastRangesLeft );    
 
-    rightBuffers.AddBuffer< MatrixBufferTemplate<FloatType> >(mPastFloatParamsBufferId, pastFloatParams );
-    rightBuffers.AddBuffer< MatrixBufferTemplate<IntType> >(mPastIntParamsBufferId, pastIntParams );
-    rightBuffers.AddBuffer< MatrixBufferTemplate<FloatType> >(mPastRangesBufferId, pastRangesRight ); 
+    rightBuffers.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mPastFloatParamsBufferId, pastFloatParams );
+    rightBuffers.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mPastIntParamsBufferId, pastIntParams );
+    rightBuffers.AddBuffer< MatrixBufferTemplate<typename BufferTypes::FeatureValue> >(mPastRangesBufferId, pastRangesRight ); 
 }
 
-template <class FloatType, class IntType>
-SplitBuffersI* SplitBuffersFeatureRange<FloatType, IntType>::Clone() const
+template <class BufferTypes>
+SplitBuffersI* SplitBuffersFeatureRange<BufferTypes>::Clone() const
 {
-    SplitBuffersFeatureRange<FloatType, IntType>* clone = new SplitBuffersFeatureRange<FloatType, IntType>(*this);
+    SplitBuffersFeatureRange<BufferTypes>* clone = new SplitBuffersFeatureRange<BufferTypes>(*this);
     return clone;
 }

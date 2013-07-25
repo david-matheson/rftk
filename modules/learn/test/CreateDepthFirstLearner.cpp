@@ -13,7 +13,7 @@ DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t
 
     // Tree steps
     std::vector<PipelineStepI*> treeSteps;
-    AllSamplesStep<MatrixBufferTemplate<float>, float, int> allSamplesStep(xs_key);
+    AllSamplesStep<DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous > > allSamplesStep(xs_key);
     treeSteps.push_back(&allSamplesStep);
     VectorBufferTemplate<int> numberOfFeaturesBuffer = CreateVector1<int>(2);
     SetBufferStep< VectorBufferTemplate<int> > numberOfFeatures( numberOfFeaturesBuffer, WHEN_NEW );
@@ -31,9 +31,9 @@ DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t
     FeatureExtractorStep< LinearMatrixFeature<DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous > > > featureExtractor(feature, 
                                                                                                                                 featureOrdering);
     nodeSteps.push_back(&featureExtractor);
-    SliceBufferStep< VectorBufferTemplate<int>, int> sliceClasses(classes_key, allSamplesStep.IndicesBufferId);
+    SliceBufferStep< DefaultBufferTypes, VectorBufferTemplate<int> > sliceClasses(classes_key, allSamplesStep.IndicesBufferId);
     nodeSteps.push_back(&sliceClasses);
-    SliceBufferStep< VectorBufferTemplate<float>, int> sliceWeights(allSamplesStep.WeightsBufferId, allSamplesStep.IndicesBufferId);  
+    SliceBufferStep< DefaultBufferTypes, VectorBufferTemplate<float> > sliceWeights(allSamplesStep.WeightsBufferId, allSamplesStep.IndicesBufferId);  
     nodeSteps.push_back(&sliceWeights); 
     ClassInfoGainWalker<float, int> classInfoGainWalker(sliceWeights.SlicedBufferId, sliceClasses.SlicedBufferId, numberOfClasses);
     BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<float, int> > bestSplitpointStep(classInfoGainWalker, 

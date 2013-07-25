@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BufferTypes.h"
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "FeatureEqualI.h"
@@ -7,46 +8,46 @@
 // Determines if two features are equal if their int params are equal and if
 // their float params x floatPrecision are equal
 
-template <class FloatType, class IntType>
-class FeatureEqualQuantized: public FeatureEqualI<FloatType, IntType>
+template <class BufferTypes>
+class FeatureEqualQuantized: public FeatureEqualI<BufferTypes>
 {
 public:
-    FeatureEqualQuantized(FloatType floatPrecision); 
+    FeatureEqualQuantized(typename BufferTypes::ParamsContinuous floatPrecision); 
     virtual ~FeatureEqualQuantized();
-    virtual FeatureEqualI<FloatType, IntType>* Clone() const;
+    virtual FeatureEqualI<BufferTypes>* Clone() const;
 
-    virtual bool IsEqual(const MatrixBufferTemplate<FloatType>& floatParams,
-                        const MatrixBufferTemplate<IntType>& intParams,
+    virtual bool IsEqual(const MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams,
+                        const MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams,
                         const int featureIndex,
-                        const MatrixBufferTemplate<FloatType>& otherFloatParams,
-                        const MatrixBufferTemplate<IntType>& otherIntParams,
+                        const MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& otherFloatParams,
+                        const MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& otherIntParams,
                         const int otherFeatureIndex) const;
 private:
-    FloatType mFloatPrecision;
+    typename BufferTypes::ParamsContinuous mFloatPrecision;
 };
 
-template <class FloatType, class IntType>
-FeatureEqualQuantized<FloatType, IntType>::FeatureEqualQuantized(FloatType floatPrecision)
+template <class BufferTypes>
+FeatureEqualQuantized<BufferTypes>::FeatureEqualQuantized(typename BufferTypes::ParamsContinuous floatPrecision)
 : mFloatPrecision(floatPrecision)
 {}
 
-template <class FloatType, class IntType>
-FeatureEqualQuantized<FloatType, IntType>::~FeatureEqualQuantized()
+template <class BufferTypes>
+FeatureEqualQuantized<BufferTypes>::~FeatureEqualQuantized()
 {}
 
-template <class FloatType, class IntType>
-FeatureEqualI<FloatType, IntType>* FeatureEqualQuantized<FloatType, IntType>::Clone() const
+template <class BufferTypes>
+FeatureEqualI<BufferTypes>* FeatureEqualQuantized<BufferTypes>::Clone() const
 {
-    FeatureEqualI<FloatType, IntType>* clone = new FeatureEqualQuantized<FloatType, IntType>(*this);
+    FeatureEqualI<BufferTypes>* clone = new FeatureEqualQuantized<BufferTypes>(*this);
     return clone;
 }
 
-template <class FloatType, class IntType>
-bool FeatureEqualQuantized<FloatType, IntType>::IsEqual(const MatrixBufferTemplate<FloatType>& floatParams,
-                        const MatrixBufferTemplate<IntType>& intParams,
+template <class BufferTypes>
+bool FeatureEqualQuantized<BufferTypes>::IsEqual(const MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams,
+                        const MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams,
                         const int featureIndex,
-                        const MatrixBufferTemplate<FloatType>& otherFloatParams,
-                        const MatrixBufferTemplate<IntType>& otherIntParams,
+                        const MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& otherFloatParams,
+                        const MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& otherIntParams,
                         const int otherFeatureIndex) const
 {
     const bool sameDimension = ((floatParams.GetN() == otherFloatParams.GetN())
@@ -58,13 +59,13 @@ bool FeatureEqualQuantized<FloatType, IntType>::IsEqual(const MatrixBufferTempla
 
     for(int i=0; i<floatParams.GetN(); i++)
     {
-        const IntType intFeature = intParams.Get(featureIndex, i);
-        const IntType otherIntFeature = otherIntParams.Get(otherFeatureIndex, i);
-        const bool intEqual = intFeature == otherIntFeature;
+        const typename BufferTypes::ParamsInteger intFeature = intParams.Get(featureIndex, i);
+        const typename BufferTypes::ParamsInteger otherIntFeature = otherIntParams.Get(otherFeatureIndex, i);
+        const bool intEqual = (intFeature == otherIntFeature);
 
-        const IntType floatFeature = IntType(mFloatPrecision*floatParams.Get(featureIndex, i));
-        const IntType otherFloatFeature = IntType(mFloatPrecision*otherFloatParams.Get(otherFeatureIndex, i));
-        const bool floatEqual = floatFeature == otherFloatFeature;
+        const typename BufferTypes::ParamsInteger floatFeature = typename BufferTypes::ParamsInteger(mFloatPrecision*floatParams.Get(featureIndex, i));
+        const typename BufferTypes::ParamsInteger otherFloatFeature = typename BufferTypes::ParamsInteger(mFloatPrecision*otherFloatParams.Get(otherFeatureIndex, i));
+        const bool floatEqual = (floatFeature == otherFloatFeature);
 
         if(!intEqual || !floatEqual)
         {

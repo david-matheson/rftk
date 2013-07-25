@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
     numberFeaturesBuffer.Set(0, numberOfFeatures);
     stack.Push(&collection);
 
-    const AxisAlignedParamsStep< BufferTypes<double, int, int, double, int, double, double, int> > axisAlignedStep(number_of_features_key, xs_key);
+    const AxisAlignedParamsStep< BufferTypes<double, int, int, double, int, double, double, int, double> > axisAlignedStep(number_of_features_key, xs_key);
 
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<double> >(axisAlignedStep.FloatParamsBufferId));
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<int> >(axisAlignedStep.IntParamsBufferId));
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_all_dimensions)
     numberFeaturesBuffer.Set(0, numberOfFeaturesRequested);
     stack.Push(&collection);
 
-    const AxisAlignedParamsStep< BufferTypes<double, int, int, double, int, double, double, int> > axisAlignedStep(number_of_features_key, xs_key);
+    const AxisAlignedParamsStep< BufferTypes<double, int, int, double, int, double, double, int, double> > axisAlignedStep(number_of_features_key, xs_key);
 
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<double> >(axisAlignedStep.FloatParamsBufferId));
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<int> >(axisAlignedStep.IntParamsBufferId));

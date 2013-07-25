@@ -3,17 +3,17 @@
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 
-template <class FloatType, class IntType>
+template <class BufferTypes>
 class FeatureEqualI
 {
 public:
-    virtual bool IsEqual(const MatrixBufferTemplate<FloatType>& floatParams,
-                        const MatrixBufferTemplate<IntType>& intParams,
+    virtual bool IsEqual(const MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams,
+                        const MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams,
                         const int featureIndex,
-                        const MatrixBufferTemplate<FloatType>& otherFloatParams,
-                        const MatrixBufferTemplate<IntType>& otherIntParams,
+                        const MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& otherFloatParams,
+                        const MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& otherIntParams,
                         const int otherFeatureIndex) const = 0;
 
-    virtual FeatureEqualI<FloatType, IntType>* Clone() const = 0;
+    virtual FeatureEqualI<BufferTypes>* Clone() const = 0;
     virtual ~FeatureEqualI() {}
 };

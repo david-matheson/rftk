@@ -1,5 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
+#include "BufferTypes.h"
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
@@ -49,6 +50,8 @@ struct SliceBufferFixture {
     {
     }
 
+    typedef BufferTypes<float, int, int, float, int, float, float, int, float> BufferTypes_t;
+
     const BufferCollectionKey_t xs_key;
     const BufferCollectionKey_t ys_key;
     const BufferCollectionKey_t indices_key;
@@ -63,7 +66,7 @@ BOOST_FIXTURE_TEST_SUITE( SliceBufferTests,  SliceBufferFixture)
 
 BOOST_AUTO_TEST_CASE(test_SliceBuffer_ProcessStep_matrix_buffer)
 {
-    const SliceBufferStep< MatrixBufferTemplate<double>, int> sliceBufferStep(xs_key, indices_key);
+    const SliceBufferStep< BufferTypes_t, MatrixBufferTemplate<double> > sliceBufferStep(xs_key, indices_key);
 
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<double> >(sliceBufferStep.SlicedBufferId));
     boost::mt19937 gen(0);
@@ -79,7 +82,7 @@ BOOST_AUTO_TEST_CASE(test_SliceBuffer_ProcessStep_matrix_buffer)
 
 BOOST_AUTO_TEST_CASE(test_SliceBuffer_ProcessStep_vector_buffer)
 {
-    const SliceBufferStep< VectorBufferTemplate<long long>, int> sliceBufferStep(ys_key, indices_key);
+    const SliceBufferStep< BufferTypes_t, VectorBufferTemplate<long long> > sliceBufferStep(ys_key, indices_key);
 
     BOOST_CHECK(!collection.HasBuffer< VectorBufferTemplate<long long> >(sliceBufferStep.SlicedBufferId));
     boost::mt19937 gen(0);

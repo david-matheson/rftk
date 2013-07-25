@@ -13,7 +13,7 @@
 // and indices of datapoints to include
 //
 // ----------------------------------------------------------------------------
-template <class MatrixType, class FloatType, class IntType>
+template <class BufferTypes, class DataMatrixType>
 class BootstrapSamplesStep: public PipelineStepI
 {
 public:
@@ -35,39 +35,39 @@ private:
 };
 
 
-template <class MatrixType, class FloatType, class IntType>
-BootstrapSamplesStep<MatrixType, FloatType, IntType>::BootstrapSamplesStep(const BufferId& dataBuffer)
+template <class BufferTypes, class DataMatrixType>
+BootstrapSamplesStep<BufferTypes, DataMatrixType>::BootstrapSamplesStep(const BufferId& dataBuffer)
 : IndicesBufferId(GetBufferId("IndicesBuffer"))
 , WeightsBufferId(GetBufferId("WeightsBuffer"))
 , mDataBufferId(dataBuffer)
 {}
 
-template <class MatrixType, class FloatType, class IntType>
-BootstrapSamplesStep<MatrixType, FloatType, IntType>::~BootstrapSamplesStep()
+template <class BufferTypes, class DataMatrixType>
+BootstrapSamplesStep<BufferTypes, DataMatrixType>::~BootstrapSamplesStep()
 {}
 
-template <class MatrixType, class FloatType, class IntType>
-PipelineStepI* BootstrapSamplesStep<MatrixType, FloatType, IntType>::Clone() const
+template <class BufferTypes, class DataMatrixType>
+PipelineStepI* BootstrapSamplesStep<BufferTypes, DataMatrixType>::Clone() const
 {
-    BootstrapSamplesStep<MatrixType, FloatType, IntType>* clone = new BootstrapSamplesStep<MatrixType, FloatType, IntType>(*this);
+    BootstrapSamplesStep<BufferTypes, DataMatrixType>* clone = new BootstrapSamplesStep<BufferTypes, DataMatrixType>(*this);
     return clone;
 }
 
-template <class MatrixType, class FloatType, class IntType>
-void BootstrapSamplesStep<MatrixType, FloatType, IntType>::ProcessStep(const BufferCollectionStack& readCollection,
+template <class BufferTypes, class DataMatrixType>
+void BootstrapSamplesStep<BufferTypes, DataMatrixType>::ProcessStep(const BufferCollectionStack& readCollection,
                                                                 BufferCollection& writeCollection,
                                                                 boost::mt19937& gen) const
 {
     UNUSED_PARAM(gen);
 
-    const MatrixType & buffer
-          = readCollection.GetBuffer< MatrixType >(mDataBufferId);
-    VectorBufferTemplate<IntType>& indices
-          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<IntType> >(IndicesBufferId);
-    VectorBufferTemplate<FloatType>& weights
-          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<FloatType> >(WeightsBufferId);
+    const DataMatrixType & buffer
+          = readCollection.GetBuffer< DataMatrixType >(mDataBufferId);
+    VectorBufferTemplate<typename BufferTypes::Index>& indices
+          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<typename BufferTypes::Index> >(IndicesBufferId);
+    VectorBufferTemplate<typename BufferTypes::ParamsContinuous>& weights
+          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<typename BufferTypes::ParamsContinuous> >(WeightsBufferId);
 
-    const IntType numberOfSamples = buffer.GetM();
+    const typename BufferTypes::Index numberOfSamples = buffer.GetM();
     weights.Resize(numberOfSamples);
     weights.Zero();
 
@@ -77,7 +77,7 @@ void BootstrapSamplesStep<MatrixType, FloatType, IntType>::ProcessStep(const Buf
                           numberOfSamples,
                           numberOfSamples);
 
-    std::vector<IntType> sampledIndices;
+    std::vector<typename BufferTypes::Index> sampledIndices;
     for(unsigned int i=0; i<counts.size(); i++)
     {
         if( counts[i] > 0 )
@@ -86,6 +86,6 @@ void BootstrapSamplesStep<MatrixType, FloatType, IntType>::ProcessStep(const Buf
             sampledIndices.push_back(i);
         }
     }
-    indices = VectorBufferTemplate<IntType>(&sampledIndices[0], sampledIndices.size());
+    indices = VectorBufferTemplate<typename BufferTypes::Index>(&sampledIndices[0], sampledIndices.size());
 
 }

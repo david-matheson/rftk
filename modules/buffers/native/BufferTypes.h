@@ -10,7 +10,8 @@ template <class SourceContinuousType,
         class ParamsIntegerType, 
         class FeatureValueType,
         class SufficientStatsContinuousType,
-        class SufficientStatsIntegerType>
+        class SufficientStatsIntegerType,
+        class ImpurityValueType>
 class BufferTypes {
 public:
     BufferTypes() {}
@@ -22,6 +23,7 @@ public:
     typedef FeatureValueType FeatureValue;
     typedef SufficientStatsContinuousType SufficientStatsContinuous;
     typedef SufficientStatsIntegerType SufficientStatsInteger;
+    typedef ImpurityValueType ImpurityValue;
 };
 
-typedef BufferTypes<float, int, int, float, int, float, float, int> DefaultBufferTypes;
+typedef BufferTypes<float, int, int, float, int, float, float, int, float> DefaultBufferTypes;

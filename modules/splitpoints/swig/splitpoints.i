@@ -1,6 +1,7 @@
 %module splitpoints
 %{
     #define SWIG_FILE_WITH_INIT
+    #include "BufferTypes.h"
     #include "RandomSplitpointsStep.h"
     #include "AssignStreamStep.h"
     #include "RangeMidpointStep.h"
@@ -41,7 +42,7 @@ namespace std {
 %template(RandomSplitpointsStep_f32i32) RandomSplitpointsStep<float, int>;
 
 %template(AssignStreamStep_f32i32) AssignStreamStep<float, int>;
-%template(RangeMidpointStep_f32i32) RangeMidpointStep<float, int>;
+%template(RangeMidpointStep_f32i32) RangeMidpointStep<DefaultBufferTypes>;
 
 %template(SplitIndices_f32i32) SplitBuffersIndices<float, int>;
-%template(SplitBuffersFeatureRange_f32i32) SplitBuffersFeatureRange<float, int>;
+%template(SplitBuffersFeatureRange_f32i32) SplitBuffersFeatureRange<DefaultBufferTypes>;

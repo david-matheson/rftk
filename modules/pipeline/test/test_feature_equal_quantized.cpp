@@ -6,6 +6,8 @@
 
 BOOST_AUTO_TEST_SUITE( FeatureEqualQuantizedTests )
 
+typedef BufferTypes<float, int, int, float, int, float, float, int, float> FeatureEqualQuantizedTests_BufferTypes_t;
+
 BOOST_AUTO_TEST_CASE(test_IsEqual)
 {
     float float_1_data[] = {0, 1, 2, 3, 4, 
@@ -29,7 +31,7 @@ BOOST_AUTO_TEST_CASE(test_IsEqual)
     MatrixBufferTemplate<int> int_2(&int_2_data[0], 3, 5);
 
 
-    FeatureEqualQuantized<float, int> featureEqualQuantized(1.0f);
+    FeatureEqualQuantized<FeatureEqualQuantizedTests_BufferTypes_t> featureEqualQuantized(1.0f);
     BOOST_CHECK(featureEqualQuantized.IsEqual(float_1, int_1, 0, float_2, int_2, 0));
     BOOST_CHECK(featureEqualQuantized.IsEqual(float_1, int_1, 0, float_2, int_2, 1));
     BOOST_CHECK(!featureEqualQuantized.IsEqual(float_1, int_1, 0, float_2, int_2, 2));
@@ -55,13 +57,13 @@ BOOST_AUTO_TEST_CASE(test_IsEqual_different_precision)
     int int_2_data[] = {22, 2, 5, 33, 4};
     MatrixBufferTemplate<int> int_2(&int_2_data[0], 1, 5);
 
-    FeatureEqualQuantized<float, int> featureEqualQuantized_1(1.0f);
+    FeatureEqualQuantized<FeatureEqualQuantizedTests_BufferTypes_t> featureEqualQuantized_1(1.0f);
     BOOST_CHECK(featureEqualQuantized_1.IsEqual(float_1, int_1, 0, float_2, int_2, 0));
 
-    FeatureEqualQuantized<float, int> featureEqualQuantized_10(10.0f);
+    FeatureEqualQuantized<FeatureEqualQuantizedTests_BufferTypes_t> featureEqualQuantized_10(10.0f);
     BOOST_CHECK(featureEqualQuantized_10.IsEqual(float_1, int_1, 0, float_2, int_2, 0));
 
-    FeatureEqualQuantized<float, int> featureEqualQuantized_100(100.0f);
+    FeatureEqualQuantized<FeatureEqualQuantizedTests_BufferTypes_t> featureEqualQuantized_100(100.0f);
     BOOST_CHECK(!featureEqualQuantized_100.IsEqual(float_1, int_1, 0, float_2, int_2, 0));
 }
 

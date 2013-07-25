@@ -12,11 +12,11 @@
 // online bagging
 //
 // ----------------------------------------------------------------------------
-template <class MatrixType, class FloatType, class IntType>
+template <class BufferTypes, class DataMatrixType>
 class PoissonSamplesStep: public PipelineStepI
 {
 public:
-    PoissonSamplesStep( const BufferId& dataBuffer, const FloatType mean );
+    PoissonSamplesStep( const BufferId& dataBuffer, const typename BufferTypes::SourceContinuous mean );
     virtual ~PoissonSamplesStep();
 
     virtual PipelineStepI* Clone() const;
@@ -30,58 +30,58 @@ public:
     const BufferId WeightsBufferId;
 private:
     const BufferId mDataBufferId;
-    const FloatType mMean;
+    const typename BufferTypes::SourceContinuous mMean;
 
 };
 
 
-template <class MatrixType, class FloatType, class IntType>
-PoissonSamplesStep<MatrixType, FloatType, IntType>::PoissonSamplesStep(const BufferId& dataBuffer,const FloatType mean)
+template <class BufferTypes, class DataMatrixType>
+PoissonSamplesStep<BufferTypes, DataMatrixType>::PoissonSamplesStep(const BufferId& dataBuffer, const typename BufferTypes::SourceContinuous mean)
 : IndicesBufferId(GetBufferId("IndicesBuffer"))
 , WeightsBufferId(GetBufferId("WeightsBuffer"))
 , mDataBufferId(dataBuffer)
 , mMean(mean)
 {}
 
-template <class MatrixType, class FloatType, class IntType>
-PoissonSamplesStep<MatrixType, FloatType, IntType>::~PoissonSamplesStep()
+template <class BufferTypes, class DataMatrixType>
+PoissonSamplesStep<BufferTypes, DataMatrixType>::~PoissonSamplesStep()
 {}
 
-template <class MatrixType, class FloatType, class IntType>
-PipelineStepI* PoissonSamplesStep<MatrixType, FloatType, IntType>::Clone() const
+template <class BufferTypes, class DataMatrixType>
+PipelineStepI* PoissonSamplesStep<BufferTypes, DataMatrixType>::Clone() const
 {
-    PoissonSamplesStep<MatrixType, FloatType, IntType>* clone = new PoissonSamplesStep<MatrixType, FloatType, IntType>(*this);
+    PoissonSamplesStep<BufferTypes, DataMatrixType>* clone = new PoissonSamplesStep<BufferTypes, DataMatrixType>(*this);
     return clone;
 }
 
-template <class MatrixType, class FloatType, class IntType>
-void PoissonSamplesStep<MatrixType, FloatType, IntType>::ProcessStep(const BufferCollectionStack& readCollection,
+template <class BufferTypes, class DataMatrixType>
+void PoissonSamplesStep<BufferTypes, DataMatrixType>::ProcessStep(const BufferCollectionStack& readCollection,
                                                                 BufferCollection& writeCollection,
                                                                 boost::mt19937& gen) const
 {
-    const MatrixType & buffer
-          = readCollection.GetBuffer< MatrixType >(mDataBufferId);
-    VectorBufferTemplate<IntType>& indices
-          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<IntType> >(IndicesBufferId);
-    VectorBufferTemplate<FloatType>& weights
-          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<FloatType> >(WeightsBufferId);
+    const DataMatrixType & buffer
+          = readCollection.GetBuffer< DataMatrixType >(mDataBufferId);
+    VectorBufferTemplate<typename BufferTypes::Index>& indices
+          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<typename BufferTypes::Index> >(IndicesBufferId);
+    VectorBufferTemplate<typename BufferTypes::ParamsContinuous>& weights
+          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<typename BufferTypes::ParamsContinuous> >(WeightsBufferId);
 
     boost::poisson_distribution<> poisson(mMean);
     boost::variate_generator<boost::mt19937&,boost::poisson_distribution<> > var_poisson(gen, poisson);
 
-    const IntType numberOfSamples = buffer.GetM();
+    const typename BufferTypes::Index numberOfSamples = buffer.GetM();
     weights.Resize(numberOfSamples);
     weights.Zero();
-    std::vector<IntType> sampledIndices;
-    for(IntType s=0; s<numberOfSamples; s++)
+    std::vector<typename BufferTypes::Index> sampledIndices;
+    for(typename BufferTypes::Index s=0; s<numberOfSamples; s++)
     {
-        const IntType weight = var_poisson();
+        const typename BufferTypes::Index weight = var_poisson();
         if(weight > 0)
         {
-            weights.Set(s, static_cast<FloatType>(weight));
+            weights.Set(s, static_cast<typename BufferTypes::ParamsContinuous>(weight));
             sampledIndices.push_back(s);
         }
     }
 
-    indices = VectorBufferTemplate<IntType>(&sampledIndices[0], sampledIndices.size());
+    indices = VectorBufferTemplate<typename BufferTypes::Index>(&sampledIndices[0], sampledIndices.size());
 }

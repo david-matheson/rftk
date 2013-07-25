@@ -52,7 +52,7 @@ struct ScaledDepthDeltaFeatureFixture {
     BufferCollection collection;
     BufferCollectionStack stack;
 
-    typedef BufferTypes<float, int, int, float, int, float, float, int> BufferTypes_t;
+    typedef BufferTypes<float, int, int, float, int, float, float, int, float> BufferTypes_t;
     typedef ScaledDepthDeltaFeature< BufferTypes_t > ScaledDepthDeltaFeature_t;
     typedef ScaledDepthDeltaFeatureBinding< BufferTypes_t > ScaledDepthDeltaFeatureBinding_t;
 };

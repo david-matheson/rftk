@@ -52,7 +52,7 @@ struct LinearMatrixFeatureFixture {
     BufferCollection collection;
     BufferCollectionStack stack;
 
-    typedef BufferTypes<double, int, int, double, int, float, float, int> TestBufferTypes_t;
+    typedef BufferTypes<double, int, int, double, int, float, float, int, float> TestBufferTypes_t;
     typedef LinearMatrixFeature<TestBufferTypes_t, MatrixBufferTemplate<TestBufferTypes_t::SourceContinuous > > LinearMatrixFeature_t;
     typedef LinearMatrixFeatureBinding<TestBufferTypes_t, MatrixBufferTemplate<TestBufferTypes_t::SourceContinuous > > LinearMatrixFeatureBinding_t;
 };
