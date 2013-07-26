@@ -1,5 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
+#include "BufferTypes.h"
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
@@ -43,13 +44,15 @@ struct ClassInfoGainWalkerFixture {
     const int number_of_classes;
     BufferCollection collection;
     BufferCollectionStack stack;
+
+typedef BufferTypes<float, int, int, float, int, float, float, int, float> BufferTypes_t;
 };
 
 BOOST_FIXTURE_TEST_SUITE( ClassInfoGainWalkerTests,  ClassInfoGainWalkerFixture )
 
 BOOST_AUTO_TEST_CASE(test_ClassInfoGainWalker_Impurity)
 {
-    ClassInfoGainWalker<float, int> classInfoGainWalker(weights_key, classes_key, number_of_classes);
+    ClassInfoGainWalker< BufferTypes_t > classInfoGainWalker(weights_key, classes_key, number_of_classes);
     classInfoGainWalker.Bind(stack);
     BOOST_CHECK_CLOSE(classInfoGainWalker.Impurity(), 0.0, 1);
 
@@ -80,7 +83,7 @@ BOOST_AUTO_TEST_CASE(test_ClassInfoGainWalker_Impurity)
 
 BOOST_AUTO_TEST_CASE(test_ClassInfoGainWalker_Reset)
 {
-    ClassInfoGainWalker<float, int> classInfoGainWalker(weights_key, classes_key, number_of_classes);
+    ClassInfoGainWalker< BufferTypes_t > classInfoGainWalker(weights_key, classes_key, number_of_classes);
     classInfoGainWalker.Bind(stack);
     BOOST_CHECK_CLOSE(classInfoGainWalker.Impurity(), 0.0, 1);
 
@@ -96,8 +99,8 @@ BOOST_AUTO_TEST_CASE(test_ClassInfoGainWalker_Reset)
 
 BOOST_AUTO_TEST_CASE(test_ClassInfoGainWalker_BestSplitpointsWalkingSortedStep_ProcessStep_FEATURES_BY_DATAPOINTS)
 {
-    ClassInfoGainWalker<float, int> classInfoGainWalker(weights_key, classes_key, number_of_classes);
-    BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<float, int> > bestsplits(classInfoGainWalker, fm_key, FEATURES_BY_DATAPOINTS);
+    ClassInfoGainWalker< BufferTypes_t > classInfoGainWalker(weights_key, classes_key, number_of_classes);
+    BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<BufferTypes_t> > bestsplits(classInfoGainWalker, fm_key, FEATURES_BY_DATAPOINTS);
     boost::mt19937 gen(0);
     bestsplits.ProcessStep(stack, collection, gen);
 

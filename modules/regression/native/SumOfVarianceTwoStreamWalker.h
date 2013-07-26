@@ -18,35 +18,35 @@
 // MoveLeftToRight is called for the sorted feature values
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType, class InternalFloatType>
+template <class BT>
 class SumOfVarianceTwoStreamWalker
 {
 public:
     SumOfVarianceTwoStreamWalker (const BufferId& sampleWeights,
-                        const BufferId& streamType,
-                        const BufferId& ys,
-                        const int ydim );
+                                    const BufferId& streamType,
+                                    const BufferId& ys,
+                                    const int ydim );
     virtual ~SumOfVarianceTwoStreamWalker();
 
     void Bind(const BufferCollectionStack& readCollection);
     void Reset();
 
-    void MoveLeftToRight(IntType sampleIndex);
+    void MoveLeftToRight(typename BT::Index sampleIndex);
 
-    FloatType Impurity();
+    typename BT::ImpurityValue Impurity();
 
-    IntType GetYDim() const;
-    VectorBufferTemplate<FloatType> GetLeftEstimationYs() const;
-    VectorBufferTemplate<FloatType> GetLeftStructureYs() const;
-    VectorBufferTemplate<FloatType> GetRightEstimationYs() const;
-    VectorBufferTemplate<FloatType> GetRightStructureYs() const;
-    FloatType GetLeftEstimationChildCounts() const;
-    FloatType GetLeftStructureChildCounts() const;
-    FloatType GetRightEstimationChildCounts() const;
-    FloatType GetRightStructureChildCounts() const;
+    typename BT::Index GetYDim() const;
 
-    typedef FloatType Float;
-    typedef IntType Int;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> GetLeftEstimationYs() const;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> GetLeftStructureYs() const;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> GetRightEstimationYs() const;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> GetRightStructureYs() const;
+    typename BT::SufficientStatsContinuous GetLeftEstimationChildCounts() const;
+    typename BT::SufficientStatsContinuous GetLeftStructureChildCounts() const;
+    typename BT::SufficientStatsContinuous GetRightEstimationChildCounts() const;
+    typename BT::SufficientStatsContinuous GetRightStructureChildCounts() const;
+
+    typedef BT BufferTypes;
 
 private:
     const BufferId mSampleWeightsBufferId;
@@ -54,32 +54,32 @@ private:
     const BufferId mYsBufferId;
     const int mYdim;
 
-    VectorBufferTemplate<FloatType> const* mSampleWeights;
-    VectorBufferTemplate<IntType> const* mStreamType;
-    MatrixBufferTemplate<FloatType> const* mYs;
+    VectorBufferTemplate<typename BT::ParamsContinuous> const* mSampleWeights;
+    VectorBufferTemplate<typename BT::ParamsInteger> const* mStreamType;
+    MatrixBufferTemplate<typename BT::SourceContinuous> const* mYs;
 
-    InternalFloatType mStartEstimationCounts;
-    InternalFloatType mStartStructureCounts;
-    VectorBufferTemplate<InternalFloatType> mStartEstimationMeanVariance;
-    VectorBufferTemplate<InternalFloatType> mStartStructureMeanVariance;
-    InternalFloatType mLeftEstimationCounts;
-    InternalFloatType mLeftStructureCounts;
-    VectorBufferTemplate<InternalFloatType> mLeftEstimationMeanVariance;
-    VectorBufferTemplate<InternalFloatType> mLeftStructureMeanVariance;
-    InternalFloatType mRightEstimationCounts;
-    InternalFloatType mRightStructureCounts;
-    VectorBufferTemplate<InternalFloatType> mRightEstimationMeanVariance;
-    VectorBufferTemplate<InternalFloatType> mRightStructureMeanVariance;
+    typename BT::SufficientStatsContinuous mStartEstimationCounts;
+    typename BT::SufficientStatsContinuous mStartStructureCounts;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> mStartEstimationMeanVariance;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> mStartStructureMeanVariance;
+    typename BT::SufficientStatsContinuous mLeftEstimationCounts;
+    typename BT::SufficientStatsContinuous mLeftStructureCounts;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> mLeftEstimationMeanVariance;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> mLeftStructureMeanVariance;
+    typename BT::SufficientStatsContinuous mRightEstimationCounts;
+    typename BT::SufficientStatsContinuous mRightStructureCounts;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> mRightEstimationMeanVariance;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> mRightStructureMeanVariance;
 
-    InternalFloatType mStartVariance;
+    typename BT::SufficientStatsContinuous mStartVariance;
 };
 
 
-template <class FloatType, class IntType, class InternalFloatType>
-SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::SumOfVarianceTwoStreamWalker(const BufferId& sampleWeights,
-                                                          const BufferId& streamType,
-                                                          const BufferId& ys,
-                                                          const int ydim )
+template <class BT>
+SumOfVarianceTwoStreamWalker<BT>::SumOfVarianceTwoStreamWalker(const BufferId& sampleWeights,
+                                                                      const BufferId& streamType,
+                                                                      const BufferId& ys,
+                                                                      const int ydim )
 : mSampleWeightsBufferId(sampleWeights)
 , mStreamTypeBufferId(streamType)
 , mYsBufferId(ys)
@@ -102,45 +102,45 @@ SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::SumOfVarian
 , mStartVariance(0)
 {}
 
-template <class FloatType, class IntType, class InternalFloatType>
-SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::~SumOfVarianceTwoStreamWalker()
+template <class BT>
+SumOfVarianceTwoStreamWalker<BT>::~SumOfVarianceTwoStreamWalker()
 {}
 
-template <class FloatType, class IntType, class InternalFloatType>
-void SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::Bind(const BufferCollectionStack& readCollection)
+template <class BT>
+void SumOfVarianceTwoStreamWalker<BT>::Bind(const BufferCollectionStack& readCollection)
 {
-    mSampleWeights = readCollection.GetBufferPtr< VectorBufferTemplate<FloatType> >(mSampleWeightsBufferId);
-    mYs = readCollection.GetBufferPtr< MatrixBufferTemplate<FloatType> >(mYsBufferId);
-    mStreamType = readCollection.GetBufferPtr< VectorBufferTemplate<IntType> >(mStreamTypeBufferId);
+    mSampleWeights = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::ParamsContinuous> >(mSampleWeightsBufferId);
+    mYs = readCollection.GetBufferPtr< MatrixBufferTemplate<typename BT::SourceContinuous> >(mYsBufferId);
+    mStreamType = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::ParamsInteger> >(mStreamTypeBufferId);
     ASSERT_ARG_DIM_1D(mSampleWeights->GetN(), mYs->GetM())
 
     for(int i=0; i<mSampleWeights->GetN(); i++)
     {
-        const InternalFloatType weight = mSampleWeights->Get(i);
-        const IntType streamType = mStreamType->Get(i);
+        const typename BT::SufficientStatsContinuous weight = mSampleWeights->Get(i);
+        const typename BT::ParamsInteger streamType = mStreamType->Get(i);
 
-        VectorBufferTemplate<InternalFloatType>& meanVariance = (streamType == STREAM_ESTIMATION) ?
+        VectorBufferTemplate<typename BT::SufficientStatsContinuous> meanVariance = (streamType == STREAM_ESTIMATION) ?
                     mStartEstimationMeanVariance : mStartStructureMeanVariance;
 
-        InternalFloatType& counts = (streamType == STREAM_ESTIMATION) ? mStartEstimationCounts : mStartStructureCounts;
-        InternalFloatType newCounts = counts + weight;
+        typename BT::SufficientStatsContinuous& counts = (streamType == STREAM_ESTIMATION) ? mStartEstimationCounts : mStartStructureCounts;
+        typename BT::SufficientStatsContinuous newCounts = counts + weight;
 
         for(int d=0; d<mYdim; d++)
         {
-            const InternalFloatType y_i = mYs->Get(i,d);
+            const typename BT::SufficientStatsContinuous y_i = mYs->Get(i,d);
             // old unstable sufficient stats 
             // meanVariance.Incr(d, weight*y_d);
             // meanVariance.Incr(d+mYdim, weight*y_d*y_d);
-            const InternalFloatType mean = meanVariance.Get(d);
-            const InternalFloatType delta = y_i - mean;
-            const InternalFloatType r = delta * weight / newCounts;
+            const typename BT::SufficientStatsContinuous mean = meanVariance.Get(d);
+            const typename BT::SufficientStatsContinuous delta = y_i - mean;
+            const typename BT::SufficientStatsContinuous r = delta * weight / newCounts;
             meanVariance.Incr(d,r);
             meanVariance.Incr(d+mYdim, counts*delta*r);
         }
         counts = newCounts;
     }
 
-    mStartVariance = InternalFloatType(0);
+    mStartVariance = typename BT::SufficientStatsContinuous(0);
     for(int d=0; d<mYdim; d++)
     {
         // old unstable sufficient stats 
@@ -153,44 +153,44 @@ void SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::Bind(c
     Reset();
 }
 
-template <class FloatType, class IntType, class InternalFloatType>
-void SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::Reset()
+template <class BT>
+void SumOfVarianceTwoStreamWalker<BT>::Reset()
 {
     mLeftEstimationCounts = mStartEstimationCounts;
     mLeftStructureCounts = mStartStructureCounts;
     mLeftEstimationMeanVariance = mStartEstimationMeanVariance;
     mLeftStructureMeanVariance = mStartStructureMeanVariance;
-    mRightEstimationCounts = InternalFloatType(0);
-    mRightStructureCounts = InternalFloatType(0);
+    mRightEstimationCounts = typename BT::SufficientStatsContinuous(0);
+    mRightStructureCounts = typename BT::SufficientStatsContinuous(0);
     mRightEstimationMeanVariance.Zero();
     mRightStructureMeanVariance.Zero();
 }
 
-template <class FloatType, class IntType, class InternalFloatType>
-void SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::MoveLeftToRight(IntType sampleIndex)
+template <class BT>
+void SumOfVarianceTwoStreamWalker<BT>::MoveLeftToRight(typename BT::Index sampleIndex)
 {
-    const InternalFloatType weight = mSampleWeights->Get(sampleIndex);
-    const IntType streamType = mStreamType->Get(sampleIndex);
+    const typename BT::SufficientStatsContinuous weight = mSampleWeights->Get(sampleIndex);
+    const typename BT::ParamsInteger streamType = mStreamType->Get(sampleIndex);
 
-    VectorBufferTemplate<InternalFloatType>& leftMeanVariance = (streamType == STREAM_ESTIMATION) ?
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> leftMeanVariance = (streamType == STREAM_ESTIMATION) ?
                     mLeftEstimationMeanVariance : mLeftStructureMeanVariance;
 
-    VectorBufferTemplate<InternalFloatType>& rightMeanVariance = (streamType == STREAM_ESTIMATION) ?
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> rightMeanVariance = (streamType == STREAM_ESTIMATION) ?
                     mRightEstimationMeanVariance : mRightStructureMeanVariance;
 
-    InternalFloatType& leftCounts = (streamType == STREAM_ESTIMATION) ?
+    typename BT::SufficientStatsContinuous& leftCounts = (streamType == STREAM_ESTIMATION) ?
                     mLeftEstimationCounts : mLeftStructureCounts;
 
-    InternalFloatType& rightCounts = (streamType == STREAM_ESTIMATION) ?
+    typename BT::SufficientStatsContinuous& rightCounts = (streamType == STREAM_ESTIMATION) ?
                     mRightEstimationCounts : mRightStructureCounts;
 
-    const InternalFloatType newLeftCounts = leftCounts - weight;
-    const InternalFloatType newRightCounts = rightCounts + weight;
+    const typename BT::SufficientStatsContinuous newLeftCounts = leftCounts - weight;
+    const typename BT::SufficientStatsContinuous newRightCounts = rightCounts + weight;
 
     
     for(int d=0; d<mYdim; d++)
     {
-        const InternalFloatType y_d = mYs->Get(sampleIndex,d);
+        const typename BT::SufficientStatsContinuous y_d = mYs->Get(sampleIndex,d);
 
         // old unstable sufficient stats 
         // leftMeanVariance.Incr(d, -weight*y_d);
@@ -198,15 +198,15 @@ void SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::MoveLe
         // rightMeanVariance.Incr(d, weight*y_d);
         // rightMeanVariance.Incr(d+mYdim, weight*y_d*y_d);
 
-        const InternalFloatType leftMean = leftMeanVariance.Get(d);
-        const InternalFloatType leftDelta = y_d - leftMean;
-        const InternalFloatType leftr = leftDelta * -1.0 * weight / newLeftCounts;
+        const typename BT::SufficientStatsContinuous leftMean = leftMeanVariance.Get(d);
+        const typename BT::SufficientStatsContinuous leftDelta = y_d - leftMean;
+        const typename BT::SufficientStatsContinuous leftr = leftDelta * -1.0 * weight / newLeftCounts;
         leftMeanVariance.Incr(d, leftr);
         leftMeanVariance.Incr(d+mYdim, leftCounts*leftDelta*leftr);
 
-        const InternalFloatType rightMean = rightMeanVariance.Get(d);
-        const InternalFloatType rightDelta = y_d - rightMean;
-        const InternalFloatType rightr = rightDelta * weight / newRightCounts;
+        const typename BT::SufficientStatsContinuous rightMean = rightMeanVariance.Get(d);
+        const typename BT::SufficientStatsContinuous rightDelta = y_d - rightMean;
+        const typename BT::SufficientStatsContinuous rightr = rightDelta * weight / newRightCounts;
         rightMeanVariance.Incr(d, rightr);
         rightMeanVariance.Incr(d+mYdim, rightCounts*rightDelta*rightr);
     }
@@ -214,12 +214,12 @@ void SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::MoveLe
     rightCounts = newRightCounts;
 }
 
-template <class FloatType, class IntType, class InternalFloatType>
-FloatType SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::Impurity()
+template <class BT>
+typename BT::ImpurityValue SumOfVarianceTwoStreamWalker<BT>::Impurity()
 {
-    const InternalFloatType countsTotal = mLeftStructureCounts+mRightStructureCounts;
-    InternalFloatType leftSumOfVariance = FloatType(0);
-    InternalFloatType rightSumOfVariance = FloatType(0);
+    const typename BT::SufficientStatsContinuous countsTotal = mLeftStructureCounts+mRightStructureCounts;
+    typename BT::SufficientStatsContinuous leftSumOfVariance = typename BT::SufficientStatsContinuous(0);
+    typename BT::SufficientStatsContinuous rightSumOfVariance = typename BT::SufficientStatsContinuous(0);
 
     for(int d=0; d<mYdim; d++)
     {
@@ -232,71 +232,71 @@ FloatType SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::I
         // leftSumOfVariance += (mLeftStructureCounts>0.0) ? leftYSquared/mLeftStructureCounts -  pow(leftY/mLeftStructureCounts, 2) : 0.0;
         // rightSumOfVariance += (mRightStructureCounts>0.0) ? rightYSquared/mRightStructureCounts -  pow(rightY/mRightStructureCounts, 2) : 0.0;
 
-        const InternalFloatType leftY2 = mLeftStructureMeanVariance.Get(d+mYdim);
-        const InternalFloatType rightY2 = mRightStructureMeanVariance.Get(d+mYdim);
+        const typename BT::SufficientStatsContinuous leftY2 = mLeftStructureMeanVariance.Get(d+mYdim);
+        const typename BT::SufficientStatsContinuous rightY2 = mRightStructureMeanVariance.Get(d+mYdim);
 
-        leftSumOfVariance += (mLeftStructureCounts>0.0) ? leftY2/mLeftStructureCounts : InternalFloatType(0);
-        rightSumOfVariance += (mRightStructureCounts>0.0) ? rightY2/mRightStructureCounts : InternalFloatType(0);
+        leftSumOfVariance += (mLeftStructureCounts>0.0) ? leftY2/mLeftStructureCounts : typename BT::SufficientStatsContinuous(0);
+        rightSumOfVariance += (mRightStructureCounts>0.0) ? rightY2/mRightStructureCounts : typename BT::SufficientStatsContinuous(0);
     }
 
-    const InternalFloatType varianceGain = mStartVariance
+    const typename BT::ImpurityValue varianceGain = mStartVariance
                                   - ((mLeftStructureCounts / countsTotal) * leftSumOfVariance)
                                   - ((mRightStructureCounts / countsTotal) * rightSumOfVariance);
 
-    return static_cast<FloatType>(varianceGain);
+    return varianceGain;
 }
 
-template <class FloatType, class IntType, class InternalFloatType>
-IntType SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::GetYDim() const
+template <class BT>
+typename BT::Index SumOfVarianceTwoStreamWalker<BT>::GetYDim() const
 {
     return mYdim*2;
 }
 
-template <class FloatType, class IntType, class InternalFloatType>
-VectorBufferTemplate<FloatType> SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::GetLeftEstimationYs() const
+template <class BT>
+VectorBufferTemplate<typename BT::SufficientStatsContinuous> SumOfVarianceTwoStreamWalker<BT>::GetLeftEstimationYs() const
 {
-    return ConvertVectorBufferTemplate<InternalFloatType, FloatType>(mLeftEstimationMeanVariance);
+    return mLeftEstimationMeanVariance;
 }
 
-template <class FloatType, class IntType, class InternalFloatType>
-VectorBufferTemplate<FloatType> SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::GetLeftStructureYs() const
+template <class BT>
+VectorBufferTemplate<typename BT::SufficientStatsContinuous> SumOfVarianceTwoStreamWalker<BT>::GetLeftStructureYs() const
 {
-    return ConvertVectorBufferTemplate<InternalFloatType, FloatType>(mLeftStructureMeanVariance);
+    return mLeftStructureMeanVariance;
 }
 
-template <class FloatType, class IntType, class InternalFloatType>
-VectorBufferTemplate<FloatType> SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::GetRightEstimationYs() const
+template <class BT>
+VectorBufferTemplate<typename BT::SufficientStatsContinuous> SumOfVarianceTwoStreamWalker<BT>::GetRightEstimationYs() const
 {
-    return ConvertVectorBufferTemplate<InternalFloatType, FloatType>(mRightEstimationMeanVariance);
+    return mRightEstimationMeanVariance;
 }
 
-template <class FloatType, class IntType, class InternalFloatType>
-VectorBufferTemplate<FloatType> SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::GetRightStructureYs() const
+template <class BT>
+VectorBufferTemplate<typename BT::SufficientStatsContinuous> SumOfVarianceTwoStreamWalker<BT>::GetRightStructureYs() const
 {
-    return ConvertVectorBufferTemplate<InternalFloatType, FloatType>(mRightStructureMeanVariance);
+    return mRightStructureMeanVariance;
 }
 
 
-template <class FloatType, class IntType, class InternalFloatType>
-FloatType SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::GetLeftEstimationChildCounts() const
+template <class BT>
+typename BT::SufficientStatsContinuous SumOfVarianceTwoStreamWalker<BT>::GetLeftEstimationChildCounts() const
 {
     return mLeftEstimationCounts;
 }
 
-template <class FloatType, class IntType, class InternalFloatType>
-FloatType SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::GetLeftStructureChildCounts() const
+template <class BT>
+typename BT::SufficientStatsContinuous SumOfVarianceTwoStreamWalker<BT>::GetLeftStructureChildCounts() const
 {
     return mLeftStructureCounts;
 }
 
-template <class FloatType, class IntType, class InternalFloatType>
-FloatType SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::GetRightEstimationChildCounts() const
+template <class BT>
+typename BT::SufficientStatsContinuous SumOfVarianceTwoStreamWalker<BT>::GetRightEstimationChildCounts() const
 {
     return mRightEstimationCounts;
 }
 
-template <class FloatType, class IntType, class InternalFloatType>
-FloatType SumOfVarianceTwoStreamWalker<FloatType, IntType, InternalFloatType>::GetRightStructureChildCounts() const
+template <class BT>
+typename BT::SufficientStatsContinuous SumOfVarianceTwoStreamWalker<BT>::GetRightStructureChildCounts() const
 {
     return mRightStructureCounts;
 }

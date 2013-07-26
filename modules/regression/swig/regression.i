@@ -1,6 +1,7 @@
 %module regression
 %{
     #define SWIG_FILE_WITH_INIT
+    #include "BufferTypes.h"
     #include "SplitpointsImpurity.h"
     #include "SplitpointStatsStep.h"
     #include "TwoStreamSplitpointStatsStep.h"
@@ -18,15 +19,15 @@
 %include "TwoStreamSplitpointStatsStep.h"
 
 %template(MeanVarianceCombiner_f32) MeanVarianceCombiner<float>;
-%template(SumOfVarianceWalker_f32i32) SumOfVarianceWalker<float, int, double>;
-%template(SumOfVarianceBestSplitpointsWalkingSortedStep_f32i32) BestSplitpointsWalkingSortedStep< SumOfVarianceWalker<float, int, double> >;
-%template(SumOfVarianceRandomGapSplitpointsStep_f32i32) RandomGapSplitpointsStep< SumOfVarianceWalker<float, int, double> >;
+%template(SumOfVarianceWalker_f32i32) SumOfVarianceWalker<DefaultBufferTypes>;
+%template(SumOfVarianceBestSplitpointsWalkingSortedStep_f32i32) BestSplitpointsWalkingSortedStep< SumOfVarianceWalker<DefaultBufferTypes> >;
+%template(SumOfVarianceRandomGapSplitpointsStep_f32i32) RandomGapSplitpointsStep< SumOfVarianceWalker<DefaultBufferTypes> >;
 %template(FinalizerI_reg_f32) FinalizerI<float>;
 %template(MeanVarianceEstimatorFinalizer_f32) MeanVarianceEstimatorFinalizer< float >;
 
-%template(SumOfVarianceTwoStreamWalker_f32i32) SumOfVarianceTwoStreamWalker<float, int, double>;
-%template(SumOfVarianceTwoStreamBestSplitpointsWalkingSortedStep_f32i32) TwoStreamBestSplitpointsWalkingSortedStep< SumOfVarianceTwoStreamWalker<float, int, double> >;
+%template(SumOfVarianceTwoStreamWalker_f32i32) SumOfVarianceTwoStreamWalker<DefaultBufferTypes>;
+%template(SumOfVarianceTwoStreamBestSplitpointsWalkingSortedStep_f32i32) TwoStreamBestSplitpointsWalkingSortedStep< SumOfVarianceTwoStreamWalker<DefaultBufferTypes> >;
 
 %template(MeanVarianceStatsUpdater_f32i32) MeanVarianceStatsUpdater<float,int>;
 %template(SumOfVarianceTwoStreamStep_f32i32) TwoStreamSplitpointStatsStep< MeanVarianceStatsUpdater<float,int> >;
-%template(SumOfVarianceSplitpointsImpurity_f32i32) SplitpointsImpurity< SumOfVarianceImpurity<float>, int >;
+%template(SumOfVarianceSplitpointsImpurity_f32i32) SplitpointsImpurity< SumOfVarianceImpurity<DefaultBufferTypes> >;

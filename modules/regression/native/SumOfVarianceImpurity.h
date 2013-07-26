@@ -12,55 +12,55 @@
 // Compute the expected decrease in variance
 //
 // ----------------------------------------------------------------------------
-template <class FloatType>
+template <class BT>
 class SumOfVarianceImpurity
 {
 public:
-    FloatType Impurity(int feature, int splitpoint,
-                      const Tensor3BufferTemplate<FloatType>& childCounts,
-                      const Tensor3BufferTemplate<FloatType>& leftStats,
-                      const Tensor3BufferTemplate<FloatType>& rightStats) const;
+    typename BT::SufficientStatsContinuous Impurity(int feature, int splitpoint,
+                                                              const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& childCounts,
+                                                              const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& leftStats,
+                                                              const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& rightStats) const;
 
-    typedef FloatType Float;
+    typedef BT BufferTypes;
 };
 
-template <class FloatType>
-FloatType SumOfVarianceImpurity<FloatType>::Impurity(int feature, int splitpoint,
-                                                    const Tensor3BufferTemplate<FloatType>& childCounts,
-                                                    const Tensor3BufferTemplate<FloatType>& leftStats,
-                                                    const Tensor3BufferTemplate<FloatType>& rightStats) const
+template <class BT>
+typename BT::SufficientStatsContinuous SumOfVarianceImpurity<BT>::Impurity(int feature, int splitpoint,
+                                                    const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& childCounts,
+                                                    const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& leftStats,
+                                                    const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& rightStats) const
 {
-    const FloatType countsLeft = childCounts.Get(feature, splitpoint, LEFT_CHILD);
-    const FloatType countsRight = childCounts.Get(feature, splitpoint, RIGHT_CHILD);
-    const FloatType countsTotal = countsLeft+countsRight;
+    const typename BT::SufficientStatsContinuous countsLeft = childCounts.Get(feature, splitpoint, LEFT_CHILD);
+    const typename BT::SufficientStatsContinuous countsRight = childCounts.Get(feature, splitpoint, RIGHT_CHILD);
+    const typename BT::SufficientStatsContinuous countsTotal = countsLeft+countsRight;
 
-    FloatType startSumOfVariance = FloatType(0);
-    FloatType leftSumOfVariance = FloatType(0);
-    FloatType rightSumOfVariance = FloatType(0);
+    typename BT::SufficientStatsContinuous startSumOfVariance = typename BT::SufficientStatsContinuous(0);
+    typename BT::SufficientStatsContinuous leftSumOfVariance = typename BT::SufficientStatsContinuous(0);
+    typename BT::SufficientStatsContinuous rightSumOfVariance = typename BT::SufficientStatsContinuous(0);
 
     const int yDim = leftStats.GetN()/2;
     for(int d=0; d<yDim; d++)
     {
         // old unstable sufficient stats 
-        // const FloatType leftY = leftStats.Get(feature, splitpoint, d);
-        // const FloatType leftYSquared = leftStats.Get(feature, splitpoint, d+yDim);
-        // const FloatType rightY = rightStats.Get(feature, splitpoint, d);
-        // const FloatType rightYSquared = rightStats.Get(feature, splitpoint, d+yDim);
+        // const typename BT::SufficientStatsContinuous leftY = leftStats.Get(feature, splitpoint, d);
+        // const typename BT::SufficientStatsContinuous leftYSquared = leftStats.Get(feature, splitpoint, d+yDim);
+        // const typename BT::SufficientStatsContinuous rightY = rightStats.Get(feature, splitpoint, d);
+        // const typename BT::SufficientStatsContinuous rightYSquared = rightStats.Get(feature, splitpoint, d+yDim);
 
         // startSumOfVariance += (leftYSquared + rightYSquared)/countsTotal -  pow((leftY + rightY) / countsTotal, 2);
         // leftSumOfVariance += (countsLeft>0.0) ? leftYSquared/countsLeft -  pow(leftY/countsLeft, 2) : 0.0;
         // rightSumOfVariance += (countsRight>0.0) ? rightYSquared/countsRight -  pow(rightY/countsRight, 2) : 0.0;
 
-        const FloatType leftY1 = leftStats.Get(feature, splitpoint, d);
-        const FloatType leftY2 = leftStats.Get(feature, splitpoint, d+yDim);
-        const FloatType rightY1 = rightStats.Get(feature, splitpoint, d);
-        const FloatType rightY2 = rightStats.Get(feature, splitpoint, d+yDim);
+        const typename BT::SufficientStatsContinuous leftY1 = leftStats.Get(feature, splitpoint, d);
+        const typename BT::SufficientStatsContinuous leftY2 = leftStats.Get(feature, splitpoint, d+yDim);
+        const typename BT::SufficientStatsContinuous rightY1 = rightStats.Get(feature, splitpoint, d);
+        const typename BT::SufficientStatsContinuous rightY2 = rightStats.Get(feature, splitpoint, d+yDim);
 
-        const FloatType leftVariance = (countsLeft>0.0) ? leftY2/countsLeft : 0.0;
-        const FloatType rightVariance = (countsRight>0.0) ? rightY2/countsRight : 0.0;
+        const typename BT::SufficientStatsContinuous leftVariance = (countsLeft>0.0) ? leftY2/countsLeft : 0.0;
+        const typename BT::SufficientStatsContinuous rightVariance = (countsRight>0.0) ? rightY2/countsRight : 0.0;
 
-        const FloatType startMean = (countsLeft/countsTotal)*leftY1 + (countsRight/countsTotal)*rightY1;
-        const FloatType startVariance = (countsLeft/countsTotal)*(leftVariance+leftY1*leftY1)
+        const typename BT::SufficientStatsContinuous startMean = (countsLeft/countsTotal)*leftY1 + (countsRight/countsTotal)*rightY1;
+        const typename BT::SufficientStatsContinuous startVariance = (countsLeft/countsTotal)*(leftVariance+leftY1*leftY1)
                                         + (countsRight/countsTotal)*(rightVariance+rightY1*rightY1)
                                         - (startMean*startMean);
 
@@ -69,7 +69,7 @@ FloatType SumOfVarianceImpurity<FloatType>::Impurity(int feature, int splitpoint
         rightSumOfVariance += rightVariance;
     }
 
-    const FloatType varianceGain = startSumOfVariance
+    const typename BT::SufficientStatsContinuous varianceGain = startSumOfVariance
                                   - ((countsLeft / countsTotal) * leftSumOfVariance)
                                   - ((countsRight / countsTotal) * rightSumOfVariance);
     return varianceGain;

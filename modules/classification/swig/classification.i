@@ -1,6 +1,7 @@
 %module classification
 %{
     #define SWIG_FILE_WITH_INIT
+    #include "BufferTypes.h"
     #include "SplitpointsImpurity.h"
     #include "SplitpointStatsStep.h"
     #include "TwoStreamSplitpointStatsStep.h"
@@ -17,9 +18,9 @@
 %include "SplitpointStatsStep.h"
 %include "TwoStreamSplitpointStatsStep.h"
 
-%template(ClassInfoGainWalker_f32i32) ClassInfoGainWalker<float, int>;
-%template(ClassInfoGainBestSplitpointsWalkingSortedStep_f32i32) BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<float, int> >;
-%template(ClassInfoGainSplitpointsImpurity_f32i32) SplitpointsImpurity< ClassInfoGainImpurity<float>, int >;
+%template(ClassInfoGainWalker_f32i32) ClassInfoGainWalker< DefaultBufferTypes >;
+%template(ClassInfoGainBestSplitpointsWalkingSortedStep_f32i32) BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<DefaultBufferTypes> >;
+%template(ClassInfoGainSplitpointsImpurity_f32i32) SplitpointsImpurity< ClassInfoGainImpurity<DefaultBufferTypes> >;
 %template(FinalizerI_f32) FinalizerI<float>;
 %template(ClassEstimatorFinalizer_f32) ClassEstimatorFinalizer<float>;
 %template(ClassEstimatorUpdater_f32i32) ClassEstimatorUpdater<float, int>;

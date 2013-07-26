@@ -35,8 +35,8 @@ DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t
     nodeSteps.push_back(&sliceClasses);
     SliceBufferStep< DefaultBufferTypes, VectorBufferTemplate<float> > sliceWeights(allSamplesStep.WeightsBufferId, allSamplesStep.IndicesBufferId);  
     nodeSteps.push_back(&sliceWeights); 
-    ClassInfoGainWalker<float, int> classInfoGainWalker(sliceWeights.SlicedBufferId, sliceClasses.SlicedBufferId, numberOfClasses);
-    BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<float, int> > bestSplitpointStep(classInfoGainWalker, 
+    ClassInfoGainWalker<DefaultBufferTypes> classInfoGainWalker(sliceWeights.SlicedBufferId, sliceClasses.SlicedBufferId, numberOfClasses);
+    BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<DefaultBufferTypes> > bestSplitpointStep(classInfoGainWalker, 
                                                                                             featureExtractor.FeatureValuesBufferId,
                                                                                             featureOrdering);
     nodeSteps.push_back(&bestSplitpointStep); 

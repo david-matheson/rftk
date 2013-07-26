@@ -1,5 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
+#include "BufferTypes.h"
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
@@ -44,6 +45,7 @@ struct SumOfVarianceWalkerFixture {
     {
     }
 
+    typedef BufferTypes<float, int, int, float, int, float, double, int, float> BufferTypes_t;
     const BufferCollectionKey_t fm_key;
     const BufferCollectionKey_t ys_key;
     const BufferCollectionKey_t weights_key;
@@ -56,7 +58,7 @@ BOOST_FIXTURE_TEST_SUITE( SumOfVarianceWalkerTests,  SumOfVarianceWalkerFixture 
 
 BOOST_AUTO_TEST_CASE(test_SumOfVarianceWalker_Impurity)
 {
-    SumOfVarianceWalker<float, int, double> sumOfVarianceWalker(weights_key, ys_key, ydim);
+    SumOfVarianceWalker< BufferTypes_t > sumOfVarianceWalker(weights_key, ys_key, ydim);
     sumOfVarianceWalker.Bind(stack);
     BOOST_CHECK_CLOSE(sumOfVarianceWalker.Impurity(), 0.0, 1);
 
@@ -87,7 +89,7 @@ BOOST_AUTO_TEST_CASE(test_SumOfVarianceWalker_Impurity)
 
 BOOST_AUTO_TEST_CASE(test_SumOfVarianceWalker_Reset)
 {
-    SumOfVarianceWalker<float, int, double> sumOfVarianceWalker(weights_key, ys_key, ydim);
+    SumOfVarianceWalker< BufferTypes_t > sumOfVarianceWalker(weights_key, ys_key, ydim);
     sumOfVarianceWalker.Bind(stack);
     BOOST_CHECK_CLOSE(sumOfVarianceWalker.Impurity(), 0.0, 1);
 

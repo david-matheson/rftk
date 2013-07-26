@@ -82,38 +82,38 @@ void BestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(const BufferC
     UNUSED_PARAM(gen);
 
     // Bind input buffers
-    ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<typename ImpurityWalker::Float> >(mFeatureValuesBufferId));
-    MatrixBufferTemplate<typename ImpurityWalker::Float> const& featureValues
-           = readCollection.GetBuffer< MatrixBufferTemplate<typename ImpurityWalker::Float> >(mFeatureValuesBufferId);
+    ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<typename ImpurityWalker::BufferTypes::FeatureValue> >(mFeatureValuesBufferId));
+    MatrixBufferTemplate<typename ImpurityWalker::BufferTypes::FeatureValue> const& featureValues
+           = readCollection.GetBuffer< MatrixBufferTemplate<typename ImpurityWalker::BufferTypes::FeatureValue> >(mFeatureValuesBufferId);
 
     // Make a local non-const walker and bind it
     ImpurityWalker impurityWalker = mImpurityWalker;
     impurityWalker.Bind(readCollection);
-    const int numberOfFeatures =  mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? featureValues.GetM() : featureValues.GetN();
+    const typename ImpurityWalker::BufferTypes::Index numberOfFeatures =  mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? featureValues.GetM() : featureValues.GetN();
 
     // Bind output buffers
-    MatrixBufferTemplate<typename ImpurityWalker::Float>& impurities
-           = writeCollection.GetOrAddBuffer< MatrixBufferTemplate<typename ImpurityWalker::Float> >(ImpurityBufferId);
+    MatrixBufferTemplate<typename ImpurityWalker::BufferTypes::ImpurityValue>& impurities
+           = writeCollection.GetOrAddBuffer< MatrixBufferTemplate<typename ImpurityWalker::BufferTypes::ImpurityValue> >(ImpurityBufferId);
     impurities.Resize(numberOfFeatures,1);
 
-    MatrixBufferTemplate<typename ImpurityWalker::Float>& thresholds
-           = writeCollection.GetOrAddBuffer< MatrixBufferTemplate<typename ImpurityWalker::Float> >(SplitpointBufferId);
-    thresholds.Resize(numberOfFeatures,1);
+    MatrixBufferTemplate<typename ImpurityWalker::BufferTypes::FeatureValue>& splitpoints
+           = writeCollection.GetOrAddBuffer< MatrixBufferTemplate<typename ImpurityWalker::BufferTypes::FeatureValue> >(SplitpointBufferId);
+    splitpoints.Resize(numberOfFeatures,1);
 
-    VectorBufferTemplate<typename ImpurityWalker::Int>& thresholdCounts
-           = writeCollection.GetOrAddBuffer< VectorBufferTemplate<typename ImpurityWalker::Int> >(SplitpointCountsBufferId);
-    thresholdCounts.Resize(numberOfFeatures);
+    VectorBufferTemplate<typename ImpurityWalker::BufferTypes::Index>& splitpointCounts
+           = writeCollection.GetOrAddBuffer< VectorBufferTemplate<typename ImpurityWalker::BufferTypes::Index> >(SplitpointCountsBufferId);
+    splitpointCounts.Resize(numberOfFeatures);
 
-    Tensor3BufferTemplate<typename ImpurityWalker::Float>& childCounts
-           = writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename ImpurityWalker::Float> >(ChildCountsBufferId);
+    Tensor3BufferTemplate<typename ImpurityWalker::BufferTypes::SufficientStatsContinuous>& childCounts
+           = writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename ImpurityWalker::BufferTypes::SufficientStatsContinuous> >(ChildCountsBufferId);
     childCounts.Resize(numberOfFeatures, 1, 2);
 
-    Tensor3BufferTemplate<typename ImpurityWalker::Float>& leftYs
-           = writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename ImpurityWalker::Float> >(LeftYsBufferId);
+    Tensor3BufferTemplate<typename ImpurityWalker::BufferTypes::SufficientStatsContinuous>& leftYs
+           = writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename ImpurityWalker::BufferTypes::SufficientStatsContinuous> >(LeftYsBufferId);
     leftYs.Resize(numberOfFeatures, 1, impurityWalker.GetYDim());
 
-    Tensor3BufferTemplate<typename ImpurityWalker::Float>& rightYs
-           = writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename ImpurityWalker::Float> >(RightYsBufferId);
+    Tensor3BufferTemplate<typename ImpurityWalker::BufferTypes::SufficientStatsContinuous>& rightYs
+           = writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename ImpurityWalker::BufferTypes::SufficientStatsContinuous> >(RightYsBufferId);
     rightYs.Resize(numberOfFeatures, 1, impurityWalker.GetYDim());
 
     for(int f=0; f<numberOfFeatures; f++)
@@ -121,28 +121,28 @@ void BestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(const BufferC
         impurityWalker.Reset();
 
         bool hasValidSplit = false;
-        typename ImpurityWalker::Float bestImpurity = -std::numeric_limits<typename ImpurityWalker::Float>::max();
-        typename ImpurityWalker::Float bestThreshold = std::numeric_limits<typename ImpurityWalker::Float>::min();
-        typename ImpurityWalker::Float bestLeftChildCounts = typename ImpurityWalker::Float(0);
-        typename ImpurityWalker::Float bestRightChildCounts = typename ImpurityWalker::Float(0);
-        VectorBufferTemplate<typename ImpurityWalker::Float> bestLeftYs(impurityWalker.GetYDim());
-        VectorBufferTemplate<typename ImpurityWalker::Float> bestRightYs(impurityWalker.GetYDim());
+        typename ImpurityWalker::BufferTypes::ImpurityValue bestImpurity = -std::numeric_limits<typename ImpurityWalker::BufferTypes::ImpurityValue>::max();
+        typename ImpurityWalker::BufferTypes::FeatureValue bestSplitpoint = std::numeric_limits<typename ImpurityWalker::BufferTypes::FeatureValue>::min();
+        typename ImpurityWalker::BufferTypes::SufficientStatsContinuous bestLeftChildCounts = typename ImpurityWalker::BufferTypes::SufficientStatsContinuous(0);
+        typename ImpurityWalker::BufferTypes::SufficientStatsContinuous bestRightChildCounts = typename ImpurityWalker::BufferTypes::SufficientStatsContinuous(0);
+        VectorBufferTemplate<typename ImpurityWalker::BufferTypes::SufficientStatsContinuous> bestLeftYs(impurityWalker.GetYDim());
+        VectorBufferTemplate<typename ImpurityWalker::BufferTypes::SufficientStatsContinuous> bestRightYs(impurityWalker.GetYDim());
 
-        FeatureSorter<typename ImpurityWalker::Float> sorter(featureValues, mFeatureValueOrdering, f);
+        FeatureSorter<typename ImpurityWalker::BufferTypes::FeatureValue> sorter(featureValues, mFeatureValueOrdering, f);
         sorter.Sort();
-        for(int sortedIndex=0; sortedIndex<sorter.GetNumberOfSamples()-1; sortedIndex++)
+        for(typename ImpurityWalker::BufferTypes::Index sortedIndex=0; sortedIndex<sorter.GetNumberOfSamples()-1; sortedIndex++)
         {
-            const int i = sorter.GetUnSortedIndex(sortedIndex);
+            const typename ImpurityWalker::BufferTypes::Index i = sorter.GetUnSortedIndex(sortedIndex);
 
             impurityWalker.MoveLeftToRight(i);
 
-            const typename ImpurityWalker::Float consecutiveFeatureDelta = sorter.GetFeatureValue(sortedIndex+1) - sorter.GetFeatureValue(sortedIndex);
-            if((std::abs(consecutiveFeatureDelta) > std::numeric_limits<typename ImpurityWalker::Float>::epsilon())
+            const typename ImpurityWalker::BufferTypes::FeatureValue consecutiveFeatureDelta = sorter.GetFeatureValue(sortedIndex+1) - sorter.GetFeatureValue(sortedIndex);
+            if((std::abs(consecutiveFeatureDelta) > std::numeric_limits<typename ImpurityWalker::BufferTypes::FeatureValue>::epsilon())
               && impurityWalker.Impurity() > bestImpurity)
             {
                 hasValidSplit = true;
                 bestImpurity = impurityWalker.Impurity();
-                bestThreshold = sorter.GetFeatureValue(sortedIndex) + 0.5*consecutiveFeatureDelta;
+                bestSplitpoint = sorter.GetFeatureValue(sortedIndex) + 0.5*consecutiveFeatureDelta;
                 bestLeftChildCounts = impurityWalker.GetLeftChildCounts();
                 bestRightChildCounts = impurityWalker.GetRightChildCounts();
                 bestLeftYs = impurityWalker.GetLeftYs();
@@ -151,8 +151,8 @@ void BestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(const BufferC
         }
 
         impurities.Set(f, 0, bestImpurity);
-        thresholds.Set(f, 0, bestThreshold);
-        thresholdCounts.Set(f, hasValidSplit ? 1 : 0);
+        splitpoints.Set(f, 0, bestSplitpoint);
+        splitpointCounts.Set(f, hasValidSplit ? 1 : 0);
         childCounts.Set(f, 0, 0, bestLeftChildCounts);
         childCounts.Set(f, 0, 1, bestRightChildCounts);
         leftYs.SetRow(f, 0, bestLeftYs );

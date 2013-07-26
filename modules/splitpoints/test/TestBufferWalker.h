@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BufferTypes.h"
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
@@ -29,8 +30,7 @@ public:
     FloatType GetLeftChildCounts() const;
     FloatType GetRightChildCounts() const;
 
-    typedef FloatType Float;
-    typedef IntType Int;
+    typedef BufferTypes<FloatType, IntType, IntType, FloatType, IntType, FloatType, FloatType, IntType, FloatType> BufferTypes;
 
 private:
     const MatrixBufferTemplate<FloatType> mImpurities;
