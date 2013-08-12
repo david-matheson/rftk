@@ -15,7 +15,7 @@ template <class BufferTypes>
 class PoissonStep: public PipelineStepI
 {
 public:
-    PoissonStep( const typename BufferTypes::SourceContinuous mean, const typename BufferTypes::Index dimension );
+    PoissonStep( const double mean, const int dimension );
     virtual ~PoissonStep();
 
     virtual PipelineStepI* Clone() const;
@@ -34,8 +34,7 @@ private:
 
 
 template <class BufferTypes>
-PoissonStep<BufferTypes>::PoissonStep(const typename BufferTypes::SourceContinuous mean, 
-                                    const typename BufferTypes::Index dimension)
+PoissonStep<BufferTypes>::PoissonStep(const double mean, const int dimension)
 : OutputBufferId(GetBufferId("PoissonStep"))
 , mMean(mean)
 , mDimension(dimension)

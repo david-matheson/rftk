@@ -16,7 +16,7 @@ template <class BufferTypes, class DataMatrixType>
 class PoissonSamplesStep: public PipelineStepI
 {
 public:
-    PoissonSamplesStep( const BufferId& dataBuffer, const typename BufferTypes::SourceContinuous mean );
+    PoissonSamplesStep( const BufferId& dataBuffer, const double mean );
     virtual ~PoissonSamplesStep();
 
     virtual PipelineStepI* Clone() const;
@@ -36,7 +36,7 @@ private:
 
 
 template <class BufferTypes, class DataMatrixType>
-PoissonSamplesStep<BufferTypes, DataMatrixType>::PoissonSamplesStep(const BufferId& dataBuffer, const typename BufferTypes::SourceContinuous mean)
+PoissonSamplesStep<BufferTypes, DataMatrixType>::PoissonSamplesStep(const BufferId& dataBuffer, const double mean)
 : IndicesBufferId(GetBufferId("IndicesBuffer"))
 , WeightsBufferId(GetBufferId("WeightsBuffer"))
 , mDataBufferId(dataBuffer)

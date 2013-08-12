@@ -12,7 +12,7 @@ template <class BufferTypes>
 class FeatureEqualQuantized: public FeatureEqualI<BufferTypes>
 {
 public:
-    FeatureEqualQuantized(typename BufferTypes::ParamsContinuous floatPrecision); 
+    FeatureEqualQuantized(double floatPrecision); 
     virtual ~FeatureEqualQuantized();
     virtual FeatureEqualI<BufferTypes>* Clone() const;
 
@@ -27,7 +27,7 @@ private:
 };
 
 template <class BufferTypes>
-FeatureEqualQuantized<BufferTypes>::FeatureEqualQuantized(typename BufferTypes::ParamsContinuous floatPrecision)
+FeatureEqualQuantized<BufferTypes>::FeatureEqualQuantized(double floatPrecision)
 : mFloatPrecision(floatPrecision)
 {}
 
