@@ -13,25 +13,25 @@
 // indices.  Either by row or column.
 //
 // ----------------------------------------------------------------------------
-template <class FloatType>
+template <class FeatureValueType>
 class FeatureSorter
 {
 public:
-    FeatureSorter(  const MatrixBufferTemplate<FloatType>& featureValues,
+    FeatureSorter(  const MatrixBufferTemplate<FeatureValueType>& featureValues,
                     const FeatureValueOrdering ordering,
                     const int featureIndex );
     void Sort();
     int GetUnSortedIndex(int sortedIndex) const;
-    FloatType GetFeatureValue(int sortedIndex) const;
+    FeatureValueType GetFeatureValue(int sortedIndex) const;
     int GetNumberOfSamples() const;
 
 private:
     const int mNumberOfSamples;
-    std::vector< std::pair<FloatType, int> > mValueIndices;
+    std::vector< std::pair<FeatureValueType, int> > mValueIndices;
 };
 
-template <class FloatType>
-FeatureSorter<FloatType>::FeatureSorter(   const MatrixBufferTemplate<FloatType>& featureValues,
+template <class FeatureValueType>
+FeatureSorter<FeatureValueType>::FeatureSorter(   const MatrixBufferTemplate<FeatureValueType>& featureValues,
                                             const FeatureValueOrdering ordering,
                                             const int featureIndex)
 : mNumberOfSamples( ordering == FEATURES_BY_DATAPOINTS ? featureValues.GetN() : featureValues.GetM())
@@ -41,30 +41,30 @@ FeatureSorter<FloatType>::FeatureSorter(   const MatrixBufferTemplate<FloatType>
     {
         int r = (ordering == FEATURES_BY_DATAPOINTS) ? featureIndex : s;
         int c = (ordering == FEATURES_BY_DATAPOINTS) ? s : featureIndex;
-        mValueIndices[s] = std::pair<FloatType,int>(featureValues.Get(r,c), s);
+        mValueIndices[s] = std::pair<FeatureValueType,int>(featureValues.Get(r,c), s);
     }
 }
 
-template <class FloatType>
-void FeatureSorter<FloatType>::Sort()
+template <class FeatureValueType>
+void FeatureSorter<FeatureValueType>::Sort()
 {
     std::sort( mValueIndices.begin(), mValueIndices.end() );
 }
 
-template <class FloatType>
-int FeatureSorter<FloatType>::GetUnSortedIndex(int sortedIndex) const
+template <class FeatureValueType>
+int FeatureSorter<FeatureValueType>::GetUnSortedIndex(int sortedIndex) const
 {
     return mValueIndices[sortedIndex].second;
 }
 
-template <class FloatType>
-FloatType FeatureSorter<FloatType>::GetFeatureValue(int sortedIndex) const
+template <class FeatureValueType>
+FeatureValueType FeatureSorter<FeatureValueType>::GetFeatureValue(int sortedIndex) const
 {
     return mValueIndices[sortedIndex].first;
 }
 
-template <class FloatType>
-int FeatureSorter<FloatType>::GetNumberOfSamples() const
+template <class FeatureValueType>
+int FeatureSorter<FeatureValueType>::GetNumberOfSamples() const
 {
     return mNumberOfSamples;
 }

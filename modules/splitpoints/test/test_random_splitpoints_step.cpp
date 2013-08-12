@@ -4,6 +4,7 @@
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
 #include "BufferCollectionStack.h"
+#include "BufferTypes.h"
 #include "UniqueBufferId.h"
 #include "RandomSplitpointsStep.h"
 
@@ -24,7 +25,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_FEATURES_BY_DATAPOINTS)
     bc.AddBuffer(feature_values_key, feature_values);
 
     const int maxNumberOfSplitpoints = 4;
-    RandomSplitpointsStep<float, int> randomSplitpointsStep(feature_values_key, maxNumberOfSplitpoints, FEATURES_BY_DATAPOINTS);
+    RandomSplitpointsStep< BufferTypes<float, int, int, float, int, float, float, int, float> > randomSplitpointsStep(feature_values_key, maxNumberOfSplitpoints, FEATURES_BY_DATAPOINTS);
     boost::mt19937 gen;
     randomSplitpointsStep.ProcessStep(stack, bc, gen);
 
@@ -52,7 +53,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_DATAPOINTS_BY_FEATURES)
     bc.AddBuffer(feature_values_key, feature_values.Transpose());
 
     const int maxNumberOfSplitpoints = 4;
-    RandomSplitpointsStep<float, int> randomSplitpointsStep(feature_values_key, maxNumberOfSplitpoints, DATAPOINTS_BY_FEATURES);
+    RandomSplitpointsStep< BufferTypes<float, int, int, float, int, float, float, int, float> > randomSplitpointsStep(feature_values_key, maxNumberOfSplitpoints, DATAPOINTS_BY_FEATURES);
     boost::mt19937 gen;
     randomSplitpointsStep.ProcessStep(stack, bc, gen);
 
@@ -81,7 +82,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_SEQUENTUAL)
 
     boost::mt19937 gen;
     const int maxNumberOfSplitpoints = 5;
-    RandomSplitpointsStep<float, int> randomSplitpointsStep(feature_values_key, maxNumberOfSplitpoints, FEATURES_BY_DATAPOINTS);
+    RandomSplitpointsStep< BufferTypes<float, int, int, float, int, float, float, int, float> > randomSplitpointsStep(feature_values_key, maxNumberOfSplitpoints, FEATURES_BY_DATAPOINTS);
 
     randomSplitpointsStep.ProcessStep(stack, bc, gen);
     MatrixBufferTemplate<float> splitPoints1 = 
