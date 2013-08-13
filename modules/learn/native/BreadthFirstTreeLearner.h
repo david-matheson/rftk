@@ -19,20 +19,20 @@
 #include "TreeLearnerI.h"
 #include "ActiveLeaf.h"
 
-template <class FloatType, class IntType>
+template <class BufferTypes>
 class BreadthFirstTreeLearner: public TreeLearnerI
 {
 public:
     BreadthFirstTreeLearner( const TrySplitCriteriaI* trySplitCriteria,
                             const PipelineStepI* treeSteps,
                             const PipelineStepI* nodeSteps,
-                            const SplitSelectorI<FloatType, IntType>* splitSelector);
+                            const SplitSelectorI<BufferTypes>* splitSelector);
     BreadthFirstTreeLearner( const TrySplitCriteriaI* trySplitCriteria,
                             const PipelineStepI* treeSteps,
                             const PipelineStepI* nodeSteps,
-                            const SplitSelectorI<FloatType, IntType>* splitSelector,
-                            const IntType maxNumberOfLeaves);
-    BreadthFirstTreeLearner(const BreadthFirstTreeLearner<FloatType, IntType> & other);
+                            const SplitSelectorI<BufferTypes>* splitSelector,
+                            const int maxNumberOfLeaves);
+    BreadthFirstTreeLearner(const BreadthFirstTreeLearner<BufferTypes> & other);
 
     virtual ~BreadthFirstTreeLearner();
 
@@ -43,33 +43,33 @@ private:
     bool ProcessActiveLeaf( boost::mt19937& gen,
                               Tree& tree,
                               BufferCollectionStack& stack,
-                              std::queue< ActiveLeaf<FloatType, IntType> >& activeLeaves ) const;
+                              std::queue< ActiveLeaf >& activeLeaves ) const;
 
     const TrySplitCriteriaI* mTrySplitCriteria;
     const PipelineStepI* mTreeSteps;
     const PipelineStepI* mNodeSteps;
-    const SplitSelectorI<FloatType, IntType>* mSplitSelector;
-    const IntType mMaxNumberOfSplits;
+    const SplitSelectorI<BufferTypes>* mSplitSelector;
+    const typename BufferTypes::Index mMaxNumberOfSplits;
 };
 
-template <class FloatType, class IntType>
-BreadthFirstTreeLearner<FloatType, IntType>::BreadthFirstTreeLearner( const TrySplitCriteriaI* trySplitCriteria,
+template <class BufferTypes>
+BreadthFirstTreeLearner<BufferTypes>::BreadthFirstTreeLearner( const TrySplitCriteriaI* trySplitCriteria,
                                                                 const PipelineStepI* treeSteps,
                                                                 const PipelineStepI* nodeSteps,
-                                                                const SplitSelectorI<FloatType, IntType>* splitSelector)
+                                                                const SplitSelectorI<BufferTypes>* splitSelector)
 : mTrySplitCriteria( trySplitCriteria->Clone() )
 , mTreeSteps( treeSteps->Clone() )
 , mNodeSteps( nodeSteps->Clone() )
 , mSplitSelector( splitSelector->Clone() )
-, mMaxNumberOfSplits( std::numeric_limits<IntType>::max() )
+, mMaxNumberOfSplits( std::numeric_limits<typename BufferTypes::Index>::max() )
 {}
 
-template <class FloatType, class IntType>
-BreadthFirstTreeLearner<FloatType, IntType>::BreadthFirstTreeLearner( const TrySplitCriteriaI* trySplitCriteria,
+template <class BufferTypes>
+BreadthFirstTreeLearner<BufferTypes>::BreadthFirstTreeLearner( const TrySplitCriteriaI* trySplitCriteria,
                                                                 const PipelineStepI* treeSteps,
                                                                 const PipelineStepI* nodeSteps,
-                                                                const SplitSelectorI<FloatType, IntType>* splitSelector,
-                                                                const IntType maxNumberOfLeaves)
+                                                                const SplitSelectorI<BufferTypes>* splitSelector,
+                                                                const int maxNumberOfLeaves)
 : mTrySplitCriteria( trySplitCriteria->Clone() )
 , mTreeSteps( treeSteps->Clone() )
 , mNodeSteps( nodeSteps->Clone() )
@@ -77,8 +77,8 @@ BreadthFirstTreeLearner<FloatType, IntType>::BreadthFirstTreeLearner( const TryS
 , mMaxNumberOfSplits( maxNumberOfLeaves )
 {}
 
-template <class FloatType, class IntType>
-BreadthFirstTreeLearner<FloatType, IntType>::BreadthFirstTreeLearner(const BreadthFirstTreeLearner<FloatType, IntType> & other)
+template <class BufferTypes>
+BreadthFirstTreeLearner<BufferTypes>::BreadthFirstTreeLearner(const BreadthFirstTreeLearner<BufferTypes> & other)
 : mTrySplitCriteria( other.mTrySplitCriteria->Clone() )
 , mTreeSteps( other.mTreeSteps->Clone() )
 , mNodeSteps( other.mNodeSteps->Clone() )
@@ -87,8 +87,8 @@ BreadthFirstTreeLearner<FloatType, IntType>::BreadthFirstTreeLearner(const Bread
 {
 }
 
-template <class FloatType, class IntType>
-BreadthFirstTreeLearner<FloatType, IntType>::~BreadthFirstTreeLearner()
+template <class BufferTypes>
+BreadthFirstTreeLearner<BufferTypes>::~BreadthFirstTreeLearner()
 {
     delete mTrySplitCriteria;
     delete mTreeSteps;
@@ -96,16 +96,16 @@ BreadthFirstTreeLearner<FloatType, IntType>::~BreadthFirstTreeLearner()
     delete mSplitSelector;
 }
 
-template <class FloatType, class IntType>
-TreeLearnerI* BreadthFirstTreeLearner<FloatType, IntType>::Clone() const
+template <class BufferTypes>
+TreeLearnerI* BreadthFirstTreeLearner<BufferTypes>::Clone() const
 {
     TreeLearnerI* clone = new BreadthFirstTreeLearner(*this);
     return clone;
 }
 
 
-template <class FloatType, class IntType>
-void BreadthFirstTreeLearner<FloatType, IntType>::Learn( BufferCollectionStack stack, Tree& tree, unsigned int seed ) const
+template <class BufferTypes>
+void BreadthFirstTreeLearner<BufferTypes>::Learn( BufferCollectionStack stack, Tree& tree, unsigned int seed ) const
 {
     boost::mt19937 gen;
     gen.seed(seed);
@@ -114,8 +114,8 @@ void BreadthFirstTreeLearner<FloatType, IntType>::Learn( BufferCollectionStack s
     stack.Push(&treeData);
     mTreeSteps->ProcessStep(stack, treeData, gen);
 
-    std::queue< ActiveLeaf<FloatType, IntType> > activeLeaves;
-    activeLeaves.push(ActiveLeaf<FloatType, IntType>(0, 0));
+    std::queue< ActiveLeaf > activeLeaves;
+    activeLeaves.push(ActiveLeaf(0, 0));
 
     // FIFO breath first
     int numberOfSplits = 0;
@@ -129,26 +129,26 @@ void BreadthFirstTreeLearner<FloatType, IntType>::Learn( BufferCollectionStack s
     }
 }
 
-template <class FloatType, class IntType>
-bool BreadthFirstTreeLearner<FloatType, IntType>::ProcessActiveLeaf( boost::mt19937& gen,
+template <class BufferTypes>
+bool BreadthFirstTreeLearner<BufferTypes>::ProcessActiveLeaf( boost::mt19937& gen,
                                                               Tree& tree,
                                                               BufferCollectionStack& stack,
-                                                              std::queue< ActiveLeaf<FloatType, IntType> >& activeLeaves) const
+                                                              std::queue< ActiveLeaf >& activeLeaves) const
 
 {
-    ActiveLeaf<FloatType, IntType>& activeLeaf = activeLeaves.front();
+    ActiveLeaf& activeLeaf = activeLeaves.front();
 
     stack.Push(&activeLeaf.mSplitBufferCollection);
     BufferCollection nodeData;
     stack.Push(&nodeData);
     mNodeSteps->ProcessStep(stack, nodeData, gen);
-    SplitSelectorInfo<FloatType, IntType> selectorInfo = mSplitSelector->ProcessSplits(stack, activeLeaf.mDepth);
+    SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, activeLeaf.mDepth);
 
     const bool ValidSplit = selectorInfo.ValidSplit(); 
     if(ValidSplit) 
     {
-        const IntType leftNodeIndex = tree.NextNodeIndex();
-        const IntType rightNodeIndex = tree.NextNodeIndex();
+        const typename BufferTypes::Index leftNodeIndex = tree.NextNodeIndex();
+        const typename BufferTypes::Index rightNodeIndex = tree.NextNodeIndex();
 
         selectorInfo.WriteToTree( activeLeaf.mNodeIndex, leftNodeIndex, rightNodeIndex,
                                   tree.mCounts, tree.mDepths, tree.mFloatFeatureParams, tree.mIntFeatureParams, tree.mYs);
@@ -156,10 +156,10 @@ bool BreadthFirstTreeLearner<FloatType, IntType>::ProcessActiveLeaf( boost::mt19
         tree.mPath.Set(activeLeaf.mNodeIndex, 0, leftNodeIndex);
         tree.mPath.Set(activeLeaf.mNodeIndex, 1, rightNodeIndex);
 
-        ActiveLeaf<FloatType, IntType> leftActiveLeaf(leftNodeIndex, activeLeaf.mDepth+1);
-        ActiveLeaf<FloatType, IntType> rightActiveLeaf(rightNodeIndex, activeLeaf.mDepth+1);
-        FloatType leftSize = std::numeric_limits<FloatType>::min();
-        FloatType rightSize = std::numeric_limits<FloatType>::min();
+        ActiveLeaf leftActiveLeaf(leftNodeIndex, activeLeaf.mDepth+1);
+        ActiveLeaf rightActiveLeaf(rightNodeIndex, activeLeaf.mDepth+1);
+        typename BufferTypes::DatapointCounts leftSize = std::numeric_limits<typename BufferTypes::DatapointCounts>::min();
+        typename BufferTypes::DatapointCounts rightSize = std::numeric_limits<typename BufferTypes::DatapointCounts>::min();
         selectorInfo.SplitBuffers(leftActiveLeaf.mSplitBufferCollection, rightActiveLeaf.mSplitBufferCollection, leftSize, rightSize);
 
         if(mTrySplitCriteria->TrySplit(leftActiveLeaf.mDepth, leftSize))

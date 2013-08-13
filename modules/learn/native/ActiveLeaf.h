@@ -2,19 +2,18 @@
 
 #include "BufferCollection.h"
 
-template <class FloatType, class IntType>
 class ActiveLeaf
 {
 public:
     ActiveLeaf(const int nodeIndex,
-                        const IntType depth)
+                const int depth)
     : mNodeIndex(nodeIndex)
     , mDepth(depth)
     , mSplitBufferCollection()
     {}
 
     const int mNodeIndex;
-    const IntType mDepth;
+    const int mDepth;
     BufferCollection mSplitBufferCollection;
 };
 

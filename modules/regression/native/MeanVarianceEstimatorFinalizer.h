@@ -9,31 +9,37 @@
 // Compute the mean and variance from the sufficient statistics
 //
 // ----------------------------------------------------------------------------
-template <class FloatType>
-class MeanVarianceEstimatorFinalizer: public FinalizerI<FloatType>
+template <class BufferTypes>
+class MeanVarianceEstimatorFinalizer: public FinalizerI<BufferTypes>
 {
 public:
-    virtual void Finalize(FloatType count, VectorBufferTemplate<FloatType>& estimator) const;
-    virtual FinalizerI<FloatType>* Clone() const;
+    virtual VectorBufferTemplate<typename BufferTypes::TreeEstimator> Finalize(
+                            const typename BufferTypes::DatapointCounts count, 
+                            const VectorBufferTemplate<typename BufferTypes::SufficientStatsContinuous>& estimator) const;
+    virtual FinalizerI<BufferTypes>* Clone() const;
     virtual ~MeanVarianceEstimatorFinalizer() {}
 };
 
-template <class FloatType>
-void MeanVarianceEstimatorFinalizer<FloatType>::Finalize(FloatType count, VectorBufferTemplate<FloatType>& estimator) const
+template <class BufferTypes>
+VectorBufferTemplate<typename BufferTypes::TreeEstimator> MeanVarianceEstimatorFinalizer<BufferTypes>::Finalize(
+                            const typename BufferTypes::DatapointCounts count, 
+                            const VectorBufferTemplate<typename BufferTypes::SufficientStatsContinuous>& estimator) const
 {
-    UNUSED_PARAM(count);
-    UNUSED_PARAM(estimator);
+    UNUSED_PARAM(count)
     // Switched to online method that maintains the mean
     // for(int d=0; d<estimator.GetN()/2; d++)
     // {
     //     FloatType value = estimator.Get(d);
     //     estimator.Set(d, value/count);
     // }
+    VectorBufferTemplate<typename BufferTypes::TreeEstimator> result = 
+            ConvertVectorBufferTemplate<typename BufferTypes::SufficientStatsContinuous, typename BufferTypes::TreeEstimator>(estimator);
+    return result;
 }
 
-template <class FloatType>
-FinalizerI<FloatType>* MeanVarianceEstimatorFinalizer<FloatType>::Clone() const
+template <class BufferTypes>
+FinalizerI<BufferTypes>* MeanVarianceEstimatorFinalizer<BufferTypes>::Clone() const
 {
-    MeanVarianceEstimatorFinalizer<FloatType>* clone = new MeanVarianceEstimatorFinalizer<FloatType>(*this);
+    MeanVarianceEstimatorFinalizer<BufferTypes>* clone = new MeanVarianceEstimatorFinalizer<BufferTypes>(*this);
     return clone;
 }

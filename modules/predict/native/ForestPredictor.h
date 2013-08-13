@@ -6,44 +6,44 @@
 #include <Constants.h>
 #include <PipelineStepI.h>
 
-template <class FeatureBinding, class FloatType, class IntType>
-IntType nextChild(  const FeatureBinding& feature,
+template <class FeatureBinding, class BufferTypes>
+typename BufferTypes::Index nextChild(  const FeatureBinding& feature,
                     const Tree& tree,
-                    const IntType nodeId,
-                    const IntType index )
+                    const typename BufferTypes::Index nodeId,
+                    const typename BufferTypes::Index index )
 {
-    const FloatType splitpoint = tree.mFloatFeatureParams.Get(nodeId, SPLIT_POINT_INDEX);
-    const FloatType featureValue = feature.FeatureValue(nodeId, index);
+    const typename BufferTypes::FeatureValue splitpoint = tree.mFloatFeatureParams.Get(nodeId, SPLIT_POINT_INDEX);
+    const typename BufferTypes::FeatureValue featureValue = feature.FeatureValue(nodeId, index);
     bool goLeft = (featureValue > splitpoint);
-    const IntType childDirection = goLeft ? 0 : 1;
-    const IntType childNodeId = tree.mPath.Get(nodeId, childDirection);
+    const typename BufferTypes::Index childDirection = goLeft ? 0 : 1;
+    const typename BufferTypes::Index childNodeId = tree.mPath.Get(nodeId, childDirection);
     return childNodeId;
 }
 
-template <class FeatureBinding, class FloatType, class IntType>
-IntType walkTree( const FeatureBinding& feature,
+template <class FeatureBinding, class BufferTypes>
+typename BufferTypes::Index walkTree( const FeatureBinding& feature,
                   const Tree& tree,
-                  const IntType nodeId,
-                  const IntType index )
+                  const typename BufferTypes::Index nodeId,
+                  const typename BufferTypes::Index index )
 {
-    const IntType childNodeId = nextChild<FeatureBinding,FloatType,IntType>( feature, tree, nodeId, index);
+    const typename BufferTypes::Index childNodeId = nextChild<FeatureBinding,BufferTypes>( feature, tree, nodeId, index);
     if(childNodeId == NULL_CHILD)
     {
        return nodeId;
     }
-    return walkTree<FeatureBinding,FloatType,IntType>(feature, tree, childNodeId, index);
+    return walkTree<FeatureBinding,BufferTypes>(feature, tree, childNodeId, index);
 }
 
 
-template <class Feature, class Combiner, class FloatType, class IntType>
+template <class Feature, class Combiner, class BufferTypes>
 class TemplateForestPredictor
 {
 public:
     TemplateForestPredictor( const Forest& forest, const Feature& feature, const Combiner& combiner, const PipelineStepI* preSteps );
     ~TemplateForestPredictor();
 
-    void PredictLeafs(const BufferCollection& data, MatrixBufferTemplate<IntType>& leafsOut) const;
-    void PredictYs(const BufferCollection& data, MatrixBufferTemplate<FloatType>& ysOut);
+    void PredictLeafs(const BufferCollection& data, MatrixBufferTemplate<int>& leafsOut) const;
+    void PredictYs(const BufferCollection& data, MatrixBufferTemplate<float>& ysOut);
 
     Forest GetForest() const;
 
@@ -54,23 +54,23 @@ private:
     const PipelineStepI* mPreSteps;
 };
 
-template <class Feature, class Combiner, class FloatType, class IntType>
-TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::TemplateForestPredictor( const Forest& forest, const Feature& feature, const Combiner& combiner, const PipelineStepI* preSteps )
+template <class Feature, class Combiner, class BufferTypes>
+TemplateForestPredictor<Feature, Combiner, BufferTypes>::TemplateForestPredictor( const Forest& forest, const Feature& feature, const Combiner& combiner, const PipelineStepI* preSteps )
 : mForest(forest)
 , mFeature(feature)
 , mCombiner(combiner)
 , mPreSteps(preSteps->Clone())
 {}
 
-template <class Feature, class Combiner, class FloatType, class IntType>
-TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::~TemplateForestPredictor()
+template <class Feature, class Combiner, class BufferTypes>
+TemplateForestPredictor<Feature, Combiner, BufferTypes>::~TemplateForestPredictor()
 {
     delete mPreSteps;
 }
 
-template <class Feature, class Combiner, class FloatType, class IntType>
-void TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::PredictLeafs( const BufferCollection& data,
-                                                                                  MatrixBufferTemplate<IntType>& leafsOut) const
+template <class Feature, class Combiner, class BufferTypes>
+void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictLeafs( const BufferCollection& data,
+                                                                                  MatrixBufferTemplate<int>& leafsOut) const
 {
     boost::mt19937 gen;
     gen.seed(0);
@@ -84,8 +84,8 @@ void TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::PredictLeaf
     for(int treeId=0; treeId<numberOfTreesInForest; treeId++)
     {
         BufferCollection& bc = perTreeBufferCollection[treeId];
-        bc.AddBuffer< MatrixBufferTemplate<FloatType> >(mFeature.mFloatParamsBufferId, mForest.mTrees[treeId].mFloatFeatureParams);
-        bc.AddBuffer< MatrixBufferTemplate<IntType> >(mFeature.mIntParamsBufferId, mForest.mTrees[treeId].mIntFeatureParams);
+        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFeature.mFloatParamsBufferId, mForest.mTrees[treeId].mFloatFeatureParams);
+        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mFeature.mIntParamsBufferId, mForest.mTrees[treeId].mIntFeatureParams);
         mPreSteps->ProcessStep(stack, bc, gen);
 
         stack.Push(&bc);
@@ -96,12 +96,12 @@ void TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::PredictLeaf
     const int numberOfIndices = featureBindings[0].GetNumberOfDatapoints();
     leafsOut.Resize(numberOfIndices, numberOfTreesInForest);
 
-    for(IntType i=0; i<numberOfIndices; i++)
+    for(typename BufferTypes::Index i=0; i<numberOfIndices; i++)
     {
-        for(IntType treeId=0; treeId<numberOfTreesInForest; treeId++)
+        for(typename BufferTypes::Index treeId=0; treeId<numberOfTreesInForest; treeId++)
         {
-            IntType leafNodeId = walkTree<typename Feature::FeatureBinding, FloatType, IntType>(
-                                          featureBindings[treeId], mForest.mTrees[treeId], 0, i);
+            typename BufferTypes::Index leafNodeId = walkTree<typename Feature::FeatureBinding, BufferTypes>(
+                                                                            featureBindings[treeId], mForest.mTrees[treeId], 0, i);
             leafsOut.Set(i, treeId, leafNodeId);
         }
     }
@@ -109,9 +109,9 @@ void TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::PredictLeaf
     delete[] perTreeBufferCollection;
 }
 
-template <class Feature, class Combiner, class FloatType, class IntType>
-void TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::PredictYs( const BufferCollection& data,
-                                                                              MatrixBufferTemplate<FloatType>& ysOut)
+template <class Feature, class Combiner, class BufferTypes>
+void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictYs( const BufferCollection& data,
+                                                                              MatrixBufferTemplate<float>& ysOut)
 {
     boost::mt19937 gen;
     gen.seed(0);
@@ -125,8 +125,8 @@ void TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::PredictYs( 
     for(int treeId=0; treeId<numberOfTreesInForest; treeId++)
     {
         BufferCollection& bc = perTreeBufferCollection[treeId];
-        bc.AddBuffer< MatrixBufferTemplate<FloatType> >(mFeature.mFloatParamsBufferId, mForest.mTrees[treeId].mFloatFeatureParams);
-        bc.AddBuffer< MatrixBufferTemplate<IntType> >(mFeature.mIntParamsBufferId, mForest.mTrees[treeId].mIntFeatureParams);
+        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFeature.mFloatParamsBufferId, mForest.mTrees[treeId].mFloatFeatureParams);
+        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mFeature.mIntParamsBufferId, mForest.mTrees[treeId].mIntFeatureParams);
         mPreSteps->ProcessStep(stack, bc, gen);
 
         stack.Push(&bc);
@@ -137,14 +137,14 @@ void TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::PredictYs( 
     const int numberOfIndices = featureBindings[0].GetNumberOfDatapoints();
     ysOut.Resize(numberOfIndices, mCombiner.GetResultDim());
 
-    for(IntType i=0; i<numberOfIndices; i++)
+    for(typename BufferTypes::Index i=0; i<numberOfIndices; i++)
     {
         mCombiner.Reset();
-        for(IntType treeId=0; treeId<numberOfTreesInForest; treeId++)
+        for(typename BufferTypes::Index treeId=0; treeId<numberOfTreesInForest; treeId++)
         {
             const Tree& tree = mForest.mTrees[treeId];
-            IntType leafNodeId = walkTree<typename Feature::FeatureBinding, FloatType, IntType>(
-                                        featureBindings[treeId], tree, 0, i);
+            typename BufferTypes::Index leafNodeId = walkTree<typename Feature::FeatureBinding, BufferTypes>(
+                                                                featureBindings[treeId], tree, 0, i);
             mCombiner.Combine(leafNodeId, tree.mCounts.Get(leafNodeId), tree.mYs);
         }
         mCombiner.WriteResult(i, ysOut);
@@ -153,8 +153,8 @@ void TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::PredictYs( 
     delete[] perTreeBufferCollection;
 }
 
-template <class Feature, class Combiner, class FloatType, class IntType>
-Forest TemplateForestPredictor<Feature, Combiner, FloatType, IntType>::GetForest() const
+template <class Feature, class Combiner, class BufferTypes>
+Forest TemplateForestPredictor<Feature, Combiner, BufferTypes>::GetForest() const
 {
     return mForest;
 }

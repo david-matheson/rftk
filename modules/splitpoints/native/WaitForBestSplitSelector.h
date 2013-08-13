@@ -17,46 +17,46 @@
 // Find the best split (by impurity) and then check if it is valid
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType>
-class WaitForBestSplitSelector: public SplitSelectorI<FloatType, IntType>
+template <class BufferTypes>
+class WaitForBestSplitSelector: public SplitSelectorI<BufferTypes>
 {
 public:
     WaitForBestSplitSelector(const std::vector<SplitSelectorBuffers>& splitBuffers,
                   const ShouldSplitCriteriaI* shouldSplitCriteria,
-                  const FinalizerI<FloatType>* finalizer);
+                  const FinalizerI<BufferTypes>* finalizer);
 
     WaitForBestSplitSelector(const std::vector<SplitSelectorBuffers>& splitBuffers,
                   const ShouldSplitCriteriaI* shouldSplitCriteria,
-                  const FinalizerI<FloatType>* finalizer,
+                  const FinalizerI<BufferTypes>* finalizer,
                   const SplitBuffersI* bufferSplitter);
 
     virtual ~WaitForBestSplitSelector();
 
-    virtual SplitSelectorInfo<FloatType, IntType> ProcessSplits(const BufferCollectionStack& bufferCollectionStack, int depth) const;
+    virtual SplitSelectorInfo<BufferTypes> ProcessSplits(const BufferCollectionStack& bufferCollectionStack, int depth) const;
 
-    virtual SplitSelectorI<FloatType, IntType>* Clone() const;
+    virtual SplitSelectorI<BufferTypes>* Clone() const;
 
 private:
     std::vector<SplitSelectorBuffers> mSplitSelectorBuffers;
     const ShouldSplitCriteriaI* mShouldSplitCriteria;
-    const FinalizerI<FloatType>* mFinalizer;
+    const FinalizerI<BufferTypes>* mFinalizer;
     const SplitBuffersI* mBufferSplitter;
 };
 
-template <class FloatType, class IntType>
-WaitForBestSplitSelector<FloatType, IntType>::WaitForBestSplitSelector( const std::vector<SplitSelectorBuffers>& splitBuffers,
+template <class BufferTypes>
+WaitForBestSplitSelector<BufferTypes>::WaitForBestSplitSelector( const std::vector<SplitSelectorBuffers>& splitBuffers,
                                                   const ShouldSplitCriteriaI* shouldSplitCriteria,
-                                                  const FinalizerI<FloatType>* finalizer)
+                                                  const FinalizerI<BufferTypes>* finalizer)
 : mSplitSelectorBuffers(splitBuffers)
 , mShouldSplitCriteria(shouldSplitCriteria->Clone())
 , mFinalizer(finalizer->Clone())
 , mBufferSplitter(NULL)
 {}
 
-template <class FloatType, class IntType>
-WaitForBestSplitSelector<FloatType, IntType>::WaitForBestSplitSelector( const std::vector<SplitSelectorBuffers>& splitBuffers,
+template <class BufferTypes>
+WaitForBestSplitSelector<BufferTypes>::WaitForBestSplitSelector( const std::vector<SplitSelectorBuffers>& splitBuffers,
                                                   const ShouldSplitCriteriaI* shouldSplitCriteria,
-                                                  const FinalizerI<FloatType>* finalizer,
+                                                  const FinalizerI<BufferTypes>* finalizer,
                                                   const SplitBuffersI* bufferSplitter)
 : mSplitSelectorBuffers(splitBuffers)
 , mShouldSplitCriteria(shouldSplitCriteria->Clone())
@@ -64,8 +64,8 @@ WaitForBestSplitSelector<FloatType, IntType>::WaitForBestSplitSelector( const st
 , mBufferSplitter((bufferSplitter != NULL) ? bufferSplitter->Clone() : NULL)
 {}
 
-template <class FloatType, class IntType>
-WaitForBestSplitSelector<FloatType, IntType>::~WaitForBestSplitSelector()
+template <class BufferTypes>
+WaitForBestSplitSelector<BufferTypes>::~WaitForBestSplitSelector()
 {
     mSplitSelectorBuffers.clear();
     delete mShouldSplitCriteria;
@@ -74,10 +74,10 @@ WaitForBestSplitSelector<FloatType, IntType>::~WaitForBestSplitSelector()
 }
 
 
-template <class FloatType, class IntType>
-SplitSelectorInfo<FloatType, IntType> WaitForBestSplitSelector<FloatType, IntType>::ProcessSplits(const BufferCollectionStack& readCollection, int depth) const
+template <class BufferTypes>
+SplitSelectorInfo<BufferTypes> WaitForBestSplitSelector<BufferTypes>::ProcessSplits(const BufferCollectionStack& readCollection, int depth) const
 {
-    FloatType maxImpurity = std::numeric_limits<FloatType>::min();
+    typename BufferTypes::ImpurityValue maxImpurity = std::numeric_limits<typename BufferTypes::ImpurityValue>::min();
     int bestWaitForBestmSplitSelectorBuffers = SPLIT_SELECTOR_NO_SPLIT;
     int bestFeature = SPLIT_SELECTOR_NO_SPLIT;
     int bestSplitpoint = SPLIT_SELECTOR_NO_SPLIT;
@@ -88,17 +88,17 @@ SplitSelectorInfo<FloatType, IntType> WaitForBestSplitSelector<FloatType, IntTyp
     {
         const SplitSelectorBuffers& ssb = mSplitSelectorBuffers[s];
 
-        const MatrixBufferTemplate<FloatType>& impurities
-           = readCollection.GetBuffer< MatrixBufferTemplate<FloatType> >(ssb.mImpurityBufferId);
+        const MatrixBufferTemplate<typename BufferTypes::ImpurityValue>& impurities
+           = readCollection.GetBuffer< MatrixBufferTemplate<typename BufferTypes::ImpurityValue> >(ssb.mImpurityBufferId);
 
-        const VectorBufferTemplate<IntType>& splitpointCounts
-               = readCollection.GetBuffer< VectorBufferTemplate<IntType> >(ssb.mSplitpointsCountsBufferId);
+        const VectorBufferTemplate<typename BufferTypes::Index>& splitpointCounts
+               = readCollection.GetBuffer< VectorBufferTemplate<typename BufferTypes::Index> >(ssb.mSplitpointsCountsBufferId);
 
         for(int f=0; f<impurities.GetM(); f++)
         {
             for(int t=0; t<splitpointCounts.Get(f); t++)
             {
-                const FloatType impurity = impurities.Get(f,t);
+                const typename BufferTypes::ImpurityValue impurity = impurities.Get(f,t);
                 if( impurity > maxImpurity )
                 {
                     maxImpurity = impurity;
@@ -117,12 +117,12 @@ SplitSelectorInfo<FloatType, IntType> WaitForBestSplitSelector<FloatType, IntTyp
     if( isSet )
     {
         const SplitSelectorBuffers& ssb = mSplitSelectorBuffers[bestWaitForBestmSplitSelectorBuffers];
-        const Tensor3BufferTemplate<FloatType>& childCounts
-                    = readCollection.GetBuffer< Tensor3BufferTemplate<FloatType> >(ssb.mChildCountsBufferId);
+        const Tensor3BufferTemplate<typename BufferTypes::DatapointCounts>& childCounts
+                    = readCollection.GetBuffer< Tensor3BufferTemplate<typename BufferTypes::DatapointCounts> >(ssb.mChildCountsBufferId);
 
         // Reset if should not split
-        const FloatType leftCounts = childCounts.Get(bestFeature,bestSplitpoint,LEFT_CHILD_INDEX);
-        const FloatType rightCounts = childCounts.Get(bestFeature,bestSplitpoint,RIGHT_CHILD_INDEX);
+        const typename BufferTypes::DatapointCounts leftCounts = childCounts.Get(bestFeature,bestSplitpoint,LEFT_CHILD_INDEX);
+        const typename BufferTypes::DatapointCounts rightCounts = childCounts.Get(bestFeature,bestSplitpoint,RIGHT_CHILD_INDEX);
         if( !mShouldSplitCriteria->ShouldSplit(depth, maxImpurity, leftCounts+rightCounts, leftCounts, rightCounts))
         {
             bestWaitForBestmSplitSelectorBuffers = SPLIT_SELECTOR_NO_SPLIT;
@@ -131,15 +131,15 @@ SplitSelectorInfo<FloatType, IntType> WaitForBestSplitSelector<FloatType, IntTyp
         }
     }
 
-    return SplitSelectorInfo<FloatType, IntType>(mSplitSelectorBuffers[bestWaitForBestmSplitSelectorBuffers],
+    return SplitSelectorInfo<BufferTypes>(mSplitSelectorBuffers[bestWaitForBestmSplitSelectorBuffers],
                                             readCollection, mFinalizer, mBufferSplitter,
                                             bestFeature, bestSplitpoint, depth);
 }
 
-template <class FloatType, class IntType>
-SplitSelectorI<FloatType, IntType>* WaitForBestSplitSelector<FloatType, IntType>::Clone() const
+template <class BufferTypes>
+SplitSelectorI<BufferTypes>* WaitForBestSplitSelector<BufferTypes>::Clone() const
 {
-    WaitForBestSplitSelector* clone = new WaitForBestSplitSelector<FloatType, IntType>(mSplitSelectorBuffers, 
+    WaitForBestSplitSelector* clone = new WaitForBestSplitSelector<BufferTypes>(mSplitSelectorBuffers, 
                                                                                       mShouldSplitCriteria, 
                                                                                       mFinalizer, 
                                                                                       mBufferSplitter);

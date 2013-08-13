@@ -24,6 +24,8 @@ public:
     typedef SufficientStatsContinuousType SufficientStatsContinuous;
     typedef SufficientStatsIntegerType SufficientStatsInteger;
     typedef ImpurityValueType ImpurityValue;
+    typedef SourceContinuousType DatapointCounts;
+    typedef SourceContinuousType TreeEstimator;
 };
 
 typedef BufferTypes<float, int, int, float, int, float, float, int, float> DefaultBufferTypes;

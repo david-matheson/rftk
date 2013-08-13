@@ -28,6 +28,8 @@
 #include "DepthFirstTreeLearner.h"
 #include "Tree.h"
 
+typedef BufferTypes<float, int, int, float, int, float, float, int, float> CdflBufferTypes_t;
+
 template<typename T>
 VectorBufferTemplate<T> CreateVector1(T value)
 {
@@ -76,6 +78,7 @@ struct DepthFirstTreeLearnerFixture {
     {
     }
 
+
     const BufferCollectionKey_t xs_key;
     const MatrixBufferTemplate<float> xs;
     const BufferCollectionKey_t classes_key;
@@ -84,7 +87,8 @@ struct DepthFirstTreeLearnerFixture {
     BufferCollectionStack stack;
 };
 
-DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t xs_key, 
+
+DepthFirstTreeLearner<CdflBufferTypes_t> CreateDepthFirstLearner( BufferCollectionKey_t xs_key, 
                                                           BufferCollectionKey_t classes_key, 
                                                           int numberOfClasses, 
                                                           FeatureValueOrdering featureOrdering, 

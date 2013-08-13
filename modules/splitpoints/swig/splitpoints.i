@@ -36,13 +36,13 @@ namespace std {
 %include "SplitBuffersFeatureRange.h"
 %include "SplitBuffersList.h"
 
-%template(SplitSelectorI_f32i32) SplitSelectorI<float, int>;
-%template(SplitSelector_f32i32) SplitSelector<float, int>;
-%template(WaitForBestSplitSelector_f32i32) WaitForBestSplitSelector<float, int>;
+%template(SplitSelectorI_f32i32) SplitSelectorI<DefaultBufferTypes>;
+%template(SplitSelector_f32i32) SplitSelector<DefaultBufferTypes>;
+%template(WaitForBestSplitSelector_f32i32) WaitForBestSplitSelector<DefaultBufferTypes>;
 %template(RandomSplitpointsStep_f32i32) RandomSplitpointsStep<DefaultBufferTypes>;
 
 %template(AssignStreamStep_f32i32) AssignStreamStep<DefaultBufferTypes>;
 %template(RangeMidpointStep_f32i32) RangeMidpointStep<DefaultBufferTypes>;
 
-%template(SplitIndices_f32i32) SplitBuffersIndices<float, int>;
+%template(SplitIndices_f32i32) SplitBuffersIndices<DefaultBufferTypes>;
 %template(SplitBuffersFeatureRange_f32i32) SplitBuffersFeatureRange<DefaultBufferTypes>;

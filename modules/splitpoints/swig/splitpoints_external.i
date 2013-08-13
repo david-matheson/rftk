@@ -1,6 +1,8 @@
 %module splitpoints
 %{
     #define SWIG_FILE_WITH_INIT
+    #include "FinalizerI.h"
+    
     #include "SplitSelectorBuffers.h"
 
     #include "SplitSelectorI.h"
@@ -19,6 +21,8 @@
 %import(module="rftk.buffers") "buffers.i"
 %import(module="rftk.pipeline") "pipeline_external.i"
 
+%include "FinalizerI.h"
+
 %include "SplitSelectorBuffers.h"
 
 %include "SplitSelectorI.h"
@@ -31,3 +35,4 @@
 %include "SplitpointStatsStep.h"
 %include "TwoStreamSplitpointStatsStep.h"
 
+%template(FinalizerI_f32) FinalizerI<DefaultBufferTypes>;

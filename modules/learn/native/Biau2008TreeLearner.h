@@ -18,17 +18,17 @@
 #include "TreeLearnerI.h"
 #include "ActiveLeaf.h"
 
-template <class FloatType, class IntType>
+template <class BufferTypes>
 class Biau2008TreeLearner: public TreeLearnerI
 {
 public:
     Biau2008TreeLearner( const TrySplitCriteriaI* trySplitCriteria,
                             const PipelineStepI* treeSteps,
                             const PipelineStepI* nodeSteps,
-                            const SplitSelectorI<FloatType, IntType>* splitSelector,
-                            const IntType maxNumberOfLeaves,
-                            const IntType maxNumberOfSplitRetries);
-    Biau2008TreeLearner(const Biau2008TreeLearner<FloatType, IntType> & other);
+                            const SplitSelectorI<BufferTypes>* splitSelector,
+                            const int maxNumberOfLeaves,
+                            const int maxNumberOfSplitRetries);
+    Biau2008TreeLearner(const Biau2008TreeLearner<BufferTypes> & other);
 
     virtual ~Biau2008TreeLearner();
 
@@ -39,24 +39,24 @@ private:
     bool ProcessActiveLeaf( boost::mt19937& gen,
                               Tree& tree,
                               BufferCollectionStack& stack,
-                              std::list< ActiveLeaf<FloatType, IntType> >& activeLeaves,
+                              std::list< ActiveLeaf >& activeLeaves,
                               const int leafIndex ) const;
 
     const TrySplitCriteriaI* mTrySplitCriteria;
     const PipelineStepI* mTreeSteps;
     const PipelineStepI* mNodeSteps;
-    const SplitSelectorI<FloatType, IntType>* mSplitSelector;
-    const IntType mMaxNumberOfSplits;
-    const IntType mMaxNumberOfSplitRetries;
+    const SplitSelectorI<BufferTypes>* mSplitSelector;
+    const typename BufferTypes::Index mMaxNumberOfSplits;
+    const typename BufferTypes::Index mMaxNumberOfSplitRetries;
 };
 
-template <class FloatType, class IntType>
-Biau2008TreeLearner<FloatType, IntType>::Biau2008TreeLearner( const TrySplitCriteriaI* trySplitCriteria,
+template <class BufferTypes>
+Biau2008TreeLearner<BufferTypes>::Biau2008TreeLearner( const TrySplitCriteriaI* trySplitCriteria,
                                                                 const PipelineStepI* treeSteps,
                                                                 const PipelineStepI* nodeSteps,
-                                                                const SplitSelectorI<FloatType, IntType>* splitSelector,
-                                                                const IntType maxNumberOfLeaves,
-                                                                const IntType maxNumberOfSplitRetries)
+                                                                const SplitSelectorI<BufferTypes>* splitSelector,
+                                                                const int maxNumberOfLeaves,
+                                                                const int maxNumberOfSplitRetries)
 : mTrySplitCriteria( trySplitCriteria->Clone() )
 , mTreeSteps( treeSteps->Clone() )
 , mNodeSteps( nodeSteps->Clone() )
@@ -65,8 +65,8 @@ Biau2008TreeLearner<FloatType, IntType>::Biau2008TreeLearner( const TrySplitCrit
 , mMaxNumberOfSplitRetries( maxNumberOfSplitRetries )
 {}
 
-template <class FloatType, class IntType>
-Biau2008TreeLearner<FloatType, IntType>::Biau2008TreeLearner(const Biau2008TreeLearner<FloatType, IntType> & other)
+template <class BufferTypes>
+Biau2008TreeLearner<BufferTypes>::Biau2008TreeLearner(const Biau2008TreeLearner<BufferTypes> & other)
 : mTrySplitCriteria( other.mTrySplitCriteria->Clone() )
 , mTreeSteps( other.mTreeSteps->Clone() )
 , mNodeSteps( other.mNodeSteps->Clone() )
@@ -76,8 +76,8 @@ Biau2008TreeLearner<FloatType, IntType>::Biau2008TreeLearner(const Biau2008TreeL
 {
 }
 
-template <class FloatType, class IntType>
-Biau2008TreeLearner<FloatType, IntType>::~Biau2008TreeLearner()
+template <class BufferTypes>
+Biau2008TreeLearner<BufferTypes>::~Biau2008TreeLearner()
 {
     delete mTrySplitCriteria;
     delete mTreeSteps;
@@ -85,16 +85,16 @@ Biau2008TreeLearner<FloatType, IntType>::~Biau2008TreeLearner()
     delete mSplitSelector;
 }
 
-template <class FloatType, class IntType>
-TreeLearnerI* Biau2008TreeLearner<FloatType, IntType>::Clone() const
+template <class BufferTypes>
+TreeLearnerI* Biau2008TreeLearner<BufferTypes>::Clone() const
 {
     TreeLearnerI* clone = new Biau2008TreeLearner(*this);
     return clone;
 }
 
 
-template <class FloatType, class IntType>
-void Biau2008TreeLearner<FloatType, IntType>::Learn( BufferCollectionStack stack, Tree& tree, unsigned int seed ) const
+template <class BufferTypes>
+void Biau2008TreeLearner<BufferTypes>::Learn( BufferCollectionStack stack, Tree& tree, unsigned int seed ) const
 {
     boost::mt19937 gen;
     gen.seed(seed);
@@ -103,8 +103,8 @@ void Biau2008TreeLearner<FloatType, IntType>::Learn( BufferCollectionStack stack
     stack.Push(&treeData);
     mTreeSteps->ProcessStep(stack, treeData, gen);
 
-    std::list< ActiveLeaf<FloatType, IntType> > activeLeaves;
-    activeLeaves.push_back(ActiveLeaf<FloatType, IntType>(0, 0));
+    std::list< ActiveLeaf > activeLeaves;
+    activeLeaves.push_back(ActiveLeaf(0, 0));
 
     // Select an active leaf uniformly at random
     int numberOfSplits = 0;
@@ -129,34 +129,34 @@ void Biau2008TreeLearner<FloatType, IntType>::Learn( BufferCollectionStack stack
     }
 }
 
-template <class FloatType, class IntType>
-bool Biau2008TreeLearner<FloatType, IntType>::ProcessActiveLeaf( boost::mt19937& gen,
+template <class BufferTypes>
+bool Biau2008TreeLearner<BufferTypes>::ProcessActiveLeaf( boost::mt19937& gen,
                                                               Tree& tree,
                                                               BufferCollectionStack& stack,
-                                                              std::list< ActiveLeaf<FloatType, IntType> >& activeLeaves,
+                                                              std::list< ActiveLeaf >& activeLeaves,
                                                               const int leafIndex ) const
 
 {
     // Get the active leaf
-    typename std::list< ActiveLeaf<FloatType, IntType> >::iterator iter = activeLeaves.begin();
+    typename std::list< ActiveLeaf >::iterator iter = activeLeaves.begin();
     for(int i=0; i<leafIndex; i++)
     {
         ++iter;
     }
-    ActiveLeaf<FloatType, IntType>& activeLeaf = *iter;
+    ActiveLeaf& activeLeaf = *iter;
 
     stack.Push(&activeLeaf.mSplitBufferCollection);
     BufferCollection nodeData;
     stack.Push(&nodeData);
     mNodeSteps->ProcessStep(stack, nodeData, gen);
-    SplitSelectorInfo<FloatType, IntType> selectorInfo = mSplitSelector->ProcessSplits(stack, activeLeaf.mDepth);
+    SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, activeLeaf.mDepth);
 
     const bool ValidSplit = selectorInfo.ValidSplit(); //Incase all datapoints have the same value
 
     if(ValidSplit) 
     {
-        const IntType leftNodeIndex = tree.NextNodeIndex();
-        const IntType rightNodeIndex = tree.NextNodeIndex();
+        const typename BufferTypes::Index leftNodeIndex = tree.NextNodeIndex();
+        const typename BufferTypes::Index rightNodeIndex = tree.NextNodeIndex();
 
         selectorInfo.WriteToTree( activeLeaf.mNodeIndex, leftNodeIndex, rightNodeIndex,
                                   tree.mCounts, tree.mDepths, tree.mFloatFeatureParams, tree.mIntFeatureParams, tree.mYs);
@@ -164,10 +164,10 @@ bool Biau2008TreeLearner<FloatType, IntType>::ProcessActiveLeaf( boost::mt19937&
         tree.mPath.Set(activeLeaf.mNodeIndex, 0, leftNodeIndex);
         tree.mPath.Set(activeLeaf.mNodeIndex, 1, rightNodeIndex);
 
-        ActiveLeaf<FloatType, IntType> leftActiveLeaf(leftNodeIndex, activeLeaf.mDepth+1);
-        ActiveLeaf<FloatType, IntType> rightActiveLeaf(rightNodeIndex, activeLeaf.mDepth+1);
-        FloatType leftSize = std::numeric_limits<FloatType>::min();
-        FloatType rightSize = std::numeric_limits<FloatType>::min();
+        ActiveLeaf leftActiveLeaf(leftNodeIndex, activeLeaf.mDepth+1);
+        ActiveLeaf rightActiveLeaf(rightNodeIndex, activeLeaf.mDepth+1);
+        typename BufferTypes::DatapointCounts leftSize = std::numeric_limits<typename BufferTypes::DatapointCounts>::min();
+        typename BufferTypes::DatapointCounts rightSize = std::numeric_limits<typename BufferTypes::DatapointCounts>::min();
         selectorInfo.SplitBuffers(leftActiveLeaf.mSplitBufferCollection, rightActiveLeaf.mSplitBufferCollection, leftSize, rightSize);
 
         if(mTrySplitCriteria->TrySplit(leftActiveLeaf.mDepth, leftSize))
@@ -180,7 +180,7 @@ bool Biau2008TreeLearner<FloatType, IntType>::ProcessActiveLeaf( boost::mt19937&
         }
 
         // Remove the node
-        const int numberOfActiveLeaves = activeLeaves.size();
+        const size_t numberOfActiveLeaves = activeLeaves.size();
         UNUSED_PARAM(numberOfActiveLeaves);
         activeLeaves.erase(iter);
         ASSERT(numberOfActiveLeaves-1 == activeLeaves.size()); //check that it actually decreased in size

@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_CASE(test_Learn)
     FeatureValueOrdering featureOrdering = FEATURES_BY_DATAPOINTS;
     const double minNodeSize = 1.0;
 
-    DepthFirstTreeLearner<float, int> depthFirstTreeLearner = CreateDepthFirstLearner(xs_key, classes_key, numberOfClasses, featureOrdering, minNodeSize);
+    DepthFirstTreeLearner<CdflBufferTypes_t> depthFirstTreeLearner = CreateDepthFirstLearner(xs_key, classes_key, numberOfClasses, featureOrdering, minNodeSize);
 
     ParallelForestLearner parallelForestLearner(&depthFirstTreeLearner, 100, 3, 3, numberOfClasses, 10);
     Forest forest = parallelForestLearner.Learn(collection);

@@ -1,6 +1,7 @@
 %module learn
 %{
     #define SWIG_FILE_WITH_INIT
+    #include "BufferTypes.h"
     #include "TreeLearnerI.h"
     #include "DepthFirstTreeLearner.h"
     #include "BreadthFirstTreeLearner.h"
@@ -12,8 +13,6 @@
     #include "ScaledDepthDeltaFeature.h"
     #include "ClassEstimatorUpdater.h"
     #include "ClassProbabilityOfError.h"
-
-
 %}
 
 %include <exception.i>
@@ -38,12 +37,12 @@
 %include "ClassEstimatorUpdater.h"
 %include "ClassProbabilityOfError.h"
 
-%template(DepthFirstTreeLearner_f32i32) DepthFirstTreeLearner<float, int>;
+%template(DepthFirstTreeLearner_f32i32) DepthFirstTreeLearner<DefaultBufferTypes>;
 
-%template(BreadthFirstTreeLearner_f32i32) BreadthFirstTreeLearner<float, int>;
+%template(BreadthFirstTreeLearner_f32i32) BreadthFirstTreeLearner<DefaultBufferTypes>;
 
-%template(Biau2008TreeLearner_f32i32) Biau2008TreeLearner<float, int>;
+%template(Biau2008TreeLearner_f32i32) Biau2008TreeLearner<DefaultBufferTypes>;
 
-%template(OnlineForestMatrixClassLearner_f32i32)  OnlineForestLearner< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, ClassEstimatorUpdater< float, int >, ClassProbabilityOfError, float, int >;
+%template(OnlineForestMatrixClassLearner_f32i32)  OnlineForestLearner< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, ClassEstimatorUpdater< float, int >, ClassProbabilityOfError, DefaultBufferTypes >;
 
-%template(OnlineForestScaledDepthDeltaClassLearner_f32i32)  OnlineForestLearner< ScaledDepthDeltaFeature< DefaultBufferTypes >, ClassEstimatorUpdater< float, int >, ClassProbabilityOfError, float, int >;
+%template(OnlineForestScaledDepthDeltaClassLearner_f32i32)  OnlineForestLearner< ScaledDepthDeltaFeature< DefaultBufferTypes >, ClassEstimatorUpdater< float, int >, ClassProbabilityOfError, DefaultBufferTypes >;

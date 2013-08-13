@@ -11,7 +11,7 @@ BOOST_AUTO_TEST_CASE(test_Learn)
     const double minNodeSize = 1.0;
     FeatureValueOrdering featureOrdering = FEATURES_BY_DATAPOINTS;
 
-    DepthFirstTreeLearner<float, int> depthFirstTreeLearner = CreateDepthFirstLearner(xs_key, classes_key, numberOfClasses, featureOrdering, minNodeSize);
+    DepthFirstTreeLearner<CdflBufferTypes_t> depthFirstTreeLearner = CreateDepthFirstLearner(xs_key, classes_key, numberOfClasses, featureOrdering, minNodeSize);
     Tree tree(1, 3, 3, numberOfClasses );
     depthFirstTreeLearner.Learn(stack, tree, 0);
 
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(test_Learn_DATAPOINTS_BY_FEATURES)
     const double minNodeSize = 1.0;
     FeatureValueOrdering featureOrdering = DATAPOINTS_BY_FEATURES;
 
-    DepthFirstTreeLearner<float, int> depthFirstTreeLearner = CreateDepthFirstLearner(xs_key, classes_key, numberOfClasses, featureOrdering, minNodeSize);
+    DepthFirstTreeLearner<CdflBufferTypes_t> depthFirstTreeLearner = CreateDepthFirstLearner(xs_key, classes_key, numberOfClasses, featureOrdering, minNodeSize);
     Tree tree(1, 4, 3, numberOfClasses );
     depthFirstTreeLearner.Learn(stack, tree, 0);
 
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(test_Learn_minsize)
     FeatureValueOrdering featureOrdering = FEATURES_BY_DATAPOINTS;
     const double minNodeSize = 6.0;
 
-    DepthFirstTreeLearner<float, int> depthFirstTreeLearner = CreateDepthFirstLearner(xs_key, classes_key, numberOfClasses, featureOrdering, minNodeSize);
+    DepthFirstTreeLearner<CdflBufferTypes_t> depthFirstTreeLearner = CreateDepthFirstLearner(xs_key, classes_key, numberOfClasses, featureOrdering, minNodeSize);
     Tree tree(1, 3, 3, numberOfClasses );
     depthFirstTreeLearner.Learn(stack, tree, 0);
 

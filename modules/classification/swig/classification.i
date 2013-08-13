@@ -21,8 +21,8 @@
 %template(ClassInfoGainWalker_f32i32) ClassInfoGainWalker< DefaultBufferTypes >;
 %template(ClassInfoGainBestSplitpointsWalkingSortedStep_f32i32) BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<DefaultBufferTypes> >;
 %template(ClassInfoGainSplitpointsImpurity_f32i32) SplitpointsImpurity< ClassInfoGainImpurity<DefaultBufferTypes> >;
-%template(FinalizerI_f32) FinalizerI<float>;
-%template(ClassEstimatorFinalizer_f32) ClassEstimatorFinalizer<float>;
+
+%template(ClassEstimatorFinalizer_f32) ClassEstimatorFinalizer<DefaultBufferTypes>;
 %template(ClassEstimatorUpdater_f32i32) ClassEstimatorUpdater<float, int>;
 %template(ClassProbabilityCombiner_f32) ClassProbabilityCombiner<float>;
 %template(ClassStatsUpdater_f32i32) ClassStatsUpdater<float,int>;
