@@ -54,7 +54,7 @@ private:
     const BufferId mYsBufferId;
     const int mYdim;
 
-    VectorBufferTemplate<typename BT::ParamsContinuous> const* mSampleWeights;
+    VectorBufferTemplate<typename BT::DatapointCounts> const* mSampleWeights;
     VectorBufferTemplate<typename BT::ParamsInteger> const* mStreamType;
     MatrixBufferTemplate<typename BT::SourceContinuous> const* mYs;
 
@@ -109,7 +109,7 @@ SumOfVarianceTwoStreamWalker<BT>::~SumOfVarianceTwoStreamWalker()
 template <class BT>
 void SumOfVarianceTwoStreamWalker<BT>::Bind(const BufferCollectionStack& readCollection)
 {
-    mSampleWeights = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::ParamsContinuous> >(mSampleWeightsBufferId);
+    mSampleWeights = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::DatapointCounts> >(mSampleWeightsBufferId);
     mYs = readCollection.GetBufferPtr< MatrixBufferTemplate<typename BT::SourceContinuous> >(mYsBufferId);
     mStreamType = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::ParamsInteger> >(mStreamTypeBufferId);
     ASSERT_ARG_DIM_1D(mSampleWeights->GetN(), mYs->GetM())

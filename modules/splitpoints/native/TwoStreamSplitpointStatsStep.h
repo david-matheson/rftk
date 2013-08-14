@@ -88,65 +88,65 @@ void TwoStreamSplitpointStatsStep<StatsUpdater>::ProcessStep(const BufferCollect
 
     typename StatsUpdater::BindedStatUpdater bindedStatUpdater = mStatsUpdater.Bind(readCollection);
 
-    const MatrixBufferTemplate<typename StatsUpdater::Float>& splitpoints =
-          readCollection.GetBuffer< MatrixBufferTemplate<typename StatsUpdater::Float> >(mSplitpointsBufferId);
+    const MatrixBufferTemplate<typename StatsUpdater::BufferTypes::FeatureValue>& splitpoints =
+          readCollection.GetBuffer< MatrixBufferTemplate<typename StatsUpdater::BufferTypes::FeatureValue> >(mSplitpointsBufferId);
 
-    const VectorBufferTemplate<typename StatsUpdater::Int>& splitpointsCounts =
-          readCollection.GetBuffer< VectorBufferTemplate<typename StatsUpdater::Int> >(mSplitpointCountsBufferId);
+    const VectorBufferTemplate<typename StatsUpdater::BufferTypes::Index>& splitpointsCounts =
+          readCollection.GetBuffer< VectorBufferTemplate<typename StatsUpdater::BufferTypes::Index> >(mSplitpointCountsBufferId);
 
-    const VectorBufferTemplate<typename StatsUpdater::Int>& streamTypes =
-          readCollection.GetBuffer< VectorBufferTemplate<typename StatsUpdater::Int> >(mStreamTypeBufferId);
+    const VectorBufferTemplate<typename StatsUpdater::BufferTypes::ParamsInteger>& streamTypes =
+          readCollection.GetBuffer< VectorBufferTemplate<typename StatsUpdater::BufferTypes::ParamsInteger> >(mStreamTypeBufferId);
 
-    const MatrixBufferTemplate<typename StatsUpdater::Float>& featureValues =
-          readCollection.GetBuffer< MatrixBufferTemplate<typename StatsUpdater::Float> >(mFeatureValuesBufferId);
+    const MatrixBufferTemplate<typename StatsUpdater::BufferTypes::FeatureValue>& featureValues =
+          readCollection.GetBuffer< MatrixBufferTemplate<typename StatsUpdater::BufferTypes::FeatureValue> >(mFeatureValuesBufferId);
 
-    Tensor3BufferTemplate<typename StatsUpdater::Float>& childCountsImpurity =
-          writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::Float> >(ChildCountsImpurityBufferId);
+    Tensor3BufferTemplate<typename StatsUpdater::BufferTypes::DatapointCounts>& childCountsImpurity =
+          writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::BufferTypes::DatapointCounts> >(ChildCountsImpurityBufferId);
     childCountsImpurity.Resize(splitpoints.GetM(), splitpoints.GetN(), 2);
 
-    Tensor3BufferTemplate<typename StatsUpdater::Float>& leftImpurityStats =
-          writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::Float> >(LeftImpurityStatsBufferId);
+    Tensor3BufferTemplate<typename StatsUpdater::BufferTypes::SufficientStatsContinuous>& leftImpurityStats =
+          writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::BufferTypes::SufficientStatsContinuous> >(LeftImpurityStatsBufferId);
     leftImpurityStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetDimension());
 
-    Tensor3BufferTemplate<typename StatsUpdater::Float>& rightImpurityStats =
-          writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::Float> >(RightImpurityStatsBufferId);
+    Tensor3BufferTemplate<typename StatsUpdater::BufferTypes::SufficientStatsContinuous>& rightImpurityStats =
+          writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::BufferTypes::SufficientStatsContinuous> >(RightImpurityStatsBufferId);
     rightImpurityStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetDimension());
 
-    Tensor3BufferTemplate<typename StatsUpdater::Float>& childCountsEstimator =
-          writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::Float> >(ChildCountsEstimatorBufferId);
+    Tensor3BufferTemplate<typename StatsUpdater::BufferTypes::DatapointCounts>& childCountsEstimator =
+          writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::BufferTypes::DatapointCounts> >(ChildCountsEstimatorBufferId);
     childCountsEstimator.Resize(splitpoints.GetM(), splitpoints.GetN(), 2);
 
-    Tensor3BufferTemplate<typename StatsUpdater::Float>& leftEstimatorStats =
-          writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::Float> >(LeftEstimatorStatsBufferId);
+    Tensor3BufferTemplate<typename StatsUpdater::BufferTypes::SufficientStatsContinuous>& leftEstimatorStats =
+          writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::BufferTypes::SufficientStatsContinuous> >(LeftEstimatorStatsBufferId);
     leftEstimatorStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetDimension());
 
-    Tensor3BufferTemplate<typename StatsUpdater::Float>& rightEstimatorStats =
-          writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::Float> >(RightEstimatorStatsBufferId);
+    Tensor3BufferTemplate<typename StatsUpdater::BufferTypes::SufficientStatsContinuous>& rightEstimatorStats =
+          writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename StatsUpdater::BufferTypes::SufficientStatsContinuous> >(RightEstimatorStatsBufferId);
     rightEstimatorStats.Resize(splitpoints.GetM(), splitpoints.GetN(), mStatsUpdater.GetDimension());
 
-    for(int c=0; c<featureValues.GetM(); c++)
+    for(typename StatsUpdater::BufferTypes::Index c=0; c<featureValues.GetM(); c++)
     {
-        for(int r=0; r<featureValues.GetN(); r++)
+        for(typename StatsUpdater::BufferTypes::Index r=0; r<featureValues.GetN(); r++)
         {
-            const typename StatsUpdater::Float featureValue = featureValues.Get(c,r);
-            const int feature = mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? c : r;
-            const int sample = mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? r : c;
-            const int streamType = streamTypes.Get(sample);
+            const typename StatsUpdater::BufferTypes::FeatureValue featureValue = featureValues.Get(c,r);
+            const typename StatsUpdater::BufferTypes::Index feature = mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? c : r;
+            const typename StatsUpdater::BufferTypes::Index sample = mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? r : c;
+            const typename StatsUpdater::BufferTypes::Index streamType = streamTypes.Get(sample);
 
-            for(int splitpoint=0; splitpoint<splitpointsCounts.Get(feature); splitpoint++)
+            for(typename StatsUpdater::BufferTypes::Index splitpoint=0; splitpoint<splitpointsCounts.Get(feature); splitpoint++)
             {
-                const typename StatsUpdater::Float splitPointValue = splitpoints.Get(feature, splitpoint);
+                const typename StatsUpdater::BufferTypes::FeatureValue splitPointValue = splitpoints.Get(feature, splitpoint);
                 if( featureValue > splitPointValue )
                 {
                     if(streamType == STREAM_STRUCTURE)
                     {
-                        typename StatsUpdater::Float counts = childCountsImpurity.Get(feature, splitpoint, LEFT_CHILD);
+                        typename StatsUpdater::BufferTypes::DatapointCounts counts = childCountsImpurity.Get(feature, splitpoint, LEFT_CHILD);
                         bindedStatUpdater.UpdateStats(counts, leftImpurityStats, feature, splitpoint, sample );
                         childCountsImpurity.Set(feature, splitpoint, LEFT_CHILD, counts);
                     }
                     else if(streamType == STREAM_ESTIMATION)
                     {
-                        typename StatsUpdater::Float counts = childCountsEstimator.Get(feature, splitpoint, LEFT_CHILD);
+                        typename StatsUpdater::BufferTypes::DatapointCounts counts = childCountsEstimator.Get(feature, splitpoint, LEFT_CHILD);
                         bindedStatUpdater.UpdateStats(counts, leftEstimatorStats, feature, splitpoint, sample );
                         childCountsEstimator.Set(feature, splitpoint, LEFT_CHILD, counts);
                     }
@@ -155,13 +155,13 @@ void TwoStreamSplitpointStatsStep<StatsUpdater>::ProcessStep(const BufferCollect
                 {
                     if(streamType == STREAM_STRUCTURE)
                     {
-                        typename StatsUpdater::Float counts = childCountsImpurity.Get(feature, splitpoint, RIGHT_CHILD);
+                        typename StatsUpdater::BufferTypes::DatapointCounts counts = childCountsImpurity.Get(feature, splitpoint, RIGHT_CHILD);
                         bindedStatUpdater.UpdateStats(counts, rightImpurityStats, feature, splitpoint, sample );
                         childCountsImpurity.Set(feature, splitpoint, RIGHT_CHILD, counts);
                     }
                     else if(streamType == STREAM_ESTIMATION)
                     {
-                        typename StatsUpdater::Float counts = childCountsEstimator.Get(feature, splitpoint, RIGHT_CHILD);
+                        typename StatsUpdater::BufferTypes::DatapointCounts counts = childCountsEstimator.Get(feature, splitpoint, RIGHT_CHILD);
                         bindedStatUpdater.UpdateStats(counts, rightEstimatorStats, feature, splitpoint, sample );
                         childCountsEstimator.Set(feature, splitpoint, RIGHT_CHILD, counts);
                     }

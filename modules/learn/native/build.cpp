@@ -9,4 +9,4 @@
 #include "ClassEstimatorUpdater.h"
 #include "ClassProbabilityOfError.h"
 
-template class OnlineForestLearner< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, ClassEstimatorUpdater< float, int >, ClassProbabilityOfError, DefaultBufferTypes >;
+template class OnlineForestLearner< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, ClassEstimatorUpdater< DefaultBufferTypes >, ClassProbabilityOfError<DefaultBufferTypes>, DefaultBufferTypes >;

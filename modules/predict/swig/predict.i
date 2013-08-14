@@ -20,7 +20,7 @@
 
 %include "ForestPredictor.h"
 
-%template(LinearMatrixClassificationPredictin_f32i32) TemplateForestPredictor< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, ClassProbabilityCombiner<float>, DefaultBufferTypes>;
-%template(LinearMatrixRegressionPredictin_f32i32) TemplateForestPredictor< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, MeanVarianceCombiner<float>, DefaultBufferTypes>;
-%template(ScaledDepthDeltaClassificationPredictin_f32i32) TemplateForestPredictor< ScaledDepthDeltaFeature< DefaultBufferTypes >, ClassProbabilityCombiner<float>, DefaultBufferTypes>;
-%template(ScaledDepthDeltaRegressionPrediction_f32i32) TemplateForestPredictor< ScaledDepthDeltaFeature< DefaultBufferTypes >, MeanVarianceCombiner<float>, DefaultBufferTypes>;
+%template(LinearMatrixClassificationPredictin_f32i32) TemplateForestPredictor< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, ClassProbabilityCombiner<DefaultBufferTypes>, DefaultBufferTypes>;
+%template(LinearMatrixRegressionPredictin_f32i32) TemplateForestPredictor< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, MeanVarianceCombiner<DefaultBufferTypes>, DefaultBufferTypes>;
+%template(ScaledDepthDeltaClassificationPredictin_f32i32) TemplateForestPredictor< ScaledDepthDeltaFeature< DefaultBufferTypes >, ClassProbabilityCombiner<DefaultBufferTypes>, DefaultBufferTypes>;
+%template(ScaledDepthDeltaRegressionPrediction_f32i32) TemplateForestPredictor< ScaledDepthDeltaFeature< DefaultBufferTypes >, MeanVarianceCombiner<DefaultBufferTypes>, DefaultBufferTypes>;

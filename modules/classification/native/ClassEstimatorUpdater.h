@@ -11,52 +11,51 @@
 // Update class histograms from sample weights and classes
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType>
+template <class BT>
 class BindedClassEstimatorUpdater
 {
 public:
     BindedClassEstimatorUpdater();
 
-    BindedClassEstimatorUpdater(VectorBufferTemplate<FloatType> const* sampleWeights,
-                            VectorBufferTemplate<IntType> const* mClasses,
+    BindedClassEstimatorUpdater(VectorBufferTemplate<typename BT::DatapointCounts> const* sampleWeights,
+                            VectorBufferTemplate<typename BT::SourceInteger> const* mClasses,
                             int numberOfClasses);
 
     void UpdateEstimator(Tree& tree, 
                               const int nodeIndex,
                               int sampleIndex ) const;
 
-
 private:
-    VectorBufferTemplate<FloatType> const* mSampleWeights;
-    VectorBufferTemplate<IntType> const* mClasses;
+    VectorBufferTemplate<typename BT::DatapointCounts> const* mSampleWeights;
+    VectorBufferTemplate<typename BT::SourceInteger> const* mClasses;
     int mNumberOfClasses;
 };
 
-template <class FloatType, class IntType>
-BindedClassEstimatorUpdater<FloatType, IntType>::BindedClassEstimatorUpdater()
+template <class BT>
+BindedClassEstimatorUpdater<BT>::BindedClassEstimatorUpdater()
 : mSampleWeights(NULL)
 , mClasses(NULL)
 , mNumberOfClasses(0)
 {}
 
 
-template <class FloatType, class IntType>
-BindedClassEstimatorUpdater<FloatType, IntType>::BindedClassEstimatorUpdater(
-                                                              VectorBufferTemplate<FloatType> const* sampleWeights,
-                                                              VectorBufferTemplate<IntType> const* classes,
+template <class BT>
+BindedClassEstimatorUpdater<BT>::BindedClassEstimatorUpdater(
+                                                              VectorBufferTemplate<typename BT::DatapointCounts> const* sampleWeights,
+                                                              VectorBufferTemplate<typename BT::SourceInteger> const* classes,
                                                               int numberOfClasses)
 : mSampleWeights(sampleWeights)
 , mClasses(classes)
 , mNumberOfClasses(numberOfClasses)
 {}
 
-template <class FloatType, class IntType>
-void BindedClassEstimatorUpdater<FloatType, IntType>::UpdateEstimator(Tree& tree, 
+template <class BT>
+void BindedClassEstimatorUpdater<BT>::UpdateEstimator(Tree& tree, 
                                                                       const int nodeIndex,
                                                                       int sampleIndex ) const
 {
-    const FloatType weight = mSampleWeights->Get(sampleIndex);
-    const IntType classId = mClasses->Get(sampleIndex);
+    const typename BT::DatapointCounts weight = mSampleWeights->Get(sampleIndex);
+    const typename BT::SourceInteger classId = mClasses->Get(sampleIndex);
 
     const float oldN = tree.mCounts.Get(nodeIndex);
     for(int c=0; c<mNumberOfClasses; c++)
@@ -77,7 +76,7 @@ void BindedClassEstimatorUpdater<FloatType, IntType>::UpdateEstimator(Tree& tree
 // Update class histograms from sample weights and classes
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType>
+template <class BT>
 class ClassEstimatorUpdater
 {
 public:
@@ -85,12 +84,11 @@ public:
                        const BufferId& classesBufferId,
                        const int numberOfClasses);
 
-    BindedClassEstimatorUpdater<FloatType, IntType> Bind(const BufferCollectionStack& readCollection) const;
+    BindedClassEstimatorUpdater<BT> Bind(const BufferCollectionStack& readCollection) const;
     int GetNumberOfClasses() const;
 
-    typedef FloatType Float;
-    typedef IntType Int;
-    typedef BindedClassEstimatorUpdater<FloatType, IntType> BindedEstimatorUpdater;
+    typedef BindedClassEstimatorUpdater<BT> BindedEstimatorUpdater;
+    typedef BT BufferTypes;
 
 private:
     const BufferId mSampleWeightsBufferId;
@@ -98,8 +96,8 @@ private:
     const int mNumberOfClasses;
 };
 
-template <class FloatType, class IntType>
-ClassEstimatorUpdater<FloatType, IntType>::ClassEstimatorUpdater(const BufferId& sampleWeightsBufferId,
+template <class BT>
+ClassEstimatorUpdater<BT>::ClassEstimatorUpdater(const BufferId& sampleWeightsBufferId,
                                                           const BufferId& classesBufferId,
                                                           const int numberOfClasses)
 : mSampleWeightsBufferId(sampleWeightsBufferId)
@@ -107,21 +105,21 @@ ClassEstimatorUpdater<FloatType, IntType>::ClassEstimatorUpdater(const BufferId&
 , mNumberOfClasses(numberOfClasses)
 {}
 
-template <class FloatType, class IntType>
-BindedClassEstimatorUpdater<FloatType, IntType> 
-ClassEstimatorUpdater<FloatType, IntType>::Bind(const BufferCollectionStack& readCollection) const
+template <class BT>
+BindedClassEstimatorUpdater<BT> 
+ClassEstimatorUpdater<BT>::Bind(const BufferCollectionStack& readCollection) const
 {
-    VectorBufferTemplate<FloatType> const* sampleWeights = 
-          readCollection.GetBufferPtr< VectorBufferTemplate<FloatType> >(mSampleWeightsBufferId);
+    VectorBufferTemplate<typename BT::DatapointCounts> const* sampleWeights = 
+          readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::DatapointCounts> >(mSampleWeightsBufferId);
 
-    VectorBufferTemplate<IntType> const* classes = 
-          readCollection.GetBufferPtr< VectorBufferTemplate<IntType> >(mClassesBufferId);
+    VectorBufferTemplate<typename BT::SourceInteger> const* classes = 
+          readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::SourceInteger> >(mClassesBufferId);
 
-    return BindedClassEstimatorUpdater<FloatType, IntType>(sampleWeights, classes, mNumberOfClasses);
+    return BindedClassEstimatorUpdater<BT>(sampleWeights, classes, mNumberOfClasses);
 }
 
-template <class FloatType, class IntType>
-int ClassEstimatorUpdater<FloatType, IntType>::GetNumberOfClasses() const
+template <class BT>
+int ClassEstimatorUpdater<BT>::GetNumberOfClasses() const
 {
     return mNumberOfClasses;
 }

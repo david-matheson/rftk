@@ -28,4 +28,5 @@ public:
     typedef SourceContinuousType TreeEstimator;
 };
 
-typedef BufferTypes<float, int, int, float, int, float, float, int, float> DefaultBufferTypes;
+typedef BufferTypes<float, int, int, float, int, float, double, int, float> DefaultBufferTypes;
+typedef BufferTypes<float, int, int, float, int, float, float, int, float> SinglePrecisionBufferTypes;

@@ -2,6 +2,8 @@
 
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
+#include "BufferTypes.h"
+
 #include "ClassProbabilityCombiner.h"
 
 BOOST_AUTO_TEST_SUITE( ClassProbabilityCombinerTests )
@@ -12,7 +14,7 @@ BOOST_AUTO_TEST_CASE(test_Combine)
                           0.3, 0.4, 0.3};
     MatrixBufferTemplate<float> leaf_prob(&leaf_prob_data[0], 2, 3);
 
-    ClassProbabilityCombiner<float> classProbabilityCombiner(leaf_prob.GetN());
+    ClassProbabilityCombiner< BufferTypes<float, int, int, float, int, float, float, int, float> > classProbabilityCombiner(leaf_prob.GetN());
     MatrixBufferTemplate<float> result(2,3);
 
     classProbabilityCombiner.Combine(0, 1.0, leaf_prob);
@@ -44,7 +46,7 @@ BOOST_AUTO_TEST_CASE(test_Reset)
                           0.3, 0.4, 0.3};
     MatrixBufferTemplate<float> leaf_prob(&leaf_prob_data[0], 2, 3);
 
-    ClassProbabilityCombiner<float> classProbabilityCombiner(leaf_prob.GetN());
+    ClassProbabilityCombiner< BufferTypes<float, int, int, float, int, float, float, int, float> > classProbabilityCombiner(leaf_prob.GetN());
     MatrixBufferTemplate<float> result(2,3);
 
     classProbabilityCombiner.Combine(0, 1.0, leaf_prob);

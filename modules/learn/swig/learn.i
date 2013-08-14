@@ -43,6 +43,6 @@
 
 %template(Biau2008TreeLearner_f32i32) Biau2008TreeLearner<DefaultBufferTypes>;
 
-%template(OnlineForestMatrixClassLearner_f32i32)  OnlineForestLearner< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, ClassEstimatorUpdater< float, int >, ClassProbabilityOfError, DefaultBufferTypes >;
+%template(OnlineForestMatrixClassLearner_f32i32)  OnlineForestLearner< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, ClassEstimatorUpdater< DefaultBufferTypes >, ClassProbabilityOfError<DefaultBufferTypes>, DefaultBufferTypes >;
 
-%template(OnlineForestScaledDepthDeltaClassLearner_f32i32)  OnlineForestLearner< ScaledDepthDeltaFeature< DefaultBufferTypes >, ClassEstimatorUpdater< float, int >, ClassProbabilityOfError, DefaultBufferTypes >;
+%template(OnlineForestScaledDepthDeltaClassLearner_f32i32)  OnlineForestLearner< ScaledDepthDeltaFeature< DefaultBufferTypes >, ClassEstimatorUpdater< DefaultBufferTypes >, ClassProbabilityOfError<DefaultBufferTypes>, DefaultBufferTypes >;

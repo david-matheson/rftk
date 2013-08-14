@@ -18,7 +18,7 @@
 %include "SplitpointStatsStep.h"
 %include "TwoStreamSplitpointStatsStep.h"
 
-%template(MeanVarianceCombiner_f32) MeanVarianceCombiner<float>;
+%template(MeanVarianceCombiner_f32) MeanVarianceCombiner<DefaultBufferTypes>;
 %template(SumOfVarianceWalker_f32i32) SumOfVarianceWalker<DefaultBufferTypes>;
 %template(SumOfVarianceBestSplitpointsWalkingSortedStep_f32i32) BestSplitpointsWalkingSortedStep< SumOfVarianceWalker<DefaultBufferTypes> >;
 %template(SumOfVarianceRandomGapSplitpointsStep_f32i32) RandomGapSplitpointsStep< SumOfVarianceWalker<DefaultBufferTypes> >;
@@ -28,6 +28,6 @@
 %template(SumOfVarianceTwoStreamWalker_f32i32) SumOfVarianceTwoStreamWalker<DefaultBufferTypes>;
 %template(SumOfVarianceTwoStreamBestSplitpointsWalkingSortedStep_f32i32) TwoStreamBestSplitpointsWalkingSortedStep< SumOfVarianceTwoStreamWalker<DefaultBufferTypes> >;
 
-%template(MeanVarianceStatsUpdater_f32i32) MeanVarianceStatsUpdater<float,int>;
-%template(SumOfVarianceTwoStreamStep_f32i32) TwoStreamSplitpointStatsStep< MeanVarianceStatsUpdater<float,int> >;
+%template(MeanVarianceStatsUpdater_f32i32) MeanVarianceStatsUpdater<DefaultBufferTypes>;
+%template(SumOfVarianceTwoStreamStep_f32i32) TwoStreamSplitpointStatsStep< MeanVarianceStatsUpdater<DefaultBufferTypes> >;
 %template(SumOfVarianceSplitpointsImpurity_f32i32) SplitpointsImpurity< SumOfVarianceImpurity<DefaultBufferTypes> >;

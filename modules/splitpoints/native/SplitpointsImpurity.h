@@ -65,8 +65,8 @@ void SplitpointsImpurity<Impurity>::ProcessStep(const BufferCollectionStack& rea
     const VectorBufferTemplate<typename Impurity::BufferTypes::Index>& splitpointsCounts =
           readCollection.GetBuffer< VectorBufferTemplate<typename Impurity::BufferTypes::Index> >(mSplitpointCountsBufferId);
 
-    const Tensor3BufferTemplate<typename Impurity::BufferTypes::SufficientStatsContinuous>& childCounts =
-          readCollection.GetBuffer< Tensor3BufferTemplate<typename Impurity::BufferTypes::SufficientStatsContinuous> >(mChildCountsBufferId);
+    const Tensor3BufferTemplate<typename Impurity::BufferTypes::DatapointCounts>& childCounts =
+          readCollection.GetBuffer< Tensor3BufferTemplate<typename Impurity::BufferTypes::DatapointCounts> >(mChildCountsBufferId);
 
     const Tensor3BufferTemplate<typename Impurity::BufferTypes::SufficientStatsContinuous>& leftStats =
           readCollection.GetBuffer< Tensor3BufferTemplate<typename Impurity::BufferTypes::SufficientStatsContinuous> >(mLeftStatsBufferId);

@@ -23,8 +23,8 @@
 %template(ClassInfoGainSplitpointsImpurity_f32i32) SplitpointsImpurity< ClassInfoGainImpurity<DefaultBufferTypes> >;
 
 %template(ClassEstimatorFinalizer_f32) ClassEstimatorFinalizer<DefaultBufferTypes>;
-%template(ClassEstimatorUpdater_f32i32) ClassEstimatorUpdater<float, int>;
-%template(ClassProbabilityCombiner_f32) ClassProbabilityCombiner<float>;
-%template(ClassStatsUpdater_f32i32) ClassStatsUpdater<float,int>;
-%template(ClassStatsUpdaterOneStreamStep_f32i32) SplitpointStatsStep< ClassStatsUpdater<float,int> >;
-%template(ClassStatsUpdaterTwoStreamStep_f32i32) TwoStreamSplitpointStatsStep< ClassStatsUpdater<float,int> >;
+%template(ClassEstimatorUpdater_f32i32) ClassEstimatorUpdater<DefaultBufferTypes>;
+%template(ClassProbabilityCombiner_f32) ClassProbabilityCombiner<DefaultBufferTypes>;
+%template(ClassStatsUpdater_f32i32) ClassStatsUpdater<DefaultBufferTypes>;
+%template(ClassStatsUpdaterOneStreamStep_f32i32) SplitpointStatsStep< ClassStatsUpdater<DefaultBufferTypes> >;
+%template(ClassStatsUpdaterTwoStreamStep_f32i32) TwoStreamSplitpointStatsStep< ClassStatsUpdater<DefaultBufferTypes> >;

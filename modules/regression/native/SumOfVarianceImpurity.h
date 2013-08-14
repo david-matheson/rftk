@@ -17,7 +17,7 @@ class SumOfVarianceImpurity
 {
 public:
     typename BT::SufficientStatsContinuous Impurity(int feature, int splitpoint,
-                                                              const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& childCounts,
+                                                              const Tensor3BufferTemplate<typename BT::DatapointCounts>& childCounts,
                                                               const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& leftStats,
                                                               const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& rightStats) const;
 
@@ -26,13 +26,13 @@ public:
 
 template <class BT>
 typename BT::SufficientStatsContinuous SumOfVarianceImpurity<BT>::Impurity(int feature, int splitpoint,
-                                                    const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& childCounts,
+                                                    const Tensor3BufferTemplate<typename BT::DatapointCounts>& childCounts,
                                                     const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& leftStats,
                                                     const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& rightStats) const
 {
-    const typename BT::SufficientStatsContinuous countsLeft = childCounts.Get(feature, splitpoint, LEFT_CHILD);
-    const typename BT::SufficientStatsContinuous countsRight = childCounts.Get(feature, splitpoint, RIGHT_CHILD);
-    const typename BT::SufficientStatsContinuous countsTotal = countsLeft+countsRight;
+    const typename BT::DatapointCounts countsLeft = childCounts.Get(feature, splitpoint, LEFT_CHILD);
+    const typename BT::DatapointCounts countsRight = childCounts.Get(feature, splitpoint, RIGHT_CHILD);
+    const typename BT::DatapointCounts countsTotal = countsLeft+countsRight;
 
     typename BT::SufficientStatsContinuous startSumOfVariance = typename BT::SufficientStatsContinuous(0);
     typename BT::SufficientStatsContinuous leftSumOfVariance = typename BT::SufficientStatsContinuous(0);

@@ -18,7 +18,7 @@ class ClassInfoGainImpurity
 {
 public:
     typename BT::ImpurityValue Impurity(int feature, int splitpoint,
-                      const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& childCounts,
+                      const Tensor3BufferTemplate<typename BT::DatapointCounts>& childCounts,
                       const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& leftStats,
                       const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& rightStats) const;
 
@@ -28,15 +28,15 @@ public:
 
 template <class BT>
 typename BT::ImpurityValue ClassInfoGainImpurity<BT>::Impurity(int feature, int splitpoint,
-                                                    const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& childCounts,
+                                                    const Tensor3BufferTemplate<typename BT::DatapointCounts>& childCounts,
                                                     const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& leftStats,
                                                     const Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& rightStats) const
 {
     const typename BT::SufficientStatsContinuous zero(0);
     const typename BT::SufficientStatsContinuous one(1);
 
-    const typename BT::SufficientStatsContinuous countsLeft = childCounts.Get(feature, splitpoint, LEFT_CHILD);
-    const typename BT::SufficientStatsContinuous countsRight = childCounts.Get(feature, splitpoint, RIGHT_CHILD);
+    const typename BT::DatapointCounts countsLeft = childCounts.Get(feature, splitpoint, LEFT_CHILD);
+    const typename BT::DatapointCounts countsRight = childCounts.Get(feature, splitpoint, RIGHT_CHILD);
 
     const typename BT::SufficientStatsContinuous invCountsLeft = one / countsLeft;
     const typename BT::SufficientStatsContinuous invCountsRight = one / countsRight;

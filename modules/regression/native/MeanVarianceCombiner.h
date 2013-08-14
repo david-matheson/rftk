@@ -7,40 +7,42 @@
 // Combine the mean and variance across trees
 //
 // ----------------------------------------------------------------------------
-template <class FloatType>
+template <class BufferTypes>
 class MeanVarianceCombiner
 {
 public:
     MeanVarianceCombiner(int numberOfDimensions);
     void Reset();
-    void Combine(int nodeId, FloatType count, const MatrixBufferTemplate<FloatType>& estimatorParameters);
-    void WriteResult(int row, MatrixBufferTemplate<FloatType>& results);
+    void Combine(int nodeId, typename BufferTypes::DatapointCounts count, 
+                    const MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& estimatorParameters);
+    void WriteResult(int row, MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& results);
     int GetResultDim() const;
 
 private:
-    VectorBufferTemplate<FloatType> mCombinedResults;
-    FloatType mNumberOfTrees;
-    FloatType mCounts;
+    VectorBufferTemplate<typename BufferTypes::TreeEstimator> mCombinedResults;
+    typename BufferTypes::DatapointCounts mNumberOfTrees;
+    typename BufferTypes::DatapointCounts mCounts;
 };
 
-template <class FloatType>
-MeanVarianceCombiner<FloatType>::MeanVarianceCombiner(int numberOfDimensions)
+template <class BufferTypes>
+MeanVarianceCombiner<BufferTypes>::MeanVarianceCombiner(int numberOfDimensions)
 : mCombinedResults(numberOfDimensions*2)
-, mNumberOfTrees(FloatType(0))
-, mCounts(FloatType(0))
+, mNumberOfTrees(typename BufferTypes::DatapointCounts(0))
+, mCounts(typename BufferTypes::DatapointCounts(0))
 {
 }
 
-template <class FloatType>
-void MeanVarianceCombiner<FloatType>::Reset()
+template <class BufferTypes>
+void MeanVarianceCombiner<BufferTypes>::Reset()
 {
     mCombinedResults.Zero();
-    mNumberOfTrees = FloatType(0);
-    mCounts = FloatType(0);
+    mNumberOfTrees = typename BufferTypes::DatapointCounts(0);
+    mCounts = typename BufferTypes::DatapointCounts(0);
 }
 
-template <class FloatType>
-void MeanVarianceCombiner<FloatType>::Combine(int nodeId, FloatType count, const MatrixBufferTemplate<FloatType>& estimatorParameters)
+template <class BufferTypes>
+void MeanVarianceCombiner<BufferTypes>::Combine(int nodeId, typename BufferTypes::DatapointCounts count, 
+                                                    const MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& estimatorParameters)
 {
     ASSERT_ARG_DIM_1D(mCombinedResults.GetN(), estimatorParameters.GetN())
     for(int i=0; i<mCombinedResults.GetN(); i++)
@@ -48,23 +50,24 @@ void MeanVarianceCombiner<FloatType>::Combine(int nodeId, FloatType count, const
         mCombinedResults.Incr(i, estimatorParameters.Get(nodeId, i));
 
     }
-    mNumberOfTrees += (count > 0.1) ? FloatType(1) : FloatType(0);
+    mNumberOfTrees += (count > 0.1) ? typename BufferTypes::DatapointCounts(1) : typename BufferTypes::DatapointCounts(0);
     mCounts += count;
 }
 
-template <class FloatType>
-void MeanVarianceCombiner<FloatType>::WriteResult(int row, MatrixBufferTemplate<FloatType>& results)
+template <class BufferTypes>
+void MeanVarianceCombiner<BufferTypes>::WriteResult(int row, MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& results)
 {
     ASSERT_ARG_DIM_1D(mCombinedResults.GetN()/2, results.GetN())
-    FloatType numberOfTreesInv = mNumberOfTrees > FloatType(0) ? FloatType(1) / mNumberOfTrees : FloatType(0);
+    typename BufferTypes::DatapointCounts numberOfTreesInv = mNumberOfTrees > typename BufferTypes::DatapointCounts(0) ? 
+                                typename BufferTypes::DatapointCounts(1) / mNumberOfTrees : typename BufferTypes::DatapointCounts(0);
     for(int i=0; i<results.GetN(); i++)
     {
         results.Set(row, i, numberOfTreesInv * mCombinedResults.Get(i));
     }
 }
 
-template <class FloatType>
-int MeanVarianceCombiner<FloatType>::GetResultDim() const
+template <class BufferTypes>
+int MeanVarianceCombiner<BufferTypes>::GetResultDim() const
 {
     return mCombinedResults.GetN()/2;
 }
