@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
     BufferCollectionStack stack;
     stack.Push(&collection);
 
-    AllSamplesStep<BufferTypes<float, int, int, float, int, float, float, int, float>, MatrixBufferTemplate<float> > all_samples_step(xs_key);
+    AllSamplesStep<SinglePrecisionBufferTypes, MatrixBufferTemplate<float> > all_samples_step(xs_key);
     boost::mt19937 gen(0);
     all_samples_step.ProcessStep(stack, collection, gen);
 

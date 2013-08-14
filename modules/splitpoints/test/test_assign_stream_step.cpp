@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
     BufferCollectionStack stack;
     stack.Push(&bc);
 
-    AssignStreamStep< BufferTypes<float, int, int, float, int, float, float, int, float> > assignStreamStep(weights_key, 0.25);
+    AssignStreamStep< SinglePrecisionBufferTypes > assignStreamStep(weights_key, 0.25);
     boost::mt19937 gen;
     assignStreamStep.ProcessStep(stack, bc, gen);
 

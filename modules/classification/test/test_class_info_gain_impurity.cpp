@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(test_ClassInfoGain_Impurity)
     const Tensor3BufferTemplate<float>& left_histogram = stack.GetBuffer< Tensor3BufferTemplate<float> >(left_histogram_key);
     const Tensor3BufferTemplate<float>& right_histogram = stack.GetBuffer< Tensor3BufferTemplate<float> >(right_histogram_key);
 
-    ClassInfoGainImpurity< BufferTypes<float, int, int, float, int, float, float, int, float> > ig;
+    ClassInfoGainImpurity< SinglePrecisionBufferTypes > ig;
 
     BOOST_CHECK_CLOSE(ig.Impurity(0,0, child_counts, left_histogram, right_histogram), 0.954434, 0.1);
     BOOST_CHECK_CLOSE(ig.Impurity(0,1, child_counts, left_histogram, right_histogram), 0.0, 0.1);
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(test_ClassInfoGain_Impurity)
 
 BOOST_AUTO_TEST_CASE(test_ClassInfoGain_SplitpointsImpurity_ProcessStep)
 {
-    SplitpointsImpurity<ClassInfoGainImpurity< BufferTypes<float, int, int, float, int, float, float, int, float> > > splitpointsImpurity(splitpoint_counts_key,
+    SplitpointsImpurity<ClassInfoGainImpurity< SinglePrecisionBufferTypes > > splitpointsImpurity(splitpoint_counts_key,
                                                                                 child_counts_key,
                                                                                 left_histogram_key,
                                                                                 right_histogram_key );

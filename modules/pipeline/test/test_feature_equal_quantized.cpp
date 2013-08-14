@@ -6,7 +6,7 @@
 
 BOOST_AUTO_TEST_SUITE( FeatureEqualQuantizedTests )
 
-typedef BufferTypes<float, int, int, float, int, float, float, int, float> FeatureEqualQuantizedTests_BufferTypes_t;
+typedef SinglePrecisionBufferTypes FeatureEqualQuantizedTests_BufferTypes_t;
 
 BOOST_AUTO_TEST_CASE(test_IsEqual)
 {

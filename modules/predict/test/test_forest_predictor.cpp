@@ -115,7 +115,7 @@ struct ForestPredictorFixture {
     MatrixBufferTemplate<float> xs;
     BufferCollection collection;
 
-    typedef BufferTypes<float, int, int, float, int, float, float, int, float> BufferTypes_t;
+    typedef SinglePrecisionBufferTypes BufferTypes_t;
     typedef LinearMatrixFeature<BufferTypes_t, MatrixBufferTemplate<BufferTypes_t::SourceContinuous > > LinearMatrixFeature_t;
 
     int numberOfClasses;

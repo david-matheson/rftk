@@ -45,7 +45,7 @@ struct ClassInfoGainWalkerFixture {
     BufferCollection collection;
     BufferCollectionStack stack;
 
-typedef BufferTypes<float, int, int, float, int, float, float, int, float> BufferTypes_t;
+typedef SinglePrecisionBufferTypes BufferTypes_t;
 };
 
 BOOST_FIXTURE_TEST_SUITE( ClassInfoGainWalkerTests,  ClassInfoGainWalkerFixture )

@@ -28,7 +28,7 @@
 #include "DepthFirstTreeLearner.h"
 #include "Tree.h"
 
-typedef BufferTypes<float, int, int, float, int, float, float, int, float> CdflBufferTypes_t;
+typedef SinglePrecisionBufferTypes CdflBufferTypes_t;
 
 template<typename T>
 VectorBufferTemplate<T> CreateVector1(T value)

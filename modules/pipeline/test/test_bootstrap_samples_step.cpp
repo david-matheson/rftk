@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
     BufferCollectionStack stack;
     stack.Push(&collection);
 
-    BootstrapSamplesStep<BufferTypes<float, int, int, float, int, float, float, int, float>, MatrixBufferTemplate<float> > bootstrap_step(xs_key);
+    BootstrapSamplesStep<SinglePrecisionBufferTypes, MatrixBufferTemplate<float> > bootstrap_step(xs_key);
     boost::mt19937 gen(0);
     bootstrap_step.ProcessStep(stack, collection, gen);
 

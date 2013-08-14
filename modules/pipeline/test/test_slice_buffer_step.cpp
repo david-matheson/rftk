@@ -50,7 +50,7 @@ struct SliceBufferFixture {
     {
     }
 
-    typedef BufferTypes<float, int, int, float, int, float, float, int, float> BufferTypes_t;
+    typedef SinglePrecisionBufferTypes BufferTypes_t;
 
     const BufferCollectionKey_t xs_key;
     const BufferCollectionKey_t ys_key;
