@@ -14,10 +14,15 @@
 %import(module="rftk.asserts") "asserts.i"
 
 %include "std_string.i"
+%include "std_list.i"
 
 %init %{
     import_array();
 %}
+
+namespace std {
+    %template(StringList) std::list< std::string >;
+}
 
 %apply (float* IN_ARRAY1, int DIM1) {(float* float1d, int n)}
 %apply (double* IN_ARRAY1, int DIM1) {(double* double1d, int n)}
@@ -132,6 +137,7 @@ def __setstate__(self,data_dict):
 }
 %enddef
 
+
 DECLARE_EXTEND_WRAPPER_FOR_BUFFER(VectorBufferTemplate<float>, as_vector_buffer)
 DECLARE_EXTEND_WRAPPER_FOR_BUFFER(VectorBufferTemplate<double>, as_vector_buffer)
 DECLARE_EXTEND_WRAPPER_FOR_BUFFER(VectorBufferTemplate<int>, as_vector_buffer)
@@ -151,6 +157,7 @@ DECLARE_EXTEND_WRAPPER_FOR_BUFFER(SparseMatrixBufferTemplate<float>, as_sparse_m
 DECLARE_EXTEND_WRAPPER_FOR_BUFFER(SparseMatrixBufferTemplate<double>, as_sparse_matrix_buffer)
 DECLARE_EXTEND_WRAPPER_FOR_BUFFER(SparseMatrixBufferTemplate<int>, as_sparse_matrix_buffer)
 DECLARE_EXTEND_WRAPPER_FOR_BUFFER(SparseMatrixBufferTemplate<long long>, as_sparse_matrix_buffer)
+
 
 %include "BufferTypes.h"
 

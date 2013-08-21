@@ -12,9 +12,12 @@ Tree::Tree()
 , mCounts(0)
 , mDepths(0)
 , mYs(0,0)
+, mExtraInfo()
 , mLastNodeIndex(0)
 , mValid(false)
-{}
+{
+}
+
 
 Tree::Tree( const MatrixBufferTemplate<int>& path,
             const MatrixBufferTemplate<int>& intFeatureParams,
@@ -28,6 +31,7 @@ Tree::Tree( const MatrixBufferTemplate<int>& path,
 , mCounts(counts)
 , mDepths(depths)
 , mYs(ys)
+, mExtraInfo()
 , mLastNodeIndex(mPath.GetM())
 , mValid(true)
 {
@@ -38,6 +42,7 @@ Tree::Tree( const MatrixBufferTemplate<int>& path,
     ASSERT_ARG_DIM_1D(mPath.GetM(), mYs.GetM())
 }
 
+
 Tree::Tree( int initalNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim  )
 : mPath(initalNumberNodes, 2, NULL_CHILD)
 , mIntFeatureParams(initalNumberNodes, maxIntParamsDim)
@@ -45,6 +50,7 @@ Tree::Tree( int initalNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, i
 , mCounts(initalNumberNodes)
 , mDepths(initalNumberNodes)
 , mYs(initalNumberNodes, maxYsDim)
+, mExtraInfo()
 , mLastNodeIndex(1)
 , mValid(true)
 {
@@ -54,6 +60,23 @@ Tree::Tree( int initalNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, i
 
     //TODO: This needs to be changed for regression
     mYs.SetAll(1.0f/static_cast<float>(mYs.GetN()));
+}
+
+Tree::Tree(const Tree& tree)
+: mPath(tree.mPath)
+, mIntFeatureParams(tree.mIntFeatureParams)
+, mFloatFeatureParams(tree.mFloatFeatureParams)
+, mCounts(tree.mCounts)
+, mDepths(tree.mDepths)
+, mYs(tree.mYs)
+, mExtraInfo(tree.mExtraInfo)
+, mLastNodeIndex(tree.mLastNodeIndex)
+, mValid(tree.mValid)
+{
+}
+
+Tree::~Tree()
+{
 }
 
 void Tree::GatherStats(ForestStats& stats) const

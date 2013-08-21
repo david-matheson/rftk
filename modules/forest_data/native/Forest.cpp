@@ -32,6 +32,11 @@ Forest::Forest( int numberOfTrees,
     }
 }
 
+Forest::Forest(const Forest& rhs)
+: mTrees(rhs.mTrees)
+{
+}
+
 int Forest::GetNumberOfTrees() const
 {
     return mTrees.size();

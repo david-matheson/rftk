@@ -4,7 +4,7 @@ import rftk.asserts
 import rftk.buffers as buffers
 
 
-class TestBufferCollectoin(unittest.TestCase):
+class TestBufferCollection(unittest.TestCase):
 
     def test_vector(self):
         data_1 = np.array([3,21,1,22,1,5], dtype=np.float32)
@@ -149,4 +149,24 @@ class TestBufferCollectoin(unittest.TestCase):
         data_4_out = buffers.as_numpy_array(collection.GetBuffer("forth"))
         self.assertTrue((data_4 == data_4_out).all())
 
+    def test_pickle(self):
+        import pickle
+        data_1 = np.array([3,21,1,22,1,5], dtype=np.float32)
+        collection = buffers.BufferCollection(first=data_1)
+        data_2 = np.array([[3,21,1],[22,1,5]], dtype=np.float64 )
+        collection.AddBuffer("second", data_2)
+        data_3 = np.array([[[3,21,1]],[[22,1,5]]], dtype=np.int32 )
+        collection.AddBuffer("third", data_3)
+
+        pickle.dump(collection, open('tmp.pkl', 'wb'))
+        collection2 = pickle.load(open('tmp.pkl', 'rb'))
+
+        data_1_out = buffers.as_numpy_array(collection2.GetBuffer("first"))
+        self.assertTrue((data_1 == data_1_out).all())
+
+        data_2_out = buffers.as_numpy_array(collection2.GetBuffer("second"))
+        self.assertTrue((data_2 == data_2_out).all())
+
+        data_3_out = buffers.as_numpy_array(collection2.GetBuffer("third"))
+        self.assertTrue((data_3 == data_3_out).all())
 

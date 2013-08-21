@@ -28,5 +28,6 @@ def as_pyforest(native_forest):
         pytree.depths = buffers.as_numpy_array(native_tree.mDepths, flatten=True)
         pytree.counts = buffers.as_numpy_array(native_tree.mCounts, flatten=True)
         pytree.ys = buffers.as_numpy_array(native_tree.mYs)
+        pytree.extra_info = native_tree.mExtraInfo
         pytrees.append(pytree)
     return pytrees

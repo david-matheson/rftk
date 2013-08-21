@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <list>
 #include <map>
 #include <typeinfo>
 #include <boost/any.hpp>
@@ -16,6 +17,8 @@ class BufferCollection
 {
 public:
     BufferCollection();
+
+    BufferCollection(const BufferCollection& bc);
 
 #define DECLARE_BUFFER_SWIG_INTERFACE_FOR_TYPE(BUFFER_TYPE) \
 bool Has ## BUFFER_TYPE(BufferCollectionKey_t name) const; \
@@ -46,6 +49,7 @@ BUFFER_TYPE& Get ## BUFFER_TYPE(const BufferCollectionKey_t& name);
 
     bool HasBuffer(BufferCollectionKey_t name) const;
     void Print() const;
+    std::list<std::string> GetKeys() const;
 
     template<typename BufferType>
     void AddBuffer(BufferCollectionKey_t name, BufferType const& data);

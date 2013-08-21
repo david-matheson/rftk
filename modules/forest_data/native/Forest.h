@@ -15,6 +15,7 @@ public:
             int maxIntParamsDim,
             int maxFloatParamsDim,
             int maxYsDim );
+    Forest(const Forest& rhs);
 
     int GetNumberOfTrees() const;
     Tree GetTree(const int index) const;

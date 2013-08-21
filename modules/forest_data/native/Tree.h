@@ -2,6 +2,7 @@
 
 #include <VectorBuffer.h>
 #include <MatrixBuffer.h>
+#include <BufferCollection.h>
 
 const int NULL_CHILD = -1;
 
@@ -11,13 +12,20 @@ class Tree
 {
 public:
     Tree();     //default for stl vector
+
     Tree(   const MatrixBufferTemplate<int>& path,
             const MatrixBufferTemplate<int>& intFeatureParams,
             const MatrixBufferTemplate<float>& floatFeatureParams,
             const VectorBufferTemplate<int> & depths,
             const VectorBufferTemplate<float>& counts,
             const MatrixBufferTemplate<float>& ys );
+
     Tree( int initalNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim );
+
+    Tree(const Tree& tree);
+
+    ~Tree();
+
     void GatherStats(ForestStats& stats) const;
     int NextNodeIndex();
     void Compact();
@@ -28,6 +36,10 @@ public:
     VectorBufferTemplate<float> mCounts;
     VectorBufferTemplate<int> mDepths;
     MatrixBufferTemplate<float> mYs;
+
+    BufferCollection mExtraInfo; 
+
+
 private:
     int mLastNodeIndex;
     bool mValid;

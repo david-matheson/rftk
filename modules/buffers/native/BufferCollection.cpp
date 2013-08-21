@@ -9,6 +9,16 @@ BufferCollection::BufferCollection()
 {
 }
 
+BufferCollection::BufferCollection(const BufferCollection& bc)
+{
+    for(std::map<BufferCollectionKey_t, boost::any>::const_iterator it=bc.mBuffers.begin(); 
+        it!=bc.mBuffers.end(); 
+        ++it )
+    {
+        mBuffers[it->first] = boost::any(it->second);
+    }
+}
+
 #define DEFINE_BUFFER_SWIG_INTERFACE_FOR_TYPE(BUFFER_TYPE) \
 bool BufferCollection::Has ## BUFFER_TYPE(std::string name) const \
 { \
@@ -61,4 +71,16 @@ void BufferCollection::Print() const
     {
         printf("%s\n", iter->first.c_str());
     }
+}
+
+std::list<std::string> BufferCollection::GetKeys() const
+{
+    std::list<std::string> keys;
+    for(std::map<BufferCollectionKey_t, boost::any>::const_iterator it=mBuffers.begin(); 
+        it!=mBuffers.end(); 
+        ++it )
+    {
+        keys.push_back(it->first);
+    }
+    return keys;
 }
