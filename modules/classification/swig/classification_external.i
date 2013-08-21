@@ -12,7 +12,7 @@
 %}
 
 %include <exception.i>
-%import(module="rftk.asserts") "asserts.i"
+%import(module="rftk.asserts") "utils.i"
 %import(module="rftk.buffers") "buffers.i"
 %import(module="rftk.pipeline") "pipeline_external.i"
 %import(module="rftk.splitpoints") "splitpoints_external.i"

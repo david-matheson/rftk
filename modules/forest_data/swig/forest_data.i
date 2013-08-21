@@ -14,7 +14,7 @@
 
 %include <exception.i>
 %include "numpy.i"
-%import(module="rftk.asserts") "asserts.i"
+%import(module="rftk.asserts") "utils.i"
 %import(module="rftk.buffers") "buffers.i"
 
 %include "std_vector.i"

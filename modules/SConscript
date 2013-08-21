@@ -77,20 +77,20 @@ def build_rftk_module(env, non_swig_warnings, variant_name, module_name, depends
     return [lib_install, module_install]
 
 
-modules_with_deps = [('asserts', []),
-                    ('bootstrap', ['asserts']),
-                    ('buffers', ['asserts']),
-                    ('forest_data', ['asserts', 'buffers']),
-                    ('pipeline', ['asserts', 'buffers', 'bootstrap']),
-                    ('matrix_features', ['asserts', 'bootstrap', 'buffers', 'forest_data', 'pipeline']),
-                    ('image_features', ['asserts', 'bootstrap', 'buffers', 'forest_data', 'pipeline']),
-                    ('try_split', ['asserts', 'buffers']),
-                    ('should_split', ['asserts', 'buffers']),
-                    ('splitpoints', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'should_split']),
-                    ('classification', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'should_split']),
-                    ('regression', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'should_split']),
-                    ('predict', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'matrix_features', 'image_features', 'classification', 'regression']),
-                    ('learn', ['asserts', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'matrix_features', 'image_features', 'classification', 'regression', 'try_split', 'should_split', 'predict'])]
+modules_with_deps = [('utils', []),
+                    ('bootstrap', ['utils']),
+                    ('buffers', ['utils']),
+                    ('forest_data', ['utils', 'buffers']),
+                    ('pipeline', ['utils', 'buffers', 'bootstrap']),
+                    ('matrix_features', ['utils', 'bootstrap', 'buffers', 'forest_data', 'pipeline']),
+                    ('image_features', ['utils', 'bootstrap', 'buffers', 'forest_data', 'pipeline']),
+                    ('try_split', ['utils', 'buffers']),
+                    ('should_split', ['utils', 'buffers']),
+                    ('splitpoints', ['utils', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'should_split']),
+                    ('classification', ['utils', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'should_split']),
+                    ('regression', ['utils', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'should_split']),
+                    ('predict', ['utils', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'matrix_features', 'image_features', 'classification', 'regression']),
+                    ('learn', ['utils', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'matrix_features', 'image_features', 'classification', 'regression', 'try_split', 'should_split', 'predict'])]
 
 install_dependencies = []
 external_libs = ['boost_thread']
@@ -143,7 +143,7 @@ def build_and_run_unit_tests(test_exec, variant, cpp_files, depends):
 
 
 build_and_run_unit_tests('test-cpp', variant, Glob('*/test/*.cpp'),
-                        ['asserts','buffers','pipeline', 'bootstrap', 'forest_data',
+                        ['utils','buffers','pipeline', 'bootstrap', 'forest_data',
                         'matrix_features', 'image_features',
                         'splitpoints', 'classification', 'regression',
                         'try_split', 'should_split', 'learn', 'predict'])
