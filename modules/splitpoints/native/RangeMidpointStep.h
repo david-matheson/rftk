@@ -32,7 +32,8 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     const BufferId SplitpointsBufferId;
     const BufferId SplitpointsCountsBufferId;
@@ -92,9 +93,12 @@ PipelineStepI* RangeMidpointStep< BufferTypes>::Clone() const
 template <class BufferTypes>
 void RangeMidpointStep<BufferTypes>::ProcessStep(const BufferCollectionStack& readCollection,
                                         BufferCollection& writeCollection,
-                                        boost::mt19937& gen) const
+                                        boost::mt19937& gen,
+                                        BufferCollection& extraInfo, int nodeIndex) const
 {
-    UNUSED_PARAM(gen); //sampleIndicesWithOutReplacement does NOT currently use boost::mt19937
+    UNUSED_PARAM(gen);
+    UNUSED_PARAM(extraInfo); //sampleIndicesWithOutReplacement does NOT currently use boost::mt19937
+    UNUSED_PARAM(nodeIndex);
 
     const MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams =
           readCollection.GetBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFloatParamsBufferId);

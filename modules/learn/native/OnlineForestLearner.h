@@ -151,7 +151,7 @@ Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, Buffer
         treeStack.Push(&data);
         BufferCollection& treeBc = forestBcs[treeIndex];
         treeStack.Push(&treeBc);
-        mTreeSteps->ProcessStep(treeStack, treeBc, gen);
+        mTreeSteps->ProcessStep(treeStack, treeBc, gen, tree.mExtraInfo, 0);
         forestIndices[treeIndex] = treeBc.GetBufferPtr< VectorBufferTemplate<typename BufferTypes::Index> >(mIndicesBufferId);
         forestWeights[treeIndex] = treeStack.GetBufferPtr< VectorBufferTemplate<typename BufferTypes::SourceContinuous> >(mWeightsBufferId);
         treeBc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mPredictFeature.mFloatParamsBufferId, tree.mFloatFeatureParams);
@@ -195,20 +195,20 @@ Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, Buffer
                 stack.Push(leaf.mNodeData);
                 if( !leaf.mIsInitialized )
                 {
-                    mInitNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen);
+                    mInitNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen, tree.mExtraInfo, nodeIndex);
                     leaf.mIsInitialized = true;
                 }
 
-                mStatsUpdateNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen);
+                mStatsUpdateNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen, tree.mExtraInfo, nodeIndex);
                 leaf.mDatapointsSinceLastImpurityUpdate++;
 
                 if( leaf.mDatapointsSinceLastImpurityUpdate >= mImpurityUpdatePeriod )
                 {
-                    mImpurityUpdateNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen);
+                    mImpurityUpdateNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen, tree.mExtraInfo, nodeIndex);
                     leaf.mDatapointsSinceLastImpurityUpdate = 0;
 
                     // Split the node
-                    SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, depth);
+                    SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, depth, tree.mExtraInfo, nodeIndex);
                     if( selectorInfo.ValidSplit() )
                     {
                         const int leftNodeIndex = tree.NextNodeIndex();
@@ -225,7 +225,7 @@ Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, Buffer
                         delete leaf.mNodeData;
 
                         // Add children to the queue
-                        if( mTrySplitCriteria->TrySplit(depth, std::numeric_limits<int>::max()) )
+                        if( mTrySplitCriteria->TrySplit(depth, std::numeric_limits<int>::max(), tree.mExtraInfo, nodeIndex) )
                         {
                             mFrontierQueue.ProcessSplit(mForest, treeIndex, nodeIndex, leftNodeIndex, rightNodeIndex);
                         }

@@ -8,9 +8,10 @@ BOOST_AUTO_TEST_CASE(test_TrySplit)
 {
     const float minDatapoints = 3;
     MinNodeSizeCriteria minNumberDatapoints(minDatapoints);
-    BOOST_CHECK( !minNumberDatapoints.TrySplit(0, minDatapoints-1));
-    BOOST_CHECK( minNumberDatapoints.TrySplit(0, minDatapoints));
-    BOOST_CHECK( minNumberDatapoints.TrySplit(0, minDatapoints+1));
+    BufferCollection bc;
+    BOOST_CHECK( !minNumberDatapoints.TrySplit(0, minDatapoints-1, bc, 0));
+    BOOST_CHECK( minNumberDatapoints.TrySplit(0, minDatapoints, bc, 0));
+    BOOST_CHECK( minNumberDatapoints.TrySplit(0, minDatapoints+1, bc, 0));
 }
 
 BOOST_AUTO_TEST_CASE(test_Clone)
@@ -19,10 +20,10 @@ BOOST_AUTO_TEST_CASE(test_Clone)
     TrySplitCriteriaI* minNumberDatapoints = new MinNodeSizeCriteria(minDatapoints);
     TrySplitCriteriaI* clone = minNumberDatapoints->Clone();
     delete minNumberDatapoints;
-
-    BOOST_CHECK( !clone->TrySplit(0, minDatapoints-1));
-    BOOST_CHECK( clone->TrySplit(0, minDatapoints));
-    BOOST_CHECK( clone->TrySplit(0, minDatapoints+1));
+    BufferCollection bc;
+    BOOST_CHECK( !clone->TrySplit(0, minDatapoints-1, bc, 0));
+    BOOST_CHECK( clone->TrySplit(0, minDatapoints, bc, 0));
+    BOOST_CHECK( clone->TrySplit(0, minDatapoints+1, bc, 0));
 
     delete clone;
 }

@@ -23,7 +23,8 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const = 0;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const = 0;
 };
 
 enum SetRule

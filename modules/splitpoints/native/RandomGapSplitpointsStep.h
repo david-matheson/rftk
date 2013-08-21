@@ -35,7 +35,8 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     // Read only output buffer
     const BufferId ImpurityBufferId;
@@ -81,9 +82,12 @@ PipelineStepI* RandomGapSplitpointsStep<ImpurityWalker>::Clone() const
 template <class ImpurityWalker>
 void RandomGapSplitpointsStep<ImpurityWalker>::ProcessStep(const BufferCollectionStack& readCollection,
                                                               BufferCollection& writeCollection,
-                                                              boost::mt19937& gen) const
+                                                              boost::mt19937& gen,
+                                                              BufferCollection& extraInfo, int nodeIndex) const
 {
     UNUSED_PARAM(gen);
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
 
     // Bind input buffers
     ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<typename ImpurityWalker::BufferTypes::FeatureValue> >(mFeatureValuesBufferId));

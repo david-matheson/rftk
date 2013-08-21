@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(test_ClassInfoGain_SplitpointsImpurity_ProcessStep)
                                                                                 left_histogram_key,
                                                                                 right_histogram_key );
     boost::mt19937 gen(0);
-    splitpointsImpurity.ProcessStep(stack, collection, gen);
+    splitpointsImpurity.ProcessStep(stack, collection, gen, collection, 0);
     const MatrixBufferTemplate<float>& impurities =
             collection.GetBuffer< MatrixBufferTemplate<float> >(splitpointsImpurity.ImpurityBufferId);
 

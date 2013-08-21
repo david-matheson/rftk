@@ -32,7 +32,9 @@ public:
 
     virtual ~WaitForBestSplitSelector();
 
-    virtual SplitSelectorInfo<BufferTypes> ProcessSplits(const BufferCollectionStack& bufferCollectionStack, int depth) const;
+    virtual SplitSelectorInfo<BufferTypes> ProcessSplits(const BufferCollectionStack& bufferCollectionStack, 
+                                                        int depth,
+                                                        BufferCollection& extraInfo, int nodeIndex) const;
 
     virtual SplitSelectorI<BufferTypes>* Clone() const;
 
@@ -75,7 +77,9 @@ WaitForBestSplitSelector<BufferTypes>::~WaitForBestSplitSelector()
 
 
 template <class BufferTypes>
-SplitSelectorInfo<BufferTypes> WaitForBestSplitSelector<BufferTypes>::ProcessSplits(const BufferCollectionStack& readCollection, int depth) const
+SplitSelectorInfo<BufferTypes> WaitForBestSplitSelector<BufferTypes>::ProcessSplits(const BufferCollectionStack& readCollection, 
+                                                                                    int depth,
+                                                                                    BufferCollection& extraInfo, int nodeIndex) const
 {
     typename BufferTypes::ImpurityValue maxImpurity = std::numeric_limits<typename BufferTypes::ImpurityValue>::min();
     int bestWaitForBestmSplitSelectorBuffers = SPLIT_SELECTOR_NO_SPLIT;
@@ -123,7 +127,7 @@ SplitSelectorInfo<BufferTypes> WaitForBestSplitSelector<BufferTypes>::ProcessSpl
         // Reset if should not split
         const typename BufferTypes::DatapointCounts leftCounts = childCounts.Get(bestFeature,bestSplitpoint,LEFT_CHILD_INDEX);
         const typename BufferTypes::DatapointCounts rightCounts = childCounts.Get(bestFeature,bestSplitpoint,RIGHT_CHILD_INDEX);
-        if( !mShouldSplitCriteria->ShouldSplit(depth, maxImpurity, leftCounts+rightCounts, leftCounts, rightCounts))
+        if( !mShouldSplitCriteria->ShouldSplit(depth, maxImpurity, leftCounts+rightCounts, leftCounts, rightCounts, extraInfo, nodeIndex))
         {
             bestWaitForBestmSplitSelectorBuffers = SPLIT_SELECTOR_NO_SPLIT;
             bestFeature = SPLIT_SELECTOR_NO_SPLIT;

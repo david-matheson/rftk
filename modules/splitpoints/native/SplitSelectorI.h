@@ -8,6 +8,8 @@ class SplitSelectorI
 {
   public:
     virtual ~SplitSelectorI() {}
-    virtual SplitSelectorInfo<BufferTypes> ProcessSplits(const BufferCollectionStack& bufferCollectionStack, int depth) const=0;
+    virtual SplitSelectorInfo<BufferTypes> ProcessSplits(const BufferCollectionStack& bufferCollectionStack, 
+    													int depth, 
+    													BufferCollection& extraInfo, int nodeIndex) const=0;
     virtual SplitSelectorI<BufferTypes>* Clone() const=0;
 };

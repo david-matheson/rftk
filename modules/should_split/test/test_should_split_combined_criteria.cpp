@@ -20,15 +20,16 @@ BOOST_AUTO_TEST_CASE(test_TrySplit)
 
     ShouldSplitCombinedCriteria combinedCriteria(criterias);
 
-    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity, 0, minChildSize, minChildSize));
-    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity, 0, minChildSize-1, minChildSize));
-    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity, 0, minChildSize, minChildSize-1));
-    BOOST_CHECK( combinedCriteria.ShouldSplit(0, minImpurity+0.1, 0, minChildSize, minChildSize));
-    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity+0.1, 0, minChildSize-1, minChildSize));
-    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity+0.1, 0, minChildSize, minChildSize-1));
-    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity-0.1, 0, minChildSize, minChildSize));
-    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity-0.1, 0, minChildSize-1, minChildSize));
-    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity-0.1, 0, minChildSize, minChildSize-1));
+    BufferCollection bc;
+    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity, 0, minChildSize, minChildSize, bc, 0));
+    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity, 0, minChildSize-1, minChildSize, bc, 0));
+    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity, 0, minChildSize, minChildSize-1, bc, 0));
+    BOOST_CHECK( combinedCriteria.ShouldSplit(0, minImpurity+0.1, 0, minChildSize, minChildSize, bc, 0));
+    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity+0.1, 0, minChildSize-1, minChildSize, bc, 0));
+    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity+0.1, 0, minChildSize, minChildSize-1, bc, 0));
+    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity-0.1, 0, minChildSize, minChildSize, bc, 0));
+    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity-0.1, 0, minChildSize-1, minChildSize, bc, 0));
+    BOOST_CHECK( !combinedCriteria.ShouldSplit(0, minImpurity-0.1, 0, minChildSize, minChildSize-1, bc, 0));
 }
 
 BOOST_AUTO_TEST_CASE(test_Clone)
@@ -49,15 +50,16 @@ BOOST_AUTO_TEST_CASE(test_Clone)
     ShouldSplitCriteriaI* clone = combinedCriteria->Clone();
     delete combinedCriteria;
 
-    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity, 0, minChildSize, minChildSize));
-    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity, 0, minChildSize-1, minChildSize));
-    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity, 0, minChildSize, minChildSize-1));
-    BOOST_CHECK( clone->ShouldSplit(0, minImpurity+0.1, 0, minChildSize, minChildSize));
-    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity+0.1, 0, minChildSize-1, minChildSize));
-    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity+0.1, 0, minChildSize, minChildSize-1));
-    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity-0.1, 0, minChildSize, minChildSize));
-    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity-0.1, 0, minChildSize-1, minChildSize));
-    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity-0.1, 0, minChildSize, minChildSize-1));
+    BufferCollection bc;
+    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity, 0, minChildSize, minChildSize, bc, 0));
+    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity, 0, minChildSize-1, minChildSize, bc, 0));
+    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity, 0, minChildSize, minChildSize-1, bc, 0));
+    BOOST_CHECK( clone->ShouldSplit(0, minImpurity+0.1, 0, minChildSize, minChildSize, bc, 0));
+    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity+0.1, 0, minChildSize-1, minChildSize, bc, 0));
+    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity+0.1, 0, minChildSize, minChildSize-1, bc, 0));
+    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity-0.1, 0, minChildSize, minChildSize, bc, 0));
+    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity-0.1, 0, minChildSize-1, minChildSize, bc, 0));
+    BOOST_CHECK( !clone->ShouldSplit(0, minImpurity-0.1, 0, minChildSize, minChildSize-1, bc, 0));
 
     delete clone;
 }

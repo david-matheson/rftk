@@ -67,7 +67,7 @@ Forest ParallelForestLearner::Learn( const BufferCollection& data )
 
         BufferCollection* forestData = new BufferCollection();
         stack.Push(forestData);
-        mForestSteps->ProcessStep(stack, *forestData, gen);
+        mForestSteps->ProcessStep(stack, *forestData, gen, *forestData, 0);
     }
 
 #if USE_BOOST_THREAD

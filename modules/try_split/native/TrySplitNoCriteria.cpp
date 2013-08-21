@@ -14,9 +14,11 @@ TrySplitCriteriaI* TrySplitNoCriteria::Clone() const
     return clone;
 }
 
-bool TrySplitNoCriteria::TrySplit(int depth, double numberOfDatapoints) const
+bool TrySplitNoCriteria::TrySplit(int depth, double numberOfDatapoints, BufferCollection& extraInfo, int nodeIndex) const
 {
     UNUSED_PARAM(depth);
     UNUSED_PARAM(numberOfDatapoints);
+    UNUSED_PARAM(extraInfo)
+    UNUSED_PARAM(nodeIndex)
     return true;
 }

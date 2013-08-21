@@ -86,7 +86,7 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictLeafs( cons
         BufferCollection& bc = perTreeBufferCollection[treeId];
         bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFeature.mFloatParamsBufferId, mForest.mTrees[treeId].mFloatFeatureParams);
         bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mFeature.mIntParamsBufferId, mForest.mTrees[treeId].mIntFeatureParams);
-        mPreSteps->ProcessStep(stack, bc, gen);
+        mPreSteps->ProcessStep(stack, bc, gen, bc, 0);
 
         stack.Push(&bc);
         featureBindings[treeId] = mFeature.Bind(stack);
@@ -127,7 +127,7 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictYs( const B
         BufferCollection& bc = perTreeBufferCollection[treeId];
         bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFeature.mFloatParamsBufferId, mForest.mTrees[treeId].mFloatFeatureParams);
         bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mFeature.mIntParamsBufferId, mForest.mTrees[treeId].mIntFeatureParams);
-        mPreSteps->ProcessStep(stack, bc, gen);
+        mPreSteps->ProcessStep(stack, bc, gen, bc, 0);
 
         stack.Push(&bc);
         featureBindings[treeId] = mFeature.Bind(stack);

@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_FEATURES_BY_DATAPOINTS)
                                                                               FEATURES_BY_DATAPOINTS,
                                                                               classStatsUpdater);
     boost::mt19937 gen;
-    splitpointStatsStep.ProcessStep(stack, bc, gen);
+    splitpointStatsStep.ProcessStep(stack, bc, gen, bc, 0);
 
     Tensor3BufferTemplate<float>& childCounts = 
             bc.GetBuffer< Tensor3BufferTemplate<float> >(splitpointStatsStep.ChildCountsBufferId);

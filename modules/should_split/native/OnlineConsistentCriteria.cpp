@@ -23,9 +23,11 @@ ShouldSplitCriteriaI* OnlineConsistentCriteria::Clone() const
 }
 
 bool OnlineConsistentCriteria::ShouldSplit(int depth, float impurity,
-                                      int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints) const
+                                      int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints,
+                                      BufferCollection& extraInfo, int nodeIndex) const
 {
-
+    UNUSED_PARAM(extraInfo)
+    UNUSED_PARAM(nodeIndex)
     const float minNumberOfSamples = mMinNumberOfSamplesFirstSplit * pow(mGrowthRate, depth);
     const float maxNumberOfSamples = mMaxNumberOfSamplesFirstSplit * pow(mGrowthRate, depth);
 

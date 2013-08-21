@@ -23,7 +23,8 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     // Read only output buffer
     const BufferId IndicesBufferId;
@@ -57,8 +58,12 @@ PipelineStepI* PoissonSamplesStep<BufferTypes, DataMatrixType>::Clone() const
 template <class BufferTypes, class DataMatrixType>
 void PoissonSamplesStep<BufferTypes, DataMatrixType>::ProcessStep(const BufferCollectionStack& readCollection,
                                                                 BufferCollection& writeCollection,
-                                                                boost::mt19937& gen) const
+                                                                boost::mt19937& gen,
+                                                                BufferCollection& extraInfo, int nodeIndex) const
 {
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
+    
     const DataMatrixType & buffer
           = readCollection.GetBuffer< DataMatrixType >(mDataBufferId);
     VectorBufferTemplate<typename BufferTypes::Index>& indices

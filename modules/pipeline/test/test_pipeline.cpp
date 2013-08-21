@@ -24,8 +24,12 @@ public:
 
     void ProcessStep(   const BufferCollectionStack& readCollection,
                         BufferCollection& writeCollection,
-                        boost::mt19937& gen) const
+                        boost::mt19937& gen,
+                        BufferCollection& extraInfo, int nodeIndex) const
     {
+        UNUSED_PARAM(extraInfo);
+        UNUSED_PARAM(nodeIndex);
+
         const VectorBufferTemplate<double>& read_buf = readCollection.GetBuffer< VectorBufferTemplate<double> >(mInBufferKey);
         VectorBufferTemplate<double>& write_buf = writeCollection.GetBuffer< VectorBufferTemplate<double> >(mOutBufferKey);
         for(int i=0; i<read_buf.GetN(); i++)
@@ -99,7 +103,7 @@ BOOST_AUTO_TEST_CASE(test_one_step_pipeline)
     Pipeline pipeline(steps);
 
     boost::mt19937 gen(0);
-    pipeline.ProcessStep(stack, collection, gen);
+    pipeline.ProcessStep(stack, collection, gen, collection, 0);
 
     result_buffer = collection.GetBuffer< VectorBufferTemplate<double> >(buffer_name);
     CheckMultiple<double>(test_buffer, 2.0, result_buffer);
@@ -118,7 +122,7 @@ BOOST_AUTO_TEST_CASE(test_two_step_pipeline)
     Pipeline pipeline(steps);
 
     boost::mt19937 gen(0);
-    pipeline.ProcessStep(stack, collection, gen);
+    pipeline.ProcessStep(stack, collection, gen, collection, 0);
 
     result_buffer = collection.GetBuffer< VectorBufferTemplate<double> >(buffer_name);
     CheckMultiple<double>(test_buffer, 4.0, result_buffer);
@@ -142,7 +146,7 @@ BOOST_AUTO_TEST_CASE(test_pipeline_of_pipeline)
     Pipeline outer_pipeline(outer_steps);
 
     boost::mt19937 gen(0);
-    outer_pipeline.ProcessStep(stack, collection, gen);
+    outer_pipeline.ProcessStep(stack, collection, gen, collection, 0);
 
     result_buffer = collection.GetBuffer< VectorBufferTemplate<double> >(buffer_name);
     CheckMultiple<double>(test_buffer, 16.0, result_buffer);

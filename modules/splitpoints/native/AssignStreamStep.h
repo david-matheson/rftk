@@ -38,7 +38,8 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     const BufferId StreamTypeBufferId;
 private:
@@ -78,8 +79,12 @@ PipelineStepI* AssignStreamStep<BufferTypes>::Clone() const
 template <class BufferTypes>
 void AssignStreamStep<BufferTypes>::ProcessStep(const BufferCollectionStack& readCollection,
                                                 BufferCollection& writeCollection,
-                                                boost::mt19937& gen) const
+                                                boost::mt19937& gen,
+                                                BufferCollection& extraInfo, int nodeIndex) const
 {
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
+    
     const VectorBufferTemplate<typename BufferTypes::ParamsContinuous>& weights =
           readCollection.GetBuffer< VectorBufferTemplate<typename BufferTypes::ParamsContinuous> >(mWeightsBufferId);
 

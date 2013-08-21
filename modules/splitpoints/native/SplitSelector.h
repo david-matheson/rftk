@@ -33,7 +33,9 @@ public:
                   const SplitBuffersI* bufferSplitter);
     virtual ~SplitSelector();
 
-    virtual SplitSelectorInfo<BufferTypes> ProcessSplits(const BufferCollectionStack& bufferCollectionStack, int depth) const;
+    virtual SplitSelectorInfo<BufferTypes> ProcessSplits(const BufferCollectionStack& bufferCollectionStack, 
+                                                        int depth, 
+                                                        BufferCollection& extraInfo, int nodeIndex) const;
 
     virtual SplitSelectorI<BufferTypes>* Clone() const;
 
@@ -75,7 +77,9 @@ SplitSelector<BufferTypes>::~SplitSelector()
 }
 
 template <class BufferTypes>
-SplitSelectorInfo<BufferTypes> SplitSelector<BufferTypes>::ProcessSplits(const BufferCollectionStack& readCollection, int depth) const
+SplitSelectorInfo<BufferTypes> SplitSelector<BufferTypes>::ProcessSplits(const BufferCollectionStack& readCollection, 
+                                                                        int depth,
+                                                                        BufferCollection& extraInfo, int nodeIndex) const
 {
     typename BufferTypes::ImpurityValue maxImpurity = -std::numeric_limits<typename BufferTypes::ImpurityValue>::max();
     int bestSplitSelectorBuffers = SPLIT_SELECTOR_NO_SPLIT;
@@ -103,7 +107,7 @@ SplitSelectorInfo<BufferTypes> SplitSelector<BufferTypes>::ProcessSplits(const B
                 const typename BufferTypes::DatapointCounts leftCounts = childCounts.Get(f,t,0);
                 const typename BufferTypes::DatapointCounts rightCounts = childCounts.Get(f,t,1);
                 if( impurity > maxImpurity
-                    && mShouldSplitCriteria->ShouldSplit(depth, impurity, leftCounts+rightCounts, leftCounts, rightCounts) )
+                    && mShouldSplitCriteria->ShouldSplit(depth, impurity, leftCounts+rightCounts, leftCounts, rightCounts, extraInfo, nodeIndex) )
                 {
                     maxImpurity = impurity;
                     bestSplitSelectorBuffers = s;

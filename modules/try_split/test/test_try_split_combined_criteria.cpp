@@ -19,13 +19,14 @@ BOOST_AUTO_TEST_CASE(test_TrySplit)
     criterias.push_back(&minNumberDatapoints);
 
     TrySplitCombinedCriteria combinedCritiera(criterias);
+    BufferCollection bc;
 
-    BOOST_CHECK( !combinedCritiera.TrySplit(maxDepth-1, minDatapoints-1));
-    BOOST_CHECK( combinedCritiera.TrySplit(maxDepth-1, minDatapoints));
-    BOOST_CHECK( combinedCritiera.TrySplit(maxDepth-1, minDatapoints+1));
-    BOOST_CHECK( !combinedCritiera.TrySplit(maxDepth, minDatapoints-1));
-    BOOST_CHECK( !combinedCritiera.TrySplit(maxDepth, minDatapoints));
-    BOOST_CHECK( !combinedCritiera.TrySplit(maxDepth, minDatapoints+1));
+    BOOST_CHECK( !combinedCritiera.TrySplit(maxDepth-1, minDatapoints-1, bc, 0));
+    BOOST_CHECK( combinedCritiera.TrySplit(maxDepth-1, minDatapoints, bc, 0));
+    BOOST_CHECK( combinedCritiera.TrySplit(maxDepth-1, minDatapoints+1, bc, 0));
+    BOOST_CHECK( !combinedCritiera.TrySplit(maxDepth, minDatapoints-1, bc, 0));
+    BOOST_CHECK( !combinedCritiera.TrySplit(maxDepth, minDatapoints, bc, 0));
+    BOOST_CHECK( !combinedCritiera.TrySplit(maxDepth, minDatapoints+1, bc, 0));
 }
 
 BOOST_AUTO_TEST_CASE(test_Clone)
@@ -45,13 +46,14 @@ BOOST_AUTO_TEST_CASE(test_Clone)
 
     TrySplitCriteriaI* clone = combinedCritiera->Clone();
     delete combinedCritiera;
+    BufferCollection bc;
 
-    BOOST_CHECK( !clone->TrySplit(maxDepth-1, minDatapoints-1));
-    BOOST_CHECK( clone->TrySplit(maxDepth-1, minDatapoints));
-    BOOST_CHECK( clone->TrySplit(maxDepth-1, minDatapoints+1));
-    BOOST_CHECK( !clone->TrySplit(maxDepth, minDatapoints-1));
-    BOOST_CHECK( !clone->TrySplit(maxDepth, minDatapoints));
-    BOOST_CHECK( !clone->TrySplit(maxDepth, minDatapoints+1));
+    BOOST_CHECK( !clone->TrySplit(maxDepth-1, minDatapoints-1, bc, 0));
+    BOOST_CHECK( clone->TrySplit(maxDepth-1, minDatapoints, bc, 0));
+    BOOST_CHECK( clone->TrySplit(maxDepth-1, minDatapoints+1, bc, 0));
+    BOOST_CHECK( !clone->TrySplit(maxDepth, minDatapoints-1, bc, 0));
+    BOOST_CHECK( !clone->TrySplit(maxDepth, minDatapoints, bc, 0));
+    BOOST_CHECK( !clone->TrySplit(maxDepth, minDatapoints+1, bc, 0));
 
     delete clone;
 }

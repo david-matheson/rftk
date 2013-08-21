@@ -28,7 +28,8 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     const BufferId ChildCountsBufferId;
     const BufferId LeftStatsBufferId;
@@ -69,9 +70,12 @@ PipelineStepI* SplitpointStatsStep<StatsUpdater>::Clone() const
 template <class StatsUpdater>
 void SplitpointStatsStep<StatsUpdater>::ProcessStep(const BufferCollectionStack& readCollection,
                                                         BufferCollection& writeCollection,
-                                                        boost::mt19937& gen) const
+                                                        boost::mt19937& gen,
+                                                        BufferCollection& extraInfo, int nodeIndex) const
 {
     UNUSED_PARAM(gen);
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
 
     typename StatsUpdater::BindedStatUpdater bindedStatUpdater = mStatsUpdater.Bind(readCollection);
 

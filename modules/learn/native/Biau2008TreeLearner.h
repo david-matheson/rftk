@@ -101,7 +101,7 @@ void Biau2008TreeLearner<BufferTypes>::Learn( BufferCollectionStack stack, Tree&
 
     BufferCollection treeData;
     stack.Push(&treeData);
-    mTreeSteps->ProcessStep(stack, treeData, gen);
+    mTreeSteps->ProcessStep(stack, treeData, gen, tree.mExtraInfo, 0);
 
     std::list< ActiveLeaf > activeLeaves;
     activeLeaves.push_back(ActiveLeaf(0, 0));
@@ -148,8 +148,8 @@ bool Biau2008TreeLearner<BufferTypes>::ProcessActiveLeaf( boost::mt19937& gen,
     stack.Push(&activeLeaf.mSplitBufferCollection);
     BufferCollection nodeData;
     stack.Push(&nodeData);
-    mNodeSteps->ProcessStep(stack, nodeData, gen);
-    SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, activeLeaf.mDepth);
+    mNodeSteps->ProcessStep(stack, nodeData, gen, tree.mExtraInfo, activeLeaf.mNodeIndex);
+    SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, activeLeaf.mDepth, tree.mExtraInfo, activeLeaf.mNodeIndex);
 
     const bool ValidSplit = selectorInfo.ValidSplit(); //Incase all datapoints have the same value
 
@@ -170,11 +170,11 @@ bool Biau2008TreeLearner<BufferTypes>::ProcessActiveLeaf( boost::mt19937& gen,
         typename BufferTypes::DatapointCounts rightSize = std::numeric_limits<typename BufferTypes::DatapointCounts>::min();
         selectorInfo.SplitBuffers(leftActiveLeaf.mSplitBufferCollection, rightActiveLeaf.mSplitBufferCollection, leftSize, rightSize);
 
-        if(mTrySplitCriteria->TrySplit(leftActiveLeaf.mDepth, leftSize))
+        if(mTrySplitCriteria->TrySplit(leftActiveLeaf.mDepth, leftSize, tree.mExtraInfo, leftNodeIndex))
         {
             activeLeaves.push_back(leftActiveLeaf);
         }
-        if(mTrySplitCriteria->TrySplit(rightActiveLeaf.mDepth, rightSize))
+        if(mTrySplitCriteria->TrySplit(rightActiveLeaf.mDepth, rightSize, tree.mExtraInfo, rightNodeIndex))
         {
             activeLeaves.push_back(rightActiveLeaf);
         }

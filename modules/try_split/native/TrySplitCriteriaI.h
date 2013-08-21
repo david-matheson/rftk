@@ -1,5 +1,7 @@
 #pragma once
 
+#include "BufferCollection.h"
+
 // ----------------------------------------------------------------------------
 //
 // TrySplitCriteriaI determines whether to try to split a node
@@ -12,5 +14,5 @@ public:
 
     virtual TrySplitCriteriaI* Clone() const = 0;
 
-    virtual bool TrySplit(int depth, double numberOfDatapoints) const = 0;
+    virtual bool TrySplit(int depth, double numberOfDatapoints, BufferCollection& extraInfo, int nodeIndex) const = 0;
 };

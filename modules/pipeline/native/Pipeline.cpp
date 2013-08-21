@@ -21,11 +21,13 @@ Pipeline::~Pipeline()
 
 void Pipeline::ProcessStep( const BufferCollectionStack& readCollection,
                             BufferCollection& writeCollection,
-                            boost::mt19937& gen) const
+                            boost::mt19937& gen,
+                            BufferCollection& extraInfo, int nodeIndex) const
 {
+    UNUSED_PARAM(extraInfo);
     for (std::vector<PipelineStepI*>::const_iterator it = mSteps.begin(); it != mSteps.end(); ++it)
     {
-        (*it)->ProcessStep(readCollection, writeCollection, gen);
+        (*it)->ProcessStep(readCollection, writeCollection, gen, extraInfo, nodeIndex);
     }
 }
 

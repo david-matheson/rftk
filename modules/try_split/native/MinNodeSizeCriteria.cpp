@@ -17,8 +17,10 @@ TrySplitCriteriaI* MinNodeSizeCriteria::Clone() const
     return clone;
 }
 
-bool MinNodeSizeCriteria::TrySplit(int depth, double numberOfDatapoints) const
+bool MinNodeSizeCriteria::TrySplit(int depth, double numberOfDatapoints, BufferCollection& extraInfo, int nodeIndex) const
 {
     UNUSED_PARAM(depth);
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
     return (numberOfDatapoints >= mMinNumberOfDatapoints);
 }

@@ -90,7 +90,7 @@ void DepthFirstTreeLearner<BufferTypes>::Learn( BufferCollectionStack stack, Tre
 
     BufferCollection treeData;
     stack.Push(&treeData);
-    mTreeSteps->ProcessStep(stack, treeData, gen);
+    mTreeSteps->ProcessStep(stack, treeData, gen, tree.mExtraInfo, 0);
 
     //emptyIndicesCollection is pushed so subsequent leftIndicesBufCol and rightIndicesBufCol
     //can be popped before adding the next layer down
@@ -106,7 +106,7 @@ void DepthFirstTreeLearner<BufferTypes>::ProcessNode( boost::mt19937& gen,
                                                               typename BufferTypes::Index depth,
                                                               typename BufferTypes::DatapointCounts nodeSize ) const
 {
-    if(mTrySplitCriteria->TrySplit(depth, nodeSize))
+    if(mTrySplitCriteria->TrySplit(depth, nodeSize, tree.mExtraInfo, nodeIndex))
     {
         bool doSplit = false;
         BufferCollection leftIndicesBufCol;
@@ -120,8 +120,8 @@ void DepthFirstTreeLearner<BufferTypes>::ProcessNode( boost::mt19937& gen,
         {
             BufferCollection nodeData;
             stack.Push(&nodeData);
-            mNodeSteps->ProcessStep(stack, nodeData, gen);
-            SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, depth);
+            mNodeSteps->ProcessStep(stack, nodeData, gen, tree.mExtraInfo, nodeIndex);
+            SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, depth, tree.mExtraInfo, nodeIndex);
             doSplit = selectorInfo.ValidSplit();
             if(doSplit)
             {

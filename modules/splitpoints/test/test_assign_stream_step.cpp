@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
 
     AssignStreamStep< SinglePrecisionBufferTypes > assignStreamStep(weights_key, 0.25);
     boost::mt19937 gen;
-    assignStreamStep.ProcessStep(stack, bc, gen);
+    assignStreamStep.ProcessStep(stack, bc, gen, bc, 0);
 
     VectorBufferTemplate<int>& streamType = bc.GetBuffer< VectorBufferTemplate<int> >(assignStreamStep.StreamTypeBufferId);
 

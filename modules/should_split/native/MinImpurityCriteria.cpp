@@ -18,12 +18,15 @@ ShouldSplitCriteriaI* MinImpurityCriteria::Clone() const
 }
 
 bool MinImpurityCriteria::ShouldSplit(int depth, float impurity,
-                                      int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints) const
+                                      int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints,
+                                      BufferCollection& extraInfo, int nodeIndex) const
 {
 
     UNUSED_PARAM(depth)
     UNUSED_PARAM(numberOfDatapoints)
     UNUSED_PARAM(leftNumberOfDataponts)
     UNUSED_PARAM(rightNumberOfDatapoints)
+    UNUSED_PARAM(extraInfo)
+    UNUSED_PARAM(nodeIndex)
     return impurity > (mMinImpurity +  std::numeric_limits<float>::epsilon());
 }

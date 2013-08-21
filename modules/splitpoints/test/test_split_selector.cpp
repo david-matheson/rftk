@@ -219,7 +219,8 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_NoCriteria)
 
 
     const int depth = 5;
-    SplitSelectorInfo<BufferTypes_t> selectorInfo = splitselector.ProcessSplits(stack, depth);
+    BufferCollection bc;
+    SplitSelectorInfo<BufferTypes_t> selectorInfo = splitselector.ProcessSplits(stack, depth, bc, 0);
     BOOST_CHECK( selectorInfo.ValidSplit() );
 
     const int nodeId = 0;
@@ -264,7 +265,8 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_NoValidSplit)
     SplitSelector<BufferTypes_t> splitselector(split_select_buffers, &min_child_size_criteria, &classEsimatorFinalizer);
 
     const int depth = 5;
-    SplitSelectorInfo<BufferTypes_t> selectorInfo = splitselector.ProcessSplits(stack, depth);
+    BufferCollection bc;
+    SplitSelectorInfo<BufferTypes_t> selectorInfo = splitselector.ProcessSplits(stack, depth, bc, 0);
     BOOST_CHECK( !selectorInfo.ValidSplit() );
 }
 
@@ -281,7 +283,8 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_MinChildSizeCriteria)
     SplitSelector<BufferTypes_t> splitselector(split_select_buffers, &min_child_size_criteria, &classEsimatorFinalizer);
 
     const int depth = 5;
-    SplitSelectorInfo<BufferTypes_t> selectorInfo = splitselector.ProcessSplits(stack, depth);
+    BufferCollection bc;
+    SplitSelectorInfo<BufferTypes_t> selectorInfo = splitselector.ProcessSplits(stack, depth, bc, 0);
     BOOST_CHECK( selectorInfo.ValidSplit() );
 
     const int nodeId = 0;
@@ -331,7 +334,8 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_two_SplitSelectorBuffers)
 
 
     const int depth = 5;
-    SplitSelectorInfo<BufferTypes_t> selectorInfo = splitselector.ProcessSplits(stack, depth);
+    BufferCollection bc;
+    SplitSelectorInfo<BufferTypes_t> selectorInfo = splitselector.ProcessSplits(stack, depth, bc, 0);
     BOOST_CHECK( selectorInfo.ValidSplit() );
 
     const int nodeId = 0;
@@ -378,7 +382,8 @@ BOOST_AUTO_TEST_CASE(test_SplitBuffers_FEATURES_BY_DATAPOINTS)
     SplitSelector<BufferTypes_t> splitselector(split_select_buffers, &min_child_size_criteria, &classEsimatorFinalizer, &splitIndices);
 
     const int depth = 5;
-    SplitSelectorInfo<BufferTypes_t> selectorInfo = splitselector.ProcessSplits(stack, depth);
+    BufferCollection bc;
+    SplitSelectorInfo<BufferTypes_t> selectorInfo = splitselector.ProcessSplits(stack, depth, bc, 0);
     BOOST_CHECK( selectorInfo.ValidSplit() );
 
     BufferCollection leftBufCol;
@@ -412,7 +417,8 @@ BOOST_AUTO_TEST_CASE(test_SplitBuffers_DATAPOINTS_BY_FEATURES)
     SplitSelector<BufferTypes_t> splitselector(split_select_buffers, &min_child_size_criteria, &classEsimatorFinalizer, &splitIndices);
 
     const int depth = 5;
-    SplitSelectorInfo<BufferTypes_t> selectorInfo = splitselector.ProcessSplits(stack, depth);
+    BufferCollection bc;
+    SplitSelectorInfo<BufferTypes_t> selectorInfo = splitselector.ProcessSplits(stack, depth, bc, 0);
     BOOST_CHECK( selectorInfo.ValidSplit() );
 
     BufferCollection leftBufCol;

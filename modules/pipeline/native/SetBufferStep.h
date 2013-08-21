@@ -24,7 +24,8 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     // Read only output buffer
     const BufferId OutputBufferId;
@@ -55,10 +56,13 @@ PipelineStepI* SetBufferStep<DataBufferType>::Clone() const
 template <class DataBufferType>
 void SetBufferStep<DataBufferType>::ProcessStep(const BufferCollectionStack& readCollection,
                                         BufferCollection& writeCollection,
-                                        boost::mt19937& gen) const
+                                        boost::mt19937& gen,
+                                        BufferCollection& extraInfo, int nodeIndex) const
 {
     UNUSED_PARAM(readCollection);
     UNUSED_PARAM(gen);
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
 
     if(!writeCollection.HasBuffer<DataBufferType>(OutputBufferId) || mSetRule == EVERY_PROCESS)
     {

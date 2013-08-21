@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<int> >(axisAlignedStep.IntParamsBufferId));
 
     boost::mt19937 gen(0);
-    axisAlignedStep.ProcessStep(stack, collection, gen);
+    axisAlignedStep.ProcessStep(stack, collection, gen, collection, 0);
 
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<double> >(axisAlignedStep.FloatParamsBufferId));
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<int> >(axisAlignedStep.IntParamsBufferId));    
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_all_dimensions)
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<int> >(axisAlignedStep.IntParamsBufferId));
 
     boost::mt19937 gen(0);
-    axisAlignedStep.ProcessStep(stack, collection, gen);
+    axisAlignedStep.ProcessStep(stack, collection, gen, collection, 0);
 
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<double> >(axisAlignedStep.FloatParamsBufferId));
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<int> >(axisAlignedStep.IntParamsBufferId));    

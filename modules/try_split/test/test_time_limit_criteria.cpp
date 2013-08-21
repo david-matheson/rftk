@@ -10,10 +10,11 @@ BOOST_AUTO_TEST_CASE(test_TrySplit)
 {
     const int numberSeconds = 1;
     TimeLimitCriteria timeLimitCriteria(numberSeconds);
-    BOOST_CHECK(timeLimitCriteria.TrySplit(0,0));
+    BufferCollection bc;
+    BOOST_CHECK(timeLimitCriteria.TrySplit(0,0,bc,0));
     time_t startTimeLate = time(NULL);
     while( time(NULL) < startTimeLate+numberSeconds ) {}
-    BOOST_CHECK(!timeLimitCriteria.TrySplit(0,0));
+    BOOST_CHECK(!timeLimitCriteria.TrySplit(0,0,bc,0));
 }
 
 BOOST_AUTO_TEST_CASE(test_Clone)
@@ -22,10 +23,11 @@ BOOST_AUTO_TEST_CASE(test_Clone)
     TrySplitCriteriaI* timeLimitCriteria= new TimeLimitCriteria(numberSeconds);
     TrySplitCriteriaI* clone = timeLimitCriteria->Clone();
     delete timeLimitCriteria;
-    BOOST_CHECK(clone->TrySplit(0,0));
+    BufferCollection bc;
+    BOOST_CHECK(clone->TrySplit(0,0,bc,0));
     time_t startTimeLate = time(NULL);
     while( time(NULL) < startTimeLate+numberSeconds ) {}
-    BOOST_CHECK(!clone->TrySplit(0,0));
+    BOOST_CHECK(!clone->TrySplit(0,0,bc,0));
     delete clone;
 }
 

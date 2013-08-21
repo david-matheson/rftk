@@ -82,7 +82,7 @@
 //                                                                                 left_stats_key,
 //                                                                                 right_stats_key );
 //     boost::mt19937 gen(0);
-//     splitpointsImpurity.ProcessStep(stack, collection, gen);
+//     splitpointsImpurity.ProcessStep(stack, collection, gen, collection);
 //     const MatrixBufferTemplate<float>& impurities =
 //             collection.GetBuffer< MatrixBufferTemplate<float> >(splitpointsImpurity.ImpurityBufferId);
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "BufferCollection.h"
+
 // ----------------------------------------------------------------------------
 //
 // ShouldSplitCriteriaI determines whether a split is valid
@@ -13,5 +15,6 @@ public:
     virtual ShouldSplitCriteriaI* Clone() const = 0;
 
     virtual bool ShouldSplit(int depth, float impurity,
-                            int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints) const = 0;
+                            int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints,
+                            BufferCollection& extraInfo, int nodeIndex) const = 0;
 };

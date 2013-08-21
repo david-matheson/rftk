@@ -112,7 +112,7 @@ void BreadthFirstTreeLearner<BufferTypes>::Learn( BufferCollectionStack stack, T
 
     BufferCollection treeData;
     stack.Push(&treeData);
-    mTreeSteps->ProcessStep(stack, treeData, gen);
+    mTreeSteps->ProcessStep(stack, treeData, gen, tree.mExtraInfo, 0);
 
     std::queue< ActiveLeaf > activeLeaves;
     activeLeaves.push(ActiveLeaf(0, 0));
@@ -141,8 +141,8 @@ bool BreadthFirstTreeLearner<BufferTypes>::ProcessActiveLeaf( boost::mt19937& ge
     stack.Push(&activeLeaf.mSplitBufferCollection);
     BufferCollection nodeData;
     stack.Push(&nodeData);
-    mNodeSteps->ProcessStep(stack, nodeData, gen);
-    SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, activeLeaf.mDepth);
+    mNodeSteps->ProcessStep(stack, nodeData, gen, tree.mExtraInfo, activeLeaf.mNodeIndex);
+    SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, activeLeaf.mDepth, tree.mExtraInfo, activeLeaf.mNodeIndex);
 
     const bool ValidSplit = selectorInfo.ValidSplit(); 
     if(ValidSplit) 
@@ -162,11 +162,11 @@ bool BreadthFirstTreeLearner<BufferTypes>::ProcessActiveLeaf( boost::mt19937& ge
         typename BufferTypes::DatapointCounts rightSize = std::numeric_limits<typename BufferTypes::DatapointCounts>::min();
         selectorInfo.SplitBuffers(leftActiveLeaf.mSplitBufferCollection, rightActiveLeaf.mSplitBufferCollection, leftSize, rightSize);
 
-        if(mTrySplitCriteria->TrySplit(leftActiveLeaf.mDepth, leftSize))
+        if(mTrySplitCriteria->TrySplit(leftActiveLeaf.mDepth, leftSize, tree.mExtraInfo, leftNodeIndex))
         {
             activeLeaves.push(leftActiveLeaf);
         }
-        if(mTrySplitCriteria->TrySplit(rightActiveLeaf.mDepth, rightSize))
+        if(mTrySplitCriteria->TrySplit(rightActiveLeaf.mDepth, rightSize, tree.mExtraInfo, rightNodeIndex))
         {
             activeLeaves.push(rightActiveLeaf);
         }

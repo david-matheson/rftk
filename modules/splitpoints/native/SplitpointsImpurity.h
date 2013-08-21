@@ -26,7 +26,8 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     const BufferId ImpurityBufferId;
 private:
@@ -58,9 +59,12 @@ PipelineStepI* SplitpointsImpurity<Impurity>::Clone() const
 template <class Impurity>
 void SplitpointsImpurity<Impurity>::ProcessStep(const BufferCollectionStack& readCollection,
                                                         BufferCollection& writeCollection,
-                                                        boost::mt19937& gen) const
+                                                        boost::mt19937& gen,
+                                                        BufferCollection& extraInfo, int nodeIndex) const
 {
     UNUSED_PARAM(gen);
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
 
     const VectorBufferTemplate<typename Impurity::BufferTypes::Index>& splitpointsCounts =
           readCollection.GetBuffer< VectorBufferTemplate<typename Impurity::BufferTypes::Index> >(mSplitpointCountsBufferId);

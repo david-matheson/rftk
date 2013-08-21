@@ -33,7 +33,8 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     // Read only output buffers
     const BufferId FloatParamsBufferId;
@@ -82,9 +83,12 @@ PipelineStepI* ClassPairDifferenceParamsStep<BufferTypes>::Clone() const
 template <class BufferTypes>
 void ClassPairDifferenceParamsStep<BufferTypes>::ProcessStep(const BufferCollectionStack& readCollection,
                                                           BufferCollection& writeCollection,
-                                                          boost::mt19937& gen) const
+                                                          boost::mt19937& gen,
+                                                          BufferCollection& extraInfo, int nodeIndex) const
 {
-    UNUSED_PARAM(gen)
+    UNUSED_PARAM(gen);
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
 
     const VectorBufferTemplate<typename BufferTypes::SourceInteger>& numberOfFeaturesBuffer =
             readCollection.GetBuffer< VectorBufferTemplate<typename BufferTypes::SourceInteger> >(mNumberOfFeaturesBufferId);

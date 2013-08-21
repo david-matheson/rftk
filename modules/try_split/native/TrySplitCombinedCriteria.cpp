@@ -25,12 +25,12 @@ TrySplitCriteriaI* TrySplitCombinedCriteria::Clone() const
     return clone;
 }
 
-bool TrySplitCombinedCriteria::TrySplit(int depth, double numberOfDatapoints) const
+bool TrySplitCombinedCriteria::TrySplit(int depth, double numberOfDatapoints, BufferCollection& extraInfo, int nodeIndex) const
 {
     bool trySplit = true;
     for (std::vector<TrySplitCriteriaI*>::const_iterator it = mCriterias.begin(); it != mCriterias.end() && trySplit; ++it)
     {
-        trySplit = trySplit && (*it)->TrySplit(depth, numberOfDatapoints);
+        trySplit = trySplit && (*it)->TrySplit(depth, numberOfDatapoints, extraInfo, nodeIndex);
     }
     return trySplit;
 

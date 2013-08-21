@@ -22,7 +22,8 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     // Read only output buffer
     const BufferId OutputBufferId;
@@ -54,9 +55,12 @@ PipelineStepI* PoissonStep<BufferTypes>::Clone() const
 template <class BufferTypes>
 void PoissonStep<BufferTypes>::ProcessStep(const BufferCollectionStack& readCollection,
                                                                 BufferCollection& writeCollection,
-                                                                boost::mt19937& gen) const
+                                                                boost::mt19937& gen,
+                                                                BufferCollection& extraInfo, int nodeIndex) const
 {
-    UNUSED_PARAM(readCollection)
+    UNUSED_PARAM(readCollection);
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
 
     VectorBufferTemplate<typename BufferTypes::SourceInteger>& output
           = writeCollection.GetOrAddBuffer< VectorBufferTemplate<typename BufferTypes::SourceInteger> >(OutputBufferId);

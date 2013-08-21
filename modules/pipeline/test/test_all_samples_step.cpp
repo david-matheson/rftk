@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
 
     AllSamplesStep<SinglePrecisionBufferTypes, MatrixBufferTemplate<float> > all_samples_step(xs_key);
     boost::mt19937 gen(0);
-    all_samples_step.ProcessStep(stack, collection, gen);
+    all_samples_step.ProcessStep(stack, collection, gen, collection, 0);
 
     BOOST_CHECK(collection.HasBuffer< VectorBufferTemplate<float> >(all_samples_step.WeightsBufferId));
     BOOST_CHECK(collection.HasBuffer< VectorBufferTemplate<int> >(all_samples_step.IndicesBufferId));

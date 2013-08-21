@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_FEATURES_BY_DATAPOINTS)
     const int maxNumberOfSplitpoints = 4;
     RandomSplitpointsStep< SinglePrecisionBufferTypes > randomSplitpointsStep(feature_values_key, maxNumberOfSplitpoints, FEATURES_BY_DATAPOINTS);
     boost::mt19937 gen;
-    randomSplitpointsStep.ProcessStep(stack, bc, gen);
+    randomSplitpointsStep.ProcessStep(stack, bc, gen, bc, 0);
 
     MatrixBufferTemplate<float>& splitPoints = 
             bc.GetBuffer< MatrixBufferTemplate<float> >(randomSplitpointsStep.SplitpointsBufferId);
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_DATAPOINTS_BY_FEATURES)
     const int maxNumberOfSplitpoints = 4;
     RandomSplitpointsStep< SinglePrecisionBufferTypes > randomSplitpointsStep(feature_values_key, maxNumberOfSplitpoints, DATAPOINTS_BY_FEATURES);
     boost::mt19937 gen;
-    randomSplitpointsStep.ProcessStep(stack, bc, gen);
+    randomSplitpointsStep.ProcessStep(stack, bc, gen, bc, 0);
 
     MatrixBufferTemplate<float>& splitPoints = 
             bc.GetBuffer< MatrixBufferTemplate<float> >(randomSplitpointsStep.SplitpointsBufferId);
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_SEQUENTUAL)
     const int maxNumberOfSplitpoints = 5;
     RandomSplitpointsStep< SinglePrecisionBufferTypes > randomSplitpointsStep(feature_values_key, maxNumberOfSplitpoints, FEATURES_BY_DATAPOINTS);
 
-    randomSplitpointsStep.ProcessStep(stack, bc, gen);
+    randomSplitpointsStep.ProcessStep(stack, bc, gen, bc, 0);
     MatrixBufferTemplate<float> splitPoints1 = 
             bc.GetBuffer< MatrixBufferTemplate<float> >(randomSplitpointsStep.SplitpointsBufferId);
     VectorBufferTemplate<int> splitPointsCounts1 = 
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_SEQUENTUAL)
                                    1.006, 0, 0, 0, 0 };
     MatrixBufferTemplate<float> feature_values2(&feature_values2_data[0], 3, 5);
     bc.AddBuffer(feature_values_key, feature_values2);
-    randomSplitpointsStep.ProcessStep(stack, bc, gen);
+    randomSplitpointsStep.ProcessStep(stack, bc, gen, bc, 0);
     MatrixBufferTemplate<float> splitPoints2 = 
             bc.GetBuffer< MatrixBufferTemplate<float> >(randomSplitpointsStep.SplitpointsBufferId);
     VectorBufferTemplate<int> splitPointsCounts2 = 

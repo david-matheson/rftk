@@ -29,7 +29,8 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     // Read only output buffers
     const BufferId FloatParamsBufferId;
@@ -69,9 +70,12 @@ PipelineStepI* DimensionPairDifferenceParamsStep<BufferTypes>::Clone() const
 template <class BufferTypes>
 void DimensionPairDifferenceParamsStep<BufferTypes>::ProcessStep(const BufferCollectionStack& readCollection,
                                                           BufferCollection& writeCollection,
-                                                          boost::mt19937& gen) const
+                                                          boost::mt19937& gen,
+                                                          BufferCollection& extraInfo, int nodeIndex) const
 {
-    UNUSED_PARAM(gen)
+    UNUSED_PARAM(gen);
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
 
     const MatrixBufferTemplate<typename BufferTypes::SourceContinuous>& matrixBuffer =
             readCollection.GetBuffer< MatrixBufferTemplate<typename BufferTypes::SourceContinuous> >(mMatrixDataBufferId);
