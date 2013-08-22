@@ -45,9 +45,30 @@ import converters as converters
                 return get_function(name)
         raise Exception('BufferCollection.GetBuffer failed because %s does not exist' % name)
 
-    def __getstate__(self):
+
+    def GetBufferType(self, name):
+        data_type_list = ['Float32', 'Float64', 'Int32', 'Int64']
+        container_type_list = ['Vector', 'Matrix', 'SparseMatrix', 'Tensor3']
+        for (data_type, container_type) in itertools.product(data_type_list, container_type_list):
+            buffer_type_name = "%s%sBuffer" % (data_type, container_type)
+            has_function_name = "Has%s" % buffer_type_name
+            has_function = getattr(self, has_function_name)
+            if has_function(name):
+                return buffer_type_name
+        raise Exception('BufferCollection.GetBuffer failed because %s does not exist' % name)
+
+    def Print(self):
         keys = self.GetKeys()
+        for k in keys:
+            b = self.GetBuffer(k)
+            type_name = self.GetBufferType(k)
+            print('%s - %s' % (k, type_name))
+            b.Print()
+            print('')
+
+    def __getstate__(self):
         data_dict = {}
+        keys = self.GetKeys()
         for k in keys:
             data_dict[k] = self.GetBuffer(k) 
         return data_dict
