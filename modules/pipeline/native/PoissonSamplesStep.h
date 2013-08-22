@@ -38,7 +38,8 @@ private:
 
 template <class BufferTypes, class DataMatrixType>
 PoissonSamplesStep<BufferTypes, DataMatrixType>::PoissonSamplesStep(const BufferId& dataBuffer, const double mean)
-: IndicesBufferId(GetBufferId("IndicesBuffer"))
+: PipelineStepI("PoissonSamplesStep")
+, IndicesBufferId(GetBufferId("IndicesBuffer"))
 , WeightsBufferId(GetBufferId("WeightsBuffer"))
 , mDataBufferId(dataBuffer)
 , mMean(mean)

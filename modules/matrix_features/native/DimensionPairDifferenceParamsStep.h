@@ -50,7 +50,8 @@ private:
 template <class BufferTypes>
 DimensionPairDifferenceParamsStep<BufferTypes>::DimensionPairDifferenceParamsStep(  const BufferId& numberOfFeaturesBufferId,
                                                                   const BufferId& matrixDataBufferId )
-: FloatParamsBufferId(GetBufferId("FloatParams"))
+: PipelineStepI("DimensionPairDifferenceParamsStep")
+, FloatParamsBufferId(GetBufferId("FloatParams"))
 , IntParamsBufferId(GetBufferId("IntParams"))
 , mNumberOfFeaturesBufferId(numberOfFeaturesBufferId)
 , mMatrixDataBufferId(matrixDataBufferId)

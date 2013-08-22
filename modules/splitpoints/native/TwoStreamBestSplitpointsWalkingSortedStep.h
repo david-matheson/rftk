@@ -64,7 +64,8 @@ TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::TwoStreamBestSplitpoi
                                                                                                   const BufferId& featureValues,
                                                                                                   FeatureValueOrdering featureValueOrdering,
                                                                                                   const int numberOfInBoundsDatapoints )
-: ImpurityBufferId( GetBufferId("Impurity") )
+: PipelineStepI("TwoStreamBestSplitpointsWalkingSortedStep")
+, ImpurityBufferId( GetBufferId("Impurity") )
 , SplitpointBufferId( GetBufferId("Splitpoints") )
 , SplitpointCountsBufferId( GetBufferId("SplitpointsCounts") )
 , ChildCountsEstimationBufferId( GetBufferId("ChildCounts") )

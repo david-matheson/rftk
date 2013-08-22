@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include <boost/random.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>
@@ -17,7 +19,16 @@
 class PipelineStepI
 {
 public:
-    virtual ~PipelineStepI() {}
+    PipelineStepI()
+    : mName("UnknownStep")
+    {}
+
+	PipelineStepI(const std::string& name)
+    : mName(name)
+    {}
+
+    virtual ~PipelineStepI()
+    {}
 
     virtual PipelineStepI* Clone() const = 0;
 
@@ -25,6 +36,14 @@ public:
                                 BufferCollection& writeCollection,
                                 boost::mt19937& gen,
                                 BufferCollection& extraInfo, int nodeIndex) const = 0;
+
+    const std::string& GetName()
+    {
+        return mName;
+    }
+
+private:
+	std::string mName;
 };
 
 enum SetRule
@@ -32,3 +51,4 @@ enum SetRule
     WHEN_NEW,
     EVERY_PROCESS
 };
+

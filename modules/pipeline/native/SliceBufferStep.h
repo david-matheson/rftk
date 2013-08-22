@@ -35,7 +35,8 @@ private:
 template <class BufferTypes, class DataBufferType>
 SliceBufferStep<BufferTypes, DataBufferType>::SliceBufferStep(const BufferId& buffer,
                                                                 const BufferId& indices)
-: SlicedBufferId(buffer+GetBufferId("-Sliced"))
+: PipelineStepI("SliceBufferStep")
+, SlicedBufferId(buffer+GetBufferId("-Sliced"))
 , mBufferBufferId(buffer)
 , mIndicesBufferId(indices)
 {}

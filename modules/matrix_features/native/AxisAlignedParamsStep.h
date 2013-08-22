@@ -50,7 +50,8 @@ private:
 template <class BufferTypes>
 AxisAlignedParamsStep<BufferTypes>::AxisAlignedParamsStep(  const BufferId& numberOfFeaturesBufferId,
                                                             const BufferId& matrixDataBufferId )
-: FloatParamsBufferId(GetBufferId("FloatParams"))
+: PipelineStepI("AxisAlignedParamsStep")
+, FloatParamsBufferId(GetBufferId("FloatParams"))
 , IntParamsBufferId(GetBufferId("IntParams"))
 , mNumberOfFeaturesBufferId(numberOfFeaturesBufferId)
 , mMatrixDataBufferId(matrixDataBufferId)

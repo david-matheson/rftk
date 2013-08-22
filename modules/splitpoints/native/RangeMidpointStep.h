@@ -52,7 +52,8 @@ RangeMidpointStep< BufferTypes>::RangeMidpointStep(const BufferId& floatParamsBu
                                                             const BufferId& intParamsBufferId,
                                                             const BufferId& initialRangeBufferId,
                                                             const FeatureEqualI<BufferTypes>* featureEqual )
-: SplitpointsBufferId(GetBufferId("Splitpoints"))
+: PipelineStepI("RangeMidpointStep")
+, SplitpointsBufferId(GetBufferId("Splitpoints"))
 , SplitpointsCountsBufferId(GetBufferId("SplitpointsCounts"))
 , PastFloatParamsBufferId(GetBufferId("PastFloatParamsBufferId"))
 , PastIntParamsBufferId(GetBufferId("PastIntParamsBufferId"))

@@ -57,7 +57,8 @@ template <class ImpurityWalker>
 RandomGapSplitpointsStep<ImpurityWalker>::RandomGapSplitpointsStep(const ImpurityWalker& impurityWalker,
                                                                       const BufferId& featureValues,
                                                                       FeatureValueOrdering featureValueOrdering )
-: ImpurityBufferId( GetBufferId("Impurity") )
+: PipelineStepI("RandomGapSplitpointsStep")
+, ImpurityBufferId( GetBufferId("Impurity") )
 , SplitpointBufferId( GetBufferId("Splitpoints") )
 , SplitpointCountsBufferId( GetBufferId("SplitpointsCounts") )
 , ChildCountsBufferId( GetBufferId("ChildCounts") )

@@ -42,7 +42,8 @@ private:
 
 template <class FeatureType>
 FeatureExtractorStep<FeatureType>::FeatureExtractorStep(const FeatureType& feature, FeatureValueOrdering ordering)
-: FeatureValuesBufferId(GetBufferId("FeatureValues"))
+: PipelineStepI("FeatureExtractorStep")
+, FeatureValuesBufferId(GetBufferId("FeatureValues"))
 , mFeature(feature)
 , mOrdering(ordering)
 {}

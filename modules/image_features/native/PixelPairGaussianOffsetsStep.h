@@ -61,7 +61,8 @@ PixelPairGaussianOffsetsStep<BufferTypes>::PixelPairGaussianOffsetsStep(  const 
                                                                 const typename BufferTypes::ParamsContinuous uy,
                                                                 const typename BufferTypes::ParamsContinuous vx,
                                                                 const typename BufferTypes::ParamsContinuous vy )
-: FloatParamsBufferId(GetBufferId("FloatParams"))
+: PipelineStepI("PixelPairGaussianOffsetsStep")
+, FloatParamsBufferId(GetBufferId("FloatParams"))
 , IntParamsBufferId(GetBufferId("IntParams"))
 , mNumberOfFeaturesBufferId(numberOfFeaturesBufferId)
 , mUx(ux)

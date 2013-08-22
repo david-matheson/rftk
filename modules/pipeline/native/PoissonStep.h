@@ -36,7 +36,8 @@ private:
 
 template <class BufferTypes>
 PoissonStep<BufferTypes>::PoissonStep(const double mean, const int dimension)
-: OutputBufferId(GetBufferId("PoissonStep"))
+: PipelineStepI("PoissonStep")
+, OutputBufferId(GetBufferId("PoissonStep"))
 , mMean(mean)
 , mDimension(dimension)
 {}

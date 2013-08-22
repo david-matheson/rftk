@@ -1,7 +1,9 @@
+#include "BufferCollectionUtils.h"
 #include "Pipeline.h"
 
 Pipeline::Pipeline(const std::vector<PipelineStepI*>& steps)
-: mSteps()
+: PipelineStepI("Pipeline")
+, mSteps()
 {
     // Create a copy each step
     for (std::vector<PipelineStepI*>::const_iterator it = steps.begin(); it != steps.end(); ++it)
@@ -24,9 +26,11 @@ void Pipeline::ProcessStep( const BufferCollectionStack& readCollection,
                             boost::mt19937& gen,
                             BufferCollection& extraInfo, int nodeIndex) const
 {
-    UNUSED_PARAM(extraInfo);
+    TimeLogger totalPipeline(extraInfo, "Pipeline");
+    TimeLogger perNode(extraInfo, nodeIndex);
     for (std::vector<PipelineStepI*>::const_iterator it = mSteps.begin(); it != mSteps.end(); ++it)
     {
+        TimeLogger perStep(extraInfo, (*it)->GetName());
         (*it)->ProcessStep(readCollection, writeCollection, gen, extraInfo, nodeIndex);
     }
 }

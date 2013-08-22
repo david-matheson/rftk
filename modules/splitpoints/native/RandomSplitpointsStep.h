@@ -56,7 +56,8 @@ template <class BufferTypes>
 RandomSplitpointsStep<BufferTypes>::RandomSplitpointsStep(const BufferId& featureValuesBufferId, 
                                                             int maxSplitpointsPerFeature, 
                                                             FeatureValueOrdering featureValueOrdering )
-: SplitpointsBufferId(GetBufferId("Splitpoints"))
+: PipelineStepI("RandomSplitpointsStep")
+, SplitpointsBufferId(GetBufferId("Splitpoints"))
 , SplitpointsCountsBufferId(GetBufferId("SplitpointsCounts"))
 , mFeatureValuesBufferId(featureValuesBufferId)
 , mMaxSplitpointPerFeature(maxSplitpointsPerFeature)

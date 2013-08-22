@@ -53,7 +53,8 @@ template <class ImpurityWalker>
 BestSplitpointsWalkingSortedStep<ImpurityWalker>::BestSplitpointsWalkingSortedStep(const ImpurityWalker& impurityWalker,
                                                                       const BufferId& featureValues,
                                                                       FeatureValueOrdering featureValueOrdering )
-: ImpurityBufferId( GetBufferId("Impurity") )
+: PipelineStepI("BestSplitpointsWalkingSortedStep")
+, ImpurityBufferId( GetBufferId("Impurity") )
 , SplitpointBufferId( GetBufferId("Splitpoints") )
 , SplitpointCountsBufferId( GetBufferId("SplitpointsCounts") )
 , ChildCountsBufferId( GetBufferId("ChildCounts") )

@@ -36,7 +36,8 @@ private:
 
 template <class BufferTypes, class DataMatrixType>
 AllSamplesStep<BufferTypes, DataMatrixType>::AllSamplesStep(const BufferId& dataBuffer)
-: IndicesBufferId(GetBufferId("IndicesBuffer"))
+: PipelineStepI("AllSamplesStep")
+, IndicesBufferId(GetBufferId("IndicesBuffer"))
 , WeightsBufferId(GetBufferId("WeightsBuffer"))
 , mDataBufferId(dataBuffer)
 {}

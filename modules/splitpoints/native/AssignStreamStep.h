@@ -52,7 +52,8 @@ private:
 template <class BufferTypes>
 AssignStreamStep<BufferTypes>::AssignStreamStep(const BufferId& weightsBufferId,
                                                 double probabiltyOfImpurityStream )
-: StreamTypeBufferId(GetBufferId("StreamType"))
+: PipelineStepI("AssignStreamStep")
+, StreamTypeBufferId(GetBufferId("StreamType"))
 , mWeightsBufferId(weightsBufferId)
 , mProbabilityOfImpurityStream(probabiltyOfImpurityStream)
 , mIid(true)

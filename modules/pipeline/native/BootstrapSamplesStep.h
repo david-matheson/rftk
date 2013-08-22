@@ -38,7 +38,8 @@ private:
 
 template <class BufferTypes, class DataMatrixType>
 BootstrapSamplesStep<BufferTypes, DataMatrixType>::BootstrapSamplesStep(const BufferId& dataBuffer)
-: IndicesBufferId(GetBufferId("IndicesBuffer"))
+: PipelineStepI("BootstrapSamplesStep")
+, IndicesBufferId(GetBufferId("IndicesBuffer"))
 , WeightsBufferId(GetBufferId("WeightsBuffer"))
 , mDataBufferId(dataBuffer)
 {}

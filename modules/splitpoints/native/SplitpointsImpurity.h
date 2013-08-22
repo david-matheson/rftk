@@ -43,7 +43,8 @@ SplitpointsImpurity<Impurity>::SplitpointsImpurity(const BufferId& splitpointCou
                                                     const BufferId& childCountsBufferId,
                                                     const BufferId& leftStatsBufferId,
                                                     const BufferId& rightStatsBufferId)
-: mSplitpointCountsBufferId(splitpointCountsBufferId)
+: PipelineStepI("SplitpointsImpurity")
+, mSplitpointCountsBufferId(splitpointCountsBufferId)
 , mChildCountsBufferId(childCountsBufferId)
 , mLeftStatsBufferId(leftStatsBufferId)
 , mRightStatsBufferId(rightStatsBufferId)

@@ -49,7 +49,8 @@ SplitpointStatsStep<StatsUpdater>::SplitpointStatsStep(const BufferId& splitpoin
                                                               const BufferId& featureValuesBufferId,
                                                               FeatureValueOrdering featureValueOrdering,
                                                               const StatsUpdater& statsUpdater)
-: ChildCountsBufferId(GetBufferId("ChildCounts"))
+: PipelineStepI("SplitpointStatsStep")
+, ChildCountsBufferId(GetBufferId("ChildCounts"))
 , LeftStatsBufferId(GetBufferId("LeftStats"))
 , RightStatsBufferId(GetBufferId("RightStats"))
 , mSplitpointsBufferId(splitpointsBufferId)

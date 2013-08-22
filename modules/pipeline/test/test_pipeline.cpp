@@ -15,7 +15,8 @@ class DoubleStep: public PipelineStepI
 {
 public:
     DoubleStep(BufferCollectionKey_t inBufferKey, BufferCollectionKey_t outBufferKey)
-    : mInBufferKey(inBufferKey)
+    : PipelineStepI("DoubleStep")
+    , mInBufferKey(inBufferKey)
     , mOutBufferKey(outBufferKey)
     {}
 

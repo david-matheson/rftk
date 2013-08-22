@@ -58,7 +58,8 @@ TwoStreamSplitpointStatsStep<StatsUpdater>::TwoStreamSplitpointStatsStep(const B
                                                               const BufferId& featureValuesBufferId,
                                                               FeatureValueOrdering featureValueOrdering,
                                                               const StatsUpdater& statsUpdater)
-: ChildCountsImpurityBufferId(GetBufferId("ChildCountsImpurity"))
+: PipelineStepI("TwoStreamSplitpointStatsStep")
+, ChildCountsImpurityBufferId(GetBufferId("ChildCountsImpurity"))
 , LeftImpurityStatsBufferId(GetBufferId("LeftImpurityStats"))
 , RightImpurityStatsBufferId(GetBufferId("RightImpurityStats"))
 , ChildCountsEstimatorBufferId(GetBufferId("ChildCountsEstimator"))

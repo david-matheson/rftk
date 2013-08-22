@@ -61,7 +61,8 @@ ClassPairDifferenceParamsStep<BufferTypes>::ClassPairDifferenceParamsStep(  cons
                                                                             const BufferId& matrixData,
                                                                             const BufferId& classes,
                                                                             const BufferId& indices )
-: FloatParamsBufferId(GetBufferId("FloatParams"))
+: PipelineStepI("ClassPairDifferenceParamsStep")
+, FloatParamsBufferId(GetBufferId("FloatParams"))
 , IntParamsBufferId(GetBufferId("IntParams"))
 , mNumberOfFeaturesBufferId(numberOfFeatures)
 , mMatrixDataBufferId(matrixData)

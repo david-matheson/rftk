@@ -37,7 +37,8 @@ private:
 
 template <class DataBufferType>
 SetBufferStep<DataBufferType>::SetBufferStep(const DataBufferType& buffer, SetRule setRule)
-: OutputBufferId(GetBufferId("SetBufferStep"))
+: PipelineStepI("SetBufferStep")
+, OutputBufferId(GetBufferId("SetBufferStep"))
 , mBuffer(buffer)
 , mSetRule(setRule)
 {}
