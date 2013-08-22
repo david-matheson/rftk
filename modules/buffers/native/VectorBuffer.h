@@ -124,7 +124,7 @@ void VectorBufferTemplate<T>::Resize( int n)
     {
         mData.resize(n);
     }
-    mN = n;
+    mN = std::max<int>(n, mN);
 }
 
 template <class T>

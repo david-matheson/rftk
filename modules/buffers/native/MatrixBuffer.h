@@ -154,10 +154,29 @@ void MatrixBufferTemplate<T>::Resize(int m, int n)
 template <class T>
 void MatrixBufferTemplate<T>::Resize(int m, int n, T value)
 {
+    m = std::max<int>(m, mM);
+    n = std::max<int>(n, mN);
+
     if(static_cast<size_t>(m*n) > mData.size())
     {
         mData.resize(m*n, value);
     }
+
+    if(mN != n)
+    {
+        for(int i=mM-1; i >= 0; i--)
+        {
+            for(int j=mN-1; j >=0; j--)
+            {
+                mData[i*n + j] = mData[i*mN + j];
+            }
+            for(int j=mN; j<n; j++)
+            {
+                mData[i*n + j] = value;
+            }
+        }
+    }
+
     mM = m;
     mN = n;
 }
