@@ -1,22 +1,18 @@
 #include "Timer.h"
 
 Timer::Timer()
+: mStartTime(boost::chrono::system_clock::now())
 {
-	mStartTime = clock(); 
 }
 
 void Timer::Restart() 
 { 
-	mStartTime = clock(); 
+	mStartTime = boost::chrono::system_clock::now(); 
 }
 
-clock_t Timer::ElapsedClock() const
-{
-	return clock() - mStartTime;
-}
 
 double Timer::ElapsedMilliSeconds() const
 {
-	const double milliSecondsPerClock = 1000.0 / CLOCKS_PER_SEC;
-    return double(clock() - mStartTime) * milliSecondsPerClock;
+	boost::chrono::duration<double> elapsed = boost::chrono::system_clock::now() - mStartTime;
+	return elapsed.count();
 }

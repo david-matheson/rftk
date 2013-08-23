@@ -1,15 +1,14 @@
 #pragma once
 
-#include <ctime>
+#include <boost/chrono.hpp>
 
 class Timer
 {
 public:
     Timer();
     void   Restart();
-    clock_t ElapsedClock() const;
     double ElapsedMilliSeconds() const;
 
 private:
-	 clock_t mStartTime;
+	 boost::chrono::system_clock::time_point mStartTime;
 };

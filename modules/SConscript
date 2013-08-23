@@ -93,7 +93,7 @@ modules_with_deps = [('utils', []),
                     ('learn', ['utils', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'matrix_features', 'image_features', 'classification', 'regression', 'try_split', 'should_split', 'predict'])]
 
 install_dependencies = []
-external_libs = ['boost_thread']
+external_libs = ['boost_thread', 'boost_chrono']
 for (module_name, depends) in modules_with_deps:
     module_install_alias = build_rftk_module(env=env,
                                       non_swig_warnings=non_swig_warnings,
