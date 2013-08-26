@@ -5,6 +5,7 @@ import numpy
 # setup variant specific params
 Import('install_path')
 Import('variant')
+
 if variant == 'debug':
     ccflags = ['-g', '-O0']
     cppdefines = {'ENABLE_EXCEPTIONS': 1, 'USE_BOOST_THREAD':0}
@@ -19,15 +20,16 @@ except AttributeError:
     numpy_include = numpy.get_numpy_include()
 
 ###############################################################################
+boost_path = Dir('/home/davidm/projects/boost_install').abspath
 env = Environment(
                   CC='clang',
                   CXX='clang',
                   SWIGFLAGS=['-python', '-c++', '-Werror', '-w490', '-w362'],
                   CPPPATH=[distutils.sysconfig.get_python_inc(), numpy_include],
-                  CCFLAGS=ccflags,
+                  CCFLAGS=ccflags + ['-isystem%s/include' % boost_path],
                   CPPDEFINES=cppdefines,
-                  LIBPATH=[Dir('.').abspath],
-                  RPATH=['%s/lib' % Dir(install_path).abspath]
+                  LIBPATH=[Dir('.').abspath, boost_path + "/lib"],
+                  RPATH=['%s/lib' % Dir(install_path).abspath, boost_path + "/lib"]
                   )
 
 non_swig_warnings = ['-Wall', '-Wextra', '-Weffc++', '-Werror']
@@ -93,7 +95,7 @@ modules_with_deps = [('utils', []),
                     ('learn', ['utils', 'buffers', 'bootstrap', 'forest_data', 'pipeline', 'splitpoints', 'matrix_features', 'image_features', 'classification', 'regression', 'try_split', 'should_split', 'predict'])]
 
 install_dependencies = []
-external_libs = ['boost_thread', 'boost_chrono']
+external_libs = ['boost_system', 'boost_thread', 'boost_chrono']
 for (module_name, depends) in modules_with_deps:
     module_install_alias = build_rftk_module(env=env,
                                       non_swig_warnings=non_swig_warnings,
@@ -129,7 +131,7 @@ def build_and_run_unit_tests(test_exec, variant, cpp_files, depends):
     # Build one or more test runners.
     program = env.Program(test_exec,
                           source=cpp_files + ['test_framework/boosttestrunner.cpp'],
-                          LIBS=['boost_unit_test_framework']+depends,
+                          LIBS=['boost_unit_test_framework', 'boost_system']+depends,
                           CPPPATH=['%s/native' % x for x in depends])
     # Depend on the runner to ensure that it's built before running it - Note: using abspath.
     # Allow just one variant to run
