@@ -5,7 +5,7 @@
 %}
 
 %include <exception.i>
-%import(module="rftk.asserts") "utils.i"
+%import(module="rftk.utils") "utils.i"
 %import(module="rftk.buffers") "buffers.i"
 %import(module="rftk.bootstrap") "bootstrap.i"
 %import(module="rftk.forest_data") "forest_data.i"

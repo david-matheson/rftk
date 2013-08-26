@@ -4,5 +4,6 @@
 #include "PoissonStep.h"
 #include "SetBufferStep.h"
 #include "SliceBufferStep.h"
+#include "FeatureExtractorStep.h"
 #include "FeatureEqualI.h"
 #include "FeatureEqualQuantized.h"

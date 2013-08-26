@@ -8,7 +8,7 @@
 %}
 
 %include <exception.i>
-%import(module="rftk.asserts") "utils.i"
+%import(module="rftk.utils") "utils.i"
 %import(module="rftk.buffers") "buffers.i"
 
 %include "UniqueBufferId.h"
