@@ -18,6 +18,7 @@ public:
     ~VectorBufferTemplate();
 
     void Resize(int n);
+    void Resize(int n, T value);
     void Zero();
     void SetAll(const T value);
 
@@ -120,12 +121,19 @@ VectorBufferTemplate<T>::~VectorBufferTemplate()
 template <class T>
 void VectorBufferTemplate<T>::Resize( int n)
 {
+    Resize(n, T());
+}
+
+template <class T>
+void VectorBufferTemplate<T>::Resize(int n, T value)
+{
     if(static_cast<size_t>(n) > mData.size())
     {
-        mData.resize(n);
+        mData.resize(n, value);
     }
-    mN = std::max<int>(n, mN);
+    mN = std::max<int>(n, mN);  
 }
+
 
 template <class T>
 void VectorBufferTemplate<T>::Zero()
