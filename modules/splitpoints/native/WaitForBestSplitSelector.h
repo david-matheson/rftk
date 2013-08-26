@@ -7,6 +7,7 @@
 #include "MatrixBuffer.h"
 #include "Tensor3Buffer.h"
 #include "BufferCollectionStack.h"
+#include "BufferCollectionUtils.h"
 #include "SplitSelectorBuffers.h"
 #include "ShouldSplitCriteriaI.h"
 #include "FinalizerI.h"
@@ -81,6 +82,8 @@ SplitSelectorInfo<BufferTypes> WaitForBestSplitSelector<BufferTypes>::ProcessSpl
                                                                                     int depth,
                                                                                     BufferCollection& extraInfo, int nodeIndex) const
 {
+    TimeLogger timer(extraInfo, "WaitForBestSplitSelector");
+
     typename BufferTypes::ImpurityValue maxImpurity = std::numeric_limits<typename BufferTypes::ImpurityValue>::min();
     int bestWaitForBestmSplitSelectorBuffers = SPLIT_SELECTOR_NO_SPLIT;
     int bestFeature = SPLIT_SELECTOR_NO_SPLIT;
@@ -127,7 +130,7 @@ SplitSelectorInfo<BufferTypes> WaitForBestSplitSelector<BufferTypes>::ProcessSpl
         // Reset if should not split
         const typename BufferTypes::DatapointCounts leftCounts = childCounts.Get(bestFeature,bestSplitpoint,LEFT_CHILD_INDEX);
         const typename BufferTypes::DatapointCounts rightCounts = childCounts.Get(bestFeature,bestSplitpoint,RIGHT_CHILD_INDEX);
-        if( !mShouldSplitCriteria->ShouldSplit(depth, maxImpurity, leftCounts+rightCounts, leftCounts, rightCounts, extraInfo, nodeIndex))
+        if( !mShouldSplitCriteria->ShouldSplit(depth, maxImpurity, leftCounts+rightCounts, leftCounts, rightCounts, extraInfo, nodeIndex, true))
         {
             bestWaitForBestmSplitSelectorBuffers = SPLIT_SELECTOR_NO_SPLIT;
             bestFeature = SPLIT_SELECTOR_NO_SPLIT;

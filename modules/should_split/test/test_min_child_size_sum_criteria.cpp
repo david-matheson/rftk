@@ -9,12 +9,12 @@ BOOST_AUTO_TEST_CASE(test_ShouldSplit)
     const int minChildSize = 6;
     MinChildSizeSumCriteria minChildSizeCriteria(minChildSize);
     BufferCollection bc;
-    BOOST_CHECK( minChildSizeCriteria.ShouldSplit(0, 0.0f, 0, minChildSize/2, minChildSize/2, bc, 0));
-    BOOST_CHECK( !minChildSizeCriteria.ShouldSplit(0, 0.0f, 0, minChildSize/2-1, minChildSize/2, bc, 0));
-    BOOST_CHECK( !minChildSizeCriteria.ShouldSplit(0, 0.0f, 0, minChildSize/2, minChildSize/2-1, bc, 0));
-    BOOST_CHECK( !minChildSizeCriteria.ShouldSplit(0, 0.0f, 0, minChildSize/2-1, minChildSize/2-1, bc, 0));
-    BOOST_CHECK( minChildSizeCriteria.ShouldSplit(0, 0.0f, 0, minChildSize/2-1, minChildSize/2+1, bc, 0));
-    BOOST_CHECK( minChildSizeCriteria.ShouldSplit(0, 0.0f, 0, minChildSize/2+1, minChildSize/2-1, bc, 0));
+    BOOST_CHECK( minChildSizeCriteria.ShouldSplit(0, 0.0f, 0, minChildSize/2, minChildSize/2, bc, 0, true));
+    BOOST_CHECK( !minChildSizeCriteria.ShouldSplit(0, 0.0f, 0, minChildSize/2-1, minChildSize/2, bc, 0, true));
+    BOOST_CHECK( !minChildSizeCriteria.ShouldSplit(0, 0.0f, 0, minChildSize/2, minChildSize/2-1, bc, 0, true));
+    BOOST_CHECK( !minChildSizeCriteria.ShouldSplit(0, 0.0f, 0, minChildSize/2-1, minChildSize/2-1, bc, 0, true));
+    BOOST_CHECK( minChildSizeCriteria.ShouldSplit(0, 0.0f, 0, minChildSize/2-1, minChildSize/2+1, bc, 0, true));
+    BOOST_CHECK( minChildSizeCriteria.ShouldSplit(0, 0.0f, 0, minChildSize/2+1, minChildSize/2-1, bc, 0, true));
 }
 
 BOOST_AUTO_TEST_CASE(test_Clone)
@@ -24,12 +24,12 @@ BOOST_AUTO_TEST_CASE(test_Clone)
     ShouldSplitCriteriaI* clone = minChildSizeCriteria->Clone();
     delete minChildSizeCriteria;
     BufferCollection bc;
-    BOOST_CHECK( clone->ShouldSplit(0, 0.0f, 0, minChildSize/2, minChildSize/2, bc, 0));
-    BOOST_CHECK( !clone->ShouldSplit(0, 0.0f, 0, minChildSize/2-1, minChildSize/2, bc, 0));
-    BOOST_CHECK( !clone->ShouldSplit(0, 0.0f, 0, minChildSize/2, minChildSize/2-1, bc, 0));
-    BOOST_CHECK( !clone->ShouldSplit(0, 0.0f, 0, minChildSize/2-1, minChildSize/2-1, bc, 0));
-    BOOST_CHECK( clone->ShouldSplit(0, 0.0f, 0, minChildSize/2-1, minChildSize/2+1, bc, 0));
-    BOOST_CHECK( clone->ShouldSplit(0, 0.0f, 0, minChildSize/2+1, minChildSize/2-1, bc, 0));
+    BOOST_CHECK( clone->ShouldSplit(0, 0.0f, 0, minChildSize/2, minChildSize/2, bc, 0, true));
+    BOOST_CHECK( !clone->ShouldSplit(0, 0.0f, 0, minChildSize/2-1, minChildSize/2, bc, 0, true));
+    BOOST_CHECK( !clone->ShouldSplit(0, 0.0f, 0, minChildSize/2, minChildSize/2-1, bc, 0, true));
+    BOOST_CHECK( !clone->ShouldSplit(0, 0.0f, 0, minChildSize/2-1, minChildSize/2-1, bc, 0, true));
+    BOOST_CHECK( clone->ShouldSplit(0, 0.0f, 0, minChildSize/2-1, minChildSize/2+1, bc, 0, true));
+    BOOST_CHECK( clone->ShouldSplit(0, 0.0f, 0, minChildSize/2+1, minChildSize/2-1, bc, 0, true));
 
     delete clone;
 }

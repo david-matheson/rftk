@@ -17,5 +17,5 @@ public:
 
     virtual bool ShouldSplit(int depth, float impurity,
                             int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints,
-                            BufferCollection& extraInfo, int nodeIndex) const;
+                            BufferCollection& extraInfo, int nodeIndex, bool recordInfo) const;
 };

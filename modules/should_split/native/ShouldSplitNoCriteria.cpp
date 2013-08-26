@@ -1,4 +1,5 @@
-#include "asserts.h" // for UNUSED_PARAM
+#include "unused.h" 
+#include "BufferCollectionUtils.h"
 #include "ShouldSplitNoCriteria.h"
 
 
@@ -16,14 +17,16 @@ ShouldSplitCriteriaI* ShouldSplitNoCriteria::Clone() const
 
 bool ShouldSplitNoCriteria::ShouldSplit(int depth, float impurity,
                                       int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints,
-                                      BufferCollection& extraInfo, int nodeIndex) const
+                                      BufferCollection& extraInfo, int nodeIndex, bool recordInfo) const
 {
     UNUSED_PARAM(depth)
     UNUSED_PARAM(impurity)
     UNUSED_PARAM(numberOfDatapoints)
     UNUSED_PARAM(leftNumberOfDataponts)
     UNUSED_PARAM(rightNumberOfDatapoints)
-    UNUSED_PARAM(extraInfo)
-    UNUSED_PARAM(nodeIndex)
+    if(recordInfo)
+    {
+        WriteValue<int>(extraInfo, "ShouldSplit-ShouldSplitNoCriteria", nodeIndex, SHOULD_SPLIT_TRUE);
+    }
     return true;
 }

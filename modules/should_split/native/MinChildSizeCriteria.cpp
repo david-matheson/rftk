@@ -1,4 +1,5 @@
-#include "asserts.h" // for UNUSED_PARAM
+#include "unused.h" 
+#include "BufferCollectionUtils.h"
 #include "MinChildSizeCriteria.h"
 
 
@@ -17,13 +18,18 @@ ShouldSplitCriteriaI* MinChildSizeCriteria::Clone() const
 
 bool MinChildSizeCriteria::ShouldSplit(int depth, float impurity,
                                       int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints,
-                                      BufferCollection& extraInfo, int nodeIndex) const
+                                      BufferCollection& extraInfo, int nodeIndex, bool recordInfo) const
 {
     UNUSED_PARAM(depth)
     UNUSED_PARAM(impurity)
     UNUSED_PARAM(numberOfDatapoints)
-    UNUSED_PARAM(extraInfo)
-    UNUSED_PARAM(nodeIndex)
-    return (leftNumberOfDataponts >= mMinNumberOfChildDatapoints) 
+    bool result = (leftNumberOfDataponts >= mMinNumberOfChildDatapoints) 
           && (rightNumberOfDatapoints >= mMinNumberOfChildDatapoints);
+
+    if(recordInfo)
+    {
+        WriteValue<int>(extraInfo, "ShouldSplit-MinChildSizeCriteria", nodeIndex, result ? SHOULD_SPLIT_TRUE : SHOULD_SPLIT_FALSE);      
+    }
+
+    return result;
 }

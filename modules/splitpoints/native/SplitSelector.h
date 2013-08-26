@@ -6,6 +6,7 @@
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "Tensor3Buffer.h"
+#include "BufferCollectionUtils.h"
 #include "BufferCollectionStack.h"
 #include "SplitSelectorBuffers.h"
 #include "ShouldSplitCriteriaI.h"
@@ -81,10 +82,13 @@ SplitSelectorInfo<BufferTypes> SplitSelector<BufferTypes>::ProcessSplits(const B
                                                                         int depth,
                                                                         BufferCollection& extraInfo, int nodeIndex) const
 {
+    TimeLogger timer(extraInfo, "SplitSelectorInfo");
+
     typename BufferTypes::ImpurityValue maxImpurity = -std::numeric_limits<typename BufferTypes::ImpurityValue>::max();
     int bestSplitSelectorBuffers = SPLIT_SELECTOR_NO_SPLIT;
     int bestFeature = SPLIT_SELECTOR_NO_SPLIT;
     int bestThreshold = SPLIT_SELECTOR_NO_SPLIT;
+    bool recordSplitInfo = true;
 
     for(unsigned int s=0; s<mSplitSelectorBuffers.size(); s++)
     {
@@ -107,12 +111,13 @@ SplitSelectorInfo<BufferTypes> SplitSelector<BufferTypes>::ProcessSplits(const B
                 const typename BufferTypes::DatapointCounts leftCounts = childCounts.Get(f,t,0);
                 const typename BufferTypes::DatapointCounts rightCounts = childCounts.Get(f,t,1);
                 if( impurity > maxImpurity
-                    && mShouldSplitCriteria->ShouldSplit(depth, impurity, leftCounts+rightCounts, leftCounts, rightCounts, extraInfo, nodeIndex) )
+                    && mShouldSplitCriteria->ShouldSplit(depth, impurity, leftCounts+rightCounts, leftCounts, rightCounts, extraInfo, nodeIndex, recordSplitInfo) )
                 {
                     maxImpurity = impurity;
                     bestSplitSelectorBuffers = s;
                     bestFeature = f;
                     bestThreshold = t;
+                    recordSplitInfo = false; //once one good split is found, do not record failed splits
                 }
             }
         }

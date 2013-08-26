@@ -1,3 +1,5 @@
+#include "unused.h" 
+#include "BufferCollectionUtils.h"
 #include "ShouldSplitCombinedCriteria.h"
 
 ShouldSplitCombinedCriteria::ShouldSplitCombinedCriteria(std::vector<ShouldSplitCriteriaI*> criterias)
@@ -27,13 +29,16 @@ ShouldSplitCriteriaI* ShouldSplitCombinedCriteria::Clone() const
 
 bool ShouldSplitCombinedCriteria::ShouldSplit(int depth, float impurity,
                                       int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints,
-                                      BufferCollection& extraInfo, int nodeIndex) const
+                                      BufferCollection& extraInfo, int nodeIndex, bool recordInfo) const
 {
-    UNUSED_PARAM(extraInfo)
     bool shouldSplit = true;
     for (std::vector<ShouldSplitCriteriaI*>::const_iterator it = mCriterias.begin(); it != mCriterias.end() && shouldSplit; ++it)
     {
-        shouldSplit = shouldSplit && (*it)->ShouldSplit(depth, impurity, numberOfDatapoints, leftNumberOfDataponts, rightNumberOfDatapoints, extraInfo, nodeIndex);
+        shouldSplit = shouldSplit && (*it)->ShouldSplit(depth, impurity, numberOfDatapoints, leftNumberOfDataponts, rightNumberOfDatapoints, extraInfo, nodeIndex, recordInfo);
+    }
+    if(recordInfo)
+    {
+        WriteValue<int>(extraInfo, "ShouldSplit-CombinedCriteria", nodeIndex, shouldSplit ? SHOULD_SPLIT_TRUE : SHOULD_SPLIT_FALSE);
     }
     return shouldSplit;
 
