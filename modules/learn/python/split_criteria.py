@@ -3,10 +3,11 @@ import rftk.should_split as should_split
 
 def create_try_split_criteria(**kwargs):
     try_split_criteria_list = []
-    if 'min_node_size' in kwargs:
-        min_node_size = int( kwargs.get('min_node_size', 1) )
-        min_node_size_criteria = try_split.MinNodeSizeCriteria(min_node_size)
-        try_split_criteria_list.append( min_node_size_criteria )
+
+    min_node_size = int( kwargs.get('min_node_size', 2) )
+    min_node_size_criteria = try_split.MinNodeSizeCriteria(min_node_size)
+    try_split_criteria_list.append( min_node_size_criteria )
+
     if 'max_depth' in kwargs:
         max_depth = int( kwargs.get('max_depth') )
         max_depth_criteria = try_split.MaxDepthCriteria(max_depth)
@@ -23,6 +24,11 @@ def create_try_split_criteria(**kwargs):
 
 def create_should_split_criteria(**kwargs):
     should_split_criteria_list = []
+
+    min_impurity = float( kwargs.get('min_impurity', 0.0) )
+    min_impurity_criteria = should_split.MinImpurityCriteria(min_impurity)
+    should_split_criteria_list.append(min_impurity_criteria)
+
     if 'min_child_size' in kwargs:
         min_child_size = int( kwargs.get('min_child_size') )
         min_child_size_criteria = should_split.MinChildSizeCriteria(min_child_size)
@@ -31,9 +37,6 @@ def create_should_split_criteria(**kwargs):
         min_child_size_sum = int( kwargs.get('min_child_size_sum') )
         min_child_size_sum_criteria = should_split.MinChildSizeSumCriteria(min_child_size_sum)
         should_split_criteria_list.append(min_child_size_sum_criteria)      
-    if 'min_impurity' in kwargs:
-        min_impurity = float( kwargs.get('min_impurity') )
-        min_impurity_criteria = should_split.MinImpurityCriteria(min_impurity)
         should_split_criteria_list.append(min_impurity_criteria)
     if not should_split_criteria_list:
         should_split_no_criteria = should_split.ShouldSplitNoCriteria()
