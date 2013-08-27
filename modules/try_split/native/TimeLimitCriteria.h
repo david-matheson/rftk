@@ -18,7 +18,7 @@ public:
 
     virtual TrySplitCriteriaI* Clone() const;
 
-    virtual bool TrySplit(int depth, double numberOfDatapoints, BufferCollection& extraInfo, int nodeIndex) const;
+    virtual bool TrySplit(int depth, double numberOfDatapoints, BufferCollection& extraInfo, int nodeIndex, bool recordInfo) const;
 private:
     const time_t mEndTime;
 };

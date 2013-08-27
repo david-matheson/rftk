@@ -225,7 +225,7 @@ Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, Buffer
                         delete leaf.mNodeData;
 
                         // Add children to the queue
-                        if( mTrySplitCriteria->TrySplit(depth, std::numeric_limits<int>::max(), tree.mExtraInfo, nodeIndex) )
+                        if( mTrySplitCriteria->TrySplit(depth, std::numeric_limits<int>::max(), tree.mExtraInfo, nodeIndex, true) )
                         {
                             mFrontierQueue.ProcessSplit(mForest, treeIndex, nodeIndex, leftNodeIndex, rightNodeIndex);
                         }

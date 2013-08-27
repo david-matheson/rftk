@@ -1,4 +1,5 @@
-#include "asserts.h" // for UNUSED_PARAM
+#include "unused.h" 
+#include "BufferCollectionUtils.h"
 #include "MinNodeSizeCriteria.h"
 
 // remove print
@@ -17,10 +18,16 @@ TrySplitCriteriaI* MinNodeSizeCriteria::Clone() const
     return clone;
 }
 
-bool MinNodeSizeCriteria::TrySplit(int depth, double numberOfDatapoints, BufferCollection& extraInfo, int nodeIndex) const
+bool MinNodeSizeCriteria::TrySplit(int depth, double numberOfDatapoints, BufferCollection& extraInfo, int nodeIndex, bool recordInfo) const
 {
     UNUSED_PARAM(depth);
-    UNUSED_PARAM(extraInfo);
-    UNUSED_PARAM(nodeIndex);
-    return (numberOfDatapoints >= mMinNumberOfDatapoints);
+
+    const bool result = (numberOfDatapoints >= mMinNumberOfDatapoints);
+
+    if(recordInfo)
+    {
+        WriteValue<int>(extraInfo, "TrySplit-MinNodeSizeCriteria", nodeIndex, result ? TRY_SPLIT_TRUE : TRY_SPLIT_FALSE);      
+    }
+
+    return result;
 }

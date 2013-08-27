@@ -110,8 +110,8 @@ SplitSelectorInfo<BufferTypes> SplitSelector<BufferTypes>::ProcessSplits(const B
                 const typename BufferTypes::ImpurityValue impurity = impurities.Get(f,t);
                 const typename BufferTypes::DatapointCounts leftCounts = childCounts.Get(f,t,0);
                 const typename BufferTypes::DatapointCounts rightCounts = childCounts.Get(f,t,1);
-                if( impurity > maxImpurity
-                    && mShouldSplitCriteria->ShouldSplit(depth, impurity, leftCounts+rightCounts, leftCounts, rightCounts, extraInfo, nodeIndex, recordSplitInfo) )
+                const bool shouldSplit = mShouldSplitCriteria->ShouldSplit(depth, impurity, leftCounts+rightCounts, leftCounts, rightCounts, extraInfo, nodeIndex, recordSplitInfo);
+                if( shouldSplit && impurity > maxImpurity )
                 {
                     maxImpurity = impurity;
                     bestSplitSelectorBuffers = s;

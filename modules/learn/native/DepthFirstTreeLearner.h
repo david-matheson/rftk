@@ -106,8 +106,9 @@ void DepthFirstTreeLearner<BufferTypes>::ProcessNode( boost::mt19937& gen,
                                                               typename BufferTypes::Index depth,
                                                               typename BufferTypes::DatapointCounts nodeSize ) const
 {
-    if(mTrySplitCriteria->TrySplit(depth, nodeSize, tree.mExtraInfo, nodeIndex))
+    if(mTrySplitCriteria->TrySplit(depth, nodeSize, tree.mExtraInfo, nodeIndex, true))
     {
+
         bool doSplit = false;
         BufferCollection leftIndicesBufCol;
         BufferCollection rightIndicesBufCol;

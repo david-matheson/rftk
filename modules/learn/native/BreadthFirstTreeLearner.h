@@ -162,11 +162,11 @@ bool BreadthFirstTreeLearner<BufferTypes>::ProcessActiveLeaf( boost::mt19937& ge
         typename BufferTypes::DatapointCounts rightSize = std::numeric_limits<typename BufferTypes::DatapointCounts>::min();
         selectorInfo.SplitBuffers(leftActiveLeaf.mSplitBufferCollection, rightActiveLeaf.mSplitBufferCollection, leftSize, rightSize);
 
-        if(mTrySplitCriteria->TrySplit(leftActiveLeaf.mDepth, leftSize, tree.mExtraInfo, leftNodeIndex))
+        if(mTrySplitCriteria->TrySplit(leftActiveLeaf.mDepth, leftSize, tree.mExtraInfo, leftNodeIndex, true))
         {
             activeLeaves.push(leftActiveLeaf);
         }
-        if(mTrySplitCriteria->TrySplit(rightActiveLeaf.mDepth, rightSize, tree.mExtraInfo, rightNodeIndex))
+        if(mTrySplitCriteria->TrySplit(rightActiveLeaf.mDepth, rightSize, tree.mExtraInfo, rightNodeIndex, true))
         {
             activeLeaves.push(rightActiveLeaf);
         }

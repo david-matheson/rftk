@@ -1,4 +1,5 @@
-#include "asserts.h" // for UNUSED_PARAM
+#include "unused.h" 
+#include "BufferCollectionUtils.h"
 #include "MaxDepthCriteria.h"
 
 MaxDepthCriteria::MaxDepthCriteria(int maxDepth)
@@ -14,10 +15,16 @@ TrySplitCriteriaI* MaxDepthCriteria::Clone() const
     return clone;
 }
 
-bool MaxDepthCriteria::TrySplit(int depth, double numberOfDatapoints, BufferCollection& extraInfo, int nodeIndex) const
+bool MaxDepthCriteria::TrySplit(int depth, double numberOfDatapoints, BufferCollection& extraInfo, int nodeIndex, bool recordInfo) const
 {
     UNUSED_PARAM(numberOfDatapoints);
-    UNUSED_PARAM(extraInfo);
-    UNUSED_PARAM(nodeIndex);
-    return (depth < mMaxDepth);
+
+    const bool result = (depth < mMaxDepth);
+
+    if(recordInfo)
+    {
+        WriteValue<int>(extraInfo, "TrySplit-MaxDepthCriteria", nodeIndex, result ? TRY_SPLIT_TRUE : TRY_SPLIT_FALSE);      
+    }
+
+    return result;
 }
