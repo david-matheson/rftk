@@ -12,6 +12,7 @@
 #include "ShouldSplitCriteriaI.h"
 #include "FinalizerI.h"
 #include "SplitSelectorI.h"
+#include "LogSplitInfo.h"
 
 // ----------------------------------------------------------------------------
 //
@@ -44,6 +45,7 @@ private:
     const ShouldSplitCriteriaI* mShouldSplitCriteria;
     const FinalizerI<BufferTypes>* mFinalizer;
     const SplitBuffersI* mBufferSplitter;
+    const LogSplitInfo<BufferTypes>* mLogger;
 };
 
 template <class BufferTypes>
@@ -54,6 +56,7 @@ WaitForBestSplitSelector<BufferTypes>::WaitForBestSplitSelector( const std::vect
 , mShouldSplitCriteria(shouldSplitCriteria->Clone())
 , mFinalizer(finalizer->Clone())
 , mBufferSplitter(NULL)
+, mLogger( new LogSplitInfo<BufferTypes>() )
 {}
 
 template <class BufferTypes>
@@ -65,6 +68,7 @@ WaitForBestSplitSelector<BufferTypes>::WaitForBestSplitSelector( const std::vect
 , mShouldSplitCriteria(shouldSplitCriteria->Clone())
 , mFinalizer(finalizer->Clone())
 , mBufferSplitter((bufferSplitter != NULL) ? bufferSplitter->Clone() : NULL)
+, mLogger( new LogSplitInfo<BufferTypes>() )
 {}
 
 template <class BufferTypes>
@@ -74,6 +78,7 @@ WaitForBestSplitSelector<BufferTypes>::~WaitForBestSplitSelector()
     delete mShouldSplitCriteria;
     delete mBufferSplitter;
     delete mFinalizer;
+    delete mLogger;
 }
 
 
@@ -85,7 +90,7 @@ SplitSelectorInfo<BufferTypes> WaitForBestSplitSelector<BufferTypes>::ProcessSpl
     TimeLogger timer(extraInfo, "WaitForBestSplitSelector");
 
     typename BufferTypes::ImpurityValue maxImpurity = std::numeric_limits<typename BufferTypes::ImpurityValue>::min();
-    int bestWaitForBestmSplitSelectorBuffers = SPLIT_SELECTOR_NO_SPLIT;
+    int bestSplitSelectorBuffers = SPLIT_SELECTOR_NO_SPLIT;
     int bestFeature = SPLIT_SELECTOR_NO_SPLIT;
     int bestSplitpoint = SPLIT_SELECTOR_NO_SPLIT;
 
@@ -109,7 +114,7 @@ SplitSelectorInfo<BufferTypes> WaitForBestSplitSelector<BufferTypes>::ProcessSpl
                 if( impurity > maxImpurity )
                 {
                     maxImpurity = impurity;
-                    bestWaitForBestmSplitSelectorBuffers = s;
+                    bestSplitSelectorBuffers = s;
                     bestFeature = f;
                     bestSplitpoint = t;
                 }
@@ -117,13 +122,13 @@ SplitSelectorInfo<BufferTypes> WaitForBestSplitSelector<BufferTypes>::ProcessSpl
         }
     }
 
-    const bool isSet = bestWaitForBestmSplitSelectorBuffers !=  SPLIT_SELECTOR_NO_SPLIT
+    const bool isSet = bestSplitSelectorBuffers !=  SPLIT_SELECTOR_NO_SPLIT
                         && bestFeature != SPLIT_SELECTOR_NO_SPLIT
                         && bestSplitpoint != SPLIT_SELECTOR_NO_SPLIT;
 
     if( isSet )
     {
-        const SplitSelectorBuffers& ssb = mSplitSelectorBuffers[bestWaitForBestmSplitSelectorBuffers];
+        const SplitSelectorBuffers& ssb = mSplitSelectorBuffers[bestSplitSelectorBuffers];
         const Tensor3BufferTemplate<typename BufferTypes::DatapointCounts>& childCounts
                     = readCollection.GetBuffer< Tensor3BufferTemplate<typename BufferTypes::DatapointCounts> >(ssb.mChildCountsBufferId);
 
@@ -132,13 +137,19 @@ SplitSelectorInfo<BufferTypes> WaitForBestSplitSelector<BufferTypes>::ProcessSpl
         const typename BufferTypes::DatapointCounts rightCounts = childCounts.Get(bestFeature,bestSplitpoint,RIGHT_CHILD_INDEX);
         if( !mShouldSplitCriteria->ShouldSplit(depth, maxImpurity, leftCounts+rightCounts, leftCounts, rightCounts, extraInfo, nodeIndex, true))
         {
-            bestWaitForBestmSplitSelectorBuffers = SPLIT_SELECTOR_NO_SPLIT;
+            bestSplitSelectorBuffers = SPLIT_SELECTOR_NO_SPLIT;
             bestFeature = SPLIT_SELECTOR_NO_SPLIT;
             bestSplitpoint = SPLIT_SELECTOR_NO_SPLIT;
         }
     }
 
-    return SplitSelectorInfo<BufferTypes>(mSplitSelectorBuffers[bestWaitForBestmSplitSelectorBuffers],
+    mLogger->Log(mSplitSelectorBuffers,
+                mShouldSplitCriteria,
+                readCollection, depth,
+                bestSplitSelectorBuffers, bestFeature, bestSplitpoint,
+                extraInfo, nodeIndex);
+
+    return SplitSelectorInfo<BufferTypes>(mSplitSelectorBuffers[bestSplitSelectorBuffers],
                                             readCollection, mFinalizer, mBufferSplitter,
                                             bestFeature, bestSplitpoint, depth);
 }

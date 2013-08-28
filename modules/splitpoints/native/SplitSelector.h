@@ -13,6 +13,7 @@
 #include "FinalizerI.h"
 #include "SplitSelectorI.h"
 #include "SplitBuffersI.h"
+#include "LogSplitInfo.h"
 
 
 // ----------------------------------------------------------------------------
@@ -45,6 +46,7 @@ private:
     const ShouldSplitCriteriaI* mShouldSplitCriteria;
     const FinalizerI<BufferTypes>* mFinalizer;
     const SplitBuffersI* mBufferSplitter;
+    const LogSplitInfo<BufferTypes>* mLogger;
 };
 
 template <class BufferTypes>
@@ -55,6 +57,7 @@ SplitSelector<BufferTypes>::SplitSelector( const std::vector<SplitSelectorBuffer
 , mShouldSplitCriteria(shouldSplitCriteria->Clone())
 , mFinalizer(finalizer->Clone())
 , mBufferSplitter(NULL)
+, mLogger(new LogSplitInfo<BufferTypes>())
 {}
 
 template <class BufferTypes>
@@ -66,6 +69,7 @@ SplitSelector<BufferTypes>::SplitSelector( const std::vector<SplitSelectorBuffer
 , mShouldSplitCriteria(shouldSplitCriteria->Clone())
 , mFinalizer(finalizer->Clone())
 , mBufferSplitter((bufferSplitter != NULL) ? bufferSplitter->Clone() : NULL)
+, mLogger(new LogSplitInfo<BufferTypes>())
 {}
 
 template <class BufferTypes>
@@ -75,6 +79,7 @@ SplitSelector<BufferTypes>::~SplitSelector()
     delete mShouldSplitCriteria;
     delete mBufferSplitter;
     delete mFinalizer;
+    delete mLogger;
 }
 
 template <class BufferTypes>
@@ -87,7 +92,7 @@ SplitSelectorInfo<BufferTypes> SplitSelector<BufferTypes>::ProcessSplits(const B
     typename BufferTypes::ImpurityValue maxImpurity = -std::numeric_limits<typename BufferTypes::ImpurityValue>::max();
     int bestSplitSelectorBuffers = SPLIT_SELECTOR_NO_SPLIT;
     int bestFeature = SPLIT_SELECTOR_NO_SPLIT;
-    int bestThreshold = SPLIT_SELECTOR_NO_SPLIT;
+    int bestSplitpoint = SPLIT_SELECTOR_NO_SPLIT;
     bool recordSplitInfo = true;
 
     for(unsigned int s=0; s<mSplitSelectorBuffers.size(); s++)
@@ -116,16 +121,22 @@ SplitSelectorInfo<BufferTypes> SplitSelector<BufferTypes>::ProcessSplits(const B
                     maxImpurity = impurity;
                     bestSplitSelectorBuffers = s;
                     bestFeature = f;
-                    bestThreshold = t;
+                    bestSplitpoint = t;
                     recordSplitInfo = false; //once one good split is found, do not record failed splits
                 }
             }
         }
     }
 
+    mLogger->Log(mSplitSelectorBuffers,
+                mShouldSplitCriteria,
+                readCollection, depth,
+                bestSplitSelectorBuffers, bestFeature, bestSplitpoint,
+                extraInfo, nodeIndex);
+
     return SplitSelectorInfo<BufferTypes>(mSplitSelectorBuffers[bestSplitSelectorBuffers],
                                             readCollection, mFinalizer, mBufferSplitter,
-                                            bestFeature, bestThreshold, depth);;
+                                            bestFeature, bestSplitpoint, depth);;
 }
 
 template <class BufferTypes>

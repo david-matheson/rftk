@@ -37,6 +37,9 @@ public:
 
     LinearMatrixFeatureBinding<BufferTypes, DataMatrixType> Bind(const BufferCollectionStack& readCollection) const;
 
+    int FeatureIndex(  const BufferCollectionStack& readCollection,
+                       const int featureOffset ) const;
+
 
     typedef typename BufferTypes::FeatureValue Float;
     typedef typename BufferTypes::Index Int;
@@ -87,6 +90,17 @@ LinearMatrixFeatureBinding<BufferTypes, DataMatrixType> LinearMatrixFeature<Buff
 
     return LinearMatrixFeatureBinding<BufferTypes, DataMatrixType>(floatParams, intParams, indices, dataMatrix);
 }
+
+template <class BufferTypes, class DataMatrixType>
+int LinearMatrixFeature<BufferTypes, DataMatrixType>::FeatureIndex( const BufferCollectionStack& readCollection,
+                                                                    const int featureOffset ) const
+{
+    MatrixBufferTemplate<typename BufferTypes::ParamsInteger> const* intParams = 
+            readCollection.GetBufferPtr< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mIntParamsBufferId);
+
+    return intParams->Get(featureOffset, 2);
+}
+
 
 // template <class BufferTypes>
 // class LinearDenseMatrixFeature: public LinearMatrixFeature<BufferTypes, MatrixBufferTemplate<typename BufferTypes::SourceContinuous> >

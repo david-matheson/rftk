@@ -53,7 +53,8 @@ DepthFirstTreeLearner<CdflBufferTypes_t> CreateDepthFirstLearner( BufferCollecti
                                                 featureParams.FloatParamsBufferId,
                                                 featureParams.IntParamsBufferId,
                                                 featureExtractor.FeatureValuesBufferId,
-                                                featureOrdering));
+                                                featureOrdering,
+                                                &featureExtractor));
     const MinImpurityCriteria minImpurityCriteria(0.0);
     ClassEstimatorFinalizer<CdflBufferTypes_t> classFinalizer;
     SplitBuffersIndices<CdflBufferTypes_t> splitIndices(allSamplesStep.IndicesBufferId);

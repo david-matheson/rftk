@@ -38,6 +38,9 @@ public:
 
     ~ScaledDepthDeltaFeature();
 
+    int FeatureIndex(  const BufferCollectionStack& readCollection,
+                       const int featureOffset ) const;
+
     ScaledDepthDeltaFeatureBinding<BufferTypes> Bind(const BufferCollectionStack& readCollection) const;
 
 
@@ -123,4 +126,14 @@ ScaledDepthDeltaFeatureBinding<BufferTypes> ScaledDepthDeltaFeature<BufferTypes>
 
     return ScaledDepthDeltaFeatureBinding<BufferTypes>(floatParams, intParams, indices, pixelIndices, depthImgs, scales);
 }
+
+template <class BufferTypes>
+int ScaledDepthDeltaFeature<BufferTypes>::FeatureIndex(  const BufferCollectionStack& readCollection,
+                                                          const int featureOffset ) const
+{
+    UNUSED_PARAM(readCollection);
+    UNUSED_PARAM(featureOffset);
+    return 0;
+}
+
 

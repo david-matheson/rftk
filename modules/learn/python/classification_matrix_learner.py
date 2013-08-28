@@ -71,7 +71,8 @@ def create_axis_aligned_matrix_walking_learner_32f(**kwargs):
                                                           feature_params_step.FloatParamsBufferId,
                                                           feature_params_step.IntParamsBufferId,
                                                           matrix_feature_extractor_step.FeatureValuesBufferId,
-                                                          feature_ordering)
+                                                          feature_ordering,
+                                                          matrix_feature_extractor_step)
     should_split_criteria = create_should_split_criteria(**kwargs)
     finalizer = classification.ClassEstimatorFinalizer_f32()
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
@@ -133,7 +134,8 @@ def create_dimension_pair_difference_matrix_walking_learner_32f(**kwargs):
                                                           feature_params_step.FloatParamsBufferId,
                                                           feature_params_step.IntParamsBufferId,
                                                           matrix_feature_extractor_step.FeatureValuesBufferId,
-                                                          feature_ordering)
+                                                          feature_ordering,
+                                                          matrix_feature_extractor_step)
     should_split_criteria = create_should_split_criteria(**kwargs)
     finalizer = classification.ClassEstimatorFinalizer_f32()
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
@@ -196,7 +198,8 @@ def create_class_pair_difference_matrix_walking_learner_32f(**kwargs):
                                                           feature_params_step.FloatParamsBufferId,
                                                           feature_params_step.IntParamsBufferId,
                                                           matrix_feature_extractor_step.FeatureValuesBufferId,
-                                                          feature_ordering)
+                                                          feature_ordering,
+                                                          matrix_feature_extractor_step)
     should_split_criteria = create_should_split_criteria(**kwargs)
     finalizer = classification.ClassEstimatorFinalizer_f32()
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
@@ -271,7 +274,8 @@ def create_axis_aligned_matrix_one_stream_learner_32f(**kwargs):
                                                           feature_params_step.FloatParamsBufferId,
                                                           feature_params_step.IntParamsBufferId,
                                                           matrix_feature_extractor_step.FeatureValuesBufferId,
-                                                          feature_ordering)
+                                                          feature_ordering,
+                                                          matrix_feature_extractor_step)
     should_split_criteria = create_should_split_criteria(**kwargs)
     finalizer = classification.ClassEstimatorFinalizer_f32()
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
@@ -350,7 +354,8 @@ def create_axis_aligned_matrix_two_stream_learner_32f(**kwargs):
                                                           feature_params_step.FloatParamsBufferId,
                                                           feature_params_step.IntParamsBufferId,
                                                           matrix_feature_extractor_step.FeatureValuesBufferId,
-                                                          feature_ordering)
+                                                          feature_ordering,
+                                                          matrix_feature_extractor_step)
     should_split_criteria = create_should_split_criteria(**kwargs)
     finalizer = classification.ClassEstimatorFinalizer_f32()
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
@@ -462,7 +467,8 @@ def create_online_axis_aligned_matrix_one_stream_learner_32f(**kwargs):
                                                           feature_params_step.FloatParamsBufferId,
                                                           feature_params_step.IntParamsBufferId,
                                                           matrix_feature_extractor_step.FeatureValuesBufferId,
-                                                          feature_ordering)
+                                                          feature_ordering,
+                                                          matrix_feature_extractor_step)
     should_split_criteria = create_should_split_criteria(**kwargs)
     finalizer = classification.ClassEstimatorFinalizer_f32()
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
@@ -568,7 +574,8 @@ def create_online_axis_aligned_matrix_two_stream_consistent_learner_32f(**kwargs
                                                           feature_params_step.FloatParamsBufferId,
                                                           feature_params_step.IntParamsBufferId,
                                                           matrix_feature_extractor_step.FeatureValuesBufferId,
-                                                          feature_ordering)
+                                                          feature_ordering,
+                                                          matrix_feature_extractor_step)
     should_split_criteria = create_should_split_consistent_criteria(**kwargs)
     finalizer = classification.ClassEstimatorFinalizer_f32()
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)

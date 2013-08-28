@@ -6,12 +6,14 @@
 #include "BufferCollectionStack.h"
 #include "PipelineStepI.h"
 #include "UniqueBufferId.h"
+#include "FeatureIndexerI.h"
 
 enum FeatureValueOrdering
 {
     FEATURES_BY_DATAPOINTS,
     DATAPOINTS_BY_FEATURES
 };
+
 
 // ----------------------------------------------------------------------------
 //
@@ -20,7 +22,7 @@ enum FeatureValueOrdering
 //
 // ----------------------------------------------------------------------------
 template <class FeatureType>
-class FeatureExtractorStep: public PipelineStepI
+class FeatureExtractorStep: public PipelineStepI, public FeatureIndexerI
 {
 public:
     FeatureExtractorStep(const FeatureType& feature, FeatureValueOrdering ordering);
@@ -32,6 +34,11 @@ public:
                                 BufferCollection& writeCollection,
                                 boost::mt19937& gen,
                                 BufferCollection& extraInfo, int nodeIndex) const;
+
+    virtual int IndexFeature( const BufferCollectionStack& readCollection,
+                              const int featureOffset  ) const;
+
+    virtual FeatureIndexerI* CloneFeatureIndexerI() const;
 
     // Read only output buffer
     const BufferId FeatureValuesBufferId;
@@ -55,7 +62,7 @@ FeatureExtractorStep<FeatureType>::~FeatureExtractorStep()
 template <class FeatureType>
 PipelineStepI* FeatureExtractorStep<FeatureType>::Clone() const
 {
-    FeatureExtractorStep* clone = new FeatureExtractorStep<FeatureType>(*this);
+    PipelineStepI* clone = new FeatureExtractorStep<FeatureType>(*this);
     return clone;
 }
 
@@ -90,4 +97,18 @@ void FeatureExtractorStep<FeatureType>::ProcessStep(const BufferCollectionStack&
             featureValues.Set(r,c, value);
         }
     }
+}
+
+template <class FeatureType>
+int FeatureExtractorStep<FeatureType>::IndexFeature(  const BufferCollectionStack& readCollection,
+                                                      const int featureOffset  ) const
+{
+    return mFeature.FeatureIndex(readCollection, featureOffset);
+}
+
+template <class FeatureType>
+FeatureIndexerI* FeatureExtractorStep<FeatureType>::CloneFeatureIndexerI() const
+{
+    FeatureIndexerI* clone = new FeatureExtractorStep<FeatureType>(*this);
+    return clone;
 }

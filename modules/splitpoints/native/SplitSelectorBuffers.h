@@ -22,7 +22,11 @@ public:
                     const BufferId& floatParamsBufferId,
                     const BufferId& intParamsBufferId,
                     const BufferId& featureValuesBufferId,
-                    FeatureValueOrdering ordering);
+                    FeatureValueOrdering ordering,
+                    const FeatureIndexerI* featureIndexer);
+    ~SplitSelectorBuffers();
+    SplitSelectorBuffers(const SplitSelectorBuffers& other);
+    SplitSelectorBuffers& operator=( const SplitSelectorBuffers& rhs );
 
     // BufferIds are non-const for vector assignment operator
     BufferId mImpurityBufferId;
@@ -35,5 +39,6 @@ public:
     BufferId mIntParamsBufferId;
     BufferId mFeatureValuesBufferId;
     FeatureValueOrdering mOrdering;
+    FeatureIndexerI* mFeatureIndexer;
 };
 

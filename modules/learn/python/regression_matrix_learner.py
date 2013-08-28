@@ -74,7 +74,8 @@ def create_regression_axis_aligned_matrix_learner_32f(**kwargs):
                                                           feature_params_step.FloatParamsBufferId,
                                                           feature_params_step.IntParamsBufferId,
                                                           matrix_feature_extractor_step.FeatureValuesBufferId,
-                                                          feature_ordering)
+                                                          feature_ordering,
+                                                          matrix_feature_extractor_step)
     should_split_criteria = create_should_split_criteria(**kwargs)
     finalizer = regression.MeanVarianceEstimatorFinalizer_f32()
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
@@ -133,7 +134,8 @@ def create_biau2008_regression_axis_aligned_matrix_learner_32f(**kwargs):
                                                           feature_params_step.FloatParamsBufferId,
                                                           feature_params_step.IntParamsBufferId,
                                                           matrix_feature_extractor_step.FeatureValuesBufferId,
-                                                          feature_ordering)
+                                                          feature_ordering,
+                                                          matrix_feature_extractor_step)
     should_split_criteria = min_child_size_criteria = should_split.MinChildSizeCriteria(1)
     finalizer = regression.MeanVarianceEstimatorFinalizer_f32()
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
@@ -218,7 +220,8 @@ def create_biau2012_regression_axis_aligned_matrix_learner_32f(**kwargs):
                                                           feature_params_step.FloatParamsBufferId,
                                                           feature_params_step.IntParamsBufferId,
                                                           matrix_feature_extractor_step.FeatureValuesBufferId,
-                                                          feature_ordering)
+                                                          feature_ordering,
+                                                          matrix_feature_extractor_step)
     should_split_criteria = create_should_split_criteria(**kwargs)
     finalizer = regression.MeanVarianceEstimatorFinalizer_f32()
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
@@ -302,7 +305,8 @@ def create_consistent_two_stream_regression_axis_aligned_matrix_learner_32f(**kw
                                                           feature_params_step.FloatParamsBufferId,
                                                           feature_params_step.IntParamsBufferId,
                                                           matrix_feature_extractor_step.FeatureValuesBufferId,
-                                                          feature_ordering)
+                                                          feature_ordering,
+                                                          matrix_feature_extractor_step)
     should_split_criteria = create_should_split_criteria(**kwargs)
     finalizer = regression.MeanVarianceEstimatorFinalizer_f32()
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)

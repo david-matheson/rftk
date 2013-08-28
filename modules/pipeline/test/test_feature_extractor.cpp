@@ -47,6 +47,12 @@ public:
         return result;
     }
 
+    int FeatureIndex(  const BufferCollectionStack& readCollection,
+                       const int featureIndex) const
+    {
+        return 0;
+    }
+
     typedef FloatType Float;
     typedef IntType Int;
     typedef TestFeatureBinding<FloatType,IntType> FeatureBinding;

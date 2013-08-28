@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_NoCriteria)
 {
     SplitSelectorBuffers buffers(im_key, splitpoints_key, number_splitpoints_key, childcounts_key,
                               left_key, right_key, feature_floatparams_key, feature_intparams_key,
-                              NullKey, FEATURES_BY_DATAPOINTS);
+                              NullKey, FEATURES_BY_DATAPOINTS, NULL);
     std::vector<SplitSelectorBuffers> split_select_buffers;
     split_select_buffers.push_back(buffers);
 
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_NoValidSplit)
 {
     SplitSelectorBuffers buffers(im_key, splitpoints_key, number_splitpoints_key, childcounts_key,
                               left_key, right_key, feature_floatparams_key, feature_intparams_key,
-                              NullKey, FEATURES_BY_DATAPOINTS);
+                              NullKey, FEATURES_BY_DATAPOINTS, NULL);
     std::vector<SplitSelectorBuffers> split_select_buffers;
     split_select_buffers.push_back(buffers);
 
@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_MinChildSizeCriteria)
 {
     SplitSelectorBuffers buffers(im_key, splitpoints_key, number_splitpoints_key, childcounts_key,
                               left_key, right_key, feature_floatparams_key, feature_intparams_key,
-                              NullKey, FEATURES_BY_DATAPOINTS);
+                              NullKey, FEATURES_BY_DATAPOINTS, NULL);
     std::vector<SplitSelectorBuffers> split_select_buffers;
     split_select_buffers.push_back(buffers);
 
@@ -320,10 +320,10 @@ BOOST_AUTO_TEST_CASE(test_ProcessSplit_two_SplitSelectorBuffers)
 {
     SplitSelectorBuffers buffers(im_key, splitpoints_key, number_splitpoints_key, childcounts_key,
                               left_key, right_key, feature_floatparams_key, feature_intparams_key,
-                              NullKey, FEATURES_BY_DATAPOINTS);
+                              NullKey, FEATURES_BY_DATAPOINTS, NULL);
     SplitSelectorBuffers buffers2(im_2_key, splitpoints_key, number_splitpoints_key, childcounts_key,
                               left_key, right_key, feature_floatparams_key, feature_intparams_key,
-                              NullKey, FEATURES_BY_DATAPOINTS);
+                              NullKey, FEATURES_BY_DATAPOINTS, NULL);
     std::vector<SplitSelectorBuffers> split_select_buffers;
     split_select_buffers.push_back(buffers);
     split_select_buffers.push_back(buffers2);
@@ -372,7 +372,7 @@ BOOST_AUTO_TEST_CASE(test_SplitBuffers_FEATURES_BY_DATAPOINTS)
 {
     SplitSelectorBuffers buffers(im_key, splitpoints_key, number_splitpoints_key, childcounts_key,
                               left_key, right_key, feature_floatparams_key, feature_intparams_key,
-                              feature_values_key, FEATURES_BY_DATAPOINTS);
+                              feature_values_key, FEATURES_BY_DATAPOINTS, NULL);
     std::vector<SplitSelectorBuffers> split_select_buffers;
     split_select_buffers.push_back(buffers);
 
@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE(test_SplitBuffers_DATAPOINTS_BY_FEATURES)
 
     SplitSelectorBuffers buffers(im_key, splitpoints_key, number_splitpoints_key, childcounts_key,
                               left_key, right_key, feature_floatparams_key, feature_intparams_key,
-                              feature_values_key, DATAPOINTS_BY_FEATURES);
+                              feature_values_key, DATAPOINTS_BY_FEATURES, NULL);
     std::vector<SplitSelectorBuffers> split_select_buffers;
     split_select_buffers.push_back(buffers);
 

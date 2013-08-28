@@ -12,3 +12,4 @@
 #include "TwoStreamSplitpointStatsStep.h"
 #include "RangeMidpointStep.h"
 #include "SplitBuffersFeatureRange.h"
+#include "LogSplitInfo.h"
