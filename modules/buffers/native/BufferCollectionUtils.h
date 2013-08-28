@@ -45,8 +45,9 @@ public:
     ~TimeLogger();
 private:
 	BufferCollection& mBufferCollection;
-	std::string mTimeName;
-	std::string mCounterName;
-	int mNodeIndex;
+	const std::string mTimeName;
+	const std::string mCounterName;
+	const bool mRecordCounter; 
+	const int mNodeIndex;
 	Timer mTimer;
 };
