@@ -1,7 +1,10 @@
 import unittest as unittest
 import numpy as np
 
+import load_data 
+
 import rftk
+
 
 
 class TestNew(unittest.TestCase):
@@ -87,5 +90,46 @@ class TestNew(unittest.TestCase):
         self.assertEqual(result[5,1], -1)
         self.assertEqual(result[5,0], 2)
         self.assertEqual(result[5,1], -1)
+
+    def test_ecoli_classifiers(self):
+        x_train, y_train, x_test, y_test = load_data.load_ecoli_data()
+        learner = rftk.learn.create_vanilia_classifier()
+        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=False, number_of_trees=10, number_of_jobs=5)
+        y_hat = predictor.predict(x=x_test).argmax(axis=1)
+        acc = np.mean(y_test == y_hat)
+        self.assertGreater(acc, 0.75)
+
+        forest = predictor.get_forest()
+        tree = forest.GetTree(0)
+        extraInfo = tree.mExtraInfo
+        extraInfo.Print()
+
+    def test_wine_regression(self):
+        x_train, y_train, x_test, y_test = load_data.load_wine_data()
+        learner = rftk.learn.create_standard_regression()
+        predictor = learner.fit(x=x_train, y=y_train, bootstrap=False, number_of_trees=10, number_of_jobs=5)
+        y_hat = predictor.predict(x=x_test)
+        mse = np.mean((y_test - y_hat)**2)
+        print mse
+        self.assertLess(mse, 0.5)
+
+        forest = predictor.get_forest()
+        tree = forest.GetTree(0)
+        extraInfo = tree.mExtraInfo
+        extraInfo.Print()
+
+    # def test_extra_info(self):
+    #     learner = rftk.learn.create_vanilia_classifier()
+    #     x = np.array(np.random.rand(1000,10), dtype=np.float32)
+    #     classes = np.array(np.random.randint(5,size=(1000)), dtype=np.int32)
+    #     predictor = learner.fit(x=x, classes=classes, bootstrap=False, number_of_features=3, number_of_trees=5, number_of_jobs=5)
+    #     forest = predictor.get_forest()
+    #     for i in range(forest.GetNumberOfTrees()):
+    #         print('\n\nTree %d' % i)
+    #         tree = forest.GetTree(i)
+    #         extraInfo = tree.mExtraInfo
+    #         extraInfo.Print()
+
+
 if __name__ == '__main__':
     unittest.main()
