@@ -149,6 +149,50 @@ BOOST_AUTO_TEST_CASE(test_Resize_sizecheck)
     BOOST_CHECK_CLOSE(mb.Get(2,3), 11, 0.001);
     BOOST_CHECK_CLOSE(mb.Get(2,4), 0, 0.001);
     BOOST_CHECK_CLOSE(mb.Get(2,5), 0, 0.001);
+
+    mb = CreateExampleMatrix<double>();
+    mb.Resize(5,3);
+
+    BOOST_CHECK_CLOSE(mb.Get(0,0), 0, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(0,1), 1, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(0,2), 2, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(1,0), 4, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(1,1), 5, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(1,2), 6, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(2,0), 8, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(2,1), 9, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(2,2), 10, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(3,0), 12, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(3,1), 13, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(3,2), 14, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(4,0), 0, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(4,1), 0, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(4,2), 0, 0.001);
+}
+
+BOOST_AUTO_TEST_CASE(test_Resize_extendcheck)
+{
+    MatrixBufferTemplate<double> mb = CreateExampleMatrix<double>();
+    mb.Extend(3,6);
+
+    BOOST_CHECK_CLOSE(mb.Get(0,0), 0, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(0,1), 1, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(0,2), 2, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(0,3), 3, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(0,4), 0, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(0,5), 0, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(1,0), 4, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(1,1), 5, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(1,2), 6, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(1,3), 7, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(1,4), 0, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(1,5), 0, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(2,0), 8, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(2,1), 9, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(2,2), 10, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(2,3), 11, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(2,4), 0, 0.001);
+    BOOST_CHECK_CLOSE(mb.Get(2,5), 0, 0.001);
     BOOST_CHECK_CLOSE(mb.Get(3,0), 12, 0.001);
     BOOST_CHECK_CLOSE(mb.Get(3,1), 13, 0.001);
     BOOST_CHECK_CLOSE(mb.Get(3,2), 14, 0.001);
@@ -158,7 +202,7 @@ BOOST_AUTO_TEST_CASE(test_Resize_sizecheck)
 
 
     mb = CreateExampleMatrix<double>();
-    mb.Resize(5,3);
+    mb.Extend(5,3);
 
     BOOST_CHECK_CLOSE(mb.Get(0,0), 0, 0.001);
     BOOST_CHECK_CLOSE(mb.Get(0,1), 1, 0.001);

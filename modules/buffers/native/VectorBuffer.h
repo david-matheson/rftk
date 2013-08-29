@@ -19,6 +19,8 @@ public:
 
     void Resize(int n);
     void Resize(int n, T value);
+    void Extend(int n);
+    void Extend(int n, T value);
     void Zero();
     void SetAll(const T value);
 
@@ -126,6 +128,22 @@ void VectorBufferTemplate<T>::Resize( int n)
 
 template <class T>
 void VectorBufferTemplate<T>::Resize(int n, T value)
+{
+    if(static_cast<size_t>(n) > mData.size())
+    {
+        mData.resize(n, value);
+    }
+    mN = n; 
+}
+
+template <class T>
+void VectorBufferTemplate<T>::Extend( int n)
+{
+    Extend(n, T());
+}
+
+template <class T>
+void VectorBufferTemplate<T>::Extend(int n, T value)
 {
     if(static_cast<size_t>(n) > mData.size())
     {

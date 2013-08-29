@@ -22,6 +22,9 @@ public:
 
     void Resize(int m, int n);
     void Resize(int m, int n, T value);
+    void Extend(int m, int n);
+    void Extend(int m, int n, T value);
+
     void Zero();
     void SetAll(const T value);
 
@@ -153,6 +156,37 @@ void MatrixBufferTemplate<T>::Resize(int m, int n)
 
 template <class T>
 void MatrixBufferTemplate<T>::Resize(int m, int n, T value)
+{
+    if(mN == n && static_cast<size_t>(m*n) > mData.size())
+    {
+        mData.resize(m*n, value);
+    }
+    else 
+    {
+        MatrixBufferTemplate<T> newBuffer(m, n, value);
+        for(int i=0; i<std::min(mM,m); i++)
+        {
+            for(int j=0; j<std::min(mN,n); j++)
+            {
+                newBuffer.Set(i,j, Get(i,j));
+            }
+        }
+
+        *this = newBuffer;
+    }
+
+    mM = m;
+    mN = n;
+}
+
+template <class T>
+void MatrixBufferTemplate<T>::Extend(int m, int n)
+{
+    Extend(m, n, T());
+}
+
+template <class T>
+void MatrixBufferTemplate<T>::Extend(int m, int n, T value)
 {
     m = std::max<int>(m, mM);
     n = std::max<int>(n, mN);
