@@ -72,20 +72,15 @@ void LogSplitInfo<BufferTypes>::Log( const std::vector<SplitSelectorBuffers>& sp
                     featureImpurity = std::max< typename BufferTypes::ImpurityValue >(featureImpurity, impurities.Get(f,t));
                 }
 
-                int featureIndex = ssb.mFeatureIndexer->IndexFeature(readCollection, f);
-      
-                IncrementValue<int>(extraInfo, "SplitInfo-FeaturesSampled", featureIndex, 1);
-                IncrementValue<float>(extraInfo, "SplitInfo-ImpuritySumSampled", featureIndex, featureImpurity);
-
-    	        if(s == bestSelectorBuffer && f == bestFeature)
+                const bool isSelectedFeature = s == bestSelectorBuffer && f == bestFeature;
+    	        if(isSelectedFeature)
     	        {
-    	        	IncrementValue<int>(extraInfo, "SplitInfo-FeaturesSelected", featureIndex, 1);
-    	        	IncrementValue<float>(extraInfo, "SplitInfo-ImpuritySumSelected", featureIndex, featureImpurity);
-
-    	        	WriteValue<float>(extraInfo, "SplitInfo-PerNode-Impurity", nodeIndex, featureImpurity);
                     WriteValue<int>(extraInfo, "SplitInfo-PerNode-BufferSelectorId", nodeIndex, bestSelectorBuffer);
-                    WriteValue<int>(extraInfo, "SplitInfo-PerNode-FeatureId", nodeIndex, featureIndex);
+                    WriteValue<float>(extraInfo, "SplitInfo-PerNode-Impurity", nodeIndex, featureImpurity);
     	        }
+
+                ssb.mFeatureIndexer->LogFeatureInfo(readCollection, depth, f, featureImpurity, isSelectedFeature, extraInfo);
+
             }
         }
     }

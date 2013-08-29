@@ -23,7 +23,7 @@ public:
                     const BufferId& intParamsBufferId,
                     const BufferId& featureValuesBufferId,
                     FeatureValueOrdering ordering,
-                    const FeatureIndexerI* featureIndexer);
+                    const FeatureInfoLoggerI* featureIndexer);
     ~SplitSelectorBuffers();
     SplitSelectorBuffers(const SplitSelectorBuffers& other);
     SplitSelectorBuffers& operator=( const SplitSelectorBuffers& rhs );
@@ -39,6 +39,6 @@ public:
     BufferId mIntParamsBufferId;
     BufferId mFeatureValuesBufferId;
     FeatureValueOrdering mOrdering;
-    FeatureIndexerI* mFeatureIndexer;
+    FeatureInfoLoggerI* mFeatureIndexer;
 };
 

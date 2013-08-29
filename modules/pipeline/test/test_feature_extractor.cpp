@@ -47,10 +47,16 @@ public:
         return result;
     }
 
-    int FeatureIndex(  const BufferCollectionStack& readCollection,
-                       const int featureIndex) const
+    void LogFeatureInfo( const BufferCollectionStack& readCollection, int depth,
+                                                              const int featureOffset, const double featureImpurity, const bool isSelectedFeature, 
+                                                              BufferCollection& extraInfo) const
     {
-        return 0;
+        UNUSED_PARAM(readCollection);
+        UNUSED_PARAM(depth);
+        UNUSED_PARAM(featureOffset);
+        UNUSED_PARAM(featureImpurity);
+        UNUSED_PARAM(isSelectedFeature);
+        UNUSED_PARAM(extraInfo);
     }
 
     typedef FloatType Float;

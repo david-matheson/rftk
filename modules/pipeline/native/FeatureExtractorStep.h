@@ -6,7 +6,7 @@
 #include "BufferCollectionStack.h"
 #include "PipelineStepI.h"
 #include "UniqueBufferId.h"
-#include "FeatureIndexerI.h"
+#include "FeatureInfoLoggerI.h"
 
 enum FeatureValueOrdering
 {
@@ -22,7 +22,7 @@ enum FeatureValueOrdering
 //
 // ----------------------------------------------------------------------------
 template <class FeatureType>
-class FeatureExtractorStep: public PipelineStepI, public FeatureIndexerI
+class FeatureExtractorStep: public PipelineStepI, public FeatureInfoLoggerI
 {
 public:
     FeatureExtractorStep(const FeatureType& feature, FeatureValueOrdering ordering);
@@ -35,10 +35,11 @@ public:
                                 boost::mt19937& gen,
                                 BufferCollection& extraInfo, int nodeIndex) const;
 
-    virtual int IndexFeature( const BufferCollectionStack& readCollection,
-                              const int featureOffset  ) const;
+    virtual void LogFeatureInfo( const BufferCollectionStack& readCollection, int depth,
+                                const int featureOffset, const double featureImpurity, const bool isSelectedFeature, 
+                                BufferCollection& extraInfo) const;
 
-    virtual FeatureIndexerI* CloneFeatureIndexerI() const;
+    virtual FeatureInfoLoggerI* CloneFeatureInfoLoggerI() const;
 
     // Read only output buffer
     const BufferId FeatureValuesBufferId;
@@ -100,15 +101,16 @@ void FeatureExtractorStep<FeatureType>::ProcessStep(const BufferCollectionStack&
 }
 
 template <class FeatureType>
-int FeatureExtractorStep<FeatureType>::IndexFeature(  const BufferCollectionStack& readCollection,
-                                                      const int featureOffset  ) const
+void FeatureExtractorStep<FeatureType>::LogFeatureInfo( const BufferCollectionStack& readCollection, int depth,
+                                                        const int featureOffset, const double featureImpurity, const bool isSelectedFeature, 
+                                                        BufferCollection& extraInfo ) const
 {
-    return mFeature.FeatureIndex(readCollection, featureOffset);
+    return mFeature.LogFeatureInfo(readCollection, depth, featureOffset, featureImpurity, isSelectedFeature, extraInfo);
 }
 
 template <class FeatureType>
-FeatureIndexerI* FeatureExtractorStep<FeatureType>::CloneFeatureIndexerI() const
+FeatureInfoLoggerI* FeatureExtractorStep<FeatureType>::CloneFeatureInfoLoggerI() const
 {
-    FeatureIndexerI* clone = new FeatureExtractorStep<FeatureType>(*this);
+    FeatureInfoLoggerI* clone = new FeatureExtractorStep<FeatureType>(*this);
     return clone;
 }

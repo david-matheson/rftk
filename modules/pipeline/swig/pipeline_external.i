@@ -3,7 +3,7 @@
     #define SWIG_FILE_WITH_INIT
     #include "UniqueBufferId.h"
     #include "PipelineStepI.h"
-    #include "FeatureIndexerI.h"
+    #include "FeatureInfoLoggerI.h"
     #include "FeatureExtractorStep.h"
     #include "FeatureEqualI.h"
 %}
@@ -14,7 +14,7 @@
 
 %include "UniqueBufferId.h"
 %include "PipelineStepI.h"
-%include "FeatureIndexerI.h"
+%include "FeatureInfoLoggerI.h"
 %include "FeatureExtractorStep.h"
 %include "FeatureEqualI.h"
 

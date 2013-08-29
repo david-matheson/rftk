@@ -25,7 +25,7 @@ SplitSelectorBuffers::SplitSelectorBuffers(const BufferId& impurityBufferId,
                                             const BufferId& intParamsBufferId,
                                             const BufferId& featureValuesBufferId,
                                             FeatureValueOrdering ordering,
-                                            const FeatureIndexerI* featureIndexer)
+                                            const FeatureInfoLoggerI* featureIndexer)
 : mImpurityBufferId(impurityBufferId)
 , mSplitpointsBufferId(splitpointsBufferId)
 , mSplitpointsCountsBufferId(splitpointsCountsBufferId)
@@ -36,7 +36,7 @@ SplitSelectorBuffers::SplitSelectorBuffers(const BufferId& impurityBufferId,
 , mIntParamsBufferId(intParamsBufferId)
 , mFeatureValuesBufferId(featureValuesBufferId)
 , mOrdering(ordering)
-, mFeatureIndexer( featureIndexer != NULL ? featureIndexer->CloneFeatureIndexerI() : NULL)
+, mFeatureIndexer( featureIndexer != NULL ? featureIndexer->CloneFeatureInfoLoggerI() : NULL)
 {}
 
 SplitSelectorBuffers::~SplitSelectorBuffers()
@@ -58,7 +58,7 @@ SplitSelectorBuffers::SplitSelectorBuffers(const SplitSelectorBuffers& other)
 , mIntParamsBufferId(other.mIntParamsBufferId)
 , mFeatureValuesBufferId(other.mFeatureValuesBufferId)
 , mOrdering(other.mOrdering)
-, mFeatureIndexer( other.mFeatureIndexer != NULL ? other.mFeatureIndexer->CloneFeatureIndexerI() : NULL )
+, mFeatureIndexer( other.mFeatureIndexer != NULL ? other.mFeatureIndexer->CloneFeatureInfoLoggerI() : NULL )
 {}
 
 SplitSelectorBuffers& SplitSelectorBuffers::operator=( const SplitSelectorBuffers& rhs )
@@ -82,7 +82,7 @@ SplitSelectorBuffers& SplitSelectorBuffers::operator=( const SplitSelectorBuffer
 	}
 	if(rhs.mFeatureIndexer != NULL)
 	{
-		this->mFeatureIndexer = rhs.mFeatureIndexer->CloneFeatureIndexerI();
+		this->mFeatureIndexer = rhs.mFeatureIndexer->CloneFeatureInfoLoggerI();
 	}
 	return *this;
 }

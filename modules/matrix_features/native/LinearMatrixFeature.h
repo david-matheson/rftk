@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>        // std::abs
+
 #include "asserts.h"
 #include "BufferTypes.h"
 #include "VectorBuffer.h"
@@ -7,6 +9,7 @@
 #include "SparseMatrixBuffer.h"
 #include "BufferCollection.h"
 #include "BufferCollectionStack.h"
+#include "BufferCollectionUtils.h"
 #include "UniqueBufferId.h"
 #include "LinearMatrixFeatureBinding.h"
 
@@ -37,8 +40,9 @@ public:
 
     LinearMatrixFeatureBinding<BufferTypes, DataMatrixType> Bind(const BufferCollectionStack& readCollection) const;
 
-    int FeatureIndex(  const BufferCollectionStack& readCollection,
-                       const int featureOffset ) const;
+    void LogFeatureInfo( const BufferCollectionStack& readCollection, int depth,
+                        const int featureOffset, const double featureImpurity, const bool isSelectedFeature, 
+                        BufferCollection& extraInfo) const;
 
 
     typedef typename BufferTypes::FeatureValue Float;
@@ -92,13 +96,39 @@ LinearMatrixFeatureBinding<BufferTypes, DataMatrixType> LinearMatrixFeature<Buff
 }
 
 template <class BufferTypes, class DataMatrixType>
-int LinearMatrixFeature<BufferTypes, DataMatrixType>::FeatureIndex( const BufferCollectionStack& readCollection,
-                                                                    const int featureOffset ) const
+void LinearMatrixFeature<BufferTypes, DataMatrixType>::LogFeatureInfo( const BufferCollectionStack& readCollection, int depth,
+                                                                    const int featureOffset, const double featureImpurity, const bool isSelectedFeature, 
+                                                                    BufferCollection& extraInfo) const
 {
+    UNUSED_PARAM(depth);
+
+    MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> const* floatParams = 
+            readCollection.GetBufferPtr< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFloatParamsBufferId);
+
     MatrixBufferTemplate<typename BufferTypes::ParamsInteger> const* intParams = 
             readCollection.GetBufferPtr< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mIntParamsBufferId);
 
-    return intParams->Get(featureOffset, 2);
+    const typename BufferTypes::Index numberOfDimensions = intParams->Get(featureOffset, NUMBER_OF_DIMENSIONS_INDEX);
+    typename BufferTypes::ParamsContinuous totalWeight = 0;
+    for(int i=PARAM_START_INDEX; i<numberOfDimensions + PARAM_START_INDEX; i++)
+    {
+        totalWeight += std::abs(floatParams->Get(featureOffset, i));
+    }
+
+    for(int i=PARAM_START_INDEX; i<numberOfDimensions + PARAM_START_INDEX; i++)
+    {
+        typename BufferTypes::ParamsInteger dimension = intParams->Get(featureOffset, i);
+        typename BufferTypes::ParamsContinuous dimensionWeight = std::abs(floatParams->Get(featureOffset, i)) / totalWeight;
+
+        IncrementValue<double>(extraInfo, "LinearMatrixFeature-Sampled", dimension, dimensionWeight);
+        IncrementValue<double>(extraInfo, "LinearMatrixFeature-ImpuritySampled", dimension, dimensionWeight*featureImpurity);
+
+        if(isSelectedFeature)
+        {
+            IncrementValue<double>(extraInfo, "LinearMatrixFeature-Selected", dimension, dimensionWeight);
+            IncrementValue<double>(extraInfo, "LinearMatrixFeature-ImpuritySelected", dimension, dimensionWeight*featureImpurity);
+        }
+    }
 }
 
 

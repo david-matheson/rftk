@@ -1,11 +1,14 @@
 #pragma once
 
+#include <cmath>
+
 #include "asserts.h"
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "Tensor3Buffer.h"
 #include "BufferCollection.h"
 #include "BufferCollectionStack.h"
+#include "BufferCollectionUtils.h"
 #include "UniqueBufferId.h"
 #include "ImageUtils.h"
 #include "ScaledDepthDeltaFeatureBinding.h"
@@ -38,11 +41,14 @@ public:
 
     ~ScaledDepthDeltaFeature();
 
-    int FeatureIndex(  const BufferCollectionStack& readCollection,
-                       const int featureOffset ) const;
-
     ScaledDepthDeltaFeatureBinding<BufferTypes> Bind(const BufferCollectionStack& readCollection) const;
 
+    void LogFeatureInfo(  const BufferCollectionStack& readCollection, int depth,
+                          const int featureOffset, const double featureImpurity, const bool isSelectedFeature, 
+                          BufferCollection& extraInfo) const;
+
+    int FeatureIndex(const typename BufferTypes::ParamsContinuous x, 
+                      const typename BufferTypes::ParamsContinuous y) const;
 
     typedef typename BufferTypes::FeatureValue Float;
     typedef typename BufferTypes::Index Int;
@@ -127,13 +133,52 @@ ScaledDepthDeltaFeatureBinding<BufferTypes> ScaledDepthDeltaFeature<BufferTypes>
     return ScaledDepthDeltaFeatureBinding<BufferTypes>(floatParams, intParams, indices, pixelIndices, depthImgs, scales);
 }
 
+
 template <class BufferTypes>
-int ScaledDepthDeltaFeature<BufferTypes>::FeatureIndex(  const BufferCollectionStack& readCollection,
-                                                          const int featureOffset ) const
+void ScaledDepthDeltaFeature<BufferTypes>::LogFeatureInfo( const BufferCollectionStack& readCollection, int depth,
+                                                          const int featureOffset, const double featureImpurity, const bool isSelectedFeature, 
+                                                          BufferCollection& extraInfo) const
 {
-    UNUSED_PARAM(readCollection);
-    UNUSED_PARAM(featureOffset);
-    return 0;
+    UNUSED_PARAM(depth);
+    
+    MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> const* floatParams = 
+            readCollection.GetBufferPtr< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFloatParamsBufferId);
+
+    const typename BufferTypes::ParamsContinuous um = floatParams->Get(featureOffset,FEATURE_SPECIFIC_PARAMS_START);
+    const typename BufferTypes::ParamsContinuous un = floatParams->Get(featureOffset,FEATURE_SPECIFIC_PARAMS_START+1);
+    const typename BufferTypes::ParamsContinuous vm = floatParams->Get(featureOffset,FEATURE_SPECIFIC_PARAMS_START+2);
+    const typename BufferTypes::ParamsContinuous vn = floatParams->Get(featureOffset,FEATURE_SPECIFIC_PARAMS_START+3);
+
+    int uIndex = FeatureIndex(um, un);
+    int vIndex = FeatureIndex(vm, vn);
+    int deltaIndex = FeatureIndex(um-vm, un-vn);
+
+    IncrementValue<double>(extraInfo, "ScaledDepthDeltaFeature-Sampled-U", uIndex, 1.0);
+    IncrementValue<double>(extraInfo, "ScaledDepthDeltaFeature-Sampled-V", vIndex, 1.0);
+    IncrementValue<double>(extraInfo, "ScaledDepthDeltaFeature-Sampled-Delta", deltaIndex, 1.0);
+
+    IncrementValue<double>(extraInfo, "ScaledDepthDeltaFeature-ImpuritySampled-U", uIndex, featureImpurity);
+    IncrementValue<double>(extraInfo, "ScaledDepthDeltaFeature-ImpuritySampled-V", vIndex, featureImpurity);
+    IncrementValue<double>(extraInfo, "ScaledDepthDeltaFeature-ImpuritySampled-Delta", deltaIndex, featureImpurity);
+
+    if(isSelectedFeature)
+    {
+        IncrementValue<double>(extraInfo, "ScaledDepthDeltaFeature-Selected-U", uIndex, 1.0);
+        IncrementValue<double>(extraInfo, "ScaledDepthDeltaFeature-Selected-V", vIndex, 1.0);
+        IncrementValue<double>(extraInfo, "ScaledDepthDeltaFeature-Selected-Delta", deltaIndex, 1.0);
+
+        IncrementValue<double>(extraInfo, "ScaledDepthDeltaFeature-ImpuritySelected-U", uIndex, featureImpurity);
+        IncrementValue<double>(extraInfo, "ScaledDepthDeltaFeature-ImpuritySelected-V", vIndex, featureImpurity);
+        IncrementValue<double>(extraInfo, "ScaledDepthDeltaFeature-ImpuritySelected-Delta", deltaIndex, featureImpurity);
+    }
 }
 
-
+template <class BufferTypes>
+int ScaledDepthDeltaFeature<BufferTypes>::FeatureIndex(const typename BufferTypes::ParamsContinuous x, 
+                                                        const typename BufferTypes::ParamsContinuous y) const
+{
+    const double resolution = 50.0;
+    int xIndex = int(std::max(0.0, std::min(log2(x)*(resolution/20.0) + (resolution/2.0), resolution)));
+    int yIndex = int(std::max(0.0, std::min(log2(y)*(resolution/20.0) + (resolution/2.0), resolution)) * resolution);
+    return xIndex + yIndex;
+}
