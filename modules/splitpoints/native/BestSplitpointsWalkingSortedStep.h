@@ -155,7 +155,7 @@ void BestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(const BufferC
             }
         }
 
-        impurities.Set(f, 0, bestImpurity);
+        impurities.Set(f, 0, std::max(typename ImpurityWalker::BufferTypes::ImpurityValue(0), bestImpurity));
         splitpoints.Set(f, 0, bestSplitpoint);
         splitpointCounts.Set(f, hasValidSplit ? 1 : 0);
         childCounts.Set(f, 0, 0, bestLeftChildCounts);

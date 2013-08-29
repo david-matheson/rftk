@@ -187,7 +187,7 @@ void RandomGapSplitpointsStep<ImpurityWalker>::ProcessStep(const BufferCollectio
         }
 
 
-        impurities.Set(f, 0, bestImpurity);
+        impurities.Set(f, 0, std::max(typename ImpurityWalker::BufferTypes::ImpurityValue(0), bestImpurity));
         splitpoints.Set(f, 0, bestSplitpoint);
         splitpointsCounts.Set(f, 1);
         childCounts.Set(f, 0, 0, bestLeftChildCounts);

@@ -66,7 +66,7 @@ void LogSplitInfo<BufferTypes>::Log( const std::vector<SplitSelectorBuffers>& sp
     	    const int numberOfFeatures = impurities.GetM();
             for(int f=0; f<numberOfFeatures; f++)
             {
-            	typename BufferTypes::ImpurityValue featureImpurity = -std::numeric_limits<typename BufferTypes::ImpurityValue>::max();
+            	typename BufferTypes::ImpurityValue featureImpurity = typename BufferTypes::ImpurityValue(0);
                 for(int t=0; t<splitpointCounts.Get(f); t++)
                 {
                     featureImpurity = std::max< typename BufferTypes::ImpurityValue >(featureImpurity, impurities.Get(f,t));
