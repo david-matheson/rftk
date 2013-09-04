@@ -46,7 +46,7 @@ def create_should_split_criteria(**kwargs):
 
 def create_should_split_consistent_criteria(**kwargs):
 
-    min_impurity = float( kwargs.get('min_impurity') )
+    min_impurity = float( kwargs.get('min_impurity', 0.0) )
     number_of_data_to_split_root = float( kwargs.get('number_of_data_to_split_root') )
     number_of_data_to_force_split_root = float( kwargs.get('number_of_data_to_force_split_root') )
     split_rate_growth = float( kwargs.get('split_rate_growth') )
