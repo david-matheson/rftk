@@ -112,6 +112,17 @@ void SumOfVarianceTwoStreamWalker<BT>::Bind(const BufferCollectionStack& readCol
     mSampleWeights = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::DatapointCounts> >(mSampleWeightsBufferId);
     mYs = readCollection.GetBufferPtr< MatrixBufferTemplate<typename BT::SourceContinuous> >(mYsBufferId);
     mStreamType = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::ParamsInteger> >(mStreamTypeBufferId);
+
+    // printf("SumOfVarianceTwoStreamWalker\n");
+    // printf("mSampleWeights->Print();\n");
+    // mSampleWeights->Print();
+    // printf("mYs->Print();\n");
+    // mYs->Print();
+    // printf("mStreamType->Print()\n");
+    // mStreamType->Print();
+    // printf("Done\n");
+
+
     ASSERT_ARG_DIM_1D(mSampleWeights->GetN(), mYs->GetM())
 
     for(int i=0; i<mSampleWeights->GetN(); i++)
@@ -119,7 +130,7 @@ void SumOfVarianceTwoStreamWalker<BT>::Bind(const BufferCollectionStack& readCol
         const typename BT::SufficientStatsContinuous weight = mSampleWeights->Get(i);
         const typename BT::ParamsInteger streamType = mStreamType->Get(i);
 
-        VectorBufferTemplate<typename BT::SufficientStatsContinuous> meanVariance = (streamType == STREAM_ESTIMATION) ?
+        VectorBufferTemplate<typename BT::SufficientStatsContinuous>& meanVariance = (streamType == STREAM_ESTIMATION) ?
                     mStartEstimationMeanVariance : mStartStructureMeanVariance;
 
         typename BT::SufficientStatsContinuous& counts = (streamType == STREAM_ESTIMATION) ? mStartEstimationCounts : mStartStructureCounts;
@@ -127,13 +138,15 @@ void SumOfVarianceTwoStreamWalker<BT>::Bind(const BufferCollectionStack& readCol
 
         for(int d=0; d<mYdim; d++)
         {
+            const typename BT::SufficientStatsContinuous epsilon = typename BT::SufficientStatsContinuous(0.1);
+            const typename BT::SufficientStatsContinuous zero = typename BT::SufficientStatsContinuous(0);
             const typename BT::SufficientStatsContinuous y_i = mYs->Get(i,d);
             // old unstable sufficient stats 
             // meanVariance.Incr(d, weight*y_d);
             // meanVariance.Incr(d+mYdim, weight*y_d*y_d);
             const typename BT::SufficientStatsContinuous mean = meanVariance.Get(d);
             const typename BT::SufficientStatsContinuous delta = y_i - mean;
-            const typename BT::SufficientStatsContinuous r = delta * weight / newCounts;
+            const typename BT::SufficientStatsContinuous r = newCounts > epsilon ? delta * weight / newCounts : zero;
             meanVariance.Incr(d,r);
             meanVariance.Incr(d+mYdim, counts*delta*r);
         }
@@ -149,6 +162,19 @@ void SumOfVarianceTwoStreamWalker<BT>::Bind(const BufferCollectionStack& readCol
         // mStartVariance += ySquared / mStartStructureCounts - pow(y/mStartStructureCounts, 2);
         mStartVariance += mStartStructureMeanVariance.Get(d+mYdim) / mStartStructureCounts;
     }
+
+    // printf("mStartVariance=%f\n", mStartVariance);
+
+    typename BT::SufficientStatsContinuous estVar = typename BT::SufficientStatsContinuous(0);
+    for(int d=0; d<mYdim; d++)
+    {
+        // old unstable sufficient stats 
+        // const FloatType y = mStartStructureMeanVariance.Get(d);
+        // const FloatType ySquared = mStartStructureMeanVariance.Get(d+mYdim);
+        // mStartVariance += ySquared / mStartStructureCounts - pow(y/mStartStructureCounts, 2);
+        estVar += mStartEstimationMeanVariance.Get(d+mYdim) / mStartEstimationCounts;
+    }
+    // printf("startEstVar=%f\n", estVar);
 
     Reset();
 }
@@ -172,10 +198,11 @@ void SumOfVarianceTwoStreamWalker<BT>::MoveLeftToRight(typename BT::Index sample
     const typename BT::SufficientStatsContinuous weight = mSampleWeights->Get(sampleIndex);
     const typename BT::ParamsInteger streamType = mStreamType->Get(sampleIndex);
 
-    VectorBufferTemplate<typename BT::SufficientStatsContinuous> leftMeanVariance = (streamType == STREAM_ESTIMATION) ?
+
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous>& leftMeanVariance = (streamType == STREAM_ESTIMATION) ?
                     mLeftEstimationMeanVariance : mLeftStructureMeanVariance;
 
-    VectorBufferTemplate<typename BT::SufficientStatsContinuous> rightMeanVariance = (streamType == STREAM_ESTIMATION) ?
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous>& rightMeanVariance = (streamType == STREAM_ESTIMATION) ?
                     mRightEstimationMeanVariance : mRightStructureMeanVariance;
 
     typename BT::SufficientStatsContinuous& leftCounts = (streamType == STREAM_ESTIMATION) ?
@@ -190,23 +217,20 @@ void SumOfVarianceTwoStreamWalker<BT>::MoveLeftToRight(typename BT::Index sample
     
     for(int d=0; d<mYdim; d++)
     {
-        const typename BT::SufficientStatsContinuous y_d = mYs->Get(sampleIndex,d);
+        const typename BT::SufficientStatsContinuous epsilon = typename BT::SufficientStatsContinuous(0.1);
+        const typename BT::SufficientStatsContinuous zero = typename BT::SufficientStatsContinuous(0);
 
-        // old unstable sufficient stats 
-        // leftMeanVariance.Incr(d, -weight*y_d);
-        // leftMeanVariance.Incr(d+mYdim, -weight*y_d*y_d);
-        // rightMeanVariance.Incr(d, weight*y_d);
-        // rightMeanVariance.Incr(d+mYdim, weight*y_d*y_d);
+        const typename BT::SufficientStatsContinuous y_d = mYs->Get(sampleIndex,d);
 
         const typename BT::SufficientStatsContinuous leftMean = leftMeanVariance.Get(d);
         const typename BT::SufficientStatsContinuous leftDelta = y_d - leftMean;
-        const typename BT::SufficientStatsContinuous leftr = leftDelta * -1.0 * weight / newLeftCounts;
+        const typename BT::SufficientStatsContinuous leftr = newLeftCounts > epsilon ? leftDelta * -1.0 * weight / newLeftCounts : zero;
         leftMeanVariance.Incr(d, leftr);
         leftMeanVariance.Incr(d+mYdim, leftCounts*leftDelta*leftr);
 
         const typename BT::SufficientStatsContinuous rightMean = rightMeanVariance.Get(d);
         const typename BT::SufficientStatsContinuous rightDelta = y_d - rightMean;
-        const typename BT::SufficientStatsContinuous rightr = rightDelta * weight / newRightCounts;
+        const typename BT::SufficientStatsContinuous rightr = newRightCounts > epsilon ? rightDelta * weight / newRightCounts : zero;
         rightMeanVariance.Incr(d, rightr);
         rightMeanVariance.Incr(d+mYdim, rightCounts*rightDelta*rightr);
     }

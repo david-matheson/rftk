@@ -114,7 +114,7 @@ void RandomSplitpointsStep<BufferTypes>::ProcessStep(const BufferCollectionStack
 
     const int numberOfFeatures =  mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? featureValues.GetM() : featureValues.GetN();
     const int numberOfSamples =  mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? featureValues.GetN() : featureValues.GetM();
-   
+      
     splitPoints.Resize(numberOfFeatures, mMaxSplitpointPerFeature);
     splitPointsCounts.Resize(numberOfFeatures);
 

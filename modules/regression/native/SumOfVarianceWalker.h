@@ -86,7 +86,7 @@ SumOfVarianceWalker<BT>::~SumOfVarianceWalker()
 template <class BT>
 void SumOfVarianceWalker<BT>::Bind(const BufferCollectionStack& readCollection)
 {
-    mSampleWeights = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::ParamsContinuous> >(mSampleWeightsBufferId);
+    mSampleWeights = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::DatapointCounts> >(mSampleWeightsBufferId);
 
     mYs = readCollection.GetBufferPtr< MatrixBufferTemplate<typename BT::SourceContinuous> >(mYsBufferId);
     ASSERT_ARG_DIM_1D(mSampleWeights->GetN(), mYs->GetM())
@@ -97,13 +97,15 @@ void SumOfVarianceWalker<BT>::Bind(const BufferCollectionStack& readCollection)
         typename BT::SufficientStatsContinuous newCounts = mStartCounts + weight;
         for(int d=0; d<mYdim; d++)
         {
+            const typename BT::SufficientStatsContinuous epsilon = typename BT::SufficientStatsContinuous(0.1);
+            const typename BT::SufficientStatsContinuous zero = typename BT::SufficientStatsContinuous(0);
             const typename BT::SufficientStatsContinuous y_i = mYs->Get(i,d);
             // old unstable sufficient stats 
             // mStartMeanVariance.Incr(d, weight*y_d);
             // mStartMeanVariance.Incr(d+mYdim, weight*y_d*y_d);
             const typename BT::SufficientStatsContinuous mean = mStartMeanVariance.Get(d);
             const typename BT::SufficientStatsContinuous delta = y_i - mean;
-            const typename BT::SufficientStatsContinuous r = delta * weight / newCounts;
+            const typename BT::SufficientStatsContinuous r = newCounts > epsilon ? delta * weight / newCounts : zero;
             mStartMeanVariance.Incr(d,r);
             mStartMeanVariance.Incr(d+mYdim, mStartCounts*delta*r);
         }
@@ -142,6 +144,9 @@ void SumOfVarianceWalker<BT>::MoveLeftToRight(typename BT::Index sampleIndex)
 
     for(int d=0; d<mYdim; d++)
     {
+        const typename BT::SufficientStatsContinuous epsilon = typename BT::SufficientStatsContinuous(0.1);
+        const typename BT::SufficientStatsContinuous zero = typename BT::SufficientStatsContinuous(0);
+
         const typename BT::SufficientStatsContinuous y_d = mYs->Get(sampleIndex,d);
 
         // old unstable sufficient stats 
@@ -152,13 +157,13 @@ void SumOfVarianceWalker<BT>::MoveLeftToRight(typename BT::Index sampleIndex)
 
         const typename BT::SufficientStatsContinuous leftMean = mLeftMeanVariance.Get(d);
         const typename BT::SufficientStatsContinuous leftDelta = y_d - leftMean;
-        const typename BT::SufficientStatsContinuous leftr = leftDelta * -1.0 * weight / newLeftCounts;
+        const typename BT::SufficientStatsContinuous leftr = newLeftCounts > epsilon ? leftDelta * -1.0 * weight / newLeftCounts : zero;
         mLeftMeanVariance.Incr(d, leftr);
         mLeftMeanVariance.Incr(d+mYdim, mLeftCounts*leftDelta*leftr);
 
         const typename BT::SufficientStatsContinuous rightMean = mRightMeanVariance.Get(d);
         const typename BT::SufficientStatsContinuous rightDelta = y_d - rightMean;
-        const typename BT::SufficientStatsContinuous rightr = rightDelta * weight / newRightCounts;
+        const typename BT::SufficientStatsContinuous rightr = newRightCounts > epsilon ? rightDelta * weight / newRightCounts : zero;
         mRightMeanVariance.Incr(d, rightr);
         mRightMeanVariance.Incr(d+mYdim, mRightCounts*rightDelta*rightr);
     }
