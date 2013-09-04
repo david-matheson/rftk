@@ -319,18 +319,19 @@ def create_axis_aligned_matrix_two_stream_learner_32f(**kwargs):
     matrix_feature_extractor_step = matrix_features.LinearFloat32MatrixFeatureExtractorStep_f32i32(matrix_feature, feature_ordering)
     slice_classes_step = pipeline.SliceInt32VectorBufferStep_i32(buffers.CLASS_LABELS, sample_data_step.IndicesBufferId)
     slice_weights_step = pipeline.SliceFloat32VectorBufferStep_i32(sample_data_step.WeightsBufferId, sample_data_step.IndicesBufferId)
+    slice_assign_stream_step = pipeline.SliceInt32VectorBufferStep_i32(assign_stream_step.StreamTypeBufferId, sample_data_step.IndicesBufferId)
 
     random_splitpoint_selection_step = splitpoints.RandomSplitpointsStep_f32i32(matrix_feature_extractor_step.FeatureValuesBufferId,
                                                                                 number_of_splitpoints,
-                                                                                feature_ordering)
-
+                                                                                feature_ordering,
+                                                                                slice_assign_stream_step.SlicedBufferId)
 
     class_stats_updater = classification.ClassStatsUpdater_f32i32(slice_weights_step.SlicedBufferId,
                                                                       slice_classes_step.SlicedBufferId,
                                                                       number_of_classes)
     two_stream_split_stats_step = classification.ClassStatsUpdaterTwoStreamStep_f32i32(random_splitpoint_selection_step.SplitpointsBufferId,
                                                                           random_splitpoint_selection_step.SplitpointsCountsBufferId,
-                                                                          assign_stream_step.StreamTypeBufferId,
+                                                                          slice_assign_stream_step.SlicedBufferId,
                                                                           matrix_feature_extractor_step.FeatureValuesBufferId,
                                                                           feature_ordering,
                                                                           class_stats_updater)
@@ -341,7 +342,7 @@ def create_axis_aligned_matrix_two_stream_learner_32f(**kwargs):
                                                                           two_stream_split_stats_step.RightImpurityStatsBufferId)
 
     node_steps_pipeline = pipeline.Pipeline([feature_params_step, matrix_feature_extractor_step,
-                                            slice_classes_step, slice_weights_step,
+                                            slice_classes_step, slice_weights_step, slice_assign_stream_step,
                                             random_splitpoint_selection_step,
                                             two_stream_split_stats_step, impurity_step])
 
