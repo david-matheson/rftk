@@ -241,7 +241,7 @@ def create_biau2012_regression_scaled_depth_delta_learner_32f(**kwargs):
                                                           depth_delta_feature_extractor_step.FeatureValuesBufferId,
                                                           feature_ordering,
                                                           depth_delta_feature_extractor_step)
-    should_split_criteria = create_should_split_criteria(**kwargs)
+    should_split_criteria = no_split_criteria(**kwargs)
     finalizer = regression.MeanVarianceEstimatorFinalizer_f32()
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
     split_midpoint_ranges = splitpoints.SplitBuffersFeatureRange_f32i32(midpoint_step.PastFloatParamsBufferId,

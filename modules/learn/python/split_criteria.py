@@ -38,11 +38,13 @@ def create_should_split_criteria(**kwargs):
         min_child_size_sum_criteria = should_split.MinChildSizeSumCriteria(min_child_size_sum)
         should_split_criteria_list.append(min_child_size_sum_criteria)      
         should_split_criteria_list.append(min_impurity_criteria)
-    if not should_split_criteria_list:
-        should_split_no_criteria = should_split.ShouldSplitNoCriteria()
-        should_split_criteria_list.append(should_split_no_criteria)
     return should_split.ShouldSplitCombinedCriteria(should_split_criteria_list)
 
+def no_split_criteria(**kwargs):
+    should_split_criteria_list = []
+    should_split_no_criteria = should_split.ShouldSplitNoCriteria()
+    should_split_criteria_list.append(should_split_no_criteria)
+    return should_split.ShouldSplitCombinedCriteria(should_split_criteria_list)
 
 def create_should_split_consistent_criteria(**kwargs):
 
