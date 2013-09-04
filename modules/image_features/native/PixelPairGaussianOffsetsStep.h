@@ -23,10 +23,10 @@ class PixelPairGaussianOffsetsStep: public PipelineStepI
 {
 public:
     PixelPairGaussianOffsetsStep( const BufferId numberOfFeaturesBufferId,
-                            const typename BufferTypes::ParamsContinuous ux,
-                            const typename BufferTypes::ParamsContinuous uy,
-                            const typename BufferTypes::ParamsContinuous vx,
-                            const typename BufferTypes::ParamsContinuous vy  );
+                            const double ux,
+                            const double uy,
+                            const double vx,
+                            const double vy  );
     virtual ~PixelPairGaussianOffsetsStep();
 
     virtual PipelineStepI* Clone() const;
@@ -57,10 +57,10 @@ private:
 
 template <class BufferTypes>
 PixelPairGaussianOffsetsStep<BufferTypes>::PixelPairGaussianOffsetsStep(  const BufferId numberOfFeaturesBufferId,
-                                                                const typename BufferTypes::ParamsContinuous ux,
-                                                                const typename BufferTypes::ParamsContinuous uy,
-                                                                const typename BufferTypes::ParamsContinuous vx,
-                                                                const typename BufferTypes::ParamsContinuous vy )
+                                                                const double ux,
+                                                                const double uy,
+                                                                const double vx,
+                                                                const double vy )
 : PipelineStepI("PixelPairGaussianOffsetsStep")
 , FloatParamsBufferId(GetBufferId("FloatParams"))
 , IntParamsBufferId(GetBufferId("IntParams"))
