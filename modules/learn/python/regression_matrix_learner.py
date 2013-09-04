@@ -35,8 +35,6 @@ def create_regression_axis_aligned_matrix_learner_32f(**kwargs):
     number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
     dimension_of_y = int( kwargs['y'].shape[1] )
 
-    print("number_of_trees=%d, number_of_leaves=%d, number_of_features=%d" % (number_of_trees, number_of_leaves, number_of_features))
-
     try_split_criteria = create_try_split_criteria(**kwargs)
 
     if 'bootstrap' in kwargs and kwargs.get('bootstrap'):
@@ -94,8 +92,6 @@ def create_biau2008_regression_axis_aligned_matrix_learner_32f(**kwargs):
     feature_ordering = int( kwargs.get('feature_ordering', pipeline.FEATURES_BY_DATAPOINTS) )
     number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
     dimension_of_y = int( kwargs['y'].shape[1] )
-
-    print("number_of_trees=%d, number_of_leaves=%d, number_of_features=%d" % (number_of_trees, number_of_leaves, number_of_features))
 
     try_split_criteria = try_split.MinNodeSizeCriteria(2)
 
@@ -155,8 +151,6 @@ def create_biau2012_regression_axis_aligned_matrix_learner_32f(**kwargs):
     number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
     dimension_of_y = int(  kwargs['y'].shape[1] )
     probability_of_impurity_stream = float(kwargs.get('probability_of_impurity_stream', 0.5) )
-
-    print("number_of_trees=%d, number_of_leaves=%d, number_of_features=%d" % (number_of_trees, number_of_leaves, number_of_features))
 
     try_split_criteria = create_try_split_criteria(**kwargs)
 
@@ -249,8 +243,6 @@ def create_consistent_two_stream_regression_axis_aligned_matrix_learner_32f(**kw
     feature_ordering = int( kwargs.get('feature_ordering', pipeline.FEATURES_BY_DATAPOINTS) )
     number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
     dimension_of_y = int(  kwargs['y'].shape[1] )
-
-    print("number_of_trees=%d, number_of_leaves=%d, number_of_features=%d" % (number_of_trees, number_of_leaves, number_of_features))
 
     probability_of_impurity_stream = float(kwargs.get('probability_of_impurity_stream', 0.5) )
     in_bounds_number_of_points = int(kwargs.get('in_bounds_number_of_points', kwargs['y'].shape[0]/2) )
