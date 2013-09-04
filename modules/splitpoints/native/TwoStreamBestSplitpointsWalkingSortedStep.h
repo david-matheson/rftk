@@ -125,8 +125,8 @@ void TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(cons
            = writeCollection.GetOrAddBuffer< VectorBufferTemplate<typename ImpurityWalker::BufferTypes::Index> >(SplitpointCountsBufferId);
     splitpointCounts.Resize(numberOfFeatures);
 
-    Tensor3BufferTemplate<typename ImpurityWalker::BufferTypes::SufficientStatsContinuous>& childCounts
-           = writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename ImpurityWalker::BufferTypes::SufficientStatsContinuous> >(ChildCountsEstimationBufferId);
+    Tensor3BufferTemplate<typename ImpurityWalker::BufferTypes::DatapointCounts>& childCounts
+           = writeCollection.GetOrAddBuffer< Tensor3BufferTemplate<typename ImpurityWalker::BufferTypes::DatapointCounts> >(ChildCountsEstimationBufferId);
     childCounts.Resize(numberOfFeatures, 1, 2);
 
     Tensor3BufferTemplate<typename ImpurityWalker::BufferTypes::SufficientStatsContinuous>& leftYs
