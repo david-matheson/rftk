@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <limits>
+#include <algorithm>    // std::sort
 #include <iostream>
 
 #include <asserts.h>
@@ -39,6 +40,9 @@ public:
     T Sum() const;
     void Normalize();
     VectorBufferTemplate<T> Normalized() const;
+
+    void Sort();
+    bool IsSorted() const;
 
     void Append(const VectorBufferTemplate<T>& buffer);
     VectorBufferTemplate<T> Slice(const VectorBufferTemplate<int>& indices) const;
@@ -246,6 +250,23 @@ VectorBufferTemplate<T> VectorBufferTemplate<T>::Normalized() const
     VectorBufferTemplate<T> result = *this;
     result.Normalize();
     return result;
+}
+
+template <class T>
+void VectorBufferTemplate<T>::Sort()
+{
+    std::sort (mData.begin(), mData.begin()+mN);
+}
+
+template <class T>
+bool VectorBufferTemplate<T>::IsSorted() const
+{
+    bool isSorted = true;
+    for(int i=1; i<mN && isSorted; i++)
+    {
+        isSorted = isSorted && mData[i-1] < mData[i];
+    }
+    return isSorted;
 }
 
 template <class T>

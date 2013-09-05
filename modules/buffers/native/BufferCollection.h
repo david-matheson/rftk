@@ -166,3 +166,5 @@ BufferType* BufferCollection::GetBufferPtr(BufferCollectionKey_t name)
 #define PIXEL_INDICES   "PixelIndices"
 #define DEPTH_IMAGES    "DepthImages"
 #define OFFSET_SCALES   "OffsetScales"
+
+#define OOB_INDICES "OOB_Indices"

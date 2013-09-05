@@ -29,5 +29,11 @@ class PredictorWrapper_32f:
         self.forest_predictor.PredictYs(bufferCollection, result)
         return buffers.as_numpy_array(result)
 
+    def predict_oob(self, **kwargs):
+        result = buffers.Float32MatrixBuffer()
+        bufferCollection = self.prepare_data(**kwargs)
+        self.forest_predictor.PredictOobYs(bufferCollection, result)
+        return buffers.as_numpy_array(result)
+
     def get_forest(self):
         return self.forest_predictor.GetForest()

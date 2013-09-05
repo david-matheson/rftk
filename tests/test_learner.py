@@ -103,12 +103,14 @@ class TestNew(unittest.TestCase):
         self.assertGreater(acc_test, 0.7)
 
         learner = rftk.learn.create_vanilia_classifier()
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=True, number_of_trees=10, number_of_jobs=5)
+        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=True, number_of_trees=100, number_of_jobs=5)
         y_hat_train = predictor.predict(x=x_train).argmax(axis=1)
         acc_train = np.mean(y_train == y_hat_train)
+        y_hat_train_oob = predictor.predict_oob(x=x_train).argmax(axis=1)
+        acc_train_oob = np.mean(y_train == y_hat_train_oob)
         y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
         acc_test = np.mean(y_test == y_hat_test)
-        print("create_vanilia_classifier bootstrap %f %f" % (acc_train, acc_test))
+        print("create_vanilia_classifier bootstrap %f %f %f" % (acc_train, acc_train_oob, acc_test))
         self.assertGreater(acc_test, 0.7)
 
         learner = rftk.learn.create_vanilia_classifier()
@@ -208,12 +210,14 @@ class TestNew(unittest.TestCase):
         self.assertLess(mse_test, 0.5)
 
         learner = rftk.learn.create_standard_regression()
-        predictor = learner.fit(x=x_train, y=y_train, bootstrap=True, number_of_trees=20, number_of_jobs=5)
+        predictor = learner.fit(x=x_train, y=y_train, bootstrap=True, number_of_trees=100, number_of_jobs=5)
         y_hat_train = predictor.predict(x=x_train)
         mse_train = np.mean((y_train - y_hat_train)**2)
+        y_hat_train_oob = predictor.predict_oob(x=x_train)
+        mse_train_oob = np.mean((y_train - y_hat_train_oob)**2)
         y_hat_test = predictor.predict(x=x_test)
         mse_test = np.mean((y_test - y_hat_test)**2)
-        print("create_standard_regression bootstrap %f %f" % (mse_train, mse_test))
+        print("create_standard_regression bootstrap %f %f %f" % (mse_train, mse_train_oob, mse_test))
         self.assertLess(mse_test, 0.5)
 
         learner = rftk.learn.create_biau2008_regression()
@@ -287,10 +291,13 @@ class TestNew(unittest.TestCase):
         train_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
                                         pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
         train_accurracy = np.mean(train_pixel_labels == train_predictions.argmax(axis=1))
+        train_predictions_oob = predictor.predict_oob(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
+                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
+        train_accurracy_oob = np.mean(train_pixel_labels == train_predictions_oob.argmax(axis=1))
         test_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(test_depths),
                                         pixel_indices=rftk.buffers.as_matrix_buffer(test_pixel_indices))
         test_accurracy = np.mean(test_pixel_labels == test_predictions.argmax(axis=1))
-        print("create_vanilia_scaled_depth_delta_classifier %f %f" % (train_accurracy, test_accurracy))
+        print("create_vanilia_scaled_depth_delta_classifier %f %f %f" % (train_accurracy, train_accurracy_oob, test_accurracy))
 
 
     def test_online_one_stream_depth_delta_classifier(self):
@@ -327,10 +334,13 @@ class TestNew(unittest.TestCase):
         train_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
                                         pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
         train_accurracy = np.mean(train_pixel_labels == train_predictions.argmax(axis=1))
+        train_predictions_oob = predictor.predict_oob(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
+                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
+        train_accurracy_oob = np.mean(train_pixel_labels == train_predictions_oob.argmax(axis=1))
         test_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(test_depths),
                                         pixel_indices=rftk.buffers.as_matrix_buffer(test_pixel_indices))
         test_accurracy = np.mean(test_pixel_labels == test_predictions.argmax(axis=1))
-        print("create_online_one_stream_depth_delta_classifier %f %f" % (train_accurracy, test_accurracy))
+        print("create_online_one_stream_depth_delta_classifier %f %f %f" % (train_accurracy, train_accurracy_oob, test_accurracy))
 
 
     def test_online_two_stream_consistent_depth_delta_classifier(self):
@@ -369,10 +379,13 @@ class TestNew(unittest.TestCase):
         train_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
                                         pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
         train_accurracy = np.mean(train_pixel_labels == train_predictions.argmax(axis=1))
+        train_predictions_oob = predictor.predict_oob(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
+                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
+        train_accurracy_oob = np.mean(train_pixel_labels == train_predictions_oob.argmax(axis=1))
         test_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(test_depths),
                                         pixel_indices=rftk.buffers.as_matrix_buffer(test_pixel_indices))
         test_accurracy = np.mean(test_pixel_labels == test_predictions.argmax(axis=1))
-        print("create_online_two_stream_consistent_depth_delta_classifier %f %f" % (train_accurracy, test_accurracy))
+        print("create_online_two_stream_consistent_depth_delta_classifier %f %f %f" % (train_accurracy, train_accurracy_oob, test_accurracy))
 
 
 
@@ -408,10 +421,16 @@ class TestNew(unittest.TestCase):
         train_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
                                         pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
         train_mse = np.mean((train_joint_offsets[:, joint_id, :] - train_predictions)**2)
+        
+        train_predictions_oob = predictor.predict_oob(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
+                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
+        train_mse_oob = np.mean((train_joint_offsets[:, joint_id, :] - train_predictions_oob)**2)
+        
         test_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(test_depths),
                                         pixel_indices=rftk.buffers.as_matrix_buffer(test_pixel_indices))
         test_mse = np.mean((test_joint_offsets[:, joint_id, :] - test_predictions)**2)
-        print("create_vanilia_scaled_depth_delta_regression %f %f" % (train_mse, test_mse))
+        
+        print("create_vanilia_scaled_depth_delta_regression %f %f %f" % (train_mse, train_mse_oob, test_mse))
 
 
 

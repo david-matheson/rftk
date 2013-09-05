@@ -48,7 +48,10 @@ def create_regression_scaled_depth_delta_learner_32f(**kwargs):
 
     try_split_criteria = create_try_split_criteria(**kwargs)
 
-    sample_data_step = pipeline.AllSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
+    if 'bootstrap' in kwargs and kwargs.get('bootstrap'):
+        sample_data_step = pipeline.BootstrapSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
+    else:
+        sample_data_step = pipeline.AllSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
 
     number_of_features_buffer = buffers.as_vector_buffer(np.array([number_of_features], dtype=np.int32))
     set_number_features_step = pipeline.SetInt32VectorBufferStep(number_of_features_buffer, pipeline.WHEN_NEW)

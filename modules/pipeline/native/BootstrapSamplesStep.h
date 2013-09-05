@@ -83,6 +83,7 @@ void BootstrapSamplesStep<BufferTypes, DataMatrixType>::ProcessStep(const Buffer
                           numberOfSamples);
 
     std::vector<typename BufferTypes::Index> sampledIndices;
+    std::vector<typename BufferTypes::Index> oobIndices;
     for(unsigned int i=0; i<counts.size(); i++)
     {
         if( counts[i] > 0 )
@@ -90,7 +91,14 @@ void BootstrapSamplesStep<BufferTypes, DataMatrixType>::ProcessStep(const Buffer
             weights.Set(i,static_cast<float>(counts[i]));
             sampledIndices.push_back(i);
         }
+        else
+        {
+            oobIndices.push_back(i);
+        }
     }
     indices = VectorBufferTemplate<typename BufferTypes::Index>(&sampledIndices[0], sampledIndices.size());
+    
+    extraInfo.AddBuffer< VectorBufferTemplate<typename BufferTypes::Index> >(OOB_INDICES,
+                         VectorBufferTemplate<typename BufferTypes::Index>(&oobIndices[0], oobIndices.size()));
 
 }

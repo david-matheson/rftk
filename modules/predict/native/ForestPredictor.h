@@ -44,10 +44,13 @@ public:
 
     void PredictLeafs(const BufferCollection& data, MatrixBufferTemplate<int>& leafsOut) const;
     void PredictYs(const BufferCollection& data, MatrixBufferTemplate<float>& ysOut);
+    void PredictOobYs(const BufferCollection& data, MatrixBufferTemplate<float>& ysOut);
 
     Forest GetForest() const;
 
 private:
+    void PredictYsInternal(const BufferCollection& data, MatrixBufferTemplate<float>& ysOut, bool useOobIndices);
+
     const Forest mForest;
     Feature mFeature;
     Combiner mCombiner;
@@ -113,6 +116,23 @@ template <class Feature, class Combiner, class BufferTypes>
 void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictYs( const BufferCollection& data,
                                                                               MatrixBufferTemplate<float>& ysOut)
 {
+    PredictYsInternal(data, ysOut, false);
+}
+
+template <class Feature, class Combiner, class BufferTypes>
+void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictOobYs( const BufferCollection& data,
+                                                                              MatrixBufferTemplate<float>& ysOut)
+{
+    PredictYsInternal(data, ysOut, true);
+}
+
+
+
+template <class Feature, class Combiner, class BufferTypes>
+void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictYsInternal( const BufferCollection& data,
+                                                                              MatrixBufferTemplate<float>& ysOut,
+                                                                              bool useOobIndices)
+{
     boost::mt19937 gen;
     gen.seed(0);
 
@@ -120,18 +140,31 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictYs( const B
     BufferCollectionStack stack;
     stack.Push(&data);
 
-    BufferCollection* perTreeBufferCollection = new BufferCollection[numberOfTreesInForest];
+    std::vector<BufferCollection> perTreeBufferCollection(numberOfTreesInForest);
     std::vector<typename Feature::FeatureBinding> featureBindings(numberOfTreesInForest);
+
+    std::vector< const VectorBufferTemplate<typename BufferTypes::Index>* > oobIndices(numberOfTreesInForest);
+    std::vector<typename BufferTypes::Index> currentOobOffset(numberOfTreesInForest);
+
     for(int treeId=0; treeId<numberOfTreesInForest; treeId++)
     {
+        const Tree& tree = mForest.mTrees[treeId];
         BufferCollection& bc = perTreeBufferCollection[treeId];
-        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFeature.mFloatParamsBufferId, mForest.mTrees[treeId].mFloatFeatureParams);
-        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mFeature.mIntParamsBufferId, mForest.mTrees[treeId].mIntFeatureParams);
+
+        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFeature.mFloatParamsBufferId, tree.mFloatFeatureParams);
+        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mFeature.mIntParamsBufferId, tree.mIntFeatureParams);
         mPreSteps->ProcessStep(stack, bc, gen, bc, 0);
 
         stack.Push(&bc);
         featureBindings[treeId] = mFeature.Bind(stack);
         stack.Pop();
+
+        if(useOobIndices)
+        {
+            oobIndices[treeId] = tree.mExtraInfo.GetBufferPtr< VectorBufferTemplate<typename BufferTypes::Index> >(OOB_INDICES);
+            ASSERT(oobIndices[treeId]->IsSorted()) //Assuming OOB_INDICES have already been sorted
+            currentOobOffset[treeId] = 0;
+        }
     }
 
     const int numberOfIndices = featureBindings[0].GetNumberOfDatapoints();
@@ -142,15 +175,25 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictYs( const B
         mCombiner.Reset();
         for(typename BufferTypes::Index treeId=0; treeId<numberOfTreesInForest; treeId++)
         {
-            const Tree& tree = mForest.mTrees[treeId];
-            typename BufferTypes::Index leafNodeId = walkTree<typename Feature::FeatureBinding, BufferTypes>(
-                                                                featureBindings[treeId], tree, 0, i);
-            mCombiner.Combine(leafNodeId, tree.mCounts.Get(leafNodeId), tree.mYs);
+            // Only include an datapoint if it is OOB or if we're not using OOB samples 
+            const bool isOobIndex = useOobIndices && (oobIndices[treeId]->Get(currentOobOffset[treeId]) == i );
+            ASSERT(!useOobIndices || (oobIndices[treeId]->Get(currentOobOffset[treeId]) < numberOfIndices))
+            if(isOobIndex || !useOobIndices)
+            {
+                const Tree& tree = mForest.mTrees[treeId];
+                typename BufferTypes::Index leafNodeId = walkTree<typename Feature::FeatureBinding, BufferTypes>(
+                                                                    featureBindings[treeId], tree, 0, i);
+                mCombiner.Combine(leafNodeId, tree.mCounts.Get(leafNodeId), tree.mYs);
+            }
+
+            if(isOobIndex)
+            {
+                currentOobOffset[treeId] = std::min(oobIndices[treeId]->GetN()-1, currentOobOffset[treeId]+1);
+            }
+
         }
         mCombiner.WriteResult(i, ysOut);
     }
-
-    delete[] perTreeBufferCollection;
 }
 
 template <class Feature, class Combiner, class BufferTypes>
