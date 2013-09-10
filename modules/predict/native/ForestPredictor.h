@@ -47,7 +47,8 @@ public:
     void PredictOobYs(const BufferCollection& data, MatrixBufferTemplate<float>& ysOut);
     void PredictYs(const BufferCollection& data, const VectorBufferTemplate<double>& treeWeights, MatrixBufferTemplate<float>& ysOut);
     void PredictOobYs(const BufferCollection& data, const VectorBufferTemplate<double>& treeWeights, MatrixBufferTemplate<float>& ysOut);
-
+    void PredictYs(const BufferCollection& data, const VectorBufferTemplate<double>& treeWeights, const MatrixBufferTemplate<int>& leafs, MatrixBufferTemplate<float>& ysOut);
+    void PredictOobYs(const BufferCollection& data, const VectorBufferTemplate<double>& treeWeights, const MatrixBufferTemplate<int>& leafs, MatrixBufferTemplate<float>& ysOut);
 
     Forest GetForest() const;
     void AddTree(const Tree& tree);
@@ -55,8 +56,9 @@ public:
 private:
     void PredictYsInternal(const BufferCollection& data, 
                             MatrixBufferTemplate<float>& ysOut, 
-                            const VectorBufferTemplate<double>& treeWeights, 
-                            bool useOobIndices);
+                            const VectorBufferTemplate<double>& treeWeights,
+                            bool useOobIndices,
+                            const MatrixBufferTemplate<int>* leafs);
 
     Forest mForest;
     Feature mFeature;
@@ -125,7 +127,7 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictYs( const B
 {
     VectorBufferTemplate<double> treeWeights(mForest.mTrees.size());
     treeWeights.SetAll(1.0);
-    PredictYsInternal(data, ysOut, treeWeights, false);
+    PredictYsInternal(data, ysOut, treeWeights, false, NULL);
 }
 
 template <class Feature, class Combiner, class BufferTypes>
@@ -134,7 +136,7 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictOobYs( cons
 {
     VectorBufferTemplate<double> treeWeights(mForest.mTrees.size());
     treeWeights.SetAll(1.0);
-    PredictYsInternal(data, ysOut, treeWeights, true);
+    PredictYsInternal(data, ysOut, treeWeights, true, NULL);
 }
 
 template <class Feature, class Combiner, class BufferTypes>
@@ -142,7 +144,7 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictYs( const B
                                                                          const VectorBufferTemplate<double>& treeWeights,
                                                                          MatrixBufferTemplate<float>& ysOut)
 {
-    PredictYsInternal(data, ysOut, treeWeights, false);
+    PredictYsInternal(data, ysOut, treeWeights, false, NULL);
 }
 
 template <class Feature, class Combiner, class BufferTypes>
@@ -150,15 +152,34 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictOobYs( cons
                                                                             const VectorBufferTemplate<double>& treeWeights,
                                                                             MatrixBufferTemplate<float>& ysOut)
 {
-    PredictYsInternal(data, ysOut, treeWeights, true);
+    PredictYsInternal(data, ysOut, treeWeights, true, NULL);
 }
 
+
+template <class Feature, class Combiner, class BufferTypes>
+void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictYs( const BufferCollection& data,
+                                                                         const VectorBufferTemplate<double>& treeWeights,
+                                                                         const MatrixBufferTemplate<int>& leafs,
+                                                                         MatrixBufferTemplate<float>& ysOut)
+{
+    PredictYsInternal(data, ysOut, treeWeights, false, &leafs);
+}
+
+template <class Feature, class Combiner, class BufferTypes>
+void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictOobYs( const BufferCollection& data,
+                                                                            const VectorBufferTemplate<double>& treeWeights,
+                                                                            const MatrixBufferTemplate<int>& leafs,
+                                                                            MatrixBufferTemplate<float>& ysOut)
+{
+    PredictYsInternal(data, ysOut, treeWeights, true, &leafs);
+}
 
 template <class Feature, class Combiner, class BufferTypes>
 void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictYsInternal( const BufferCollection& data,
                                                                               MatrixBufferTemplate<float>& ysOut,
                                                                               const VectorBufferTemplate<double>& treeWeights,
-                                                                              bool useOobIndices)
+                                                                              bool useOobIndices,
+                                                                              const MatrixBufferTemplate<int>* leafs)
 {
     boost::mt19937 gen;
     gen.seed(0);
@@ -208,7 +229,8 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictYsInternal(
             if(isOobIndex || !useOobIndices)
             {
                 const Tree& tree = mForest.mTrees[treeId];
-                typename BufferTypes::Index leafNodeId = walkTree<typename Feature::FeatureBinding, BufferTypes>(
+                typename BufferTypes::Index leafNodeId = (leafs != NULL) ? leafs->Get(i, treeId) :
+                                                walkTree<typename Feature::FeatureBinding, BufferTypes>(
                                                                     featureBindings[treeId], tree, 0, i);
                 mCombiner.Combine(leafNodeId, tree.mCounts.Get(leafNodeId), tree.mYs, treeWeights.Get(treeId));
             }

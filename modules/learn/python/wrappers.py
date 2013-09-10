@@ -36,12 +36,22 @@ class PredictorWrapper_32f:
     def predict_oob(self, **kwargs):
         result = buffers.Float32MatrixBuffer()
         bufferCollection = self.prepare_data(**kwargs)
-        if 'tree_weights' in kwargs:
+        if 'leafs' in kwargs:
+            leafs = kwargs.get('leafs')
+            tree_weights = kwargs.get('tree_weights')
+            self.forest_predictor.PredictOobYs(bufferCollection, tree_weights, leafs, result)
+        elif 'tree_weights' in kwargs:
             tree_weights = kwargs.get('tree_weights')
             self.forest_predictor.PredictOobYs(bufferCollection, tree_weights, result)
         else:
             self.forest_predictor.PredictOobYs(bufferCollection, result)
         return buffers.as_numpy_array(result)
+
+    def predict_leafs(self, **kwargs):
+        leafs = buffers.Int32MatrixBuffer()
+        bufferCollection = self.prepare_data(**kwargs)
+        self.forest_predictor.PredictLeafs(bufferCollection, leafs)
+        return leafs
 
     def add_tree(self, tree):
         self.forest_predictor.AddTree(tree)

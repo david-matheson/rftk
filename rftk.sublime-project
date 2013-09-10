@@ -1,0 +1,15 @@
+{
+	"folders":
+	[
+		{
+			"path": "/Users/Dave/sshfs_mount/rftk-pipeline-refactor"
+		}
+	],
+  "settings":
+  {
+    "sublimeclang_options":
+    [
+        "-I${folder:${project_path:myproject.sublime-project}}/modules/asserts/native/*"
+    ]
+  }
+}

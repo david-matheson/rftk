@@ -5,16 +5,20 @@ import rftk.buffers as buffers
 import learn
 
 class ZeroOneClassificationError:
-    def error(self, predictor_wrapper, tree_weights, **kwargs):
-        if tree_weights is not None:
-            y_hat = predictor_wrapper.predict_oob(x=kwargs.get('x'), tree_weights=tree_weights).argmax(axis=1)
+    def error(self, predictor_wrapper, tree_weights, leafs, **kwargs):
+        if leafs is not None:
+            y_hat = predictor_wrapper.predict_oob(x=kwargs.get('x'), tree_weights=tree_weights, leafs=leafs).argmax(axis=1)
         else:
-            y_hat = predictor_wrapper.predict_oob(x=kwargs.get('x')).argmax(axis=1)
+            y_hat = predictor_wrapper.predict_oob(x=kwargs.get('x'), tree_weights=tree_weights).argmax(axis=1)
         error = 1.0 - np.mean(kwargs.get('classes') == y_hat)
         return error
 
+def tree_weights_for_all_trees(forest_size):
+    tree_weights=buffers.as_vector_buffer( np.ones(forest_size, dtype=np.float64) )
+    return tree_weights
+    
 def tree_weights_for_swap(forest_size, tree_to_swap_out):
-    tree_weights=buffers.as_vector_buffer( np.ones(forest_size+1, dtype=np.float64) )
+    tree_weights=tree_weights_for_all_trees(forest_size)
     tree_weights.Set(tree_to_swap_out, 0)
     return tree_weights
 
@@ -44,13 +48,20 @@ class GreedyAddSwapWrapper:
                 forest_size = self.forest.GetNumberOfTrees()
 
                 predictor_wrapper = self.create_predictor(self.forest, **kwargs)
-                best_forest_error = self.error_calculator.error(predictor_wrapper, tree_weights=None, **kwargs)
+                best_forest_error = self.error_calculator.error(predictor_wrapper, 
+                                                                tree_weights=tree_weights_for_all_trees(forest_size), 
+                                                                leafs=None,
+                                                                **kwargs)
 
                 # Try just adding the tree
                 new_tree = new_forest.GetTree(new_tree_index)
                 predictor_wrapper.add_tree(new_tree)
+                # leafs = predictor_wrapper.predict_leafs(x=kwargs.get('x'))
 
-                new_error = self.error_calculator.error(predictor_wrapper, tree_weights=None, **kwargs)
+                new_error = self.error_calculator.error(predictor_wrapper, 
+                                                        tree_weights=tree_weights_for_all_trees(forest_size+1), 
+                                                        leafs=None,
+                                                        **kwargs)
 
                 if new_error <= best_forest_error:
                     best_forest_error = new_error
@@ -59,7 +70,8 @@ class GreedyAddSwapWrapper:
                 #Try swapping with each tree
                 for tree_to_swap_out in range(forest_size):
                     new_error = self.error_calculator.error(predictor_wrapper, 
-                                                            tree_weights=tree_weights_for_swap(forest_size, tree_to_swap_out),
+                                                            tree_weights=tree_weights_for_swap(forest_size+1, tree_to_swap_out),
+                                                            leafs=None,
                                                              **kwargs)
 
                     if new_error < best_forest_error:
