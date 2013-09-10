@@ -14,7 +14,8 @@ public:
     MeanVarianceCombiner(int numberOfDimensions);
     void Reset();
     void Combine(int nodeId, typename BufferTypes::DatapointCounts count, 
-                    const MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& estimatorParameters);
+                    const MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& estimatorParameters,
+                    double weight);
     void WriteResult(int row, MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& results);
     int GetResultDim() const;
 
@@ -42,16 +43,17 @@ void MeanVarianceCombiner<BufferTypes>::Reset()
 
 template <class BufferTypes>
 void MeanVarianceCombiner<BufferTypes>::Combine(int nodeId, typename BufferTypes::DatapointCounts count, 
-                                                    const MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& estimatorParameters)
+                                                    const MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& estimatorParameters,
+                                                    double weight)
 {
     ASSERT_ARG_DIM_1D(mCombinedResults.GetN(), estimatorParameters.GetN())
     for(int i=0; i<mCombinedResults.GetN(); i++)
     {
-        mCombinedResults.Incr(i, estimatorParameters.Get(nodeId, i));
+        mCombinedResults.Incr(i, weight*estimatorParameters.Get(nodeId, i));
 
     }
-    mNumberOfTrees += (count > 0.1) ? typename BufferTypes::DatapointCounts(1) : typename BufferTypes::DatapointCounts(0);
-    mCounts += count;
+    mNumberOfTrees += (count > 0.1) ? typename BufferTypes::DatapointCounts(weight) : typename BufferTypes::DatapointCounts(0);
+    mCounts += count*weight;
 }
 
 template <class BufferTypes>

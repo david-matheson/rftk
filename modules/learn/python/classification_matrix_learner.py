@@ -9,6 +9,7 @@ import rftk.classification as classification
 import rftk.predict as predict
 import learn
 from wrappers import *
+from greedy_add_swap_learner import *
 from split_criteria import *
 
 def matrix_classification_data_prepare(**kwargs):
@@ -374,6 +375,13 @@ def create_vanilia_classifier(**kwargs):
                             create_axis_aligned_matrix_walking_learner_32f,
                             create_matrix_predictor_32f,
                             kwargs)
+
+def create_greedy_add_swap_classifier(**kwargs):
+    return GreedyAddSwapWrapper(  matrix_classification_data_prepare,
+                          create_axis_aligned_matrix_walking_learner_32f,
+                          create_matrix_predictor_32f,
+                          ZeroOneClassificationError(),
+                          kwargs)
 
 def create_dimension_pair_difference_matrix_classifier(**kwargs):
     return LearnerWrapper(  matrix_classification_data_prepare,

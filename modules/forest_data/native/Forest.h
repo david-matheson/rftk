@@ -17,6 +17,10 @@ public:
             int maxYsDim );
     Forest(const Forest& rhs);
 
+    void AddForest(const Forest& forest);
+    void AddTree(const Tree& tree);
+    void RemoveTree(const int index);
+
     int GetNumberOfTrees() const;
     Tree GetTree(const int index) const;
     ForestStats GetForestStats() const;

@@ -14,7 +14,8 @@ public:
     ClassProbabilityCombiner(int numberOfClasses);
     void Reset();
     void Combine(int nodeId, typename BufferTypes::DatapointCounts count, 
-                    const MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& estimatorParameters);
+                    const MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& estimatorParameters,
+                    double weight);
     void WriteResult(int row, MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& results);
     int GetResultDim() const;
 
@@ -40,15 +41,16 @@ void ClassProbabilityCombiner<BufferTypes>::Reset()
 
 template <class BufferTypes>
 void ClassProbabilityCombiner<BufferTypes>::Combine(int nodeId, typename BufferTypes::DatapointCounts count, 
-                                                    const MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& estimatorParameters)
+                                                    const MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& estimatorParameters,
+                                                    double weight)
 {
     UNUSED_PARAM(count)
     ASSERT_ARG_DIM_1D(mCombinedResults.GetN(), estimatorParameters.GetN())
     for(int i=0; i<mCombinedResults.GetN(); i++)
     {
-        mCombinedResults.Incr(i, estimatorParameters.Get(nodeId, i));
+        mCombinedResults.Incr(i, estimatorParameters.Get(nodeId, i)*weight);
     }
-    mNumberOfTrees += typename BufferTypes::DatapointCounts(1);
+    mNumberOfTrees += typename BufferTypes::DatapointCounts(weight);
 }
 
 template <class BufferTypes>

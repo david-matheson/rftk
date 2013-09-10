@@ -25,6 +25,17 @@ def load_ecoli_data():
     return X[0:trainSize], Y[0:trainSize], X[trainSize:-1], Y[trainSize:-1]
 
 
+def load_sklearn_data(file):
+    import sklearn.datasets as sklearn_datasets
+    data = sklearn_datasets.load_svmlight_file(file)
+    X = np.array(data[0].todense(),  dtype=np.float32)
+    Y = np.array( data[1], dtype=np.int32 )
+    return X, Y
+
+def load_usps_data():
+    (x_train, y_train) = load_sklearn_data("tests/data/usps")
+    (x_test, y_test) = load_sklearn_data("tests/data/usps.t")
+    return x_train, y_train, x_test, y_test
 
 def parse_wine_record(record):
     fields = re.split(";", record.strip())
