@@ -53,6 +53,13 @@ class PredictorWrapper_32f:
         self.forest_predictor.PredictLeafs(bufferCollection, leafs)
         return leafs
 
+    def predict_leafs_ys(self, **kwargs):
+        oob_weights = buffers.Float32MatrixBuffer()
+        leaf_ys = buffers.Float32Tensor3Buffer()
+        bufferCollection = self.prepare_data(**kwargs)
+        self.forest_predictor.PredictLeafYs(bufferCollection, oob_weights, leaf_ys)
+        return buffers.as_numpy_array(leaf_ys), buffers.as_numpy_array(oob_weights)
+
     def add_tree(self, tree):
         self.forest_predictor.AddTree(tree)
 

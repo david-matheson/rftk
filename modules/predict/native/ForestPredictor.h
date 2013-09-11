@@ -50,6 +50,8 @@ public:
     void PredictYs(const BufferCollection& data, const VectorBufferTemplate<double>& treeWeights, const MatrixBufferTemplate<int>& leafs, MatrixBufferTemplate<float>& ysOut);
     void PredictOobYs(const BufferCollection& data, const VectorBufferTemplate<double>& treeWeights, const MatrixBufferTemplate<int>& leafs, MatrixBufferTemplate<float>& ysOut);
 
+    void PredictLeafYs(const BufferCollection& data, MatrixBufferTemplate<float>& oobWeights, Tensor3BufferTemplate<float>& ysOut) const;
+
     Forest GetForest() const;
     void AddTree(const Tree& tree);
 
@@ -242,6 +244,84 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictYsInternal(
 
         }
         mCombiner.WriteResult(i, ysOut);
+    }
+}
+
+template <class Feature, class Combiner, class BufferTypes>
+void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictLeafYs(const BufferCollection& data, 
+                                                                            MatrixBufferTemplate<float>& oobWeights, 
+                                                                            Tensor3BufferTemplate<float>& ysOut) const
+{
+    boost::mt19937 gen;
+    gen.seed(0);
+
+    const int numberOfTreesInForest = mForest.mTrees.size();
+    BufferCollectionStack stack;
+    stack.Push(&data);
+
+    std::vector<BufferCollection> perTreeBufferCollection(numberOfTreesInForest);
+    std::vector<typename Feature::FeatureBinding> featureBindings(numberOfTreesInForest);
+
+    std::vector< bool > hasOobIndices(numberOfTreesInForest);
+    std::vector< const VectorBufferTemplate<typename BufferTypes::Index>* > oobIndices(numberOfTreesInForest);
+    std::vector<typename BufferTypes::Index> currentOobOffset(numberOfTreesInForest);
+
+
+    for(int treeId=0; treeId<numberOfTreesInForest; treeId++)
+    {
+        const Tree& tree = mForest.mTrees[treeId];
+        BufferCollection& bc = perTreeBufferCollection[treeId];
+
+        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFeature.mFloatParamsBufferId, tree.mFloatFeatureParams);
+        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mFeature.mIntParamsBufferId, tree.mIntFeatureParams);
+        mPreSteps->ProcessStep(stack, bc, gen, bc, 0);
+
+        stack.Push(&bc);
+        featureBindings[treeId] = mFeature.Bind(stack);
+        stack.Pop();
+
+        hasOobIndices[treeId] = tree.mExtraInfo.HasBuffer< VectorBufferTemplate<typename BufferTypes::Index> >(OOB_INDICES); 
+
+        if(hasOobIndices[treeId])
+        {
+            oobIndices[treeId] = tree.mExtraInfo.GetBufferPtr< VectorBufferTemplate<typename BufferTypes::Index> >(OOB_INDICES);
+            ASSERT(oobIndices[treeId]->IsSorted()) //Assuming OOB_INDICES have already been sorted
+            currentOobOffset[treeId] = 0;
+        }
+    }
+
+    const int numberOfIndices = featureBindings[0].GetNumberOfDatapoints();
+    oobWeights.Resize(numberOfIndices, numberOfTreesInForest);
+    ysOut.Resize(mCombiner.GetResultDim(), numberOfIndices, numberOfTreesInForest);
+
+    for(typename BufferTypes::Index i=0; i<numberOfIndices; i++)
+    {
+        for(typename BufferTypes::Index treeId=0; treeId<numberOfTreesInForest; treeId++)
+        {
+            const Tree& tree = mForest.mTrees[treeId];
+            typename BufferTypes::Index leafNodeId = walkTree<typename Feature::FeatureBinding, BufferTypes>(
+                                                                featureBindings[treeId], tree, 0, i);
+
+            for(int c=0; c<tree.mYs.GetN(); c++)
+            {
+                ysOut.Set(c, i, treeId, tree.mYs.Get(leafNodeId, c));
+            }
+
+            float oobWeight = 1.0f;
+            if(oobIndices[treeId])
+            {
+                if(oobIndices[treeId]->Get(currentOobOffset[treeId]) == i)
+                {
+                    oobWeight = 1.0f;
+                    currentOobOffset[treeId] = std::min(oobIndices[treeId]->GetN()-1, currentOobOffset[treeId]+1);
+                }
+                else
+                {
+                    oobWeight = 0.0f;
+                }
+            }
+            oobWeights.Set(i, treeId, oobWeight);
+        }
     }
 }
 
