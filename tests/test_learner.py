@@ -5,6 +5,63 @@ import load_data
 
 import rftk
 
+def run_classifier(learner, description, 
+                            x_train, y_train, x_test, y_test, 
+                            number_of_trees_list, 
+                            bootstrap=False,
+                            number_of_features_list=None,
+                            number_of_jobs=5):
+
+        for i, number_of_trees in enumerate(number_of_trees_list):
+            if number_of_features_list is not None:
+                predictor = learner.fit(x=x_train, classes=y_train, bootstrap=bootstrap, number_of_trees=number_of_trees, number_of_features=number_of_features_list[i], number_of_jobs=number_of_jobs)
+            else:
+                predictor = learner.fit(x=x_train, classes=y_train, bootstrap=bootstrap, number_of_trees=number_of_trees, number_of_jobs=number_of_jobs)
+
+
+        y_hat_train = predictor.predict(x=x_train).argmax(axis=1)
+        acc_train = np.mean(y_train == y_hat_train)
+        y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
+        acc_test = np.mean(y_test == y_hat_test)
+
+        if bootstrap:
+            y_hat_train_oob = predictor.predict_oob(x=x_train).argmax(axis=1)
+            acc_train_oob = np.mean(y_train == y_hat_train_oob)
+            print("%s %f %f %f (#trees=%d)" % (description, acc_train, acc_train_oob, acc_test, predictor.get_forest().GetNumberOfTrees()))
+        else:
+            print("%s %f %f (#trees=%d)" % (description, acc_train, acc_test, predictor.get_forest().GetNumberOfTrees()))
+
+        return acc_test
+
+
+
+def run_regression(learner, description, 
+                            x_train, y_train, x_test, y_test, 
+                            number_of_trees_list, 
+                            bootstrap=False,
+                            number_of_features_list=None,
+                            number_of_jobs=5):
+
+        for i, number_of_trees in enumerate(number_of_trees_list):
+            if number_of_features_list is not None:
+                predictor = learner.fit(x=x_train, y=y_train, bootstrap=bootstrap, number_of_trees=number_of_trees, number_of_features=number_of_features_list[i], number_of_jobs=number_of_jobs)
+            else:
+                predictor = learner.fit(x=x_train, y=y_train, bootstrap=bootstrap, number_of_trees=number_of_trees, number_of_jobs=number_of_jobs)
+
+
+        y_hat_train = predictor.predict(x=x_train)
+        mse_train = np.mean((y_train - y_hat_train)**2)
+        y_hat_test = predictor.predict(x=x_test)
+        mse_test = np.mean((y_test - y_hat_test)**2)
+
+        if bootstrap:
+            y_hat_train_oob = predictor.predict_oob(x=x_train)
+            mse_train_oob = np.mean((y_train - y_hat_train_oob)**2)
+            print("%s %f %f %f (#trees=%d)" % (description, mse_train, mse_train_oob, mse_test, predictor.get_forest().GetNumberOfTrees()))
+        else:
+            print("%s %f %f (#trees=%d)" % (description, mse_train, mse_test, predictor.get_forest().GetNumberOfTrees()))
+
+        return mse_train
 
 
 class TestNew(unittest.TestCase):
@@ -93,166 +150,122 @@ class TestNew(unittest.TestCase):
 
     def test_ecoli_classifiers(self):
         x_train, y_train, x_test, y_test = load_data.load_ecoli_data()
-        learner = rftk.learn.create_vanilia_classifier()
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=False, number_of_trees=20, number_of_jobs=5)
-        y_hat_train = predictor.predict(x=x_train, tree_weights=rftk.buffers.as_vector_buffer( np.ones(predictor.get_forest().GetNumberOfTrees(), dtype=np.float64))).argmax(axis=1)
-        acc_train = np.mean(y_train == y_hat_train)
-        y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
-        acc_test = np.mean(y_test == y_hat_test)
-        print("create_vanilia_classifier %f %f" % (acc_train, acc_test))
-        self.assertGreater(acc_test, 0.7)
 
-        learner = rftk.learn.create_vanilia_classifier()
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=True, number_of_trees=20, number_of_jobs=5)
-        y_hat_train = predictor.predict(x=x_train).argmax(axis=1)
-        acc_train = np.mean(y_train == y_hat_train)
-        y_hat_train_oob = predictor.predict_oob(x=x_train).argmax(axis=1)
-        acc_train_oob = np.mean(y_train == y_hat_train_oob)
-        y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
-        acc_test = np.mean(y_test == y_hat_test)
-        print("create_vanilia_classifier bootstrap %f %f %f" % (acc_train, acc_train_oob, acc_test))
-        self.assertGreater(acc_test, 0.7)
+        error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
+                        description="ecoli create_vanilia_classifier",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[20], bootstrap=False)
+        self.assertGreater(error, 0.75)
 
-        learner = rftk.learn.create_vanilia_classifier()
-        predictor = learner.fit(x=x_train, classes=y_train, tree_order='breadth_first', number_of_trees=20, number_of_jobs=5)
-        y_hat_train = predictor.predict(x=x_train).argmax(axis=1)
-        acc_train = np.mean(y_train == y_hat_train)
-        y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
-        acc_test = np.mean(y_test == y_hat_test)
-        print("create_vanilia_classifier tree_order==breadth_first %f %f" % (acc_train, acc_test))
-        self.assertGreater(acc_test, 0.7)
+        error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
+                        description="ecoli create_vanilia_classifier bootstrap",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[20], bootstrap=True)
+        self.assertGreater(error, 0.75)
 
-        # forest = predictor.get_forest()
-        # tree = forest.GetTree(0)
-        # extraInfo = tree.mExtraInfo
-        # extraInfo.Print()
+        error = run_classifier(learner=rftk.learn.create_vanilia_classifier(tree_order='breadth_first'),
+                        description="ecoli create_vanilia_classifier bootstrap tree_order==breadth_first",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[20], bootstrap=True)
+        self.assertGreater(error, 0.75)
 
-        learner = rftk.learn.create_dimension_pair_difference_matrix_classifier()
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=False, number_of_trees=20, number_of_jobs=5)
-        y_hat_train = predictor.predict(x=x_train).argmax(axis=1)
-        acc_train = np.mean(y_train == y_hat_train)
-        y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
-        acc_test = np.mean(y_test == y_hat_test)
-        print("create_dimension_pair_difference_matrix_classifier %f %f" % (acc_train, acc_test))
-        self.assertGreater(acc_test, 0.7)
 
-        learner = rftk.learn.create_class_pair_difference_matrix_classifier()
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=False, number_of_trees=20, number_of_jobs=5)
-        y_hat_train = predictor.predict(x=x_train).argmax(axis=1)
-        acc_train = np.mean(y_train == y_hat_train)
-        y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
-        acc_test = np.mean(y_test == y_hat_test)
-        print("create_class_pair_difference_matrix_classifier %f %f" % (acc_train, acc_test))
-        self.assertGreater(acc_test, 0.7)
+        error = run_classifier(learner=rftk.learn.create_dimension_pair_difference_matrix_classifier(),
+                        description="ecoli create_dimension_pair_difference_matrix_classifier",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[20], bootstrap=False)
+        self.assertGreater(error, 0.75)
 
-        learner = rftk.learn.create_one_stream_classifier()
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=False, number_of_trees=20, number_of_jobs=5)
-        y_hat_train = predictor.predict(x=x_train).argmax(axis=1)
-        acc_train = np.mean(y_train == y_hat_train)
-        y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
-        acc_test = np.mean(y_test == y_hat_test)
-        print("create_one_stream_classifier %f %f" % (acc_train, acc_test))
-        self.assertGreater(acc_test, 0.7)
+        error = run_classifier(learner=rftk.learn.create_dimension_pair_difference_matrix_classifier(),
+                        description="ecoli create_dimension_pair_difference_matrix_classifier bootstrap",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[20], bootstrap=True)
+        self.assertGreater(error, 0.75)
 
-        learner = rftk.learn.create_two_stream_classifier()
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=False, number_of_trees=20, number_of_jobs=5)
-        y_hat_train = predictor.predict(x=x_train).argmax(axis=1)
-        acc_train = np.mean(y_train == y_hat_train)
-        y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
-        acc_test = np.mean(y_test == y_hat_test)
-        print("create_two_stream_classifier %f %f" % (acc_train, acc_test))
-        self.assertGreater(acc_test, 0.7)
+        error = run_classifier(learner=rftk.learn.create_one_stream_classifier(),
+                        description="ecoli create_one_stream_classifier",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[20], bootstrap=False)
+        self.assertGreater(error, 0.75)
 
-        learner = rftk.learn.create_online_one_stream_classifier()
-        for i in range(3):
-            predictor = learner.fit(x=x_train, classes=y_train, number_of_trees=20, number_of_jobs=5,
-                                    number_of_splitpoints=100,
-                                    min_impurity=0.1, 
-                                    bootstrap=True,
-                                    min_child_size_sum=3,
-                                    max_frontier_size=50000 )
-        y_hat_train = predictor.predict(x=x_train).argmax(axis=1)
-        acc_train = np.mean(y_train == y_hat_train)
-        y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
-        acc_test = np.mean(y_test == y_hat_test)
-        print("create_online_one_stream_classifier %f %f" % (acc_train, acc_test))
-        self.assertGreater(acc_test, 0.7)
 
-        learner = rftk.learn.create_online_two_stream_consistent_classifier()
-        for i in range(3):
-            predictor = learner.fit(x=x_train, classes=y_train, number_of_trees=20, number_of_jobs=5,
-                                        number_of_splitpoints=100,
-                                        min_impurity=0.1, 
-                                        poisson_sample=1.0, 
-                                        number_of_data_to_split_root=3, 
-                                        number_of_data_to_force_split_root=20, 
-                                        split_rate_growth=1.001,
-                                        probability_of_impurity_stream=0.5,
-                                        max_frontier_size=50000 )
-        y_hat_train = predictor.predict(x=x_train).argmax(axis=1)
-        acc_train = np.mean(y_train == y_hat_train)
-        y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
-        acc_test = np.mean(y_test == y_hat_test)
-        print("create_online_two_stream_consistent_classifier %f %f" % (acc_train, acc_test))
-        self.assertGreater(acc_test, 0.7)
+        error = run_classifier(learner=rftk.learn.create_two_stream_classifier(),
+                        description="ecoli create_two_stream_classifier",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[20], bootstrap=False)
+        self.assertGreater(error, 0.75)
+
+
+        error = run_classifier(learner=rftk.learn.create_online_one_stream_classifier(
+                                                number_of_splitpoints=100,
+                                                min_impurity=0.1, 
+                                                min_child_size_sum=3,
+                                                max_frontier_size=50000 ),
+                        description="ecoli create_online_one_stream_classifier",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[20,20,20], bootstrap=True)
+        self.assertGreater(error, 0.75)
+
+
+        error = run_classifier(learner=rftk.learn.create_online_two_stream_consistent_classifier(
+                                                    number_of_splitpoints=100,
+                                                    min_impurity=0.1, 
+                                                    poisson_sample=1.0, 
+                                                    number_of_data_to_split_root=3, 
+                                                    number_of_data_to_force_split_root=20, 
+                                                    split_rate_growth=1.001,
+                                                    probability_of_impurity_stream=0.5,
+                                                    max_frontier_size=50000 ),
+                        description="ecoli create_online_two_stream_consistent_classifier",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[20,20,20], bootstrap=True)
+        self.assertGreater(error, 0.75)
+
+
 
 
     def test_wine_regression(self):
         x_train, y_train, x_test, y_test = load_data.load_wine_data()
 
-        learner = rftk.learn.create_standard_regression()
-        predictor = learner.fit(x=x_train, y=y_train, bootstrap=False, number_of_trees=20, number_of_jobs=5)
-        y_hat_train = predictor.predict(x=x_train)
-        mse_train = np.mean((y_train - y_hat_train)**2)
-        y_hat_test = predictor.predict(x=x_test)
-        mse_test = np.mean((y_test - y_hat_test)**2)
-        print("create_standard_regression %f %f" % (mse_train, mse_test))
-        self.assertLess(mse_test, 0.5)
+        error = run_regression(learner=rftk.learn.create_standard_regression(),
+                                description="wine create_standard_regression",
+                                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                                number_of_trees_list=[20], bootstrap=False)
+        self.assertLess(error, 0.5)
 
-        learner = rftk.learn.create_standard_regression()
-        predictor = learner.fit(x=x_train, y=y_train, bootstrap=True, number_of_trees=100, number_of_jobs=5)
-        y_hat_train = predictor.predict(x=x_train)
-        mse_train = np.mean((y_train - y_hat_train)**2)
-        y_hat_train_oob = predictor.predict_oob(x=x_train)
-        mse_train_oob = np.mean((y_train - y_hat_train_oob)**2)
-        y_hat_test = predictor.predict(x=x_test)
-        mse_test = np.mean((y_test - y_hat_test)**2)
-        print("create_standard_regression bootstrap %f %f %f" % (mse_train, mse_train_oob, mse_test))
-        self.assertLess(mse_test, 0.5)
+        error = run_regression(learner=rftk.learn.create_standard_regression(),
+                                description="wine create_standard_regression bootstrap",
+                                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                                number_of_trees_list=[100], bootstrap=True)
+        self.assertLess(error, 0.5)
 
-        learner = rftk.learn.create_biau2008_regression()
-        predictor = learner.fit(x=x_train, y=y_train, number_of_trees=20, number_of_jobs=5)
-        y_hat_train = predictor.predict(x=x_train)
-        mse_train = np.mean((y_train - y_hat_train)**2)
-        y_hat_test = predictor.predict(x=x_test)
-        mse_test = np.mean((y_test - y_hat_test)**2)
-        print("create_biau2008_regression %f %f" % (mse_train, mse_test))
-        self.assertLess(mse_test, 0.5)
+        error = run_regression(learner=rftk.learn.create_biau2008_regression(),
+                                description="wine create_biau2008_regression",
+                                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                                number_of_trees_list=[20], bootstrap=False)
+        self.assertLess(error, 0.5)
 
-        learner = rftk.learn.create_consistent_regression()
-        predictor = learner.fit(x=x_train, y=y_train, number_of_trees=20, number_of_jobs=1)
-        y_hat_train = predictor.predict(x=x_train)
-        mse_train = np.mean((y_train - y_hat_train)**2)
-        y_hat_test = predictor.predict(x=x_test)
-        mse_test = np.mean((y_test - y_hat_test)**2)
-        print("create_consistent_regression %f %f" % (mse_train, mse_test))
-        self.assertLess(mse_test, 0.6)
+        error = run_regression(learner=rftk.learn.create_consistent_regression(),
+                                description="wine create_consistent_regression",
+                                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                                number_of_trees_list=[20], bootstrap=False)
+        self.assertLess(error, 0.5)
+
+        error = run_regression(learner=rftk.learn.create_consistent_regression(),
+                                description="wine create_consistent_regression",
+                                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                                number_of_trees_list=[20], bootstrap=False)
+        self.assertLess(error, 0.5)
+
+
 
         x_train, y_train, x_test, y_test = load_data.load_wine_data(normalize_data=True)
-        learner = rftk.learn.create_biau2012_regression()
-        predictor = learner.fit(x=x_train, y=y_train, number_of_trees=20, number_of_jobs=1, min_impurity=-1, min_node_size=-1)
-        y_hat_train = predictor.predict(x=x_train)
-        mse_train = np.mean((y_train - y_hat_train)**2)
-        y_hat_test = predictor.predict(x=x_test)
-        mse_test = np.mean((y_test - y_hat_test)**2)
+        error = run_regression(learner=rftk.learn.create_biau2012_regression(number_of_jobs=1, min_impurity=-1, min_node_size=-1),
+                                description="wine create_biau2012_regression",
+                                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                                number_of_trees_list=[20], bootstrap=False)
+        self.assertLess(error, 0.8)
 
-        # forest = predictor.get_forest()
-        # tree = forest.GetTree(0)
-        # extraInfo = tree.mExtraInfo
-        # extraInfo.Print()
-
-        print("create_biau2012_regression %f %f" % (mse_train, mse_test))
-        self.assertLess(mse_test, 0.8)
 
 
     def test_vanilia_scaled_depth_delta_classifier(self):
@@ -590,66 +603,76 @@ class TestNew(unittest.TestCase):
 
     def test_ecoli_greedy_classifiers(self):
         x_train, y_train, x_test, y_test = load_data.load_ecoli_data()
-        print x_train.shape
 
-        learner = rftk.learn.create_greedy_add_swap_classifier()
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=True, number_of_features=2, number_of_trees=10, number_of_jobs=5)
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=True, number_of_features=3, number_of_trees=10, number_of_jobs=5)
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=True, number_of_features=1, number_of_trees=10, number_of_jobs=5)
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=True, number_of_features=3, number_of_trees=10, number_of_jobs=5)
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=True, number_of_features=2, number_of_trees=10, number_of_jobs=5)
-        y_hat_train = predictor.predict(x=x_train).argmax(axis=1)
-        acc_train = np.mean(y_train == y_hat_train)
-        y_hat_train_oob = predictor.predict_oob(x=x_train).argmax(axis=1)
-        acc_train_oob = np.mean(y_train == y_hat_train_oob)
-        y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
-        acc_test = np.mean(y_test == y_hat_test)
-        print("ecoli create_greedy_add_swap_classifier bootstrap %f %f %f (#trees=%d)" % (acc_train, acc_train_oob, acc_test, predictor.get_forest().GetNumberOfTrees()))
-        self.assertGreater(acc_test, 0.7)
+        error = run_classifier(learner=rftk.learn.create_greedy_add_swap_classifier(),
+                        description="ecoli create_greedy_add_swap_classifier bootstrap",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[1,49,50,50,50], bootstrap=True)
+        self.assertGreater(error, 0.75)
 
-        learner = rftk.learn.create_vanilia_classifier()
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=True, number_of_trees=25, number_of_jobs=5)
-        y_hat_train = predictor.predict(x=x_train).argmax(axis=1)
-        acc_train = np.mean(y_train == y_hat_train)
-        y_hat_train_oob = predictor.predict_oob(x=x_train).argmax(axis=1)
-        acc_train_oob = np.mean(y_train == y_hat_train_oob)
-        y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
-        acc_test = np.mean(y_test == y_hat_test)
-        print("ecoli create_vanilia_classifier bootstrap %f %f %f (#trees=%d)" % (acc_train, acc_train_oob, acc_test, predictor.get_forest().GetNumberOfTrees()))
-        self.assertGreater(acc_test, 0.7)
+        error = run_classifier(learner=rftk.learn.create_fast_greedy_add_swap_classifier(),
+                        description="ecoli create_fast_greedy_add_swap_classifier bootstrap",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[1,49,50,50,50], bootstrap=True)
+        self.assertGreater(error, 0.75)
+
+
+        error = run_classifier(learner=rftk.learn.create_fast_greedy_add_swap_classifier(),
+                        description="ecoli create_fast_greedy_add_swap_classifier bootstrap diff feature values",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[1,49,50,50,50], 
+                        number_of_features_list=[2,3,1,3,2],
+                        bootstrap=True)
+        self.assertGreater(error, 0.75)
+
+
+        error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
+                        description="ecoli create_vanilia_classifier bootstrap",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[200], 
+                        bootstrap=True)
+        self.assertGreater(error, 0.75)
+
+        error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
+                        description="ecoli create_vanilia_classifier single tree",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[1],
+                        number_of_features_list=[x_train.shape[1]],
+                        bootstrap=True)
+        self.assertGreater(error, 0.75)
+
 
 
 
     def test_usps_greedy_classifiers(self):
         x_train, y_train, x_test, y_test = load_data.load_usps_data()
-        print x_train.shape
-        print x_test.shape
 
-        learner = rftk.learn.create_greedy_add_swap_classifier()
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=True, number_of_features=12, number_of_trees=10, number_of_jobs=5)
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=True, number_of_features=14, number_of_trees=10, number_of_jobs=5)
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=True, number_of_features=16, number_of_trees=10, number_of_jobs=5)
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=True, number_of_features=18, number_of_trees=10, number_of_jobs=5)
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=True, number_of_features=20, number_of_trees=10, number_of_jobs=5)
-        y_hat_train = predictor.predict(x=x_train).argmax(axis=1)
-        acc_train = np.mean(y_train == y_hat_train)
-        y_hat_train_oob = predictor.predict_oob(x=x_train).argmax(axis=1)
-        acc_train_oob = np.mean(y_train == y_hat_train_oob)
-        y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
-        acc_test = np.mean(y_test == y_hat_test)
-        print("usps create_greedy_add_swap_classifier bootstrap %f %f %f (#trees=%d)" % (acc_train, acc_train_oob, acc_test, predictor.get_forest().GetNumberOfTrees()))
-        self.assertGreater(acc_test, 0.7)
+        # error = run_classifier(learner=rftk.learn.create_greedy_add_swap_classifier(),
+        #                         description="usps create_greedy_add_swap_classifier bootstrap",
+        #                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+        #                         number_of_trees_list=[1,9,10,10,10], bootstrap=True)
+        # self.assertGreater(error, 0.91)
 
-        learner = rftk.learn.create_vanilia_classifier()
-        predictor = learner.fit(x=x_train, classes=y_train, bootstrap=True, number_of_trees=40, number_of_jobs=5)
-        y_hat_train = predictor.predict(x=x_train).argmax(axis=1)
-        acc_train = np.mean(y_train == y_hat_train)
-        y_hat_train_oob = predictor.predict_oob(x=x_train).argmax(axis=1)
-        acc_train_oob = np.mean(y_train == y_hat_train_oob)
-        y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
-        acc_test = np.mean(y_test == y_hat_test)
-        print("usps create_vanilia_classifier bootstrap %f %f %f (#trees=%d)" % (acc_train, acc_train_oob, acc_test, predictor.get_forest().GetNumberOfTrees()))
-        self.assertGreater(acc_test, 0.7)
+        error = run_classifier(learner=rftk.learn.create_fast_greedy_add_swap_classifier(),
+                                description="usps create_fast_greedy_add_swap_classifier bootstrap",
+                                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                                number_of_trees_list=[1,9,10,10,10], bootstrap=True)
+        self.assertGreater(error, 0.91)
+
+        # error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
+        #                         description="usps create_vanilia_classifier bootstrap",
+        #                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+        #                         number_of_trees_list=[50], bootstrap=True)
+        # self.assertGreater(error, 0.91)
+        
+        # error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
+        #                         description="usps create_vanilia_classifier single tree",
+        #                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+        #                         number_of_trees_list=[1], number_of_features_list=[x_train.shape[1]])
+        # self.assertGreater(error, 0.85)
+
+
+
 
 
 if __name__ == '__main__':

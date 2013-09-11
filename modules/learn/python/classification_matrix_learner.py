@@ -383,6 +383,13 @@ def create_greedy_add_swap_classifier(**kwargs):
                           ZeroOneClassificationError(),
                           kwargs)
 
+def create_fast_greedy_add_swap_classifier(**kwargs):
+    return FastGreedyAddSwapWrapper(  matrix_classification_data_prepare,
+                          create_axis_aligned_matrix_walking_learner_32f,
+                          create_matrix_predictor_32f,
+                          FastZeroOneClassificationError(),
+                          kwargs)
+
 def create_dimension_pair_difference_matrix_classifier(**kwargs):
     return LearnerWrapper(  matrix_classification_data_prepare,
                             create_dimension_pair_difference_matrix_walking_learner_32f,
