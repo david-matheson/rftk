@@ -113,6 +113,10 @@ void SplitSelectorInfo<BufferTypes>::WriteToTree(int nodeId, int leftNodeId, int
     const MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams
           = mReadCollection.GetBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mSplitSelectorBuffers.mIntParamsBufferId);
 
+    treeFloatFeatureParams.Extend(nodeId, floatParams.GetN());
+    treeIntFeatureParams.Extend(nodeId, intParams.GetN());
+    treeFloatEstimatorParams.Extend(nodeId, leftEstimatorParams.GetN());
+
     depths.Set(nodeId, mDepth);
     depths.Set(leftNodeId, mDepth+1);
     depths.Set(rightNodeId, mDepth+1);

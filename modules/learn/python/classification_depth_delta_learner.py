@@ -91,7 +91,7 @@ def create_scaled_depth_delta_learner_32f(**kwargs):
     split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_indices )
 
     tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
-    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, number_of_classes, number_of_jobs)
+    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, number_of_classes, number_of_jobs)
     return forest_learner
 
 

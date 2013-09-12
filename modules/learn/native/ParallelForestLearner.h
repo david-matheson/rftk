@@ -10,17 +10,13 @@ class ParallelForestLearner
 public:
     ParallelForestLearner( const TreeLearnerI* treeLearner, 
                             int numberOfTrees, 
-                            int maxIntParamsDim, 
-                            int maxFloatParamsDim, 
-                            int maxEstimatorParamsDim, 
+                            int estimatorParamsDim,
                             int numberOfJobs );
 
     ParallelForestLearner( const TreeLearnerI* treeLearner, 
                             const PipelineStepI* forestSteps,
                             int numberOfTrees, 
-                            int maxIntParamsDim, 
-                            int maxFloatParamsDim, 
-                            int maxEstimatorParamsDim, 
+                            int estimatorParamsDim,
                             int numberOfJobs );
 
     ~ParallelForestLearner();

@@ -15,7 +15,7 @@ BOOST_AUTO_TEST_CASE(test_Learn)
 
     DepthFirstTreeLearner<CdflBufferTypes_t> depthFirstTreeLearner = CreateDepthFirstLearner(xs_key, classes_key, numberOfClasses, featureOrdering, minNodeSize);
 
-    ParallelForestLearner parallelForestLearner(&depthFirstTreeLearner, 100, 3, 3, numberOfClasses, 10);
+    ParallelForestLearner parallelForestLearner(&depthFirstTreeLearner, 100, numberOfClasses, 10);
     Forest forest = parallelForestLearner.Learn(collection);
     Tree tree = forest.mTrees[99];
 

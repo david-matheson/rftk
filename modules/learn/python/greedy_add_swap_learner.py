@@ -146,6 +146,7 @@ class FastGreedyAddSwapWrapper:
         if self.forest is None:
             self.forest = new_forest
         else:
+
             for new_tree_index in range(new_forest.GetNumberOfTrees()):
                 operation = "None"
                 tree_index_to_remove = -1

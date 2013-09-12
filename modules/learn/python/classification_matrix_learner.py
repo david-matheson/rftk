@@ -84,7 +84,7 @@ def create_axis_aligned_matrix_walking_learner_32f(**kwargs):
     else:
         tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
 
-    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, number_of_classes, number_of_jobs)
+    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, number_of_classes, number_of_jobs)
     return forest_learner
 
 
@@ -147,7 +147,7 @@ def create_dimension_pair_difference_matrix_walking_learner_32f(**kwargs):
     else:
         tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
 
-    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, kwargs['x'].shape[1]+3, kwargs['x'].shape[1]+3, number_of_classes, number_of_jobs)
+    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, number_of_classes, number_of_jobs)
     return forest_learner
 
 def create_class_pair_difference_matrix_walking_learner_32f(**kwargs):
@@ -211,7 +211,7 @@ def create_class_pair_difference_matrix_walking_learner_32f(**kwargs):
     else:
         tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
 
-    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, kwargs['x'].shape[1]+3, kwargs['x'].shape[1]+3, number_of_classes, number_of_jobs)
+    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, number_of_classes, number_of_jobs)
     return forest_learner
 
 def create_axis_aligned_matrix_one_stream_learner_32f(**kwargs):
@@ -287,7 +287,7 @@ def create_axis_aligned_matrix_one_stream_learner_32f(**kwargs):
     else:
         tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
 
-    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, number_of_classes, number_of_jobs)
+    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, number_of_classes,number_of_jobs)
     return forest_learner
 
 
@@ -367,7 +367,7 @@ def create_axis_aligned_matrix_two_stream_learner_32f(**kwargs):
         tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
     else:
         tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
-    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, number_of_classes, number_of_jobs)
+    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, number_of_classes, number_of_jobs)
     return forest_learner
 
 def create_vanilia_classifier(**kwargs):

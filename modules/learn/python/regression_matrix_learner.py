@@ -80,7 +80,7 @@ def create_regression_axis_aligned_matrix_learner_32f(**kwargs):
     split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_indices )
 
     tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector, number_of_leaves)
-    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, dimension_of_y*2, number_of_jobs)
+    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, dimension_of_y, number_of_jobs)
     return forest_learner
 
 
@@ -138,7 +138,7 @@ def create_biau2008_regression_axis_aligned_matrix_learner_32f(**kwargs):
     split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_indices )
 
     tree_learner = learn.Biau2008TreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector, number_of_leaves, number_of_split_retries)
-    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, dimension_of_y*2, number_of_jobs)
+    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, dimension_of_y, number_of_jobs)
     return forest_learner
 
 
@@ -232,7 +232,7 @@ def create_biau2012_regression_axis_aligned_matrix_learner_32f(**kwargs):
                                                         split_steps)
 
     tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector, number_of_leaves)
-    forest_learner = learn.ParallelForestLearner(tree_learner, forest_steps_pipeline, number_of_trees, 5, 5, dimension_of_y*2, number_of_jobs)
+    forest_learner = learn.ParallelForestLearner(tree_learner, forest_steps_pipeline, number_of_trees, dimension_of_y, number_of_jobs)
     return forest_learner
 
 def create_consistent_two_stream_regression_axis_aligned_matrix_learner_32f(**kwargs):
@@ -305,7 +305,7 @@ def create_consistent_two_stream_regression_axis_aligned_matrix_learner_32f(**kw
     split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_indices )
 
     tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector, number_of_leaves)
-    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, 5, 5, dimension_of_y*2, number_of_jobs)
+    forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, dimension_of_y, number_of_jobs)
     return forest_learner
 
 

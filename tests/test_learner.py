@@ -1,5 +1,6 @@
 import unittest as unittest
 import numpy as np
+import datetime
 
 import load_data 
 
@@ -148,13 +149,24 @@ class TestNew(unittest.TestCase):
         self.assertEqual(result[5,0], 2)
         self.assertEqual(result[5,1], -1)
 
+
     def test_ecoli_classifiers(self):
         x_train, y_train, x_test, y_test = load_data.load_ecoli_data()
+
+        error = run_classifier(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                        extractor_type='axis_aligned',
+                                                                        prediction_type='classification',
+                                                                        split_type='best_gap_midpoint',
+                                                                        tree_type='depth_first'),
+                        description="ecoli create_uber_learner",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[200], bootstrap=False)
+        self.assertGreater(error, 0.75)
 
         error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
                         description="ecoli create_vanilia_classifier",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                        number_of_trees_list=[20], bootstrap=False)
+                        number_of_trees_list=[200], bootstrap=False)
         self.assertGreater(error, 0.75)
 
         error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
@@ -204,7 +216,7 @@ class TestNew(unittest.TestCase):
                         description="ecoli create_online_one_stream_classifier",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[20,20,20], bootstrap=True)
-        self.assertGreater(error, 0.75)
+        self.assertGreater(error, 0.7)
 
 
         error = run_classifier(learner=rftk.learn.create_online_two_stream_consistent_classifier(
@@ -219,9 +231,85 @@ class TestNew(unittest.TestCase):
                         description="ecoli create_online_two_stream_consistent_classifier",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[20,20,20], bootstrap=True)
+        self.assertGreater(error, 0.7)
+
+
+    def test_ecoli_greedy_classifiers(self):
+        x_train, y_train, x_test, y_test = load_data.load_ecoli_data()
+
+        error = run_classifier(learner=rftk.learn.create_greedy_add_swap_classifier(),
+                        description="ecoli create_greedy_add_swap_classifier bootstrap",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[1,49,50,50,50], bootstrap=True)
+        self.assertGreater(error, 0.75)
+
+        error = run_classifier(learner=rftk.learn.create_fast_greedy_add_swap_classifier(),
+                        description="ecoli create_fast_greedy_add_swap_classifier bootstrap",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[1,49,50,50,50], bootstrap=True)
         self.assertGreater(error, 0.75)
 
 
+        error = run_classifier(learner=rftk.learn.create_fast_greedy_add_swap_classifier(),
+                        description="ecoli create_fast_greedy_add_swap_classifier bootstrap diff feature values",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[1,49,50,50,50], 
+                        number_of_features_list=[2,3,1,3,2],
+                        bootstrap=True)
+        self.assertGreater(error, 0.75)
+
+
+        error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
+                        description="ecoli create_vanilia_classifier bootstrap",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[200], 
+                        bootstrap=True)
+        self.assertGreater(error, 0.75)
+
+        error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
+                        description="ecoli create_vanilia_classifier single tree",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[1],
+                        number_of_features_list=[x_train.shape[1]],
+                        bootstrap=True)
+        self.assertGreater(error, 0.75)
+
+
+
+
+    def test_usps_greedy_classifiers(self):
+        x_train, y_train, x_test, y_test = load_data.load_usps_data()
+
+        # error = run_classifier(learner=rftk.learn.create_greedy_add_swap_classifier(),
+        #                         description="usps create_greedy_add_swap_classifier bootstrap",
+        #                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+        #                         number_of_trees_list=[1,9,10,10,10], bootstrap=True)
+        # self.assertGreater(error, 0.91)
+
+        print "Current date and time: " , datetime.datetime.now()
+
+        error = run_classifier(learner=rftk.learn.create_fast_greedy_add_swap_classifier(),
+                                description="usps create_fast_greedy_add_swap_classifier bootstrap",
+                                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                                number_of_trees_list=[1,99], bootstrap=True)
+        self.assertGreater(error, 0.91)
+
+        print "Current date and time: " , datetime.datetime.now()
+
+        error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
+                                description="usps create_vanilia_classifier bootstrap",
+                                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                                number_of_trees_list=[100], bootstrap=True)
+
+        print "Current date and time: " , datetime.datetime.now()
+
+        self.assertGreater(error, 0.91)
+        
+        # error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
+        #                         description="usps create_vanilia_classifier single tree",
+        #                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+        #                         number_of_trees_list=[1], number_of_features_list=[x_train.shape[1]])
+        # self.assertGreater(error, 0.85)
 
 
     def test_wine_regression(self):
@@ -601,75 +689,7 @@ class TestNew(unittest.TestCase):
         print("create_consistent_scaled_depth_delta_regression %f %f" % (train_mse, test_mse))
 
 
-    def test_ecoli_greedy_classifiers(self):
-        x_train, y_train, x_test, y_test = load_data.load_ecoli_data()
 
-        error = run_classifier(learner=rftk.learn.create_greedy_add_swap_classifier(),
-                        description="ecoli create_greedy_add_swap_classifier bootstrap",
-                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                        number_of_trees_list=[1,49,50,50,50], bootstrap=True)
-        self.assertGreater(error, 0.75)
-
-        error = run_classifier(learner=rftk.learn.create_fast_greedy_add_swap_classifier(),
-                        description="ecoli create_fast_greedy_add_swap_classifier bootstrap",
-                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                        number_of_trees_list=[1,49,50,50,50], bootstrap=True)
-        self.assertGreater(error, 0.75)
-
-
-        error = run_classifier(learner=rftk.learn.create_fast_greedy_add_swap_classifier(),
-                        description="ecoli create_fast_greedy_add_swap_classifier bootstrap diff feature values",
-                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                        number_of_trees_list=[1,49,50,50,50], 
-                        number_of_features_list=[2,3,1,3,2],
-                        bootstrap=True)
-        self.assertGreater(error, 0.75)
-
-
-        error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
-                        description="ecoli create_vanilia_classifier bootstrap",
-                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                        number_of_trees_list=[200], 
-                        bootstrap=True)
-        self.assertGreater(error, 0.75)
-
-        error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
-                        description="ecoli create_vanilia_classifier single tree",
-                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                        number_of_trees_list=[1],
-                        number_of_features_list=[x_train.shape[1]],
-                        bootstrap=True)
-        self.assertGreater(error, 0.75)
-
-
-
-
-    def test_usps_greedy_classifiers(self):
-        x_train, y_train, x_test, y_test = load_data.load_usps_data()
-
-        # error = run_classifier(learner=rftk.learn.create_greedy_add_swap_classifier(),
-        #                         description="usps create_greedy_add_swap_classifier bootstrap",
-        #                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-        #                         number_of_trees_list=[1,9,10,10,10], bootstrap=True)
-        # self.assertGreater(error, 0.91)
-
-        error = run_classifier(learner=rftk.learn.create_fast_greedy_add_swap_classifier(),
-                                description="usps create_fast_greedy_add_swap_classifier bootstrap",
-                                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                                number_of_trees_list=[1,9,10,10,10], bootstrap=True)
-        self.assertGreater(error, 0.91)
-
-        # error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
-        #                         description="usps create_vanilia_classifier bootstrap",
-        #                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-        #                         number_of_trees_list=[50], bootstrap=True)
-        # self.assertGreater(error, 0.91)
-        
-        # error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
-        #                         description="usps create_vanilia_classifier single tree",
-        #                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-        #                         number_of_trees_list=[1], number_of_features_list=[x_train.shape[1]])
-        # self.assertGreater(error, 0.85)
 
 
 

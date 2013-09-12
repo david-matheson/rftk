@@ -26,16 +26,17 @@ void TrainTrees(    const TreeLearnerI* treeLearner,
     }
 }
 
-ParallelForestLearner::ParallelForestLearner( const TreeLearnerI* treeLearner, int numberOfTrees, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim, int numberOfJobs )
-: mForest( new Forest(numberOfTrees, 1, maxIntParamsDim, maxFloatParamsDim, maxYsDim) )
+
+ParallelForestLearner::ParallelForestLearner( const TreeLearnerI* treeLearner, int numberOfTrees, int estimatorParamsDim, int numberOfJobs )
+: mForest( new Forest(numberOfTrees, 1, 2, 2, estimatorParamsDim) )
 , mTreeLearner( treeLearner->Clone() )
 , mForestSteps(NULL)
 , mNumberOfTrees(numberOfTrees)
 , mNumberOfJobs(numberOfJobs)
 {}
 
-ParallelForestLearner::ParallelForestLearner( const TreeLearnerI* treeLearner, const PipelineStepI* forestSteps, int numberOfTrees, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim, int numberOfJobs )
-: mForest( new Forest(numberOfTrees, 1, maxIntParamsDim, maxFloatParamsDim, maxYsDim) )
+ParallelForestLearner::ParallelForestLearner( const TreeLearnerI* treeLearner, const PipelineStepI* forestSteps, int numberOfTrees, int estimatorParamsDim, int numberOfJobs )
+: mForest( new Forest(numberOfTrees, 1, 2, 2, estimatorParamsDim) )
 , mTreeLearner( treeLearner->Clone() )
 , mForestSteps( forestSteps->Clone() )
 , mNumberOfTrees(numberOfTrees)
