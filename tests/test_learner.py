@@ -64,6 +64,59 @@ def run_regression(learner, description,
 
         return mse_train
 
+def run_depth_delta_classifier(learner, description, 
+                            train_depths, train_labels, train_pixel_indices, train_pixel_labels, train_joint_offsets,
+                            test_depths, test_labels, test_pixel_indices, test_pixel_labels, test_joint_offsets, 
+                            number_of_trees_list, 
+                            bootstrap=False,
+                            number_of_features_list=None,
+                            number_of_jobs=5):
+
+        number_of_datapoints = len(train_pixel_labels)
+        offset_scales = np.array(np.random.uniform(0.99, 1.0, (number_of_datapoints, 2)), dtype=np.float32)
+        offset_scales_buffer = rftk.buffers.as_matrix_buffer(offset_scales)
+
+        train_depths_buffer = rftk.buffers.as_tensor_buffer(train_depths)
+        train_pixel_indices_buffer = rftk.buffers.as_matrix_buffer(train_pixel_indices)
+        train_pixel_label_buffer = rftk.buffers.as_vector_buffer(train_pixel_labels)
+
+        for i, number_of_trees in enumerate(number_of_trees_list):
+            if number_of_features_list is not None:
+                predictor = learner.fit(depth_images=train_depths_buffer, 
+                                      pixel_indices=train_pixel_indices_buffer,
+                                      offset_scales=offset_scales_buffer,
+                                      classes=train_pixel_label_buffer,
+                                      bootstrap=bootstrap,
+                                      number_of_trees=number_of_trees, 
+                                      number_of_features=number_of_features_list[i], 
+                                      number_of_jobs=number_of_jobs)
+            else:
+                predictor = learner.fit(depth_images=train_depths_buffer, 
+                                      pixel_indices=train_pixel_indices_buffer,
+                                      offset_scales=offset_scales_buffer,
+                                      classes=train_pixel_label_buffer,
+                                      bootstrap=bootstrap,
+                                      number_of_trees=number_of_trees, 
+                                      number_of_jobs=number_of_jobs)
+
+        train_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
+                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
+        train_accurracy = np.mean(train_pixel_labels == train_predictions.argmax(axis=1))
+        test_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(test_depths),
+                                        pixel_indices=rftk.buffers.as_matrix_buffer(test_pixel_indices))
+        test_accurracy = np.mean(test_pixel_labels == test_predictions.argmax(axis=1))
+
+        if bootstrap:
+
+            train_predictions_oob = predictor.predict_oob(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
+                                            pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
+            train_accurracy_oob = np.mean(train_pixel_labels == train_predictions_oob.argmax(axis=1))
+
+            print("%s %f %f %f (#trees=%d)" % (description, train_accurracy, train_accurracy_oob, test_accurracy, predictor.get_forest().GetNumberOfTrees()))
+        else:
+            print("%s %f %f (#trees=%d)" % (description, train_accurracy, test_accurracy, predictor.get_forest().GetNumberOfTrees()))
+
+        return test_accurracy
 
 class TestNew(unittest.TestCase):
 
@@ -156,9 +209,9 @@ class TestNew(unittest.TestCase):
         error = run_classifier(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
                                                                         extractor_type='axis_aligned',
                                                                         prediction_type='classification',
-                                                                        split_type='best_gap_midpoint',
+                                                                        split_type='all_midpoints',
                                                                         tree_type='depth_first'),
-                        description="ecoli create_uber_learner",
+                        description="ecoli create_uber_learner axis_aligned",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200], bootstrap=False)
         self.assertGreater(error, 0.75)
@@ -169,44 +222,153 @@ class TestNew(unittest.TestCase):
                         number_of_trees_list=[200], bootstrap=False)
         self.assertGreater(error, 0.75)
 
+        ########################################################
+
+        error = run_classifier(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                        extractor_type='axis_aligned',
+                                                                        prediction_type='classification',
+                                                                        split_type='all_midpoints',
+                                                                        tree_type='depth_first'),
+                        description="ecoli create_uber_learner axis_aligned bootstrap",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[200], bootstrap=True)
+        self.assertGreater(error, 0.75)
+
         error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
                         description="ecoli create_vanilia_classifier bootstrap",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                        number_of_trees_list=[20], bootstrap=True)
+                        number_of_trees_list=[200], bootstrap=True)
+        self.assertGreater(error, 0.75)
+
+        ########################################################
+
+        error = run_classifier(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                        extractor_type='axis_aligned',
+                                                                        prediction_type='classification',
+                                                                        split_type='all_midpoints',
+                                                                        tree_type='breadth_first'),
+                        description="ecoli create_uber_learner axis_aligned bootstrap breadth_first",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[200], bootstrap=True)
         self.assertGreater(error, 0.75)
 
         error = run_classifier(learner=rftk.learn.create_vanilia_classifier(tree_order='breadth_first'),
                         description="ecoli create_vanilia_classifier bootstrap tree_order==breadth_first",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                        number_of_trees_list=[20], bootstrap=True)
+                        number_of_trees_list=[200], bootstrap=True)
+        self.assertGreater(error, 0.75)
+
+        ########################################################
+
+        error = run_classifier(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                        extractor_type='dimension_pair_diff',
+                                                                        prediction_type='classification',
+                                                                        split_type='all_midpoints',
+                                                                        tree_type='depth_first'),
+                        description="ecoli create_uber_learner dimension_pair_diff",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[200], bootstrap=False)
         self.assertGreater(error, 0.75)
 
 
         error = run_classifier(learner=rftk.learn.create_dimension_pair_difference_matrix_classifier(),
                         description="ecoli create_dimension_pair_difference_matrix_classifier",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                        number_of_trees_list=[20], bootstrap=False)
+                        number_of_trees_list=[200], bootstrap=False)
+        self.assertGreater(error, 0.75)
+
+        ########################################################
+
+        error = run_classifier(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                extractor_type='dimension_pair_diff',
+                                                                prediction_type='classification',
+                                                                split_type='all_midpoints',
+                                                                tree_type='depth_first'),
+                description="ecoli create_uber_learner dimension_pair_diff bootstrap",
+                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                number_of_trees_list=[200], bootstrap=True)
         self.assertGreater(error, 0.75)
 
         error = run_classifier(learner=rftk.learn.create_dimension_pair_difference_matrix_classifier(),
                         description="ecoli create_dimension_pair_difference_matrix_classifier bootstrap",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                        number_of_trees_list=[20], bootstrap=True)
+                        number_of_trees_list=[200], bootstrap=True)
         self.assertGreater(error, 0.75)
 
-        error = run_classifier(learner=rftk.learn.create_one_stream_classifier(),
+        ########################################################
+
+        error = run_classifier(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                extractor_type='class_pair_diff',
+                                                                prediction_type='classification',
+                                                                split_type='all_midpoints',
+                                                                tree_type='depth_first'),
+                description="ecoli create_uber_learner class_pair_diff bootstrap",
+                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                number_of_trees_list=[200], bootstrap=True)
+        self.assertGreater(error, 0.75)
+
+        error = run_classifier(learner=rftk.learn.create_class_pair_difference_matrix_classifier(),
+                        description="ecoli create_class_pair_difference_matrix_classifier bootstrap",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[200], bootstrap=True)
+        self.assertGreater(error, 0.75)
+
+        ########################################################
+
+        error = run_classifier(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                extractor_type='axis_aligned',
+                                                                prediction_type='classification',
+                                                                split_type='constant_splitpoints',
+                                                                constant_splitpoints_type='at_random_datapoints',
+                                                                number_of_splitpoints=10,
+                                                                streams_type='one_stream',
+                                                                tree_type='depth_first'),
+                description="ecoli create_uber_learner axis_aligned constant_splitpoints at_random_datapoints one_stream",
+                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                number_of_trees_list=[200], bootstrap=False)
+        self.assertGreater(error, 0.75)
+
+        error = run_classifier(learner=rftk.learn.create_one_stream_classifier(number_of_splitpoints=10),
                         description="ecoli create_one_stream_classifier",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                        number_of_trees_list=[20], bootstrap=False)
+                        number_of_trees_list=[200], bootstrap=False)
         self.assertGreater(error, 0.75)
 
+        ########################################################
+
+        error = run_classifier(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                extractor_type='axis_aligned',
+                                                                prediction_type='classification',
+                                                                split_type='constant_splitpoints',
+                                                                constant_splitpoints_type='at_random_datapoints',
+                                                                number_of_splitpoints=10,
+                                                                streams_type='two_stream_per_tree',
+                                                                tree_type='depth_first'),
+                description="ecoli create_uber_learner axis_aligned constant_splitpoints at_random_datapoints two_stream_per_tree",
+                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                number_of_trees_list=[200], bootstrap=False)
+        self.assertGreater(error, 0.75)
 
         error = run_classifier(learner=rftk.learn.create_two_stream_classifier(),
                         description="ecoli create_two_stream_classifier",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                        number_of_trees_list=[20], bootstrap=False)
+                        number_of_trees_list=[200], bootstrap=False)
         self.assertGreater(error, 0.75)
 
+        #######################################################
+
+        error = run_classifier(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                extractor_type='axis_aligned',
+                                                                prediction_type='classification',
+                                                                split_type='constant_splitpoints',
+                                                                constant_splitpoints_type='at_random_datapoints',
+                                                                number_of_splitpoints=10,
+                                                                streams_type='one_stream',
+                                                                tree_type='online'),
+                description="ecoli create_uber_learner axis_aligned constant_splitpoints at_random_datapoints one_stream online",
+                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                number_of_trees_list=[200,200,200], bootstrap=False)
+        self.assertGreater(error, 0.75)
 
         error = run_classifier(learner=rftk.learn.create_online_one_stream_classifier(
                                                 number_of_splitpoints=100,
@@ -215,9 +377,25 @@ class TestNew(unittest.TestCase):
                                                 max_frontier_size=50000 ),
                         description="ecoli create_online_one_stream_classifier",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                        number_of_trees_list=[20,20,20], bootstrap=True)
+                        number_of_trees_list=[200,200,200], bootstrap=True)
         self.assertGreater(error, 0.7)
 
+
+        ########################################################
+
+        error = run_classifier(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                extractor_type='axis_aligned',
+                                                                prediction_type='classification',
+                                                                possion_number_of_features=True,
+                                                                split_type='constant_splitpoints',
+                                                                constant_splitpoints_type='at_random_datapoints',
+                                                                number_of_splitpoints=10,
+                                                                streams_type='two_stream_per_tree',
+                                                                tree_type='online'),
+                description="ecoli create_uber_learner axis_aligned constant_splitpoints at_random_datapoints two_stream_per_tree online",
+                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                number_of_trees_list=[200,200,200], bootstrap=False)
+        self.assertGreater(error, 0.75)
 
         error = run_classifier(learner=rftk.learn.create_online_two_stream_consistent_classifier(
                                                     number_of_splitpoints=100,
@@ -230,7 +408,7 @@ class TestNew(unittest.TestCase):
                                                     max_frontier_size=50000 ),
                         description="ecoli create_online_two_stream_consistent_classifier",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                        number_of_trees_list=[20,20,20], bootstrap=True)
+                        number_of_trees_list=[200,200,200], bootstrap=True)
         self.assertGreater(error, 0.7)
 
 
@@ -272,7 +450,7 @@ class TestNew(unittest.TestCase):
                         number_of_trees_list=[1],
                         number_of_features_list=[x_train.shape[1]],
                         bootstrap=True)
-        self.assertGreater(error, 0.75)
+        self.assertGreater(error, 0.70)
 
 
 
@@ -356,19 +534,16 @@ class TestNew(unittest.TestCase):
 
 
 
+
+
     def test_vanilia_scaled_depth_delta_classifier(self):
         train_depths, train_labels, train_pixel_indices, train_pixel_labels, train_joint_offsets = load_data.load_kinect_train_data()
         test_depths, test_labels, test_pixel_indices, test_pixel_labels, test_joint_offsets = load_data.load_kinect_test_data()
         
-        number_of_datapoints = len(train_pixel_labels)
-        offset_scales = np.array(np.random.uniform(0.99, 1.0, (number_of_datapoints, 2)), dtype=np.float32)
-        offset_scales_buffer = rftk.buffers.as_matrix_buffer(offset_scales)
-
-        # datapoint_indices = rftk.buffers.as_vector_buffer(np.array(np.arange(number_of_datapoints), dtype=np.int32))
 
         forest_learner = rftk.learn.create_vanilia_scaled_depth_delta_classifier(
                                       number_of_trees=5,
-                                      number_of_features=2000,
+                                      number_of_features=1000,
                                       min_impurity_gain=0.1,
                                       # max_depth=30,
                                       min_samples_split=5,
@@ -378,40 +553,43 @@ class TestNew(unittest.TestCase):
                                       bootstrap=True,
                                       number_of_jobs=5)
 
-        train_depths_buffer = rftk.buffers.as_tensor_buffer(train_depths)
-        train_pixel_indices_buffer = rftk.buffers.as_matrix_buffer(train_pixel_indices)
-        train_pixel_label_buffer = rftk.buffers.as_vector_buffer(train_pixel_labels)
-        predictor = forest_learner.fit(depth_images=train_depths_buffer, 
-                                      pixel_indices=train_pixel_indices_buffer,
-                                      # pixel_indices=train_pixel_indices_buffer.Slice(datapoint_indices), 
-                                      offset_scales=offset_scales_buffer,
-                                      classes=train_pixel_label_buffer
-                                      # classes=train_pixel_label_buffer.Slice(datapoint_indices)
-                                      )
+        error = run_depth_delta_classifier(forest_learner, "create_vanilia_scaled_depth_delta_classifier 2", 
+                            train_depths=train_depths, train_labels=train_labels, train_pixel_indices=train_pixel_indices, train_pixel_labels=train_pixel_labels, train_joint_offsets=train_joint_offsets,
+                            test_depths=test_depths, test_labels=test_labels, test_pixel_indices=test_pixel_indices, test_pixel_labels=test_pixel_labels, test_joint_offsets=test_joint_offsets, 
+                            number_of_trees_list=[10], 
+                            bootstrap=True,
+                            number_of_features_list=[1000],
+                            number_of_jobs=5)
+        self.assertGreater(error, 0.4)
 
-        train_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
-        train_accurracy = np.mean(train_pixel_labels == train_predictions.argmax(axis=1))
-        train_predictions_oob = predictor.predict_oob(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
-        train_accurracy_oob = np.mean(train_pixel_labels == train_predictions_oob.argmax(axis=1))
-        test_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(test_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(test_pixel_indices))
-        test_accurracy = np.mean(test_pixel_labels == test_predictions.argmax(axis=1))
-        print("create_vanilia_scaled_depth_delta_classifier %f %f %f" % (train_accurracy, train_accurracy_oob, test_accurracy))
+
+        forest_learner = rftk.learn.create_uber_learner(    data_type='depth_image', 
+                                                            extractor_type='pixel_pair_diff',
+                                                            prediction_type='classification',
+                                                            split_type='all_midpoints',
+                                                            tree_type='depth_first',
+                                                            min_impurity_gain=0.1,
+                                                            min_samples_split=5,
+                                                            ux=75, uy=75, vx=75, vy=75, )
+
+
+        error = run_depth_delta_classifier(forest_learner, "create_uber_learner depth_image classification all_midpoints", 
+                            train_depths=train_depths, train_labels=train_labels, train_pixel_indices=train_pixel_indices, train_pixel_labels=train_pixel_labels, train_joint_offsets=train_joint_offsets,
+                            test_depths=test_depths, test_labels=test_labels, test_pixel_indices=test_pixel_indices, test_pixel_labels=test_pixel_labels, test_joint_offsets=test_joint_offsets, 
+                            number_of_trees_list=[10], 
+                            bootstrap=True,
+                            number_of_features_list=[1000],
+                            number_of_jobs=5)
+        self.assertGreater(error, 0.4)
+
 
 
     def test_online_one_stream_depth_delta_classifier(self):
         train_depths, train_labels, train_pixel_indices, train_pixel_labels, train_joint_offsets = load_data.load_kinect_train_data()
         test_depths, test_labels, test_pixel_indices, test_pixel_labels, test_joint_offsets = load_data.load_kinect_test_data()
-        
-        number_of_datapoints = len(train_pixel_labels)
-        offset_scales = np.array(np.random.uniform(0.99, 1.0, (number_of_datapoints, 2)), dtype=np.float32)
-        offset_scales_buffer = rftk.buffers.as_matrix_buffer(offset_scales)
 
         forest_learner = rftk.learn.create_online_one_stream_depth_delta_classifier(
-                                      number_of_trees=5,
-                                      number_of_features=2000,
+                                      number_of_features=1000,
                                       min_impurity_gain=0.1,
                                       # max_depth=30,
                                       min_samples_split=5,
@@ -421,40 +599,44 @@ class TestNew(unittest.TestCase):
                                       bootstrap=True,
                                       number_of_jobs=5)
 
-        train_depths_buffer = rftk.buffers.as_tensor_buffer(train_depths)
-        train_pixel_indices_buffer = rftk.buffers.as_matrix_buffer(train_pixel_indices)
-        train_pixel_label_buffer = rftk.buffers.as_vector_buffer(train_pixel_labels)
-        predictor = forest_learner.fit(depth_images=train_depths_buffer, 
-                                      pixel_indices=train_pixel_indices_buffer,
-                                      # pixel_indices=train_pixel_indices_buffer.Slice(datapoint_indices), 
-                                      offset_scales=offset_scales_buffer,
-                                      classes=train_pixel_label_buffer
-                                      # classes=train_pixel_label_buffer.Slice(datapoint_indices)
-                                      )
+        error = run_depth_delta_classifier(forest_learner, "create_online_one_stream_depth_delta_classifier 2", 
+                            train_depths=train_depths, train_labels=train_labels, train_pixel_indices=train_pixel_indices, train_pixel_labels=train_pixel_labels, train_joint_offsets=train_joint_offsets,
+                            test_depths=test_depths, test_labels=test_labels, test_pixel_indices=test_pixel_indices, test_pixel_labels=test_pixel_labels, test_joint_offsets=test_joint_offsets, 
+                            number_of_trees_list=[5], 
+                            bootstrap=True,
+                            number_of_features_list=[1000],
+                            number_of_jobs=5)
+        self.assertGreater(error, 0.32)
 
-        train_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
-        train_accurracy = np.mean(train_pixel_labels == train_predictions.argmax(axis=1))
-        train_predictions_oob = predictor.predict_oob(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
-        train_accurracy_oob = np.mean(train_pixel_labels == train_predictions_oob.argmax(axis=1))
-        test_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(test_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(test_pixel_indices))
-        test_accurracy = np.mean(test_pixel_labels == test_predictions.argmax(axis=1))
-        print("create_online_one_stream_depth_delta_classifier %f %f %f" % (train_accurracy, train_accurracy_oob, test_accurracy))
+
+        forest_learner = rftk.learn.create_uber_learner(    data_type='depth_image', 
+                                                            extractor_type='pixel_pair_diff',
+                                                            prediction_type='classification',
+                                                            split_type='constant_splitpoints',
+                                                            constant_splitpoints_type='at_random_datapoints',
+                                                            number_of_splitpoints=10,
+                                                            streams_type='one_stream',
+                                                            tree_type='online',
+                                                            min_impurity_gain=0.1,
+                                                            min_samples_split=5,
+                                                            ux=75, uy=75, vx=75, vy=75, )
+
+        error = run_depth_delta_classifier(forest_learner, "create_uber_learner depth_image classification at_random_datapoints one_stream", 
+                            train_depths=train_depths, train_labels=train_labels, train_pixel_indices=train_pixel_indices, train_pixel_labels=train_pixel_labels, train_joint_offsets=train_joint_offsets,
+                            test_depths=test_depths, test_labels=test_labels, test_pixel_indices=test_pixel_indices, test_pixel_labels=test_pixel_labels, test_joint_offsets=test_joint_offsets, 
+                            number_of_trees_list=[5], 
+                            bootstrap=True,
+                            number_of_features_list=[1000],
+                            number_of_jobs=5)
+        self.assertGreater(error, 0.32)
 
 
     def test_online_two_stream_consistent_depth_delta_classifier(self):
         train_depths, train_labels, train_pixel_indices, train_pixel_labels, train_joint_offsets = load_data.load_kinect_train_data()
         test_depths, test_labels, test_pixel_indices, test_pixel_labels, test_joint_offsets = load_data.load_kinect_test_data()
         
-        number_of_datapoints = len(train_pixel_labels)
-        offset_scales = np.array(np.random.uniform(0.99, 1.0, (number_of_datapoints, 2)), dtype=np.float32)
-        offset_scales_buffer = rftk.buffers.as_matrix_buffer(offset_scales)
-
         forest_learner = rftk.learn.create_online_two_stream_consistent_depth_delta_classifier(
-                                      number_of_trees=5,
-                                      number_of_features=2000,
+                                      number_of_features=1000,
                                       min_impurity=0.1,
                                       # max_depth=30,
                                       number_of_data_to_split_root=5,
@@ -466,28 +648,39 @@ class TestNew(unittest.TestCase):
                                       bootstrap=True,
                                       number_of_jobs=5)
 
-        train_depths_buffer = rftk.buffers.as_tensor_buffer(train_depths)
-        train_pixel_indices_buffer = rftk.buffers.as_matrix_buffer(train_pixel_indices)
-        train_pixel_label_buffer = rftk.buffers.as_vector_buffer(train_pixel_labels)
-        predictor = forest_learner.fit(depth_images=train_depths_buffer, 
-                                      pixel_indices=train_pixel_indices_buffer,
-                                      # pixel_indices=train_pixel_indices_buffer.Slice(datapoint_indices), 
-                                      offset_scales=offset_scales_buffer,
-                                      classes=train_pixel_label_buffer
-                                      # classes=train_pixel_label_buffer.Slice(datapoint_indices)
-                                      )
+        error = run_depth_delta_classifier(forest_learner, "create_online_two_stream_consistent_depth_delta_classifier 2", 
+                            train_depths=train_depths, train_labels=train_labels, train_pixel_indices=train_pixel_indices, train_pixel_labels=train_pixel_labels, train_joint_offsets=train_joint_offsets,
+                            test_depths=test_depths, test_labels=test_labels, test_pixel_indices=test_pixel_indices, test_pixel_labels=test_pixel_labels, test_joint_offsets=test_joint_offsets, 
+                            number_of_trees_list=[5], 
+                            bootstrap=True,
+                            number_of_features_list=[1000],
+                            number_of_jobs=5)
+        self.assertGreater(error, 0.32)
 
-        train_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
-        train_accurracy = np.mean(train_pixel_labels == train_predictions.argmax(axis=1))
-        train_predictions_oob = predictor.predict_oob(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
-        train_accurracy_oob = np.mean(train_pixel_labels == train_predictions_oob.argmax(axis=1))
-        test_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(test_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(test_pixel_indices))
-        test_accurracy = np.mean(test_pixel_labels == test_predictions.argmax(axis=1))
-        print("create_online_two_stream_consistent_depth_delta_classifier %f %f %f" % (train_accurracy, train_accurracy_oob, test_accurracy))
 
+        forest_learner = rftk.learn.create_uber_learner(    data_type='depth_image', 
+                                                            extractor_type='pixel_pair_diff',
+                                                            prediction_type='classification',
+                                                            possion_number_of_features=True,
+                                                            split_type='constant_splitpoints',
+                                                            constant_splitpoints_type='at_random_datapoints',
+                                                            number_of_splitpoints=10,
+                                                            streams_type='two_stream_per_tree',
+                                                            tree_type='online',
+                                                            min_impurity_gain=0.1,
+                                                            min_samples_split=5,
+                                                            ux=75, uy=75, vx=75, vy=75, )
+
+        error = run_depth_delta_classifier(forest_learner, "create_uber_learner depth_image classification at_random_datapoints two_stream_tree", 
+                            train_depths=train_depths, train_labels=train_labels, train_pixel_indices=train_pixel_indices, train_pixel_labels=train_pixel_labels, train_joint_offsets=train_joint_offsets,
+                            test_depths=test_depths, test_labels=test_labels, test_pixel_indices=test_pixel_indices, test_pixel_labels=test_pixel_labels, test_joint_offsets=test_joint_offsets, 
+                            number_of_trees_list=[5], 
+                            bootstrap=True,
+                            number_of_features_list=[1000],
+                            number_of_jobs=5)
+        self.assertGreater(error, 0.32)
+
+      
 
 
     def test_vanilia_scaled_depth_delta_regression(self):
