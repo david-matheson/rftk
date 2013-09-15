@@ -23,21 +23,44 @@ def create_try_split_criteria(**kwargs):
 
 
 def create_should_split_criteria(**kwargs):
+    split_criteria_type =  kwargs.get('split_criteria_type', 'standard')
     should_split_criteria_list = []
 
-    min_impurity = float( kwargs.get('min_impurity', 0.0) )
-    min_impurity_criteria = should_split.MinImpurityCriteria(min_impurity)
-    should_split_criteria_list.append(min_impurity_criteria)
-
-    if 'min_child_size' in kwargs:
-        min_child_size = int( kwargs.get('min_child_size') )
-        min_child_size_criteria = should_split.MinChildSizeCriteria(min_child_size)
-        should_split_criteria_list.append(min_child_size_criteria)
-    if 'min_child_size_sum' in kwargs:
-        min_child_size_sum = int( kwargs.get('min_child_size_sum') )
-        min_child_size_sum_criteria = should_split.MinChildSizeSumCriteria(min_child_size_sum)
-        should_split_criteria_list.append(min_child_size_sum_criteria)      
+    if split_criteria_type == 'standard':
+        min_impurity = float( kwargs.get('min_impurity', 0.0) )
+        min_impurity_criteria = should_split.MinImpurityCriteria(min_impurity)
         should_split_criteria_list.append(min_impurity_criteria)
+
+        if 'min_child_size' in kwargs:
+            min_child_size = int( kwargs.get('min_child_size') )
+            min_child_size_criteria = should_split.MinChildSizeCriteria(min_child_size)
+            should_split_criteria_list.append(min_child_size_criteria)
+        if 'min_child_size_sum' in kwargs:
+            min_child_size_sum = int( kwargs.get('min_child_size_sum') )
+            min_child_size_sum_criteria = should_split.MinChildSizeSumCriteria(min_child_size_sum)
+            should_split_criteria_list.append(min_child_size_sum_criteria)      
+
+    elif split_criteria_type == 'biau2008':
+            min_child_size_criteria = should_split.MinChildSizeCriteria(1)
+            should_split_criteria_list.append(min_child_size_criteria)
+    elif split_criteria_type == 'biau2012':
+        pass
+    elif split_criteria_type == 'online_consistent':
+        min_impurity = float( kwargs.get('min_impurity', 0.0) )
+        number_of_data_to_split_root = float( kwargs.get('number_of_data_to_split_root') )
+        number_of_data_to_force_split_root = float( kwargs.get('number_of_data_to_force_split_root') )
+        split_rate_growth = float( kwargs.get('split_rate_growth') )
+
+        online_consistent_criteria = should_split.OnlineConsistentCriteria( min_impurity,
+                                                                            number_of_data_to_split_root,
+                                                                            number_of_data_to_force_split_root,
+                                                                            split_rate_growth)
+        should_split_criteria_list.append(online_consistent_criteria)
+    else:
+        raise Exception("unknown split_criteria_type %s" % split_criteria_type)
+
+
+
     return should_split.ShouldSplitCombinedCriteria(should_split_criteria_list)
 
 def no_split_criteria(**kwargs):

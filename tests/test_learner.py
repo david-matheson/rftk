@@ -64,6 +64,7 @@ def run_regression(learner, description,
 
         return mse_train
 
+
 def run_depth_delta_classifier(learner, description, 
                             train_depths, train_labels, train_pixel_indices, train_pixel_labels, train_joint_offsets,
                             test_depths, test_labels, test_pixel_indices, test_pixel_labels, test_joint_offsets, 
@@ -117,6 +118,63 @@ def run_depth_delta_classifier(learner, description,
             print("%s %f %f (#trees=%d)" % (description, train_accurracy, test_accurracy, predictor.get_forest().GetNumberOfTrees()))
 
         return test_accurracy
+
+
+def run_depth_delta_regression(learner, description, 
+                            train_depths, train_labels, train_pixel_indices, train_pixel_labels, train_joint_offsets,
+                            test_depths, test_labels, test_pixel_indices, test_pixel_labels, test_joint_offsets,
+                            joint_id, 
+                            number_of_trees_list, 
+                            bootstrap=False,
+                            number_of_features_list=None,
+                            number_of_jobs=5):
+
+        number_of_datapoints = len(train_pixel_labels)
+        offset_scales = np.array(np.random.uniform(0.99, 1.0, (number_of_datapoints, 2)), dtype=np.float32)
+        offset_scales_buffer = rftk.buffers.as_matrix_buffer(offset_scales)
+
+        train_depths_buffer = rftk.buffers.as_tensor_buffer(train_depths)
+        train_pixel_indices_buffer = rftk.buffers.as_matrix_buffer(train_pixel_indices)
+        train_joint_offsets_buffer = rftk.buffers.as_matrix_buffer(train_joint_offsets[:, joint_id, :])
+
+        for i, number_of_trees in enumerate(number_of_trees_list):
+            if number_of_features_list is not None:
+                predictor = learner.fit(depth_images=train_depths_buffer, 
+                                      pixel_indices=train_pixel_indices_buffer,
+                                      offset_scales=offset_scales_buffer,
+                                      y=train_joint_offsets_buffer,
+                                      bootstrap=bootstrap,
+                                      number_of_trees=number_of_trees, 
+                                      number_of_features=number_of_features_list[i], 
+                                      number_of_jobs=number_of_jobs)
+            else:
+                predictor = learner.fit(depth_images=train_depths_buffer, 
+                                      pixel_indices=train_pixel_indices_buffer,
+                                      offset_scales=offset_scales_buffer,
+                                      y=train_joint_offsets_buffer,
+                                      bootstrap=bootstrap,
+                                      number_of_trees=number_of_trees, 
+                                      number_of_jobs=number_of_jobs)
+
+        train_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
+                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
+        train_mse = np.mean((train_joint_offsets[:, joint_id, :] - train_predictions)**2)
+        test_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(test_depths),
+                                        pixel_indices=rftk.buffers.as_matrix_buffer(test_pixel_indices))
+        test_mse = np.mean((test_joint_offsets[:, joint_id, :] - test_predictions)**2)
+
+        if bootstrap:
+            train_predictions_oob = predictor.predict_oob(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
+                                            pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
+            train_mse_oob = np.mean((train_joint_offsets[:, joint_id, :] - train_predictions_oob)**2)
+
+            print("%s %f %f %f (#trees=%d)" % (description, train_mse, train_mse_oob, test_mse, predictor.get_forest().GetNumberOfTrees()))
+        else:
+            print("%s %f %f (#trees=%d)" % (description, train_mse, test_mse, predictor.get_forest().GetNumberOfTrees()))
+
+        return test_mse
+
+
 
 class TestNew(unittest.TestCase):
 
@@ -389,13 +447,21 @@ class TestNew(unittest.TestCase):
                                                                 possion_number_of_features=True,
                                                                 split_type='constant_splitpoints',
                                                                 constant_splitpoints_type='at_random_datapoints',
-                                                                number_of_splitpoints=10,
+                                                                number_of_splitpoints=100,
                                                                 streams_type='two_stream_per_tree',
-                                                                tree_type='online'),
+                                                                tree_type='online',
+                                                                poisson_sample=1.0, 
+                                                                split_criteria_type='online_consistent',
+                                                                min_impurity=0.1, 
+                                                                number_of_data_to_split_root=3, 
+                                                                number_of_data_to_force_split_root=20, 
+                                                                split_rate_growth=1.001,
+                                                                probability_of_impurity_stream=0.5,
+                                                                max_frontier_size=50000 ),
                 description="ecoli create_uber_learner axis_aligned constant_splitpoints at_random_datapoints two_stream_per_tree online",
                 x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                 number_of_trees_list=[200,200,200], bootstrap=False)
-        self.assertGreater(error, 0.75)
+        self.assertGreater(error, 0.7)
 
         error = run_classifier(learner=rftk.learn.create_online_two_stream_consistent_classifier(
                                                     number_of_splitpoints=100,
@@ -493,10 +559,34 @@ class TestNew(unittest.TestCase):
     def test_wine_regression(self):
         x_train, y_train, x_test, y_test = load_data.load_wine_data()
 
+        error = run_regression(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                        extractor_type='axis_aligned',
+                                                                        prediction_type='regression',
+                                                                        split_type='all_midpoints',
+                                                                        tree_type='breadth_first',
+                                                                        number_of_leaves=int(x_train.shape[0] / 5 + 1)),
+                        description="wine create_uber_learner axis_aligned",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[20], bootstrap=False)
+        self.assertLess(error, 0.5)
+
         error = run_regression(learner=rftk.learn.create_standard_regression(),
                                 description="wine create_standard_regression",
                                 x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                                 number_of_trees_list=[20], bootstrap=False)
+        self.assertLess(error, 0.5)
+
+        ########################################################
+
+        error = run_regression(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                        extractor_type='axis_aligned',
+                                                                        prediction_type='regression',
+                                                                        split_type='all_midpoints',
+                                                                        tree_type='breadth_first',
+                                                                        number_of_leaves=int(x_train.shape[0] / 5 + 1)),
+                        description="wine create_uber_learner axis_aligned bootstrap",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[20], bootstrap=True)
         self.assertLess(error, 0.5)
 
         error = run_regression(learner=rftk.learn.create_standard_regression(),
@@ -505,25 +595,67 @@ class TestNew(unittest.TestCase):
                                 number_of_trees_list=[100], bootstrap=True)
         self.assertLess(error, 0.5)
 
+        #######################################################
+
+        error = run_regression(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                        extractor_type='axis_aligned',
+                                                                        prediction_type='regression',
+                                                                        split_type='random_gap',
+                                                                        split_criteria_type='biau2008',
+                                                                        tree_type='biau2008',
+                                                                        number_of_split_retries=10,
+                                                                        number_of_leaves=int(x_train.shape[0] / 5 + 1)),
+                        description="wine create_uber_learner biau2008",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[20], bootstrap=False)
+        self.assertLess(error, 0.5)
+
         error = run_regression(learner=rftk.learn.create_biau2008_regression(),
                                 description="wine create_biau2008_regression",
                                 x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                                 number_of_trees_list=[20], bootstrap=False)
         self.assertLess(error, 0.5)
 
+        ########################################################
+
+        error = run_regression(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                        extractor_type='axis_aligned',
+                                                                        possion_number_of_features=True,
+                                                                        prediction_type='regression',
+                                                                        streams_type='two_stream_per_tree',
+                                                                        probability_of_impurity_stream=0.5,
+                                                                        split_type='all_midpoints',
+                                                                        in_bounds_number_of_points=x_train.shape[0]/2,
+                                                                        tree_type='breadth_first',
+                                                                        number_of_leaves=int(x_train.shape[0] / 5 + 1)),
+                        description="wine create_uber_learner consistent two_stream_per_tree",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[20], bootstrap=True)
+        self.assertLess(error, 0.5)
         error = run_regression(learner=rftk.learn.create_consistent_regression(),
                                 description="wine create_consistent_regression",
                                 x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                                 number_of_trees_list=[20], bootstrap=False)
         self.assertLess(error, 0.5)
 
-        error = run_regression(learner=rftk.learn.create_consistent_regression(),
-                                description="wine create_consistent_regression",
-                                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
-                                number_of_trees_list=[20], bootstrap=False)
-        self.assertLess(error, 0.5)
+        ########################################################
 
-
+        error = run_regression(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                        extractor_type='axis_aligned',
+                                                                        possion_number_of_features=True,
+                                                                        prediction_type='regression',
+                                                                        streams_type='two_stream_per_forest', #note: bootstrap=False is required
+                                                                        probability_of_impurity_stream=0.5,
+                                                                        split_type='constant_splitpoints',
+                                                                        constant_splitpoints_type='at_range_midpoints',
+                                                                        split_criteria_type='biau2012',
+                                                                        in_bounds_number_of_points=x_train.shape[0]/2,
+                                                                        tree_type='breadth_first',
+                                                                        number_of_leaves=int(x_train.shape[0] / 5 + 1)),
+                        description="wine create_uber_learner consistent two_stream_per_forest",
+                        x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                        number_of_trees_list=[20], bootstrap=False) 
+        self.assertLess(error, 0.8)
 
         x_train, y_train, x_test, y_test = load_data.load_wine_data(normalize_data=True)
         error = run_regression(learner=rftk.learn.create_biau2012_regression(number_of_jobs=1, min_impurity=-1, min_node_size=-1),
@@ -531,8 +663,6 @@ class TestNew(unittest.TestCase):
                                 x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                                 number_of_trees_list=[20], bootstrap=False)
         self.assertLess(error, 0.8)
-
-
 
 
 
@@ -560,7 +690,7 @@ class TestNew(unittest.TestCase):
                             bootstrap=True,
                             number_of_features_list=[1000],
                             number_of_jobs=5)
-        self.assertGreater(error, 0.4)
+        self.assertLess(error, 0.6)
 
 
         forest_learner = rftk.learn.create_uber_learner(    data_type='depth_image', 
@@ -580,7 +710,7 @@ class TestNew(unittest.TestCase):
                             bootstrap=True,
                             number_of_features_list=[1000],
                             number_of_jobs=5)
-        self.assertGreater(error, 0.4)
+        self.assertLess(error, 0.6)
 
 
 
@@ -599,14 +729,14 @@ class TestNew(unittest.TestCase):
                                       bootstrap=True,
                                       number_of_jobs=5)
 
-        error = run_depth_delta_classifier(forest_learner, "create_online_one_stream_depth_delta_classifier 2", 
+        error = run_depth_delta_classifier(forest_learner, "create_online_one_stream_depth_delta_classifier", 
                             train_depths=train_depths, train_labels=train_labels, train_pixel_indices=train_pixel_indices, train_pixel_labels=train_pixel_labels, train_joint_offsets=train_joint_offsets,
                             test_depths=test_depths, test_labels=test_labels, test_pixel_indices=test_pixel_indices, test_pixel_labels=test_pixel_labels, test_joint_offsets=test_joint_offsets, 
                             number_of_trees_list=[5], 
                             bootstrap=True,
                             number_of_features_list=[1000],
                             number_of_jobs=5)
-        self.assertGreater(error, 0.32)
+        self.assertLess(error, 0.6)
 
 
         forest_learner = rftk.learn.create_uber_learner(    data_type='depth_image', 
@@ -628,7 +758,7 @@ class TestNew(unittest.TestCase):
                             bootstrap=True,
                             number_of_features_list=[1000],
                             number_of_jobs=5)
-        self.assertGreater(error, 0.32)
+        self.assertLess(error, 0.6)
 
 
     def test_online_two_stream_consistent_depth_delta_classifier(self):
@@ -655,7 +785,7 @@ class TestNew(unittest.TestCase):
                             bootstrap=True,
                             number_of_features_list=[1000],
                             number_of_jobs=5)
-        self.assertGreater(error, 0.32)
+        self.assertLess(error, 0.6)
 
 
         forest_learner = rftk.learn.create_uber_learner(    data_type='depth_image', 
@@ -667,8 +797,10 @@ class TestNew(unittest.TestCase):
                                                             number_of_splitpoints=10,
                                                             streams_type='two_stream_per_tree',
                                                             tree_type='online',
-                                                            min_impurity_gain=0.1,
-                                                            min_samples_split=5,
+                                                            split_criteria_type='online_consistent',
+                                                            number_of_data_to_split_root=5,
+                                                            number_of_data_to_force_split_root=10,
+                                                            split_rate_growth=1.001,
                                                             ux=75, uy=75, vx=75, vy=75, )
 
         error = run_depth_delta_classifier(forest_learner, "create_uber_learner depth_image classification at_random_datapoints two_stream_tree", 
@@ -678,11 +810,9 @@ class TestNew(unittest.TestCase):
                             bootstrap=True,
                             number_of_features_list=[1000],
                             number_of_jobs=5)
-        self.assertGreater(error, 0.32)
+        self.assertLess(error, 0.6)
 
       
-
-
     def test_vanilia_scaled_depth_delta_regression(self):
         train_depths, train_labels, train_pixel_indices, train_pixel_labels, train_joint_offsets = load_data.load_kinect_train_data()
         test_depths, test_labels, test_pixel_indices, test_pixel_labels, test_joint_offsets = load_data.load_kinect_test_data()
@@ -691,6 +821,28 @@ class TestNew(unittest.TestCase):
         number_of_datapoints = len(train_pixel_labels)
         offset_scales = np.array(np.random.uniform(0.99, 1.0, (number_of_datapoints, 2)), dtype=np.float32)
         offset_scales_buffer = rftk.buffers.as_matrix_buffer(offset_scales)
+
+        error = run_depth_delta_regression(learner=rftk.learn.create_uber_learner(  data_type='depth_image', 
+                                                                        extractor_type='pixel_pair_diff',
+                                                                        prediction_type='regression',
+                                                                        split_type='all_midpoints',
+                                                                        tree_type='breadth_first',
+                                                                        min_node_size=10,
+                                                                        min_child_size = 5,
+                                                                        ux=40, uy=40, vx=40, vy=40,
+                                                                        min_impurity=0.0,
+                                                                        bootstrap=True,
+                                                                        number_of_jobs=5,
+                                                                        number_of_leaves=int(train_pixel_indices.shape[0] / 5 + 1)),
+                    description="depth create_uber_learner all_midpoints", 
+                    train_depths=train_depths, train_labels=train_labels, train_pixel_indices=train_pixel_indices, train_pixel_labels=train_pixel_labels, train_joint_offsets=train_joint_offsets,
+                    test_depths=test_depths, test_labels=test_labels, test_pixel_indices=test_pixel_indices, test_pixel_labels=test_pixel_labels, test_joint_offsets=test_joint_offsets, 
+                    number_of_trees_list=[5], 
+                    bootstrap=True,
+                    number_of_features_list=[1000],
+                    number_of_jobs=5,
+                    joint_id = 5)
+        self.assertLess(error, 400)
 
         forest_learner = rftk.learn.create_vanilia_scaled_depth_delta_regression(
                                     number_of_trees=5,
@@ -702,30 +854,16 @@ class TestNew(unittest.TestCase):
                                     bootstrap=True,
                                     number_of_jobs=5)
 
-        joint_id = 5
-        train_depths_buffer = rftk.buffers.as_tensor_buffer(train_depths)
-        train_pixel_indices_buffer = rftk.buffers.as_matrix_buffer(train_pixel_indices)
-        train_joint_offsets_buffer = rftk.buffers.as_matrix_buffer(train_joint_offsets[:, joint_id, :])
-        predictor = forest_learner.fit(depth_images=train_depths_buffer, 
-                                      pixel_indices=train_pixel_indices_buffer,
-                                      offset_scales=offset_scales_buffer,
-                                      y=train_joint_offsets_buffer
-                                      )
-
-        train_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
-        train_mse = np.mean((train_joint_offsets[:, joint_id, :] - train_predictions)**2)
-        
-        train_predictions_oob = predictor.predict_oob(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
-        train_mse_oob = np.mean((train_joint_offsets[:, joint_id, :] - train_predictions_oob)**2)
-        
-        test_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(test_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(test_pixel_indices))
-        test_mse = np.mean((test_joint_offsets[:, joint_id, :] - test_predictions)**2)
-        
-        print("create_vanilia_scaled_depth_delta_regression %f %f %f" % (train_mse, train_mse_oob, test_mse))
-
+        error = run_depth_delta_regression(forest_learner, 
+                    description="depth create_vanilia_scaled_depth_delta_regression", 
+                    train_depths=train_depths, train_labels=train_labels, train_pixel_indices=train_pixel_indices, train_pixel_labels=train_pixel_labels, train_joint_offsets=train_joint_offsets,
+                    test_depths=test_depths, test_labels=test_labels, test_pixel_indices=test_pixel_indices, test_pixel_labels=test_pixel_labels, test_joint_offsets=test_joint_offsets, 
+                    number_of_trees_list=[5], 
+                    bootstrap=True,
+                    number_of_features_list=[1000],
+                    number_of_jobs=5,
+                    joint_id = 5)
+        self.assertLess(error, 400)
 
 
     def test_biau2008_scaled_depth_delta_regression(self):
@@ -737,6 +875,30 @@ class TestNew(unittest.TestCase):
         offset_scales = np.array(np.random.uniform(0.99, 1.0, (number_of_datapoints, 2)), dtype=np.float32)
         offset_scales_buffer = rftk.buffers.as_matrix_buffer(offset_scales)
 
+        error = run_depth_delta_regression(learner=rftk.learn.create_uber_learner(  data_type='depth_image', 
+                                                                        extractor_type='pixel_pair_diff',
+                                                                        prediction_type='regression',
+                                                                        split_type='random_gap',
+                                                                        split_criteria_type='biau2008',
+                                                                        tree_type='biau2008',
+                                                                        number_of_split_retries=10,
+                                                                        min_node_size=10,
+                                                                        min_child_size = 5,
+                                                                        ux=40, uy=40, vx=40, vy=40,
+                                                                        min_impurity=0.0,
+                                                                        bootstrap=True,
+                                                                        number_of_jobs=5,
+                                                                        number_of_leaves=int(train_pixel_indices.shape[0] / 5 + 1)),
+                    description="depth create_uber_learner biau2008", 
+                    train_depths=train_depths, train_labels=train_labels, train_pixel_indices=train_pixel_indices, train_pixel_labels=train_pixel_labels, train_joint_offsets=train_joint_offsets,
+                    test_depths=test_depths, test_labels=test_labels, test_pixel_indices=test_pixel_indices, test_pixel_labels=test_pixel_labels, test_joint_offsets=test_joint_offsets, 
+                    number_of_trees_list=[5], 
+                    bootstrap=False,
+                    number_of_features_list=[1000],
+                    number_of_jobs=5,
+                    joint_id = 5)
+        self.assertLess(error, 800)
+
         forest_learner = rftk.learn.create_biau2008_scaled_depth_delta_regression(
                                     number_of_trees=5,
                                     number_of_split_retries = 1000,
@@ -745,23 +907,16 @@ class TestNew(unittest.TestCase):
                                     bootstrap=False,
                                     number_of_jobs=5)
 
-        joint_id = 5
-        train_depths_buffer = rftk.buffers.as_tensor_buffer(train_depths)
-        train_pixel_indices_buffer = rftk.buffers.as_matrix_buffer(train_pixel_indices)
-        train_joint_offsets_buffer = rftk.buffers.as_matrix_buffer(train_joint_offsets[:, joint_id, :])
-        predictor = forest_learner.fit(depth_images=train_depths_buffer, 
-                                      pixel_indices=train_pixel_indices_buffer,
-                                      offset_scales=offset_scales_buffer,
-                                      y=train_joint_offsets_buffer
-                                      )
-
-        train_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
-        train_mse = np.mean((train_joint_offsets[:, joint_id, :] - train_predictions)**2)
-        test_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(test_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(test_pixel_indices))
-        test_mse = np.mean((test_joint_offsets[:, joint_id, :] - test_predictions)**2)
-        print("create_biau2008_scaled_depth_delta_regression %f %f" % (train_mse, test_mse))
+        error = run_depth_delta_regression(forest_learner, 
+                    description="depth create_biau2008_scaled_depth_delta_regression", 
+                    train_depths=train_depths, train_labels=train_labels, train_pixel_indices=train_pixel_indices, train_pixel_labels=train_pixel_labels, train_joint_offsets=train_joint_offsets,
+                    test_depths=test_depths, test_labels=test_labels, test_pixel_indices=test_pixel_indices, test_pixel_labels=test_pixel_labels, test_joint_offsets=test_joint_offsets, 
+                    number_of_trees_list=[5], 
+                    bootstrap=False,
+                    number_of_features_list=[1000],
+                    number_of_jobs=5,
+                    joint_id = 5)
+        self.assertLess(error, 800)
 
 
     def test_biau2008_scaled_one_split_depth_delta_regression(self):
@@ -773,34 +928,29 @@ class TestNew(unittest.TestCase):
         offset_scales = np.array(np.random.uniform(0.99, 1.0, (number_of_datapoints, 2)), dtype=np.float32)
         offset_scales_buffer = rftk.buffers.as_matrix_buffer(offset_scales)
 
-        forest_learner = rftk.learn.create_biau2008_scaled_depth_delta_regression(
-                                    number_of_trees=5,
-                                    number_of_split_retries = 1000,
-                                    # ux=75, uy=75, vx=75, vy=75,
-                                    ux=40, uy=40, vx=40, vy=40,
-                                    bootstrap=False,
-                                    number_of_leaves=1,
-                                    number_of_jobs=5)
-
-        joint_id = 5
-        train_depths_buffer = rftk.buffers.as_tensor_buffer(train_depths)
-        train_pixel_indices_buffer = rftk.buffers.as_matrix_buffer(train_pixel_indices)
-        train_joint_offsets_buffer = rftk.buffers.as_matrix_buffer(train_joint_offsets[:, joint_id, :])
-        predictor = forest_learner.fit(depth_images=train_depths_buffer, 
-                                      pixel_indices=train_pixel_indices_buffer,
-                                      offset_scales=offset_scales_buffer,
-                                      y=train_joint_offsets_buffer
-                                      )
-
-        train_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
-        train_mse = np.mean((train_joint_offsets[:, joint_id, :] - train_predictions)**2)
-        test_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(test_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(test_pixel_indices))
-        test_mse = np.mean((test_joint_offsets[:, joint_id, :] - test_predictions)**2)
-        print("create_biau2008_scaled_one_split_depth_delta_regression %f %f" % (train_mse, test_mse))
-
-
+        error = run_depth_delta_regression(learner=rftk.learn.create_uber_learner(  data_type='depth_image', 
+                                                                        extractor_type='pixel_pair_diff',
+                                                                        prediction_type='regression',
+                                                                        split_type='random_gap',
+                                                                        split_criteria_type='biau2008',
+                                                                        tree_type='biau2008',
+                                                                        number_of_split_retries=10,
+                                                                        min_node_size=10,
+                                                                        min_child_size = 5,
+                                                                        ux=40, uy=40, vx=40, vy=40,
+                                                                        min_impurity=0.0,
+                                                                        bootstrap=False,
+                                                                        number_of_jobs=1,
+                                                                        number_of_leaves=int(train_pixel_indices.shape[0] / 5 + 1)),
+                    description="depth create_uber_learner biau2008 one_split", 
+                    train_depths=train_depths, train_labels=train_labels, train_pixel_indices=train_pixel_indices, train_pixel_labels=train_pixel_labels, train_joint_offsets=train_joint_offsets,
+                    test_depths=test_depths, test_labels=test_labels, test_pixel_indices=test_pixel_indices, test_pixel_labels=test_pixel_labels, test_joint_offsets=test_joint_offsets, 
+                    number_of_trees_list=[5], 
+                    bootstrap=False,
+                    number_of_features_list=[1000],
+                    number_of_jobs=5,
+                    joint_id = 5)
+        self.assertLess(error, 800)
 
     def test_biau2012_scaled_depth_delta_regression(self):
         train_depths, train_labels, train_pixel_indices, train_pixel_labels, train_joint_offsets = load_data.load_kinect_train_data()
@@ -811,75 +961,52 @@ class TestNew(unittest.TestCase):
         offset_scales = np.array(np.random.uniform(0.99, 1.0, (number_of_datapoints, 2)), dtype=np.float32)
         offset_scales_buffer = rftk.buffers.as_matrix_buffer(offset_scales)
 
+        error = run_depth_delta_regression(learner=rftk.learn.create_uber_learner(  data_type='depth_image', 
+                                                                        extractor_type='pixel_pair_diff',
+                                                                        prediction_type='regression',
+                                                                        streams_type='two_stream_per_forest', #note: bootstrap=False is required
+                                                                        probability_of_impurity_stream=0.5,
+                                                                        split_type='constant_splitpoints',
+                                                                        constant_splitpoints_type='at_range_midpoints',
+                                                                        split_criteria_type='biau2012',
+                                                                        in_bounds_number_of_points=int(train_pixel_indices.shape[0]/2),
+                                                                        tree_type='breadth_first',
+                                                                        min_node_size=10,
+                                                                        min_child_size = 5,
+                                                                        ux=40, uy=40, vx=40, vy=40,
+                                                                        min_impurity=0.0,
+                                                                        bootstrap=True,
+                                                                        number_of_jobs=5,
+                                                                        number_of_leaves=int(train_pixel_indices.shape[0] / 5 + 1)),
+                    description="depth create_uber_learner biau2012", 
+                    train_depths=train_depths, train_labels=train_labels, train_pixel_indices=train_pixel_indices, train_pixel_labels=train_pixel_labels, train_joint_offsets=train_joint_offsets,
+                    test_depths=test_depths, test_labels=test_labels, test_pixel_indices=test_pixel_indices, test_pixel_labels=test_pixel_labels, test_joint_offsets=test_joint_offsets, 
+                    number_of_trees_list=[5], 
+                    bootstrap=False,
+                    number_of_features_list=[1000],
+                    number_of_jobs=5,
+                    joint_id = 5)
+        self.assertLess(error, 400)
+
         forest_learner = rftk.learn.create_biau2012_scaled_depth_delta_regression(
                                     number_of_trees=5,
-                                    number_of_features=2000,
                                     min_node_size=1,
-                                    # min_child_size = 5,
+                                    number_of_split_retries = 1000,
                                     # ux=75, uy=75, vx=75, vy=75,
                                     ux=40, uy=40, vx=40, vy=40,
-                                    # min_impurity=0.0,
-                                    # bootstrap=False,
+                                    bootstrap=False,
                                     number_of_jobs=5)
 
-        joint_id = 5
-        train_depths_buffer = rftk.buffers.as_tensor_buffer(train_depths)
-        train_pixel_indices_buffer = rftk.buffers.as_matrix_buffer(train_pixel_indices)
-        train_joint_offsets_buffer = rftk.buffers.as_matrix_buffer(train_joint_offsets[:, joint_id, :])
-        predictor = forest_learner.fit(depth_images=train_depths_buffer, 
-                                      pixel_indices=train_pixel_indices_buffer,
-                                      offset_scales=offset_scales_buffer,
-                                      y=train_joint_offsets_buffer
-                                      )
-
-        train_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
-        train_mse = np.mean((train_joint_offsets[:, joint_id, :] - train_predictions)**2)
-        test_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(test_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(test_pixel_indices))
-        test_mse = np.mean((test_joint_offsets[:, joint_id, :] - test_predictions)**2)
-        print("create_biau2012_scaled_depth_delta_regression %f %f" % (train_mse, test_mse))
-
-
-
-    def test_consistent_scaled_depth_delta_regression(self):
-        train_depths, train_labels, train_pixel_indices, train_pixel_labels, train_joint_offsets = load_data.load_kinect_train_data()
-        test_depths, test_labels, test_pixel_indices, test_pixel_labels, test_joint_offsets = load_data.load_kinect_test_data()
-        number_of_datapoints = len(train_labels)
-
-        number_of_datapoints = len(train_pixel_labels)
-        offset_scales = np.array(np.random.uniform(0.99, 1.0, (number_of_datapoints, 2)), dtype=np.float32)
-        offset_scales_buffer = rftk.buffers.as_matrix_buffer(offset_scales)
-
-        forest_learner = rftk.learn.create_consistent_scaled_depth_delta_regression(
-                                    number_of_trees=5,
-                                    number_of_features=2000,
-                                    min_node_size=10,
-                                    min_child_size = 5,
-                                    # ux=75, uy=75, vx=75, vy=75,
-                                    ux=40, uy=40, vx=40, vy=40,
-                                    min_impurity=0.0,
-                                    # bootstrap=False,
-                                    poisson_number_of_features=True,
-                                    number_of_jobs=5)
-
-        joint_id = 5
-        train_depths_buffer = rftk.buffers.as_tensor_buffer(train_depths)
-        train_pixel_indices_buffer = rftk.buffers.as_matrix_buffer(train_pixel_indices)
-        train_joint_offsets_buffer = rftk.buffers.as_matrix_buffer(train_joint_offsets[:, joint_id, :])
-        predictor = forest_learner.fit(depth_images=train_depths_buffer, 
-                                      pixel_indices=train_pixel_indices_buffer,
-                                      offset_scales=offset_scales_buffer,
-                                      y=train_joint_offsets_buffer
-                                      )
-
-        train_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
-        train_mse = np.mean((train_joint_offsets[:, joint_id, :] - train_predictions)**2)
-        test_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(test_depths),
-                                        pixel_indices=rftk.buffers.as_matrix_buffer(test_pixel_indices))
-        test_mse = np.mean((test_joint_offsets[:, joint_id, :] - test_predictions)**2)
-        print("create_consistent_scaled_depth_delta_regression %f %f" % (train_mse, test_mse))
+        error = run_depth_delta_regression(forest_learner, 
+                    description="depth create_biau2012_scaled_depth_delta_regression", 
+                    train_depths=train_depths, train_labels=train_labels, train_pixel_indices=train_pixel_indices, train_pixel_labels=train_pixel_labels, train_joint_offsets=train_joint_offsets,
+                    test_depths=test_depths, test_labels=test_labels, test_pixel_indices=test_pixel_indices, test_pixel_labels=test_pixel_labels, test_joint_offsets=test_joint_offsets, 
+                    number_of_trees_list=[5], 
+                    bootstrap=False,
+                    number_of_features_list=[1000],
+                    number_of_jobs=5,
+                    joint_id = 5)
+        self.assertLess(error, 400)
 
 
 

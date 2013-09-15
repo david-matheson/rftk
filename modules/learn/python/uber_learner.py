@@ -6,6 +6,7 @@ import rftk.matrix_features as matrix_features
 import rftk.image_features as image_features
 import rftk.splitpoints as splitpoints
 import rftk.classification as classification
+import rftk.regression as regression
 import rftk.predict as predict
 import learn
 from wrappers import *
@@ -91,6 +92,8 @@ def uber_create_learner(**kwargs):
     node_steps_update = []
     node_steps_impurity = []
 
+    split_steps_list = []
+
     data_type = kwargs.get('data_type')
     extractor_type = kwargs.get('extractor_type')
     prediction_type = kwargs.get('prediction_type')
@@ -108,6 +111,7 @@ def uber_create_learner(**kwargs):
             sample_data_step = pipeline.BootstrapSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
         else:
             raise Exception("unknown data_type %s" % (data_type))
+        tree_steps.append(sample_data_step)
     elif 'poisson_sample' in kwargs:
         poisson_sample_mean = float(kwargs.get('poisson_sample'))
         if data_type == 'matrix':
@@ -116,6 +120,7 @@ def uber_create_learner(**kwargs):
             sample_data_step = pipeline.PoissonSamplesStep_i32i32(buffers.PIXEL_INDICES, poisson_sample_mean)
         else:
             raise Exception("unknown data_type %s" % (data_type))
+        tree_steps.append(sample_data_step)
     else:
         if data_type == 'matrix':
             sample_data_step = pipeline.AllSamplesStep_f32f32i32(buffers.X_FLOAT_DATA)
@@ -123,7 +128,8 @@ def uber_create_learner(**kwargs):
             sample_data_step = pipeline.AllSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
         else:
             raise Exception("unknown data_type %s" % (data_type))
-    tree_steps.append(sample_data_step)
+        forest_steps.append(sample_data_step)
+
 
     # Default number of features to extract
     if data_type == 'matrix' and prediction_type == 'classification':
@@ -196,12 +202,12 @@ def uber_create_learner(**kwargs):
     if streams_type == 'two_stream_per_tree' or streams_type == 'two_stream_per_forest':
         probability_of_impurity_stream = float(kwargs.get('probability_of_impurity_stream', 0.5) )
         assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.WeightsBufferId, probability_of_impurity_stream)
-        slice_assign_stream_step = pipeline.SliceInt32VectorBufferStep_i32(assign_stream_step.StreamTypeBufferId, sample_data_step.IndicesBufferId)
+        slice_stream_step = pipeline.SliceInt32VectorBufferStep_i32(assign_stream_step.StreamTypeBufferId, sample_data_step.IndicesBufferId)
         if streams_type == 'two_stream_per_tree':
             tree_steps.append(assign_stream_step)
         elif streams_type == 'two_stream_per_forest':
             forest_steps.append(assign_stream_step)
-        node_steps_update.append(slice_assign_stream_step)
+        node_steps_update.append(slice_stream_step)
     elif streams_type != 'one_stream':
         raise Exception("unknown streams_type %s" % streams_type)
 
@@ -217,7 +223,12 @@ def uber_create_learner(**kwargs):
         y_estimator_dimension = number_of_classes
     elif prediction_type == 'regression':
         slice_ys_step = pipeline.SliceFloat32MatrixBufferStep_i32(buffers.YS, sample_data_step.IndicesBufferId)
-        raise Exception("not implemented")
+        finalizer = regression.MeanVarianceEstimatorFinalizer_f32()
+        if data_type == 'matrix':
+            dimension_of_y = int( kwargs['y'].shape[1] )
+        else:
+            dimension_of_y = int( kwargs['y'].GetN() )
+        y_estimator_dimension = dimension_of_y*2
     else:
         raise Exception("unknown prediction_type %s" % prediction_type)
     node_steps_update.append(slice_ys_step)
@@ -227,31 +238,90 @@ def uber_create_learner(**kwargs):
     if split_type == 'all_midpoints':
 
         if prediction_type == 'classification':
-            class_infogain_walker = classification.ClassInfoGainWalker_f32i32(slice_weights_step.SlicedBufferId,
-                                                                              slice_ys_step.SlicedBufferId,
-                                                                              number_of_classes)
-            best_splitpint_step = classification.ClassInfoGainBestSplitpointsWalkingSortedStep_f32i32(class_infogain_walker,
-                                                                                feature_extractor_step.FeatureValuesBufferId,
-                                                                                feature_ordering)
-            impurity_buffer = best_splitpint_step.ImpurityBufferId
-            splitpoint_buffer = best_splitpint_step.SplitpointBufferId
-            splitpoint_counts_buffer = best_splitpint_step.SplitpointCountsBufferId
-            child_count_buffer = best_splitpint_step.ChildCountsBufferId
-            left_estimator_buffer = best_splitpint_step.LeftYsBufferId
-            right_estimator_buffer = best_splitpint_step.RightYsBufferId
+            if streams_type == 'one_stream':
+                impurity_walker = classification.ClassInfoGainWalker_f32i32(slice_weights_step.SlicedBufferId,
+                                                                                  slice_ys_step.SlicedBufferId,
+                                                                                  number_of_classes)
+                best_splitpoint_step = classification.ClassInfoGainBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,
+                                                                                    feature_extractor_step.FeatureValuesBufferId,
+                                                                                    feature_ordering)
+            else:
+                raise Exception("unknown streams_type %s" % streams_type)
 
-        # elif prediction_type == 'regression':
+        elif prediction_type == 'regression':
+            if streams_type == 'one_stream':
+                impurity_walker = regression.SumOfVarianceWalker_f32i32(slice_weights_step.SlicedBufferId,
+                                                                        slice_ys_step.SlicedBufferId,
+                                                                        dimension_of_y)
+                best_splitpoint_step = regression.SumOfVarianceBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,
+                                                                                    feature_extractor_step.FeatureValuesBufferId,
+                                                                                    feature_ordering)
+            elif streams_type == 'two_stream_per_tree' or streams_type == 'two_stream_per_forest':
+
+                if data_type == 'depth_image':
+                    in_bounds_number_of_points_default = kwargs['y'].GetN()/2
+                else:
+                    in_bounds_number_of_points_default = kwargs['y'].shape[0]/2
+                in_bounds_number_of_points = int(kwargs.get('in_bounds_number_of_points', in_bounds_number_of_points_default) )
+                impurity_walker = regression.SumOfVarianceTwoStreamWalker_f32i32(slice_weights_step.SlicedBufferId,
+                                                                                    slice_stream_step.SlicedBufferId,
+                                                                                    slice_ys_step.SlicedBufferId,
+                                                                                    dimension_of_y)
+                best_splitpoint_step = regression.SumOfVarianceTwoStreamBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,
+                                                                    slice_stream_step.SlicedBufferId,
+                                                                    feature_extractor_step.FeatureValuesBufferId,
+                                                                    feature_ordering,
+                                                                    in_bounds_number_of_points)
+            else:
+                raise Exception("unknown streams_type %s" % streams_type)
         else:
             raise Exception("unknown prediction_type %s" % prediction_type)
-        node_steps_impurity.append(best_splitpint_step)
+
+        if streams_type == 'one_stream':
+            impurity_buffer = best_splitpoint_step.ImpurityBufferId
+            splitpoint_buffer = best_splitpoint_step.SplitpointBufferId
+            splitpoint_counts_buffer = best_splitpoint_step.SplitpointCountsBufferId
+            child_count_buffer = best_splitpoint_step.ChildCountsBufferId
+            left_estimator_buffer = best_splitpoint_step.LeftYsBufferId
+            right_estimator_buffer = best_splitpoint_step.RightYsBufferId
+        elif streams_type == 'two_stream_per_tree' or streams_type == 'two_stream_per_forest':
+            impurity_buffer = best_splitpoint_step.ImpurityBufferId
+            splitpoint_buffer = best_splitpoint_step.SplitpointBufferId
+            splitpoint_counts_buffer = best_splitpoint_step.SplitpointCountsBufferId
+            child_count_buffer = best_splitpoint_step.ChildCountsEstimationBufferId
+            left_estimator_buffer = best_splitpoint_step.LeftEstimationYsBufferId
+            right_estimator_buffer = best_splitpoint_step.RightEstimationYsBufferId
+        else:
+            raise Exception("unknown streams_type %s" % streams_type)
+        node_steps_impurity.append(best_splitpoint_step)
+
+    elif split_type == 'random_gap':
+        if prediction_type == 'regression':
+            impurity_walker = regression.SumOfVarianceWalker_f32i32(slice_weights_step.SlicedBufferId,
+                                                                    slice_ys_step.SlicedBufferId,
+                                                                    dimension_of_y)
+
+            best_splitpoint_step = regression.SumOfVarianceRandomGapSplitpointsStep_f32i32(impurity_walker,
+                                                                        feature_extractor_step.FeatureValuesBufferId,
+                                                                        feature_ordering)
+        else:
+            raise Exception("unknown prediction_type %s" % prediction_type)
+
+        impurity_buffer = best_splitpoint_step.ImpurityBufferId
+        splitpoint_buffer = best_splitpoint_step.SplitpointBufferId
+        splitpoint_counts_buffer = best_splitpoint_step.SplitpointCountsBufferId
+        child_count_buffer = best_splitpoint_step.ChildCountsBufferId
+        left_estimator_buffer = best_splitpoint_step.LeftYsBufferId
+        right_estimator_buffer = best_splitpoint_step.RightYsBufferId
+        node_steps_impurity.append(best_splitpoint_step)
 
     elif split_type == 'constant_splitpoints':
 
         constant_splitpoints_type = kwargs.get('constant_splitpoints_type')
-        number_of_splitpoints = int(kwargs.get('number_of_splitpoints'))
 
-        # Select splitpoints
+        # Select splitpoints at random datapoints
         if constant_splitpoints_type == 'at_random_datapoints':
+            number_of_splitpoints = int(kwargs.get('number_of_splitpoints'))
             if streams_type == 'one_stream':
                 splitpoint_selection_step = splitpoints.RandomSplitpointsStep_f32i32(feature_extractor_step.FeatureValuesBufferId,
                                                                                         number_of_splitpoints,
@@ -260,9 +330,26 @@ def uber_create_learner(**kwargs):
                 splitpoint_selection_step = splitpoints.RandomSplitpointsStep_f32i32(feature_extractor_step.FeatureValuesBufferId,
                                                                                         number_of_splitpoints,
                                                                                         feature_ordering,
-                                                                                        slice_assign_stream_step.SlicedBufferId)
+                                                                                        slice_stream_step.SlicedBufferId)
             else:
                 raise Exception("unknown constant_splitpoints_type %s" % streams_type)
+
+        # Select splitpoints at midpoint of the range
+        elif constant_splitpoints_type == 'at_range_midpoints':
+            feature_range_buffer = buffers.as_vector_buffer(np.array([-1, 1], dtype=np.float32))
+            set_feature_range_buffer_step = pipeline.SetFloat32VectorBufferStep(feature_range_buffer, pipeline.WHEN_NEW)
+            quantized_feature_equal = pipeline.FeatureEqualQuantized_f32i32(1.0)
+            splitpoint_selection_step = splitpoints.RangeMidpointStep_f32i32(feature_params_step.FloatParamsBufferId,
+                                                                            feature_params_step.IntParamsBufferId,
+                                                                            set_feature_range_buffer_step.OutputBufferId,
+                                                                            quantized_feature_equal)
+            split_midpoint_ranges = splitpoints.SplitBuffersFeatureRange_f32i32(splitpoint_selection_step.PastFloatParamsBufferId,
+                                                                                splitpoint_selection_step.PastIntParamsBufferId,
+                                                                                splitpoint_selection_step.PastRangesBufferId,
+                                                                                set_feature_range_buffer_step.OutputBufferId,
+                                                                                quantized_feature_equal)
+            forest_steps.append(set_feature_range_buffer_step)
+            split_steps_list.append(split_midpoint_ranges)
         else:
             raise Exception("unknown constant_splitpoints_type %s" % constant_splitpoints_type)
         node_steps_update.append(splitpoint_selection_step)
@@ -283,19 +370,11 @@ def uber_create_learner(**kwargs):
                                                                                       one_stream_split_stats_step.ChildCountsBufferId,
                                                                                       one_stream_split_stats_step.LeftStatsBufferId,
                                                                                       one_stream_split_stats_step.RightStatsBufferId)
-                impurity_buffer = impurity_step.ImpurityBufferId
-                splitpoint_buffer = splitpoint_selection_step.SplitpointsBufferId
-                splitpoint_counts_buffer = splitpoint_selection_step.SplitpointsCountsBufferId
-                child_count_buffer = one_stream_split_stats_step.ChildCountsBufferId
-                left_estimator_buffer = one_stream_split_stats_step.LeftStatsBufferId
-                right_estimator_buffer = one_stream_split_stats_step.RightStatsBufferId
-                node_steps_update.append(one_stream_split_stats_step)
-                node_steps_impurity.append(impurity_step)
 
             elif streams_type == 'two_stream_per_tree' or streams_type == 'two_stream_per_forest':
                 two_stream_split_stats_step = classification.ClassStatsUpdaterTwoStreamStep_f32i32(splitpoint_selection_step.SplitpointsBufferId,
                                                                                       splitpoint_selection_step.SplitpointsCountsBufferId,
-                                                                                      slice_assign_stream_step.SlicedBufferId,
+                                                                                      slice_stream_step.SlicedBufferId,
                                                                                       feature_extractor_step.FeatureValuesBufferId,
                                                                                       feature_ordering,
                                                                                       class_stats_updater)
@@ -304,22 +383,65 @@ def uber_create_learner(**kwargs):
                                                                                       two_stream_split_stats_step.ChildCountsImpurityBufferId,
                                                                                       two_stream_split_stats_step.LeftImpurityStatsBufferId,
                                                                                       two_stream_split_stats_step.RightImpurityStatsBufferId)
-                impurity_buffer = impurity_step.ImpurityBufferId
-                splitpoint_buffer = splitpoint_selection_step.SplitpointsBufferId
-                splitpoint_counts_buffer = splitpoint_selection_step.SplitpointsCountsBufferId
-                child_count_buffer = two_stream_split_stats_step.ChildCountsEstimatorBufferId
-                left_estimator_buffer = two_stream_split_stats_step.LeftEstimatorStatsBufferId
-                right_estimator_buffer = two_stream_split_stats_step.RightEstimatorStatsBufferId
-                node_steps_update.append(two_stream_split_stats_step)
-                node_steps_impurity.append(impurity_step)
             else:
                 raise Exception("unknown constant_splitpoints_type %s" % streams_type)
 
 
-        # elif prediction_type == 'regression':
+        elif prediction_type == 'regression':
+            mean_variance_stats_updater = regression.MeanVarianceStatsUpdater_f32i32(slice_weights_step.SlicedBufferId,
+                                                                                      slice_ys_step.SlicedBufferId,
+                                                                                      dimension_of_y)
+            if streams_type == 'one_stream':
+                one_stream_split_stats_step = regression.SumOfVarianceOneStreamStep_f32i32(splitpoint_selection_step.SplitpointsBufferId,
+                                                                                      splitpoint_selection_step.SplitpointsCountsBufferId,
+                                                                                      feature_extractor_step.FeatureValuesBufferId,
+                                                                                      feature_ordering,
+                                                                                      class_stats_updater)
+
+                impurity_step = regression.SumOfVarianceSplitpointsImpurity_f32i32(splitpoint_selection_step.SplitpointsCountsBufferId,
+                                                                                      one_stream_split_stats_step.ChildCountsBufferId,
+                                                                                      one_stream_split_stats_step.LeftStatsBufferId,
+                                                                                      one_stream_split_stats_step.RightStatsBufferId)
+
+            elif streams_type == 'two_stream_per_tree' or streams_type == 'two_stream_per_forest':
+                two_stream_split_stats_step = regression.SumOfVarianceTwoStreamStep_f32i32(splitpoint_selection_step.SplitpointsBufferId,
+                                                                                      splitpoint_selection_step.SplitpointsCountsBufferId,
+                                                                                      slice_stream_step.SlicedBufferId,
+                                                                                      feature_extractor_step.FeatureValuesBufferId,
+                                                                                      feature_ordering,
+                                                                                      mean_variance_stats_updater)
+                impurity_step = regression.SumOfVarianceSplitpointsImpurity_f32i32(splitpoint_selection_step.SplitpointsCountsBufferId,
+                                                                                      two_stream_split_stats_step.ChildCountsImpurityBufferId,
+                                                                                      two_stream_split_stats_step.LeftImpurityStatsBufferId,
+                                                                                      two_stream_split_stats_step.RightImpurityStatsBufferId)
+
+            else:
+                raise Exception("unknown constant_splitpoints_type %s" % streams_type)
+
         else:
             raise Exception("unknown prediction_type %s" % prediction_type)
 
+        if streams_type == 'one_stream':
+            impurity_buffer = impurity_step.ImpurityBufferId
+            splitpoint_buffer = splitpoint_selection_step.SplitpointsBufferId
+            splitpoint_counts_buffer = splitpoint_selection_step.SplitpointsCountsBufferId
+            child_count_buffer = one_stream_split_stats_step.ChildCountsBufferId
+            left_estimator_buffer = one_stream_split_stats_step.LeftStatsBufferId
+            right_estimator_buffer = one_stream_split_stats_step.RightStatsBufferId
+            node_steps_update.append(one_stream_split_stats_step)
+            node_steps_impurity.append(impurity_step)
+
+        elif streams_type == 'two_stream_per_tree' or streams_type == 'two_stream_per_forest':
+            impurity_buffer = impurity_step.ImpurityBufferId
+            splitpoint_buffer = splitpoint_selection_step.SplitpointsBufferId
+            splitpoint_counts_buffer = splitpoint_selection_step.SplitpointsCountsBufferId
+            child_count_buffer = two_stream_split_stats_step.ChildCountsEstimatorBufferId
+            left_estimator_buffer = two_stream_split_stats_step.LeftEstimatorStatsBufferId
+            right_estimator_buffer = two_stream_split_stats_step.RightEstimatorStatsBufferId
+            node_steps_update.append(two_stream_split_stats_step)
+            node_steps_impurity.append(impurity_step)
+        else:
+            raise Exception("unknown constant_splitpoints_type %s" % streams_type)
 
     else:
         raise Exception("unknown split_type %s" % split_type)
@@ -339,16 +461,20 @@ def uber_create_learner(**kwargs):
 
     forest_steps_pipeline = pipeline.Pipeline(forest_steps)
     tree_steps_pipeline = pipeline.Pipeline(tree_steps)
+    forest_and_tree_steps_pipeline = pipeline.Pipeline(forest_steps+tree_steps)
     node_steps_pipeline = pipeline.Pipeline(node_steps_init + node_steps_update + node_steps_impurity)
 
     try_split_criteria = create_try_split_criteria(**kwargs)
     should_split_criteria = create_should_split_criteria(**kwargs)
 
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
+    split_steps_list.append(split_indices)
+    split_steps = splitpoints.SplitBuffersList(split_steps_list)
+
     if tree_type == 'online':
-        split_selector = splitpoints.WaitForBestSplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_indices )
+        split_selector = splitpoints.WaitForBestSplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_steps )
     else:
-        split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_indices)
+        split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_steps)
 
     number_of_trees = int( kwargs.get('number_of_trees', 1) )
     number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
@@ -356,8 +482,17 @@ def uber_create_learner(**kwargs):
         tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
         forest_learner = learn.ParallelForestLearner(tree_learner, forest_steps_pipeline, number_of_trees, y_estimator_dimension, number_of_jobs)
     elif tree_type == 'breadth_first':
-        tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
+        if 'number_of_leaves' in kwargs:
+            number_of_leaves = int(kwargs.get('number_of_leaves'))
+            tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector, number_of_leaves)
+        else:
+            tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
         forest_learner = learn.ParallelForestLearner(tree_learner, forest_steps_pipeline, number_of_trees, y_estimator_dimension, number_of_jobs)
+    elif tree_type == 'biau2008':
+        number_of_leaves = int(kwargs.get('number_of_leaves'))
+        number_of_split_retries = int( kwargs.get('number_of_split_retries') )
+        tree_learner = learn.Biau2008TreeLearner_f32i32(try_split_criteria, forest_and_tree_steps_pipeline, node_steps_pipeline, split_selector, number_of_leaves, number_of_split_retries)
+        forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, dimension_of_y, number_of_jobs)
     elif tree_type == 'online':
         max_frontier_size = int( kwargs.get('max_frontier_size', 10000000) )
         impurity_update_period = int( kwargs.get('impurity_update_period', 1) )
@@ -371,7 +506,7 @@ def uber_create_learner(**kwargs):
             estimator_params_updater = classification.ClassEstimatorUpdater_f32i32(sample_data_step.WeightsBufferId, buffers.CLASS_LABELS, number_of_classes)
             forest_learner = learn.OnlineForestMatrixClassLearner_f32i32(
                                                         try_split_criteria,
-                                                        tree_steps_pipeline,
+                                                        forest_and_tree_steps_pipeline,
                                                         node_steps_init_pipeline,
                                                         node_steps_update_pipeline,
                                                         node_steps_impurity_pipeline,
@@ -386,7 +521,7 @@ def uber_create_learner(**kwargs):
             estimator_params_updater = classification.ClassEstimatorUpdater_f32i32(sample_data_step.WeightsBufferId, buffers.CLASS_LABELS, number_of_classes)
             forest_learner = learn.OnlineForestScaledDepthDeltaClassLearner_f32i32(
                                                         try_split_criteria,
-                                                        tree_steps_pipeline,
+                                                        forest_and_tree_steps_pipeline,
                                                         node_steps_init_pipeline,
                                                         node_steps_update_pipeline,
                                                         node_steps_impurity_pipeline,
