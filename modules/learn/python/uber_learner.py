@@ -9,6 +9,7 @@ import rftk.classification as classification
 import rftk.regression as regression
 import rftk.predict as predict
 import learn
+from utils import *
 from wrappers import *
 from greedy_add_swap_learner import *
 from split_criteria import *
@@ -84,8 +85,15 @@ def make_uber_create_predictor(learner_kwargs):
 
     return uber_create_predictor
 
+def remove_prepare_data(unused_kwargs_keys):
+    prepare_data_ignore_list = ['x', 'y', 'classes', 'depth_images', 'pixel_indices', 'offset_scales']
+    unused_kwargs_keys = [x for x in unused_kwargs_keys if x not in prepare_data_ignore_list]
+    return unused_kwargs_keys
 
 def uber_create_learner(**kwargs):
+    unused_kwargs_keys = kwargs.keys()
+    unused_kwargs_keys = remove_prepare_data(unused_kwargs_keys)
+
     forest_steps = []
     tree_steps = []
     node_steps_init = []
@@ -94,17 +102,17 @@ def uber_create_learner(**kwargs):
 
     split_steps_list = []
 
-    data_type = kwargs.get('data_type')
-    extractor_type = kwargs.get('extractor_type')
-    prediction_type = kwargs.get('prediction_type')
-    split_type = kwargs.get('split_type')
-    tree_type = kwargs.get('tree_type')
-    feature_ordering = int( kwargs.get('feature_ordering', pipeline.FEATURES_BY_DATAPOINTS) )
-    streams_type = kwargs.get('streams_type', 'one_stream')
+    data_type = pop_kwargs(kwargs, 'data_type', unused_kwargs_keys)
+    extractor_type = pop_kwargs(kwargs, 'extractor_type', unused_kwargs_keys)
+    prediction_type = pop_kwargs(kwargs, 'prediction_type', unused_kwargs_keys)
+    split_type = pop_kwargs(kwargs, 'split_type', unused_kwargs_keys)
+    tree_type = pop_kwargs(kwargs, 'tree_type', unused_kwargs_keys)
+    feature_ordering = int( pop_kwargs(kwargs, 'feature_ordering', unused_kwargs_keys, pipeline.FEATURES_BY_DATAPOINTS) )
+    streams_type = pop_kwargs(kwargs, 'streams_type', unused_kwargs_keys, 'one_stream')
 
     
     # Setup sampling of weights step
-    if 'bootstrap' in kwargs and kwargs.get('bootstrap'):
+    if pop_kwargs(kwargs, 'bootstrap', unused_kwargs_keys, False):
         if data_type == 'matrix':
             sample_data_step = pipeline.BootstrapSamplesStep_f32f32i32(buffers.X_FLOAT_DATA)
         elif data_type == 'depth_image':
@@ -113,7 +121,7 @@ def uber_create_learner(**kwargs):
             raise Exception("unknown data_type %s" % (data_type))
         tree_steps.append(sample_data_step)
     elif 'poisson_sample' in kwargs:
-        poisson_sample_mean = float(kwargs.get('poisson_sample'))
+        poisson_sample_mean = float(pop_kwargs(kwargs, 'poisson_sample', unused_kwargs_keys))
         if data_type == 'matrix':
             sample_data_step = pipeline.PoissonSamplesStep_f32i32(buffers.X_FLOAT_DATA, poisson_sample_mean)
         elif data_type == 'depth_image':
@@ -133,9 +141,9 @@ def uber_create_learner(**kwargs):
 
     # Default number of features to extract
     if data_type == 'matrix' and prediction_type == 'classification':
-        default_number_of_features = int(np.sqrt(kwargs['x'].shape[1]))
+        default_number_of_features = int(np.sqrt(pop_kwargs(kwargs, 'x', unused_kwargs_keys).shape[1]))
     elif data_type == 'matrix' and prediction_type == 'regression':
-        default_number_of_features = int(kwargs['x'].shape[1]/3 + 0.5)
+        default_number_of_features = int(pop_kwargs(kwargs, 'x', unused_kwargs_keys).shape[1]/3 + 0.5)
     elif data_type == 'depth_image':
         default_number_of_features = 1
     else:
@@ -143,8 +151,8 @@ def uber_create_learner(**kwargs):
 
     # Set number of features to extract
     # need to add possion and uniform
-    number_of_features = int( kwargs.get('number_of_features', default_number_of_features) )
-    possion_number_of_features = bool( kwargs.get('possion_number_of_features', False))
+    number_of_features = int( pop_kwargs(kwargs, 'number_of_features', unused_kwargs_keys, default_number_of_features) )
+    possion_number_of_features = bool( pop_kwargs(kwargs, 'possion_number_of_features', unused_kwargs_keys, False) )
     if possion_number_of_features:
         set_number_features_step = pipeline.PoissonStep_f32i32(number_of_features, 1)
         node_steps_init.append(set_number_features_step)
@@ -174,10 +182,10 @@ def uber_create_learner(**kwargs):
                                                                   buffers.X_FLOAT_DATA)
         feature_extractor_step = matrix_features.LinearFloat32MatrixFeatureExtractorStep_f32i32(feature, feature_ordering)
     elif data_type == 'depth_image' and extractor_type == 'pixel_pair_diff':
-        ux = float( kwargs.get('ux') )
-        uy = float( kwargs.get('uy') )
-        vx = float( kwargs.get('vx') )
-        vy = float( kwargs.get('vy') )
+        ux = float( pop_kwargs(kwargs, 'ux', unused_kwargs_keys) )
+        uy = float( pop_kwargs(kwargs, 'uy', unused_kwargs_keys) )
+        vx = float( pop_kwargs(kwargs, 'vx', unused_kwargs_keys) )
+        vy = float( pop_kwargs(kwargs, 'vy', unused_kwargs_keys) )
 
         feature_params_step = image_features.PixelPairGaussianOffsetsStep_f32i32(set_number_features_step.OutputBufferId, ux, uy, vx, vy )
         feature = image_features.ScaledDepthDeltaFeature_f32i32(feature_params_step.FloatParamsBufferId,
@@ -200,7 +208,7 @@ def uber_create_learner(**kwargs):
 
     # Setup stream ids
     if streams_type == 'two_stream_per_tree' or streams_type == 'two_stream_per_forest':
-        probability_of_impurity_stream = float(kwargs.get('probability_of_impurity_stream', 0.5) )
+        probability_of_impurity_stream = float(pop_kwargs(kwargs, 'probability_of_impurity_stream', unused_kwargs_keys, 0.5))
         assign_stream_step = splitpoints.AssignStreamStep_f32i32(sample_data_step.WeightsBufferId, probability_of_impurity_stream)
         slice_stream_step = pipeline.SliceInt32VectorBufferStep_i32(assign_stream_step.StreamTypeBufferId, sample_data_step.IndicesBufferId)
         if streams_type == 'two_stream_per_tree':
@@ -217,17 +225,17 @@ def uber_create_learner(**kwargs):
         finalizer = classification.ClassEstimatorFinalizer_f32()
         # fix this... shouldn't be passing numpy arrays for one and rftk.buffers for the other
         if data_type == 'matrix':
-            number_of_classes = int( np.max(kwargs['classes']) + 1 )
+            number_of_classes = int( np.max(pop_kwargs(kwargs, 'classes', unused_kwargs_keys)) + 1 )
         else:
-            number_of_classes = int( kwargs['classes'].GetMax() + 1 )
+            number_of_classes = int( pop_kwargs(kwargs, 'classes', unused_kwargs_keys).GetMax() + 1 )
         y_estimator_dimension = number_of_classes
     elif prediction_type == 'regression':
         slice_ys_step = pipeline.SliceFloat32MatrixBufferStep_i32(buffers.YS, sample_data_step.IndicesBufferId)
         finalizer = regression.MeanVarianceEstimatorFinalizer_f32()
         if data_type == 'matrix':
-            dimension_of_y = int( kwargs['y'].shape[1] )
+            dimension_of_y = int( pop_kwargs(kwargs, 'y', unused_kwargs_keys).shape[1] )
         else:
-            dimension_of_y = int( kwargs['y'].GetN() )
+            dimension_of_y = int( pop_kwargs(kwargs, 'y', unused_kwargs_keys).GetN() )
         y_estimator_dimension = dimension_of_y*2
     else:
         raise Exception("unknown prediction_type %s" % prediction_type)
@@ -259,10 +267,13 @@ def uber_create_learner(**kwargs):
             elif streams_type == 'two_stream_per_tree' or streams_type == 'two_stream_per_forest':
 
                 if data_type == 'depth_image':
-                    in_bounds_number_of_points_default = kwargs['y'].GetN()/2
+                    in_bounds_number_of_points_default = pop_kwargs(kwargs, 'y', unused_kwargs_keys).GetN()/2
                 else:
-                    in_bounds_number_of_points_default = kwargs['y'].shape[0]/2
-                in_bounds_number_of_points = int(kwargs.get('in_bounds_number_of_points', in_bounds_number_of_points_default) )
+                    in_bounds_number_of_points_default = pop_kwargs(kwargs, 'y', unused_kwargs_keys).shape[0]/2
+                in_bounds_number_of_points = int(pop_kwargs(kwargs, 
+                                                                'in_bounds_number_of_points', 
+                                                                unused_kwargs_keys, 
+                                                                in_bounds_number_of_points_default))
                 impurity_walker = regression.SumOfVarianceTwoStreamWalker_f32i32(slice_weights_step.SlicedBufferId,
                                                                                     slice_stream_step.SlicedBufferId,
                                                                                     slice_ys_step.SlicedBufferId,
@@ -317,11 +328,11 @@ def uber_create_learner(**kwargs):
 
     elif split_type == 'constant_splitpoints':
 
-        constant_splitpoints_type = kwargs.get('constant_splitpoints_type')
+        constant_splitpoints_type = pop_kwargs(kwargs, 'constant_splitpoints_type', unused_kwargs_keys)
 
         # Select splitpoints at random datapoints
         if constant_splitpoints_type == 'at_random_datapoints':
-            number_of_splitpoints = int(kwargs.get('number_of_splitpoints'))
+            number_of_splitpoints = int(pop_kwargs(kwargs, 'number_of_splitpoints', unused_kwargs_keys))
             if streams_type == 'one_stream':
                 splitpoint_selection_step = splitpoints.RandomSplitpointsStep_f32i32(feature_extractor_step.FeatureValuesBufferId,
                                                                                         number_of_splitpoints,
@@ -464,8 +475,8 @@ def uber_create_learner(**kwargs):
     forest_and_tree_steps_pipeline = pipeline.Pipeline(forest_steps+tree_steps)
     node_steps_pipeline = pipeline.Pipeline(node_steps_init + node_steps_update + node_steps_impurity)
 
-    try_split_criteria = create_try_split_criteria(**kwargs)
-    should_split_criteria = create_should_split_criteria(**kwargs)
+    try_split_criteria = create_try_split_criteria(unused_kwargs_keys=unused_kwargs_keys, **kwargs)
+    should_split_criteria = create_should_split_criteria(unused_kwargs_keys=unused_kwargs_keys, **kwargs)
 
     split_indices = splitpoints.SplitIndices_f32i32(sample_data_step.IndicesBufferId)
     split_steps_list.append(split_indices)
@@ -476,26 +487,26 @@ def uber_create_learner(**kwargs):
     else:
         split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_steps)
 
-    number_of_trees = int( kwargs.get('number_of_trees', 1) )
-    number_of_jobs = int( kwargs.get('number_of_jobs', 1) )
+    number_of_trees = int( pop_kwargs(kwargs, 'number_of_trees', unused_kwargs_keys) )
+    number_of_jobs = int( pop_kwargs(kwargs, 'number_of_jobs', unused_kwargs_keys, 1) )
     if tree_type == 'depth_first':
         tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
         forest_learner = learn.ParallelForestLearner(tree_learner, forest_steps_pipeline, number_of_trees, y_estimator_dimension, number_of_jobs)
     elif tree_type == 'breadth_first':
         if 'number_of_leaves' in kwargs:
-            number_of_leaves = int(kwargs.get('number_of_leaves'))
+            number_of_leaves = int(pop_kwargs(kwargs, 'number_of_leaves', unused_kwargs_keys))
             tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector, number_of_leaves)
         else:
             tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
         forest_learner = learn.ParallelForestLearner(tree_learner, forest_steps_pipeline, number_of_trees, y_estimator_dimension, number_of_jobs)
     elif tree_type == 'biau2008':
-        number_of_leaves = int(kwargs.get('number_of_leaves'))
-        number_of_split_retries = int( kwargs.get('number_of_split_retries') )
+        number_of_leaves = int(pop_kwargs(kwargs, 'number_of_leaves', unused_kwargs_keys))
+        number_of_split_retries = int(pop_kwargs(kwargs, 'number_of_split_retries', unused_kwargs_keys))
         tree_learner = learn.Biau2008TreeLearner_f32i32(try_split_criteria, forest_and_tree_steps_pipeline, node_steps_pipeline, split_selector, number_of_leaves, number_of_split_retries)
         forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, dimension_of_y, number_of_jobs)
     elif tree_type == 'online':
-        max_frontier_size = int( kwargs.get('max_frontier_size', 10000000) )
-        impurity_update_period = int( kwargs.get('impurity_update_period', 1) )
+        max_frontier_size = int(pop_kwargs(kwargs, 'max_frontier_size', unused_kwargs_keys, 10000000))
+        impurity_update_period = int(pop_kwargs(kwargs, 'impurity_update_period', unused_kwargs_keys, 1))
 
         node_steps_init_pipeline = pipeline.Pipeline(node_steps_init)
         node_steps_update_pipeline = pipeline.Pipeline(node_steps_update)
@@ -533,6 +544,9 @@ def uber_create_learner(**kwargs):
             raise Exception("online: unknown data_type %s prediction_type %s" % (data_type,prediction_type))
     else:
         raise Exception("unknown tree_type")
+
+    if unused_kwargs_keys:
+        raise Exception("The following arguments were not used. You have a typo or an invalid config %s" % (str(unused_kwargs_keys)))
 
     return forest_learner
 

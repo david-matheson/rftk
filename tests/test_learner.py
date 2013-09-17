@@ -649,7 +649,6 @@ class TestNew(unittest.TestCase):
                                                                         split_type='constant_splitpoints',
                                                                         constant_splitpoints_type='at_range_midpoints',
                                                                         split_criteria_type='biau2012',
-                                                                        in_bounds_number_of_points=x_train.shape[0]/2,
                                                                         tree_type='breadth_first',
                                                                         number_of_leaves=int(x_train.shape[0] / 5 + 1)),
                         description="wine create_uber_learner consistent two_stream_per_forest",
@@ -674,11 +673,11 @@ class TestNew(unittest.TestCase):
         forest_learner = rftk.learn.create_vanilia_scaled_depth_delta_classifier(
                                       number_of_trees=5,
                                       number_of_features=1000,
-                                      min_impurity_gain=0.1,
+                                      min_impurity=0.1,
                                       # max_depth=30,
-                                      min_samples_split=5,
+                                      min_child_size_sum=5,
                                       # min_samples_leaf = 5,
-                                      # min_impurity_gain = 0.01
+                                      # min_impurity = 0.01
                                       ux=75, uy=75, vx=75, vy=75,
                                       bootstrap=True,
                                       number_of_jobs=5)
@@ -698,8 +697,8 @@ class TestNew(unittest.TestCase):
                                                             prediction_type='classification',
                                                             split_type='all_midpoints',
                                                             tree_type='depth_first',
-                                                            min_impurity_gain=0.1,
-                                                            min_samples_split=5,
+                                                            min_impurity=0.1,
+                                                            min_child_size_sum=5,
                                                             ux=75, uy=75, vx=75, vy=75, )
 
 
@@ -720,11 +719,11 @@ class TestNew(unittest.TestCase):
 
         forest_learner = rftk.learn.create_online_one_stream_depth_delta_classifier(
                                       number_of_features=1000,
-                                      min_impurity_gain=0.1,
+                                      min_impurity=0.1,
                                       # max_depth=30,
-                                      min_samples_split=5,
+                                      min_child_size_sum=5,
                                       # min_samples_leaf = 5,
-                                      # min_impurity_gain = 0.01
+                                      # min_impurity = 0.01
                                       ux=75, uy=75, vx=75, vy=75,
                                       bootstrap=True,
                                       number_of_jobs=5)
@@ -747,8 +746,8 @@ class TestNew(unittest.TestCase):
                                                             number_of_splitpoints=10,
                                                             streams_type='one_stream',
                                                             tree_type='online',
-                                                            min_impurity_gain=0.1,
-                                                            min_samples_split=5,
+                                                            min_impurity=0.1,
+                                                            min_child_size_sum=5,
                                                             ux=75, uy=75, vx=75, vy=75, )
 
         error = run_depth_delta_classifier(forest_learner, "create_uber_learner depth_image classification at_random_datapoints one_stream", 
@@ -773,7 +772,7 @@ class TestNew(unittest.TestCase):
                                       number_of_data_to_force_split_root=10,
                                       split_rate_growth=1.001,
                                       # min_samples_leaf = 5,
-                                      # min_impurity_gain = 0.01
+                                      # min_impurity = 0.01
                                       ux=75, uy=75, vx=75, vy=75,
                                       bootstrap=True,
                                       number_of_jobs=5)
@@ -882,10 +881,7 @@ class TestNew(unittest.TestCase):
                                                                         split_criteria_type='biau2008',
                                                                         tree_type='biau2008',
                                                                         number_of_split_retries=10,
-                                                                        min_node_size=10,
-                                                                        min_child_size = 5,
                                                                         ux=40, uy=40, vx=40, vy=40,
-                                                                        min_impurity=0.0,
                                                                         bootstrap=True,
                                                                         number_of_jobs=5,
                                                                         number_of_leaves=int(train_pixel_indices.shape[0] / 5 + 1)),
@@ -935,10 +931,7 @@ class TestNew(unittest.TestCase):
                                                                         split_criteria_type='biau2008',
                                                                         tree_type='biau2008',
                                                                         number_of_split_retries=10,
-                                                                        min_node_size=10,
-                                                                        min_child_size = 5,
                                                                         ux=40, uy=40, vx=40, vy=40,
-                                                                        min_impurity=0.0,
                                                                         bootstrap=False,
                                                                         number_of_jobs=1,
                                                                         number_of_leaves=int(train_pixel_indices.shape[0] / 5 + 1)),
@@ -969,12 +962,8 @@ class TestNew(unittest.TestCase):
                                                                         split_type='constant_splitpoints',
                                                                         constant_splitpoints_type='at_range_midpoints',
                                                                         split_criteria_type='biau2012',
-                                                                        in_bounds_number_of_points=int(train_pixel_indices.shape[0]/2),
                                                                         tree_type='breadth_first',
-                                                                        min_node_size=10,
-                                                                        min_child_size = 5,
                                                                         ux=40, uy=40, vx=40, vy=40,
-                                                                        min_impurity=0.0,
                                                                         bootstrap=True,
                                                                         number_of_jobs=5,
                                                                         number_of_leaves=int(train_pixel_indices.shape[0] / 5 + 1)),
