@@ -30,7 +30,7 @@ public:
     FloatType GetLeftChildCounts() const;
     FloatType GetRightChildCounts() const;
 
-    typedef BufferTypes<FloatType, IntType, IntType, FloatType, IntType, FloatType, FloatType, IntType, FloatType> BufferTypes;
+    typedef ::BufferTypes<FloatType, IntType, IntType, FloatType, IntType, FloatType, FloatType, IntType, FloatType> BufferTypes;
 
 private:
     const MatrixBufferTemplate<FloatType> mImpurities;
