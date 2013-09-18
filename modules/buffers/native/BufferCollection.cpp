@@ -5,11 +5,12 @@
 
 
 BufferCollection::BufferCollection()
-    : mBuffers()
+: mBuffers()
 {
 }
 
 BufferCollection::BufferCollection(const BufferCollection& bc)
+: mBuffers()
 {
     for(std::map<BufferCollectionKey_t, boost::any>::const_iterator it=bc.mBuffers.begin(); 
         it!=bc.mBuffers.end(); 

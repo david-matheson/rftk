@@ -22,8 +22,8 @@ except AttributeError:
 ###############################################################################
 boost_path = Dir('/home/davidm/projects/boost_install').abspath
 env = Environment(
-                  CC='clang',
-                  CXX='clang',
+                  CC='gcc',
+                  CXX='g++',
                   SWIGFLAGS=['-python', '-c++', '-Werror', '-w490', '-w362'],
                   CPPPATH=[distutils.sysconfig.get_python_inc(), numpy_include],
                   CCFLAGS=ccflags + ['-isystem%s/include' % boost_path],
