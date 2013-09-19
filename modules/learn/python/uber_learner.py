@@ -90,6 +90,15 @@ def remove_prepare_data(unused_kwargs_keys):
     unused_kwargs_keys = [x for x in unused_kwargs_keys if x not in prepare_data_ignore_list]
     return unused_kwargs_keys
 
+def get_number_of_leaves(kwargs, unused_kwargs_keys, number_of_datapoints):
+    number_of_leaves = None
+    if 'number_of_leaves' in kwargs:
+        number_of_leaves = int(pop_kwargs(kwargs, 'number_of_leaves', unused_kwargs_keys))
+    elif 'number_of_leaves_ratio' in kwargs:
+        number_of_leaves_ratio = float(pop_kwargs(kwargs, 'number_of_leaves_ratio', unused_kwargs_keys))
+        number_of_leaves = int(number_of_datapoints * number_of_leaves_ratio)
+    return number_of_leaves
+
 def uber_create_learner(**kwargs):
     unused_kwargs_keys = kwargs.keys()
     unused_kwargs_keys = remove_prepare_data(unused_kwargs_keys)
@@ -138,14 +147,19 @@ def uber_create_learner(**kwargs):
             raise Exception("unknown data_type %s" % (data_type))
         forest_steps.append(sample_data_step)
 
-
     # Default number of features to extract
     if data_type == 'matrix' and prediction_type == 'classification':
         default_number_of_features = int(np.sqrt(pop_kwargs(kwargs, 'x', unused_kwargs_keys).shape[1]))
+        number_of_datapoints = pop_kwargs(kwargs, 'classes', unused_kwargs_keys).shape[0]/2
     elif data_type == 'matrix' and prediction_type == 'regression':
         default_number_of_features = int(pop_kwargs(kwargs, 'x', unused_kwargs_keys).shape[1]/3 + 0.5)
-    elif data_type == 'depth_image':
+        number_of_datapoints = pop_kwargs(kwargs, 'y', unused_kwargs_keys).shape[0]/2
+    elif data_type == 'depth_image' and prediction_type == 'classification':
         default_number_of_features = 1
+        number_of_datapoints = pop_kwargs(kwargs, 'classes', unused_kwargs_keys).GetN()/2
+    elif data_type == 'depth_image' and prediction_type == 'regression':
+        default_number_of_features = 1
+        number_of_datapoints = pop_kwargs(kwargs, 'y', unused_kwargs_keys).GetN()/2
     else:
         raise Exception("unknown data_type")
 
@@ -266,14 +280,10 @@ def uber_create_learner(**kwargs):
                                                                                     feature_ordering)
             elif streams_type == 'two_stream_per_tree' or streams_type == 'two_stream_per_forest':
 
-                if data_type == 'depth_image':
-                    in_bounds_number_of_points_default = pop_kwargs(kwargs, 'y', unused_kwargs_keys).GetN()/2
-                else:
-                    in_bounds_number_of_points_default = pop_kwargs(kwargs, 'y', unused_kwargs_keys).shape[0]/2
                 in_bounds_number_of_points = int(pop_kwargs(kwargs, 
                                                                 'in_bounds_number_of_points', 
                                                                 unused_kwargs_keys, 
-                                                                in_bounds_number_of_points_default))
+                                                                number_of_datapoints / 2))
                 impurity_walker = regression.SumOfVarianceTwoStreamWalker_f32i32(slice_weights_step.SlicedBufferId,
                                                                                     slice_stream_step.SlicedBufferId,
                                                                                     slice_ys_step.SlicedBufferId,
@@ -493,14 +503,14 @@ def uber_create_learner(**kwargs):
         tree_learner = learn.DepthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
         forest_learner = learn.ParallelForestLearner(tree_learner, forest_steps_pipeline, number_of_trees, y_estimator_dimension, number_of_jobs)
     elif tree_type == 'breadth_first':
-        if 'number_of_leaves' in kwargs:
-            number_of_leaves = int(pop_kwargs(kwargs, 'number_of_leaves', unused_kwargs_keys))
+        number_of_leaves = get_number_of_leaves(kwargs, unused_kwargs_keys, number_of_datapoints)
+        if number_of_leaves is not None:
             tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector, number_of_leaves)
         else:
             tree_learner = learn.BreadthFirstTreeLearner_f32i32(try_split_criteria, tree_steps_pipeline, node_steps_pipeline, split_selector)
         forest_learner = learn.ParallelForestLearner(tree_learner, forest_steps_pipeline, number_of_trees, y_estimator_dimension, number_of_jobs)
     elif tree_type == 'biau2008':
-        number_of_leaves = int(pop_kwargs(kwargs, 'number_of_leaves', unused_kwargs_keys))
+        number_of_leaves = get_number_of_leaves(kwargs, unused_kwargs_keys, number_of_datapoints)
         number_of_split_retries = int(pop_kwargs(kwargs, 'number_of_split_retries', unused_kwargs_keys))
         tree_learner = learn.Biau2008TreeLearner_f32i32(try_split_criteria, forest_and_tree_steps_pipeline, node_steps_pipeline, split_selector, number_of_leaves, number_of_split_retries)
         forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, dimension_of_y, number_of_jobs)
