@@ -357,7 +357,8 @@ def uber_create_learner(**kwargs):
 
         # Select splitpoints at midpoint of the range
         elif constant_splitpoints_type == 'at_range_midpoints':
-            feature_range_buffer = buffers.as_vector_buffer(np.array([-1, 1], dtype=np.float32))
+            feature_range = int(pop_kwargs(kwargs, 'feature_range', unused_kwargs_keys, 1))
+            feature_range_buffer = buffers.as_vector_buffer(np.array([-feature_range, feature_range], dtype=np.float32))
             set_feature_range_buffer_step = pipeline.SetFloat32VectorBufferStep(feature_range_buffer, pipeline.WHEN_NEW)
             quantized_feature_equal = pipeline.FeatureEqualQuantized_f32i32(1.0)
             splitpoint_selection_step = splitpoints.RangeMidpointStep_f32i32(feature_params_step.FloatParamsBufferId,
