@@ -44,6 +44,8 @@ void LogSplitInfo<BufferTypes>::Log( const std::vector<SplitSelectorBuffers>& sp
 				                    int bestSelectorBuffer, int bestFeature, int bestSplitpoint,
 				                    BufferCollection& extraInfo, int nodeIndex) const
 {
+    TimeLogger timer(extraInfo, "LogSplitInfo");
+
 	UNUSED_PARAM(shouldSplitCriteria)
 	UNUSED_PARAM(depth)
 	UNUSED_PARAM(bestSplitpoint)

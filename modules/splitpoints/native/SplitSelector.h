@@ -87,7 +87,7 @@ SplitSelectorInfo<BufferTypes> SplitSelector<BufferTypes>::ProcessSplits(const B
                                                                         int depth,
                                                                         BufferCollection& extraInfo, int nodeIndex) const
 {
-    TimeLogger timer(extraInfo, "SplitSelectorInfo");
+    TimeLogger timer(extraInfo, "SplitSelector");
 
     typename BufferTypes::ImpurityValue maxImpurity = -std::numeric_limits<typename BufferTypes::ImpurityValue>::max();
     int bestSplitSelectorBuffers = SPLIT_SELECTOR_NO_SPLIT;

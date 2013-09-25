@@ -2,6 +2,7 @@
 
 #include "bootstrap.h"
 #include "BufferCollectionStack.h"
+#include "BufferCollectionUtils.h"
 #include "Forest.h"
 #include "TreeLearnerI.h"
 #include "ParallelForestLearner.h"
@@ -21,6 +22,7 @@ void TrainTrees(    const TreeLearnerI* treeLearner,
 {
     for(int i=treeStartIndex; i<numberOfTrees; i+=treeStride)
     {
+        TimeLogger totalTree(forestOut->mTrees[i].mExtraInfo, "ParallelForestLearner");
         setSeed(i + static_cast<unsigned int>(std::time(NULL))); //set bootstrap seed
         treeLearner->Learn(data, forestOut->mTrees[i], i + static_cast<unsigned int>(std::time(NULL)) );
     }
