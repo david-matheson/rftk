@@ -23,7 +23,7 @@ def depth_delta_classification_data_prepare(**kwargs):
     return bufferCollection
 
 def create_depth_delta_predictor_32f(forest, **kwargs):
-    number_of_classes = forest.GetTree(0).mYs.GetN()
+    number_of_classes = forest.GetTree(0).GetYs().GetN()
     all_samples_step = pipeline.AllSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
     combiner = classification.ClassProbabilityCombiner_f32(number_of_classes)
     depth_delta_feature = image_features.ScaledDepthDeltaFeature_f32i32(all_samples_step.IndicesBufferId,

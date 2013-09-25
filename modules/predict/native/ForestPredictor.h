@@ -12,11 +12,11 @@ typename BufferTypes::Index nextChild(  const FeatureBinding& feature,
                     const typename BufferTypes::Index nodeId,
                     const typename BufferTypes::Index index )
 {
-    const typename BufferTypes::FeatureValue splitpoint = tree.mFloatFeatureParams.Get(nodeId, SPLIT_POINT_INDEX);
+    const typename BufferTypes::FeatureValue splitpoint = tree.GetFloatFeatureParams().Get(nodeId, SPLIT_POINT_INDEX);
     const typename BufferTypes::FeatureValue featureValue = feature.FeatureValue(nodeId, index);
     bool goLeft = (featureValue > splitpoint);
     const typename BufferTypes::Index childDirection = goLeft ? 0 : 1;
-    const typename BufferTypes::Index childNodeId = tree.mPath.Get(nodeId, childDirection);
+    const typename BufferTypes::Index childNodeId = tree.GetPath().Get(nodeId, childDirection);
     return childNodeId;
 }
 
@@ -98,8 +98,8 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictLeafs( cons
     for(int treeId=0; treeId<numberOfTreesInForest; treeId++)
     {
         BufferCollection& bc = perTreeBufferCollection[treeId];
-        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFeature.mFloatParamsBufferId, mForest.mTrees[treeId].mFloatFeatureParams);
-        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mFeature.mIntParamsBufferId, mForest.mTrees[treeId].mIntFeatureParams);
+        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFeature.mFloatParamsBufferId, mForest.mTrees[treeId].GetFloatFeatureParams());
+        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mFeature.mIntParamsBufferId, mForest.mTrees[treeId].GetIntFeatureParams());
         mPreSteps->ProcessStep(stack, bc, gen, bc, 0);
 
         stack.Push(&bc);
@@ -201,8 +201,8 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictYsInternal(
         const Tree& tree = mForest.mTrees[treeId];
         BufferCollection& bc = perTreeBufferCollection[treeId];
 
-        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFeature.mFloatParamsBufferId, tree.mFloatFeatureParams);
-        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mFeature.mIntParamsBufferId, tree.mIntFeatureParams);
+        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFeature.mFloatParamsBufferId, tree.GetFloatFeatureParams());
+        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mFeature.mIntParamsBufferId, tree.GetIntFeatureParams());
         mPreSteps->ProcessStep(stack, bc, gen, bc, 0);
 
         stack.Push(&bc);
@@ -211,7 +211,7 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictYsInternal(
 
         if(useOobIndices)
         {
-            oobIndices[treeId] = tree.mExtraInfo.GetBufferPtr< VectorBufferTemplate<typename BufferTypes::Index> >(OOB_INDICES);
+            oobIndices[treeId] = tree.GetExtraInfo().GetBufferPtr< VectorBufferTemplate<typename BufferTypes::Index> >(OOB_INDICES);
             ASSERT(oobIndices[treeId]->IsSorted()) //Assuming OOB_INDICES have already been sorted
             currentOobOffset[treeId] = 0;
         }
@@ -234,7 +234,7 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictYsInternal(
                 typename BufferTypes::Index leafNodeId = (leafs != NULL) ? leafs->Get(i, treeId) :
                                                 walkTree<typename Feature::FeatureBinding, BufferTypes>(
                                                                     featureBindings[treeId], tree, 0, i);
-                mCombiner.Combine(leafNodeId, tree.mCounts.Get(leafNodeId), tree.mYs, treeWeights.Get(treeId));
+                mCombiner.Combine(leafNodeId, tree.GetCounts().Get(leafNodeId), tree.GetYs(), treeWeights.Get(treeId));
             }
 
             if(isOobIndex)
@@ -272,19 +272,19 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictLeafYs(cons
         const Tree& tree = mForest.mTrees[treeId];
         BufferCollection& bc = perTreeBufferCollection[treeId];
 
-        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFeature.mFloatParamsBufferId, tree.mFloatFeatureParams);
-        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mFeature.mIntParamsBufferId, tree.mIntFeatureParams);
+        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mFeature.mFloatParamsBufferId, tree.GetFloatFeatureParams());
+        bc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mFeature.mIntParamsBufferId, tree.GetIntFeatureParams());
         mPreSteps->ProcessStep(stack, bc, gen, bc, 0);
 
         stack.Push(&bc);
         featureBindings[treeId] = mFeature.Bind(stack);
         stack.Pop();
 
-        hasOobIndices[treeId] = tree.mExtraInfo.HasBuffer< VectorBufferTemplate<typename BufferTypes::Index> >(OOB_INDICES); 
+        hasOobIndices[treeId] = tree.GetExtraInfo().HasBuffer< VectorBufferTemplate<typename BufferTypes::Index> >(OOB_INDICES); 
 
         if(hasOobIndices[treeId])
         {
-            oobIndices[treeId] = tree.mExtraInfo.GetBufferPtr< VectorBufferTemplate<typename BufferTypes::Index> >(OOB_INDICES);
+            oobIndices[treeId] = tree.GetExtraInfo().GetBufferPtr< VectorBufferTemplate<typename BufferTypes::Index> >(OOB_INDICES);
             ASSERT(oobIndices[treeId]->IsSorted()) //Assuming OOB_INDICES have already been sorted
             currentOobOffset[treeId] = 0;
         }
@@ -302,9 +302,9 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictLeafYs(cons
             typename BufferTypes::Index leafNodeId = walkTree<typename Feature::FeatureBinding, BufferTypes>(
                                                                 featureBindings[treeId], tree, 0, i);
 
-            for(int c=0; c<tree.mYs.GetN(); c++)
+            for(int c=0; c<tree.GetYs().GetN(); c++)
             {
-                ysOut.Set(c, i, treeId, tree.mYs.Get(leafNodeId, c));
+                ysOut.Set(c, i, treeId, tree.GetYs().Get(leafNodeId, c));
             }
 
             float oobWeight = 1.0f;

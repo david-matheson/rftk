@@ -22,12 +22,13 @@ def as_pyforest(native_forest):
         native_tree = native_forest.GetTree(tree_id)
         native_tree.Compact()
         pytree = PyTree()
-        pytree.path = buffers.as_numpy_array(native_tree.mPath)
-        pytree.int_features_params = buffers.as_numpy_array(native_tree.mIntFeatureParams)
-        pytree.float_features_params = buffers.as_numpy_array(native_tree.mFloatFeatureParams)
-        pytree.depths = buffers.as_numpy_array(native_tree.mDepths, flatten=True)
-        pytree.counts = buffers.as_numpy_array(native_tree.mCounts, flatten=True)
-        pytree.ys = buffers.as_numpy_array(native_tree.mYs)
-        pytree.extra_info = native_tree.mExtraInfo
+        pytree.native_tree = native_tree
+        pytree.path = buffers.as_numpy_array(native_tree.GetPath())
+        pytree.int_features_params = buffers.as_numpy_array(native_tree.GetIntFeatureParams())
+        pytree.float_features_params = buffers.as_numpy_array(native_tree.GetFloatFeatureParams())
+        pytree.depths = buffers.as_numpy_array(native_tree.GetDepths(), flatten=True)
+        pytree.counts = buffers.as_numpy_array(native_tree.GetCounts(), flatten=True)
+        pytree.ys = buffers.as_numpy_array(native_tree.GetYs())
+        pytree.extra_info = native_tree.GetExtraInfo()
         pytrees.append(pytree)
     return pytrees

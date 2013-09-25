@@ -112,7 +112,7 @@ void BreadthFirstTreeLearner<BufferTypes>::Learn( BufferCollectionStack stack, T
 
     BufferCollection treeData;
     stack.Push(&treeData);
-    mTreeSteps->ProcessStep(stack, treeData, gen, tree.mExtraInfo, 0);
+    mTreeSteps->ProcessStep(stack, treeData, gen, tree.GetExtraInfo(), 0);
 
     std::queue< ActiveLeaf > activeLeaves;
     activeLeaves.push(ActiveLeaf(0, 0));
@@ -141,8 +141,8 @@ bool BreadthFirstTreeLearner<BufferTypes>::ProcessActiveLeaf( boost::mt19937& ge
     stack.Push(&activeLeaf.mSplitBufferCollection);
     BufferCollection nodeData;
     stack.Push(&nodeData);
-    mNodeSteps->ProcessStep(stack, nodeData, gen, tree.mExtraInfo, activeLeaf.mNodeIndex);
-    SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, activeLeaf.mDepth, tree.mExtraInfo, activeLeaf.mNodeIndex);
+    mNodeSteps->ProcessStep(stack, nodeData, gen, tree.GetExtraInfo(), activeLeaf.mNodeIndex);
+    SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, activeLeaf.mDepth, tree.GetExtraInfo(), activeLeaf.mNodeIndex);
 
     const bool ValidSplit = selectorInfo.ValidSplit(); 
     if(ValidSplit) 
@@ -151,10 +151,10 @@ bool BreadthFirstTreeLearner<BufferTypes>::ProcessActiveLeaf( boost::mt19937& ge
         const typename BufferTypes::Index rightNodeIndex = tree.NextNodeIndex();
 
         selectorInfo.WriteToTree( activeLeaf.mNodeIndex, leftNodeIndex, rightNodeIndex,
-                                  tree.mCounts, tree.mDepths, tree.mFloatFeatureParams, tree.mIntFeatureParams, tree.mYs);
+                                  tree.GetCounts(), tree.GetDepths(), tree.GetFloatFeatureParams(), tree.GetIntFeatureParams(), tree.GetYs());
 
-        tree.mPath.Set(activeLeaf.mNodeIndex, 0, leftNodeIndex);
-        tree.mPath.Set(activeLeaf.mNodeIndex, 1, rightNodeIndex);
+        tree.GetPath().Set(activeLeaf.mNodeIndex, 0, leftNodeIndex);
+        tree.GetPath().Set(activeLeaf.mNodeIndex, 1, rightNodeIndex);
 
         ActiveLeaf leftActiveLeaf(leftNodeIndex, activeLeaf.mDepth+1);
         ActiveLeaf rightActiveLeaf(rightNodeIndex, activeLeaf.mDepth+1);
@@ -162,11 +162,11 @@ bool BreadthFirstTreeLearner<BufferTypes>::ProcessActiveLeaf( boost::mt19937& ge
         typename BufferTypes::DatapointCounts rightSize = std::numeric_limits<typename BufferTypes::DatapointCounts>::min();
         selectorInfo.SplitBuffers(leftActiveLeaf.mSplitBufferCollection, rightActiveLeaf.mSplitBufferCollection, leftSize, rightSize);
 
-        if(mTrySplitCriteria->TrySplit(leftActiveLeaf.mDepth, leftSize, tree.mExtraInfo, leftNodeIndex, true))
+        if(mTrySplitCriteria->TrySplit(leftActiveLeaf.mDepth, leftSize, tree.GetExtraInfo(), leftNodeIndex, true))
         {
             activeLeaves.push(leftActiveLeaf);
         }
-        if(mTrySplitCriteria->TrySplit(rightActiveLeaf.mDepth, rightSize, tree.mExtraInfo, rightNodeIndex, true))
+        if(mTrySplitCriteria->TrySplit(rightActiveLeaf.mDepth, rightSize, tree.GetExtraInfo(), rightNodeIndex, true))
         {
             activeLeaves.push(rightActiveLeaf);
         }

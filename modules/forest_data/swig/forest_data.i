@@ -37,24 +37,24 @@ namespace std {
 def __getstate__(self):
     self.Compact()
     data_dict = {}
-    data_dict['mPath'] = self.mPath
-    data_dict['mIntFeatureParams'] = self.mIntFeatureParams
-    data_dict['mFloatFeatureParams'] = self.mFloatFeatureParams
-    data_dict['mDepths'] = self.mDepths
-    data_dict['mCounts'] = self.mCounts
-    data_dict['mYs'] = self.mYs
+    data_dict['mPath'] = self.GetPath()
+    data_dict['mIntFeatureParams'] = self.GetIntFeatureParams()
+    data_dict['mFloatFeatureParams'] = self.GetFloatFeatureParams()
+    data_dict['mDepths'] = self.GetDepths()
+    data_dict['mCounts'] = self.GetCounts()
+    data_dict['mYs'] = self.GetYs()
 
     data_dict['mExtraInfo'] = {}
-    keys = self.mExtraInfo.GetKeys()
+    keys = self.GetExtraInfo().GetKeys()
     for key in keys:
-        data_dict['mExtraInfo'][key] = self.mExtraInfo.GetBuffer(key) 
+        data_dict['mExtraInfo'][key] = self.GetExtraInfo().GetBuffer(key) 
 
     return data_dict
 
 def __setstate__(self,data_dict):
     self.__init__(data_dict['mPath'], data_dict['mIntFeatureParams'], data_dict['mFloatFeatureParams'], data_dict['mDepths'], data_dict['mCounts'], data_dict['mYs'])
     for key, value in data_dict['mExtraInfo'].iteritems():
-        self.mExtraInfo.AddBuffer(key, value)
+        self.GetExtraInfo().AddBuffer(key, value)
 
 %}
 }

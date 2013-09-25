@@ -64,10 +64,10 @@ def make_uber_create_predictor(learner_kwargs):
 
         prediction_type = learner_kwargs.get('prediction_type')
         if prediction_type == 'classification':
-            number_of_classes = forest.GetTree(0).mYs.GetN()    
+            number_of_classes = forest.GetTree(0).GetYs().GetN()    
             combiner = classification.ClassProbabilityCombiner_f32(number_of_classes)   
         elif prediction_type == 'regression':
-            dimension_of_y = forest.GetTree(0).mYs.GetN() / 2
+            dimension_of_y = forest.GetTree(0).GetYs().GetN() / 2
             combiner = regression.MeanVarianceCombiner_f32(dimension_of_y)
         else:
             raise Exception("unknown prediction_type")

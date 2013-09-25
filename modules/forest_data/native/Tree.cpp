@@ -5,7 +5,7 @@
 #include "Tree.h"
 #include "ForestStats.h"
 
-Tree::Tree()
+TreeData::TreeData()
 : mPath(0,0, NULL_CHILD)
 , mIntFeatureParams(0,0)
 , mFloatFeatureParams(0,0)
@@ -19,7 +19,7 @@ Tree::Tree()
 }
 
 
-Tree::Tree( const MatrixBufferTemplate<int>& path,
+TreeData::TreeData( const MatrixBufferTemplate<int>& path,
             const MatrixBufferTemplate<int>& intFeatureParams,
             const MatrixBufferTemplate<float>& floatFeatureParams,
             const VectorBufferTemplate<int> & depths,
@@ -43,7 +43,7 @@ Tree::Tree( const MatrixBufferTemplate<int>& path,
 }
 
 
-Tree::Tree( int initalNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim  )
+TreeData::TreeData( int initalNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim  )
 : mPath(initalNumberNodes, 2, NULL_CHILD)
 , mIntFeatureParams(initalNumberNodes, maxIntParamsDim)
 , mFloatFeatureParams(initalNumberNodes, maxFloatParamsDim)
@@ -62,7 +62,7 @@ Tree::Tree( int initalNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, i
     mYs.SetAll(1.0f/static_cast<float>(mYs.GetN()));
 }
 
-Tree::Tree(const Tree& tree)
+TreeData::TreeData(const TreeData& tree)
 : mPath(tree.mPath)
 , mIntFeatureParams(tree.mIntFeatureParams)
 , mFloatFeatureParams(tree.mFloatFeatureParams)
@@ -75,25 +75,11 @@ Tree::Tree(const Tree& tree)
 {
 }
 
-Tree::~Tree()
+TreeData::~TreeData()
 {
 }
 
-void Tree::GatherStats(ForestStats& stats) const
-{
-    for(int nodeId=0; nodeId<mLastNodeIndex-1; nodeId++)
-    {
-        const bool isLeaf = (mPath.Get(nodeId, 0) == NULL_CHILD
-                             || mPath.Get(nodeId, 1) == NULL_CHILD);
-        if( isLeaf )
-        {
-            // printf("Tree::GatherStats %d %d %d\n", nodeId, depth, numberEstimatorSamples);
-            stats.ProcessLeaf(*this, nodeId);
-        }
-    }
-}
-
-int Tree::NextNodeIndex()
+int TreeData::NextNodeIndex()
 {
     int nextNodeIndex = mLastNodeIndex;
     mLastNodeIndex++;
@@ -111,7 +97,7 @@ int Tree::NextNodeIndex()
     return nextNodeIndex;
 }
 
-void Tree::Compact()
+void TreeData::Compact()
 {
     mPath.Resize(mLastNodeIndex, 2, NULL_CHILD);
     mIntFeatureParams.Resize(mLastNodeIndex, mIntFeatureParams.GetN());
@@ -119,4 +105,125 @@ void Tree::Compact()
     mCounts.Resize(mLastNodeIndex);
     mDepths.Resize(mLastNodeIndex);
     mYs.Resize(mLastNodeIndex, mYs.GetN());
+}
+
+Tree::Tree()
+: mTreeData(new TreeData())
+{
+}
+
+
+Tree::Tree( const MatrixBufferTemplate<int>& path,
+            const MatrixBufferTemplate<int>& intFeatureParams,
+            const MatrixBufferTemplate<float>& floatFeatureParams,
+            const VectorBufferTemplate<int> & depths,
+            const VectorBufferTemplate<float>& counts,
+            const MatrixBufferTemplate<float>& ys )
+: mTreeData(new TreeData(path, intFeatureParams, floatFeatureParams, depths, counts, ys))
+{
+}
+
+
+Tree::Tree( int initalNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim  )
+: mTreeData(new TreeData(initalNumberNodes, maxIntParamsDim, maxFloatParamsDim, maxYsDim))
+{
+}
+
+Tree::~Tree()
+{
+}
+
+
+void Tree::GatherStats(ForestStats& stats) const
+{
+    for(int nodeId=0; nodeId<mTreeData->mLastNodeIndex-1; nodeId++)
+    {
+        const bool isLeaf = (mTreeData->mPath.Get(nodeId, 0) == NULL_CHILD
+                             || mTreeData->mPath.Get(nodeId, 1) == NULL_CHILD);
+        if( isLeaf )
+        {
+            // printf("TreeData::GatherStats %d %d %d\n", nodeId, depth, numberEstimatorSamples);
+            stats.ProcessLeaf(*this, nodeId);
+        }
+    }
+}
+
+int Tree::NextNodeIndex()
+{
+    return mTreeData->NextNodeIndex();
+}
+
+void Tree::Compact()
+{
+    mTreeData->Compact();
+}
+
+MatrixBufferTemplate<int>& Tree::GetPath()
+{
+    return mTreeData->mPath;
+}
+
+MatrixBufferTemplate<int>& Tree::GetIntFeatureParams()
+{
+   return mTreeData->mIntFeatureParams;
+}
+
+MatrixBufferTemplate<float>& Tree::GetFloatFeatureParams()
+{
+   return mTreeData->mFloatFeatureParams;
+}
+
+VectorBufferTemplate<float>& Tree::GetCounts()
+{
+   return mTreeData->mCounts;
+}
+
+VectorBufferTemplate<int>& Tree::GetDepths()
+{
+   return mTreeData->mDepths;
+}
+
+MatrixBufferTemplate<float>& Tree::GetYs()
+{
+   return mTreeData->mYs;
+}
+
+BufferCollection& Tree::GetExtraInfo()
+{
+   return mTreeData->mExtraInfo;
+}
+
+const MatrixBufferTemplate<int>& Tree::GetPath() const
+{
+    return mTreeData->mPath;
+}
+
+const MatrixBufferTemplate<int>& Tree::GetIntFeatureParams() const
+{
+   return mTreeData->mIntFeatureParams;
+}
+
+const MatrixBufferTemplate<float>& Tree::GetFloatFeatureParams() const
+{
+   return mTreeData->mFloatFeatureParams;
+}
+
+const VectorBufferTemplate<float>& Tree::GetCounts() const
+{
+   return mTreeData->mCounts;
+}
+
+const VectorBufferTemplate<int>& Tree::GetDepths() const
+{
+   return mTreeData->mDepths;
+}
+
+const MatrixBufferTemplate<float>& Tree::GetYs() const
+{
+   return mTreeData->mYs;
+}
+
+const BufferCollection& Tree::GetExtraInfo() const
+{
+   return mTreeData->mExtraInfo;
 }

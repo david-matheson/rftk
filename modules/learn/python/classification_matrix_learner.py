@@ -20,7 +20,7 @@ def matrix_classification_data_prepare(**kwargs):
     return bufferCollection
 
 def create_matrix_predictor_32f(forest, **kwargs):
-    number_of_classes = forest.GetTree(0).mYs.GetN()
+    number_of_classes = forest.GetTree(0).GetYs().GetN()
     all_samples_step = pipeline.AllSamplesStep_f32f32i32(buffers.X_FLOAT_DATA)
     combiner = classification.ClassProbabilityCombiner_f32(number_of_classes)
     matrix_feature = matrix_features.LinearFloat32MatrixFeature_f32i32(all_samples_step.IndicesBufferId,

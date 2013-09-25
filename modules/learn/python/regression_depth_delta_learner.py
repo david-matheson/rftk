@@ -23,7 +23,7 @@ def depth_delta_regression_data_prepare(**kwargs):
     return bufferCollection
 
 def create_regression_depth_delta_predictor_32f(forest, **kwargs):
-    dimension_of_y = forest.GetTree(0).mYs.GetN() / 2
+    dimension_of_y = forest.GetTree(0).GetYs().GetN() / 2
     all_samples_step = pipeline.AllSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
     combiner = regression.MeanVarianceCombiner_f32(dimension_of_y)
     depth_delta_feature = image_features.ScaledDepthDeltaFeature_f32i32(all_samples_step.IndicesBufferId,

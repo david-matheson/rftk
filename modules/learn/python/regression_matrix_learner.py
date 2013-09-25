@@ -18,7 +18,7 @@ def matrix_regression_data_prepare(**kwargs):
     return bufferCollection
 
 def create_matrix_regression_predictor_32f(forest, **kwargs):
-    dimension_of_y = forest.GetTree(0).mYs.GetN() / 2
+    dimension_of_y = forest.GetTree(0).GetYs().GetN() / 2
     all_samples_step = pipeline.AllSamplesStep_f32f32i32(buffers.X_FLOAT_DATA)
     combiner = regression.MeanVarianceCombiner_f32(dimension_of_y)
     matrix_feature = matrix_features.LinearFloat32MatrixFeature_f32i32(all_samples_step.IndicesBufferId,

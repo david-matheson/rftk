@@ -90,7 +90,7 @@ void DepthFirstTreeLearner<BufferTypes>::Learn( BufferCollectionStack stack, Tre
 
     BufferCollection treeData;
     stack.Push(&treeData);
-    mTreeSteps->ProcessStep(stack, treeData, gen, tree.mExtraInfo, 0);
+    mTreeSteps->ProcessStep(stack, treeData, gen, tree.GetExtraInfo(), 0);
 
     //emptyIndicesCollection is pushed so subsequent leftIndicesBufCol and rightIndicesBufCol
     //can be popped before adding the next layer down
@@ -106,7 +106,7 @@ void DepthFirstTreeLearner<BufferTypes>::ProcessNode( boost::mt19937& gen,
                                                               typename BufferTypes::Index depth,
                                                               typename BufferTypes::DatapointCounts nodeSize ) const
 {
-    if(mTrySplitCriteria->TrySplit(depth, nodeSize, tree.mExtraInfo, nodeIndex, true))
+    if(mTrySplitCriteria->TrySplit(depth, nodeSize, tree.GetExtraInfo(), nodeIndex, true))
     {
 
         bool doSplit = false;
@@ -121,8 +121,8 @@ void DepthFirstTreeLearner<BufferTypes>::ProcessNode( boost::mt19937& gen,
         {
             BufferCollection nodeData;
             stack.Push(&nodeData);
-            mNodeSteps->ProcessStep(stack, nodeData, gen, tree.mExtraInfo, nodeIndex);
-            SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, depth, tree.mExtraInfo, nodeIndex);
+            mNodeSteps->ProcessStep(stack, nodeData, gen, tree.GetExtraInfo(), nodeIndex);
+            SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, depth, tree.GetExtraInfo(), nodeIndex);
             doSplit = selectorInfo.ValidSplit();
             if(doSplit)
             {
@@ -130,10 +130,10 @@ void DepthFirstTreeLearner<BufferTypes>::ProcessNode( boost::mt19937& gen,
                 rightNodeIndex = tree.NextNodeIndex();
 
                 selectorInfo.WriteToTree( nodeIndex, leftNodeIndex, rightNodeIndex,
-                                          tree.mCounts, tree.mDepths, tree.mFloatFeatureParams, tree.mIntFeatureParams, tree.mYs);
+                                          tree.GetCounts(), tree.GetDepths(), tree.GetFloatFeatureParams(), tree.GetIntFeatureParams(), tree.GetYs());
 
-                tree.mPath.Set(nodeIndex, 0, leftNodeIndex);
-                tree.mPath.Set(nodeIndex, 1, rightNodeIndex);
+                tree.GetPath().Set(nodeIndex, 0, leftNodeIndex);
+                tree.GetPath().Set(nodeIndex, 1, rightNodeIndex);
 
                 selectorInfo.SplitBuffers(leftIndicesBufCol, rightIndicesBufCol, leftSize, rightSize);
             }

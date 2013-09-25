@@ -57,16 +57,16 @@ void BindedClassEstimatorUpdater<BT>::UpdateEstimator(Tree& tree,
     const typename BT::DatapointCounts weight = mSampleWeights->Get(sampleIndex);
     const typename BT::SourceInteger classId = mClasses->Get(sampleIndex);
 
-    const float oldN = tree.mCounts.Get(nodeIndex);
+    const float oldN = tree.GetCounts().Get(nodeIndex);
     for(int c=0; c<mNumberOfClasses; c++)
     {
-        float classCount = oldN * tree.mYs.Get(nodeIndex,c);
+        float classCount = oldN * tree.GetYs().Get(nodeIndex,c);
         if( classId == c )
         {
             classCount += weight;
         }
         const float updatedClassProbability = classCount / (oldN + weight);
-        tree.mYs.Set(nodeIndex, c, updatedClassProbability);
+        tree.GetYs().Set(nodeIndex, c, updatedClassProbability);
     }
 }
 

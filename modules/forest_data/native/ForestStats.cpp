@@ -16,18 +16,18 @@ ForestStats::ForestStats()
 
 void ForestStats::ProcessLeaf(const Tree& tree, int nodeId)
 {
-    const int depth = tree.mDepths.Get(nodeId);
+    const int depth = tree.GetDepths().Get(nodeId);
     mNumberOfLeafNodes++;
     mMinDepth = std::min(mMinDepth, depth);
     mMaxDepth = std::max(mMaxDepth, depth);
     mTotalDepth += depth;
 
-    const int numberEstimatorPoints = static_cast<int>(tree.mCounts.Get(nodeId));
+    const int numberEstimatorPoints = static_cast<int>(tree.GetCounts().Get(nodeId));
     mMinEstimatorPoints = std::min(mMinEstimatorPoints, numberEstimatorPoints);
     mMaxEstimatorPoints = std::max(mMaxEstimatorPoints, numberEstimatorPoints);
     mTotalEstimatorPoints += numberEstimatorPoints;
 
-    const float errorProb = 1.0f - tree.mYs.SliceRow(nodeId).GetMax();
+    const float errorProb = 1.0f - tree.GetYs().SliceRow(nodeId).GetMax();
     mMinError = std::min(mMinError, errorProb);
     mMaxError = std::max(mMaxError, errorProb);
     mTotalError += errorProb;

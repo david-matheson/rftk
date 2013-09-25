@@ -151,11 +151,11 @@ Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, Buffer
         treeStack.Push(&data);
         BufferCollection& treeBc = forestBcs[treeIndex];
         treeStack.Push(&treeBc);
-        mTreeSteps->ProcessStep(treeStack, treeBc, gen, tree.mExtraInfo, 0);
+        mTreeSteps->ProcessStep(treeStack, treeBc, gen, tree.GetExtraInfo(), 0);
         forestIndices[treeIndex] = treeBc.GetBufferPtr< VectorBufferTemplate<typename BufferTypes::Index> >(mIndicesBufferId);
         forestWeights[treeIndex] = treeStack.GetBufferPtr< VectorBufferTemplate<typename BufferTypes::SourceContinuous> >(mWeightsBufferId);
-        treeBc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mPredictFeature.mFloatParamsBufferId, tree.mFloatFeatureParams);
-        treeBc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mPredictFeature.mIntParamsBufferId, tree.mIntFeatureParams);
+        treeBc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mPredictFeature.mFloatParamsBufferId, tree.GetFloatFeatureParams());
+        treeBc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mPredictFeature.mIntParamsBufferId, tree.GetIntFeatureParams());
         featureBindings[treeIndex] = mPredictFeature.Bind(treeStack);
         estimatorUpdaterBindings[treeIndex] = mEstimatorUpdater.Bind(treeStack);
     }
@@ -182,10 +182,10 @@ Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, Buffer
 
             const int nodeIndex = walkTree<typename Feature::FeatureBinding, BufferTypes>(
                                              featureBindings[treeIndex], tree, 0, 0 );
-            const int depth = tree.mDepths.Get(nodeIndex);
+            const int depth = tree.GetDepths().Get(nodeIndex);
 
             estimatorUpdaterBindings[treeIndex].UpdateEstimator(tree, nodeIndex, sampleIndex);
-            tree.mCounts.Incr(nodeIndex, sampleWeight);
+            tree.GetCounts().Incr(nodeIndex, sampleWeight);
 
             // Update active node stats
             std::pair<int,int> treeNodeKey = std::make_pair(treeIndex, nodeIndex);
@@ -195,37 +195,37 @@ Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, Buffer
                 stack.Push(leaf.mNodeData);
                 if( !leaf.mIsInitialized )
                 {
-                    mInitNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen, tree.mExtraInfo, nodeIndex);
+                    mInitNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen, tree.GetExtraInfo(), nodeIndex);
                     leaf.mIsInitialized = true;
                 }
 
-                mStatsUpdateNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen, tree.mExtraInfo, nodeIndex);
+                mStatsUpdateNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen, tree.GetExtraInfo(), nodeIndex);
                 leaf.mDatapointsSinceLastImpurityUpdate++;
 
                 if( leaf.mDatapointsSinceLastImpurityUpdate >= mImpurityUpdatePeriod )
                 {
-                    mImpurityUpdateNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen, tree.mExtraInfo, nodeIndex);
+                    mImpurityUpdateNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen, tree.GetExtraInfo(), nodeIndex);
                     leaf.mDatapointsSinceLastImpurityUpdate = 0;
 
                     // Split the node
-                    SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, depth, tree.mExtraInfo, nodeIndex);
+                    SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, depth, tree.GetExtraInfo(), nodeIndex);
                     if( selectorInfo.ValidSplit() )
                     {
                         const int leftNodeIndex = tree.NextNodeIndex();
                         const int rightNodeIndex = tree.NextNodeIndex();
 
                         selectorInfo.WriteToTree( nodeIndex, leftNodeIndex, rightNodeIndex,
-                                                  tree.mCounts, tree.mDepths, tree.mFloatFeatureParams, tree.mIntFeatureParams, tree.mYs);
+                                                  tree.GetCounts(), tree.GetDepths(), tree.GetFloatFeatureParams(), tree.GetIntFeatureParams(), tree.GetYs());
 
-                        tree.mPath.Set(nodeIndex, LEFT_CHILD, leftNodeIndex);
-                        tree.mPath.Set(nodeIndex, RIGHT_CHILD, rightNodeIndex);
+                        tree.GetPath().Set(nodeIndex, LEFT_CHILD, leftNodeIndex);
+                        tree.GetPath().Set(nodeIndex, RIGHT_CHILD, rightNodeIndex);
 
                         // Remove split node
                         mActiveFrontierLeaves.erase(treeNodeKey);
                         delete leaf.mNodeData;
 
                         // Add children to the queue
-                        if( mTrySplitCriteria->TrySplit(depth, std::numeric_limits<int>::max(), tree.mExtraInfo, nodeIndex, true) )
+                        if( mTrySplitCriteria->TrySplit(depth, std::numeric_limits<int>::max(), tree.GetExtraInfo(), nodeIndex, true) )
                         {
                             mFrontierQueue.ProcessSplit(mForest, treeIndex, nodeIndex, leftNodeIndex, rightNodeIndex);
                         }
@@ -238,11 +238,11 @@ Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, Buffer
 
                         MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>* featureFloatParams =
                                 bc.GetBufferPtr< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mPredictFeature.mFloatParamsBufferId);
-                        *featureFloatParams = tree.mFloatFeatureParams;
+                        *featureFloatParams = tree.GetFloatFeatureParams();
 
                         MatrixBufferTemplate<typename BufferTypes::ParamsInteger>* featureIntParams =
                                 bc.GetBufferPtr< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mPredictFeature.mIntParamsBufferId);
-                        *featureIntParams = tree.mIntFeatureParams;
+                        *featureIntParams = tree.GetIntFeatureParams();
                     }
                 }
                 stack.Pop(); //stack.Push(leaf.mNodeData);
