@@ -122,6 +122,10 @@ def uber_create_learner(**kwargs):
     feature_ordering = int( pop_kwargs(kwargs, 'feature_ordering', unused_kwargs_keys, pipeline.FEATURES_BY_DATAPOINTS) )
     streams_type = pop_kwargs(kwargs, 'streams_type', unused_kwargs_keys, 'one_stream')
 
+    selector_type_default = 'best_valid'
+    if tree_type == 'online':
+        selector_type_default = 'only_best'
+    selector_type = pop_kwargs(kwargs, 'selector_type', unused_kwargs_keys, selector_type_default) #or only_best
     
     # Setup sampling of weights step
     if pop_kwargs(kwargs, 'bootstrap', unused_kwargs_keys, False):
@@ -496,10 +500,10 @@ def uber_create_learner(**kwargs):
     split_steps_list.append(split_indices)
     split_steps = splitpoints.SplitBuffersList(split_steps_list)
 
-    if tree_type == 'online':
-        split_selector = splitpoints.WaitForBestSplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_steps )
-    else:
+    if selector_type == 'best_valid':
         split_selector = splitpoints.SplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_steps)
+    elif selector_type == 'only_best':
+        split_selector = splitpoints.WaitForBestSplitSelector_f32i32([split_buffers], should_split_criteria, finalizer, split_steps )
 
     number_of_trees = int( pop_kwargs(kwargs, 'number_of_trees', unused_kwargs_keys) )
     number_of_jobs = int( pop_kwargs(kwargs, 'number_of_jobs', unused_kwargs_keys, 1) )

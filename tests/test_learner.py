@@ -627,6 +627,7 @@ class TestNew(unittest.TestCase):
                                                                         split_type='all_midpoints',
                                                                         in_bounds_number_of_points=x_train.shape[0]/2,
                                                                         tree_type='breadth_first',
+                                                                        selector_type = 'only_best',
                                                                         number_of_leaves=int(x_train.shape[0] / 5 + 1)),
                         description="wine create_uber_learner consistent two_stream_per_tree",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
@@ -637,6 +638,7 @@ class TestNew(unittest.TestCase):
                                 x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                                 number_of_trees_list=[20], bootstrap=False)
         self.assertLess(error, 0.5)
+
 
         ########################################################
 
