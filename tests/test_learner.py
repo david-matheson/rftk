@@ -21,13 +21,13 @@ def run_classifier(learner, description,
 
 
         y_hat_train = predictor.predict(x=x_train).argmax(axis=1)
-        acc_train = np.mean(y_train == y_hat_train)
+        acc_train = np.mean(y_train != y_hat_train)
         y_hat_test = predictor.predict(x=x_test).argmax(axis=1)
-        acc_test = np.mean(y_test == y_hat_test)
+        acc_test = np.mean(y_test != y_hat_test)
 
         if bootstrap:
             y_hat_train_oob = predictor.predict_oob(x=x_train).argmax(axis=1)
-            acc_train_oob = np.mean(y_train == y_hat_train_oob)
+            acc_train_oob = np.mean(y_train != y_hat_train_oob)
             print("%s %f %f %f (#trees=%d)" % (description, acc_train, acc_train_oob, acc_test, predictor.get_forest().GetNumberOfTrees()))
         else:
             print("%s %f %f (#trees=%d)" % (description, acc_train, acc_test, predictor.get_forest().GetNumberOfTrees()))
@@ -62,7 +62,7 @@ def run_regression(learner, description,
         else:
             print("%s %f %f (#trees=%d)" % (description, mse_train, mse_test, predictor.get_forest().GetNumberOfTrees()))
 
-        return mse_train
+        return mse_test
 
 
 def run_depth_delta_classifier(learner, description, 
@@ -102,16 +102,16 @@ def run_depth_delta_classifier(learner, description,
 
         train_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
                                         pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
-        train_accurracy = np.mean(train_pixel_labels == train_predictions.argmax(axis=1))
+        train_accurracy = np.mean(train_pixel_labels != train_predictions.argmax(axis=1))
         test_predictions = predictor.predict(depth_images=rftk.buffers.as_tensor_buffer(test_depths),
                                         pixel_indices=rftk.buffers.as_matrix_buffer(test_pixel_indices))
-        test_accurracy = np.mean(test_pixel_labels == test_predictions.argmax(axis=1))
+        test_accurracy = np.mean(test_pixel_labels != test_predictions.argmax(axis=1))
 
         if bootstrap:
 
             train_predictions_oob = predictor.predict_oob(depth_images=rftk.buffers.as_tensor_buffer(train_depths),
                                             pixel_indices=rftk.buffers.as_matrix_buffer(train_pixel_indices))
-            train_accurracy_oob = np.mean(train_pixel_labels == train_predictions_oob.argmax(axis=1))
+            train_accurracy_oob = np.mean(train_pixel_labels != train_predictions_oob.argmax(axis=1))
 
             print("%s %f %f %f (#trees=%d)" % (description, train_accurracy, train_accurracy_oob, test_accurracy, predictor.get_forest().GetNumberOfTrees()))
         else:
@@ -272,13 +272,13 @@ class TestNew(unittest.TestCase):
                         description="ecoli create_uber_learner axis_aligned",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200], bootstrap=False)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
                         description="ecoli create_vanilia_classifier",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200], bootstrap=False)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         ########################################################
 
@@ -290,13 +290,13 @@ class TestNew(unittest.TestCase):
                         description="ecoli create_uber_learner axis_aligned bootstrap",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200], bootstrap=True)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
                         description="ecoli create_vanilia_classifier bootstrap",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200], bootstrap=True)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         ########################################################
 
@@ -308,13 +308,13 @@ class TestNew(unittest.TestCase):
                         description="ecoli create_uber_learner axis_aligned bootstrap breadth_first",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200], bootstrap=True)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         error = run_classifier(learner=rftk.learn.create_vanilia_classifier(tree_order='breadth_first'),
                         description="ecoli create_vanilia_classifier bootstrap tree_order==breadth_first",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200], bootstrap=True)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         ########################################################
 
@@ -326,14 +326,14 @@ class TestNew(unittest.TestCase):
                         description="ecoli create_uber_learner dimension_pair_diff",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200], bootstrap=False)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
 
         error = run_classifier(learner=rftk.learn.create_dimension_pair_difference_matrix_classifier(),
                         description="ecoli create_dimension_pair_difference_matrix_classifier",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200], bootstrap=False)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         ########################################################
 
@@ -345,13 +345,13 @@ class TestNew(unittest.TestCase):
                 description="ecoli create_uber_learner dimension_pair_diff bootstrap",
                 x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                 number_of_trees_list=[200], bootstrap=True)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         error = run_classifier(learner=rftk.learn.create_dimension_pair_difference_matrix_classifier(),
                         description="ecoli create_dimension_pair_difference_matrix_classifier bootstrap",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200], bootstrap=True)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         ########################################################
 
@@ -363,13 +363,13 @@ class TestNew(unittest.TestCase):
                 description="ecoli create_uber_learner class_pair_diff bootstrap",
                 x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                 number_of_trees_list=[200], bootstrap=True)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         error = run_classifier(learner=rftk.learn.create_class_pair_difference_matrix_classifier(),
                         description="ecoli create_class_pair_difference_matrix_classifier bootstrap",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200], bootstrap=True)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         ########################################################
 
@@ -384,13 +384,13 @@ class TestNew(unittest.TestCase):
                 description="ecoli create_uber_learner axis_aligned constant_splitpoints at_random_datapoints one_stream",
                 x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                 number_of_trees_list=[200], bootstrap=False)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         error = run_classifier(learner=rftk.learn.create_one_stream_classifier(number_of_splitpoints=10),
                         description="ecoli create_one_stream_classifier",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200], bootstrap=False)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         ########################################################
 
@@ -405,13 +405,13 @@ class TestNew(unittest.TestCase):
                 description="ecoli create_uber_learner axis_aligned constant_splitpoints at_random_datapoints two_stream_per_tree",
                 x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                 number_of_trees_list=[200], bootstrap=False)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         error = run_classifier(learner=rftk.learn.create_two_stream_classifier(),
                         description="ecoli create_two_stream_classifier",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200], bootstrap=False)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         #######################################################
 
@@ -426,7 +426,8 @@ class TestNew(unittest.TestCase):
                 description="ecoli create_uber_learner axis_aligned constant_splitpoints at_random_datapoints one_stream online",
                 x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                 number_of_trees_list=[200,200,200], bootstrap=False)
-        self.assertGreater(error, 0.75)
+
+        self.assertLess(error, 0.35)
 
         error = run_classifier(learner=rftk.learn.create_online_one_stream_classifier(
                                                 number_of_splitpoints=100,
@@ -436,7 +437,7 @@ class TestNew(unittest.TestCase):
                         description="ecoli create_online_one_stream_classifier",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200,200,200], bootstrap=True)
-        self.assertGreater(error, 0.7)
+        self.assertLess(error, 0.3)
 
 
         ########################################################
@@ -461,7 +462,7 @@ class TestNew(unittest.TestCase):
                 description="ecoli create_uber_learner axis_aligned constant_splitpoints at_random_datapoints two_stream_per_tree online",
                 x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                 number_of_trees_list=[200,200,200], bootstrap=False)
-        self.assertGreater(error, 0.7)
+        self.assertLess(error, 0.3)
 
         error = run_classifier(learner=rftk.learn.create_online_two_stream_consistent_classifier(
                                                     number_of_splitpoints=100,
@@ -475,7 +476,7 @@ class TestNew(unittest.TestCase):
                         description="ecoli create_online_two_stream_consistent_classifier",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200,200,200], bootstrap=True)
-        self.assertGreater(error, 0.7)
+        self.assertLess(error, 0.3)
 
 
     def test_ecoli_greedy_classifiers(self):
@@ -485,13 +486,13 @@ class TestNew(unittest.TestCase):
                         description="ecoli create_greedy_add_swap_classifier bootstrap",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[1,49,50,50,50], bootstrap=True)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         error = run_classifier(learner=rftk.learn.create_fast_greedy_add_swap_classifier(),
                         description="ecoli create_fast_greedy_add_swap_classifier bootstrap",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[1,49,50,50,50], bootstrap=True)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
 
         error = run_classifier(learner=rftk.learn.create_fast_greedy_add_swap_classifier(),
@@ -500,7 +501,7 @@ class TestNew(unittest.TestCase):
                         number_of_trees_list=[1,49,50,50,50], 
                         number_of_features_list=[2,3,1,3,2],
                         bootstrap=True)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
 
         error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
@@ -508,7 +509,7 @@ class TestNew(unittest.TestCase):
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[200], 
                         bootstrap=True)
-        self.assertGreater(error, 0.75)
+        self.assertLess(error, 0.25)
 
         error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
                         description="ecoli create_vanilia_classifier single tree",
@@ -516,7 +517,7 @@ class TestNew(unittest.TestCase):
                         number_of_trees_list=[1],
                         number_of_features_list=[x_train.shape[1]],
                         bootstrap=True)
-        self.assertGreater(error, 0.70)
+        self.assertLess(error, 0.30)
 
 
 
@@ -536,7 +537,7 @@ class TestNew(unittest.TestCase):
                                 description="usps create_fast_greedy_add_swap_classifier bootstrap",
                                 x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                                 number_of_trees_list=[1,99], bootstrap=True)
-        self.assertGreater(error, 0.91)
+        self.assertLess(error, 0.09)
 
         print "Current date and time: " , datetime.datetime.now()
 
@@ -547,7 +548,7 @@ class TestNew(unittest.TestCase):
 
         print "Current date and time: " , datetime.datetime.now()
 
-        self.assertGreater(error, 0.91)
+        self.assertLess(error, 0.09)
         
         # error = run_classifier(learner=rftk.learn.create_vanilia_classifier(),
         #                         description="usps create_vanilia_classifier single tree",
@@ -632,7 +633,7 @@ class TestNew(unittest.TestCase):
                         description="wine create_uber_learner consistent two_stream_per_tree",
                         x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
                         number_of_trees_list=[20], bootstrap=True)
-        self.assertLess(error, 0.5)
+        self.assertLess(error, 0.55)
         error = run_regression(learner=rftk.learn.create_consistent_regression(),
                                 description="wine create_consistent_regression",
                                 x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
@@ -691,7 +692,7 @@ class TestNew(unittest.TestCase):
                             bootstrap=True,
                             number_of_features_list=[1000],
                             number_of_jobs=5)
-        self.assertLess(error, 0.6)
+        self.assertLess(error, 0.5)
 
 
         forest_learner = rftk.learn.create_uber_learner(    data_type='depth_image', 
@@ -711,7 +712,7 @@ class TestNew(unittest.TestCase):
                             bootstrap=True,
                             number_of_features_list=[1000],
                             number_of_jobs=5)
-        self.assertLess(error, 0.6)
+        self.assertLess(error, 0.5)
 
 
 
@@ -737,7 +738,7 @@ class TestNew(unittest.TestCase):
                             bootstrap=True,
                             number_of_features_list=[1000],
                             number_of_jobs=5)
-        self.assertLess(error, 0.6)
+        self.assertLess(error, 0.65)
 
 
         forest_learner = rftk.learn.create_uber_learner(    data_type='depth_image', 
@@ -759,7 +760,7 @@ class TestNew(unittest.TestCase):
                             bootstrap=True,
                             number_of_features_list=[1000],
                             number_of_jobs=5)
-        self.assertLess(error, 0.6)
+        self.assertLess(error, 0.65)
 
 
     def test_online_two_stream_consistent_depth_delta_classifier(self):
@@ -786,7 +787,7 @@ class TestNew(unittest.TestCase):
                             bootstrap=True,
                             number_of_features_list=[1000],
                             number_of_jobs=5)
-        self.assertLess(error, 0.6)
+        self.assertLess(error, 0.65)
 
 
         forest_learner = rftk.learn.create_uber_learner(    data_type='depth_image', 
@@ -811,7 +812,7 @@ class TestNew(unittest.TestCase):
                             bootstrap=True,
                             number_of_features_list=[1000],
                             number_of_jobs=5)
-        self.assertLess(error, 0.6)
+        self.assertLess(error, 0.65)
 
       
     def test_vanilia_scaled_depth_delta_regression(self):
