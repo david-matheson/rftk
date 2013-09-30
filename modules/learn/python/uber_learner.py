@@ -174,6 +174,9 @@ def uber_create_learner(**kwargs):
     # need to add possion and uniform
     number_of_features = int( pop_kwargs(kwargs, 'number_of_features', unused_kwargs_keys, default_number_of_features) )
     possion_number_of_features = bool( pop_kwargs(kwargs, 'possion_number_of_features', unused_kwargs_keys, False) )
+    if tree_type == 'biau2008':
+        number_of_features = 1
+
     if possion_number_of_features:
         set_number_features_step = pipeline.PoissonStep_f32i32(number_of_features, 1)
         node_steps_init.append(set_number_features_step)
