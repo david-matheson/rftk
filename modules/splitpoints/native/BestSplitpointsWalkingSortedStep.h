@@ -3,6 +3,7 @@
 #include <limits>
 #include <cmath>
 
+#include "bootstrap.h"
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
@@ -25,6 +26,10 @@ public:
     BestSplitpointsWalkingSortedStep (const ImpurityWalker& impurityWalker,
                               const BufferId& featureValues,
                               FeatureValueOrdering featureValueOrdering );
+    BestSplitpointsWalkingSortedStep (const ImpurityWalker& impurityWalker,
+                              const BufferId& featureValues,
+                              FeatureValueOrdering featureValueOrdering,
+                              const int numberOfInBoundsDatapoints );
     virtual ~BestSplitpointsWalkingSortedStep();
 
     virtual PipelineStepI* Clone() const;
@@ -45,6 +50,7 @@ private:
     const ImpurityWalker mImpurityWalker;
     const BufferId mFeatureValuesBufferId;
     const FeatureValueOrdering mFeatureValueOrdering;
+    const int mNumberOfInBoundsDatapoints;
 
 };
 
@@ -63,6 +69,25 @@ BestSplitpointsWalkingSortedStep<ImpurityWalker>::BestSplitpointsWalkingSortedSt
 , mImpurityWalker(impurityWalker)
 , mFeatureValuesBufferId(featureValues)
 , mFeatureValueOrdering(featureValueOrdering)
+, mNumberOfInBoundsDatapoints(0)
+{}
+
+template <class ImpurityWalker>
+BestSplitpointsWalkingSortedStep<ImpurityWalker>::BestSplitpointsWalkingSortedStep(const ImpurityWalker& impurityWalker,
+                                                                      const BufferId& featureValues,
+                                                                      FeatureValueOrdering featureValueOrdering,
+                                                                      const int numberOfInBoundsDatapoints )
+: PipelineStepI("BestSplitpointsWalkingSortedStep")
+, ImpurityBufferId( GetBufferId("Impurity") )
+, SplitpointBufferId( GetBufferId("Splitpoints") )
+, SplitpointCountsBufferId( GetBufferId("SplitpointsCounts") )
+, ChildCountsBufferId( GetBufferId("ChildCounts") )
+, LeftYsBufferId( GetBufferId("LeftYs") )
+, RightYsBufferId( GetBufferId("RightYs") )
+, mImpurityWalker(impurityWalker)
+, mFeatureValuesBufferId(featureValues)
+, mFeatureValueOrdering(featureValueOrdering)
+, mNumberOfInBoundsDatapoints(mNumberOfInBoundsDatapoints)
 {}
 
 template <class ImpurityWalker>
@@ -135,6 +160,31 @@ void BestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(const BufferC
 
         FeatureSorter<typename ImpurityWalker::BufferTypes::FeatureValue> sorter(featureValues, mFeatureValueOrdering, f);
         sorter.Sort();
+
+        typename ImpurityWalker::BufferTypes::FeatureValue boundsMin = std::numeric_limits<typename ImpurityWalker::BufferTypes::FeatureValue>::max();
+        typename ImpurityWalker::BufferTypes::FeatureValue boundsMax = -std::numeric_limits<typename ImpurityWalker::BufferTypes::FeatureValue>::max();
+        if( mNumberOfInBoundsDatapoints > 0)
+        {
+            const int numberOfSamples = sorter.GetNumberOfSamples();
+            std::vector<int> inboundSamples(numberOfSamples);
+            const int numberOfInBoundsSamples = std::min(numberOfSamples, mNumberOfInBoundsDatapoints);
+            sampleWithOutReplacement(&inboundSamples[0], numberOfSamples, numberOfInBoundsSamples);
+
+            for(int sortedIndex=0; sortedIndex<numberOfSamples; sortedIndex++)
+            {
+                if(inboundSamples[sortedIndex] )
+                {
+                    boundsMin = std::min(boundsMin, sorter.GetFeatureValue(sortedIndex));
+                    boundsMax = std::max(boundsMax, sorter.GetFeatureValue(sortedIndex));
+                }
+            }
+        }
+        else
+        {
+            boundsMin = -std::numeric_limits<typename ImpurityWalker::BufferTypes::FeatureValue>::max();
+            boundsMax = std::numeric_limits<typename ImpurityWalker::BufferTypes::FeatureValue>::max();
+        }
+
         for(typename ImpurityWalker::BufferTypes::Index sortedIndex=0; sortedIndex<sorter.GetNumberOfSamples()-1; sortedIndex++)
         {
             const typename ImpurityWalker::BufferTypes::Index i = sorter.GetUnSortedIndex(sortedIndex);
@@ -143,6 +193,8 @@ void BestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(const BufferC
 
             const typename ImpurityWalker::BufferTypes::FeatureValue consecutiveFeatureDelta = sorter.GetFeatureValue(sortedIndex+1) - sorter.GetFeatureValue(sortedIndex);
             if((std::abs(consecutiveFeatureDelta) > std::numeric_limits<typename ImpurityWalker::BufferTypes::FeatureValue>::epsilon())
+              && (sorter.GetFeatureValue(sortedIndex) >= boundsMin)
+              && (sorter.GetFeatureValue(sortedIndex) <= boundsMax)
               && impurityWalker.Impurity() > bestImpurity)
             {
                 hasValidSplit = true;

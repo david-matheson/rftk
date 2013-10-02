@@ -4,11 +4,11 @@
 #include <limits>
 #include <cmath>
 
+#include "bootstrap.h"
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
 #include "FeatureExtractorStep.h"
-#include "bootstrap.h"
 #include "PipelineStepI.h"
 #include "UniqueBufferId.h"
 #include "FeatureSorter.h"

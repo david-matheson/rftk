@@ -29,5 +29,6 @@
 %template(SumOfVarianceTwoStreamBestSplitpointsWalkingSortedStep_f32i32) TwoStreamBestSplitpointsWalkingSortedStep< SumOfVarianceTwoStreamWalker<DefaultBufferTypes> >;
 
 %template(MeanVarianceStatsUpdater_f32i32) MeanVarianceStatsUpdater<DefaultBufferTypes>;
+%template(SumOfVarianceOneStreamStep_f32i32) SplitpointStatsStep< MeanVarianceStatsUpdater<DefaultBufferTypes> >;
 %template(SumOfVarianceTwoStreamStep_f32i32) TwoStreamSplitpointStatsStep< MeanVarianceStatsUpdater<DefaultBufferTypes> >;
 %template(SumOfVarianceSplitpointsImpurity_f32i32) SplitpointsImpurity< SumOfVarianceImpurity<DefaultBufferTypes> >;

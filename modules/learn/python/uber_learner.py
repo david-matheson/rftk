@@ -282,12 +282,24 @@ def uber_create_learner(**kwargs):
 
         elif prediction_type == 'regression':
             if streams_type == 'one_stream':
+
                 impurity_walker = regression.SumOfVarianceWalker_f32i32(slice_weights_step.SlicedBufferId,
                                                                         slice_ys_step.SlicedBufferId,
                                                                         dimension_of_y)
-                best_splitpoint_step = regression.SumOfVarianceBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,
-                                                                                    feature_extractor_step.FeatureValuesBufferId,
-                                                                                    feature_ordering)
+                if 'in_bounds_number_of_points' in kwargs:
+                    in_bounds_number_of_points = int(pop_kwargs(kwargs, 
+                                                'in_bounds_number_of_points', 
+                                                unused_kwargs_keys, 
+                                                number_of_datapoints / 2))
+                    best_splitpoint_step = regression.SumOfVarianceBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,
+                                                                                        feature_extractor_step.FeatureValuesBufferId,
+                                                                                        feature_ordering,
+                                                                                        in_bounds_number_of_points)
+
+                else:
+                    best_splitpoint_step = regression.SumOfVarianceBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,
+                                                                                        feature_extractor_step.FeatureValuesBufferId,
+                                                                                        feature_ordering)
             elif streams_type == 'two_stream_per_tree' or streams_type == 'two_stream_per_forest':
 
                 in_bounds_number_of_points = int(pop_kwargs(kwargs, 
@@ -428,7 +440,7 @@ def uber_create_learner(**kwargs):
                                                                                       splitpoint_selection_step.SplitpointsCountsBufferId,
                                                                                       feature_extractor_step.FeatureValuesBufferId,
                                                                                       feature_ordering,
-                                                                                      class_stats_updater)
+                                                                                      mean_variance_stats_updater)
 
                 impurity_step = regression.SumOfVarianceSplitpointsImpurity_f32i32(splitpoint_selection_step.SplitpointsCountsBufferId,
                                                                                       one_stream_split_stats_step.ChildCountsBufferId,
