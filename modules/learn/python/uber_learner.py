@@ -394,6 +394,20 @@ def uber_create_learner(**kwargs):
                                                                                 quantized_feature_equal)
             forest_steps.append(set_feature_range_buffer_step)
             split_steps_list.append(split_midpoint_ranges)
+        elif constant_splitpoints_type == 'uniform_random_across_node':
+            assert(streams_type == 'one_stream')
+            feature_range_min_max_step = pipeline.FeatureRangeStep_Default(feature_extractor_step.FeatureValuesBufferId, feature_ordering)
+            node_steps_update.append(feature_range_min_max_step)
+            number_of_splitpoints = int(pop_kwargs(kwargs, 'number_of_splitpoints', unused_kwargs_keys))
+            splitpoint_selection_step = splitpoints.RandomUniformSplitpointsInRangeStep_Default(feature_range_min_max_step.FeatureRangeMinMaxBufferId, number_of_splitpoints)
+        elif constant_splitpoints_type == 'uniform_random_across_dataset':
+            assert(streams_type == 'one_stream' and data_type == 'matrix' and extractor_type == 'axis_aligned')
+            feature_range_min_max_step = pipeline.FeatureRangeStep_Default(buffers.X_FLOAT_DATA, pipeline.DATAPOINTS_BY_FEATURES)
+            forest_steps.append(feature_range_min_max_step)
+            slice_range_min_max_step = matrix_features.SliceFloatMatrixFromAxisAlignedFeaturesStep_Default(feature_range_min_max_step.FeatureRangeMinMaxBufferId, feature_params_step.IntParamsBufferId)
+            node_steps_update.append(slice_range_min_max_step)
+            number_of_splitpoints = int(pop_kwargs(kwargs, 'number_of_splitpoints', unused_kwargs_keys))
+            splitpoint_selection_step = splitpoints.RandomUniformSplitpointsInRangeStep_Default(slice_range_min_max_step.SlicedBufferId, number_of_splitpoints)
         else:
             raise Exception("unknown constant_splitpoints_type %s" % constant_splitpoints_type)
         node_steps_update.append(splitpoint_selection_step)

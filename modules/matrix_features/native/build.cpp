@@ -7,6 +7,7 @@
 #include "ClassPairDifferenceParamsStep.h"
 #include "LinearMatrixFeature.h"
 #include "LinearMatrixFeatureBinding.h"
+#include "SliceAxisAlignedFeaturesStep.h"
 
 template class AxisAlignedParamsStep< DefaultBufferTypes >;
 // template class LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<float> >;

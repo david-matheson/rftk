@@ -17,6 +17,12 @@ def load_ecoli_data():
     X = np.asarray(X, dtype=np.float32)
     Y = np.asarray([ class_names.index(y) for y in Y ], dtype=np.int32)
 
+    # scale data to make sure uniform_random_across_node and 
+    # are being tested uniform_random_across_dataset
+    (number_of_row, number_of_columns) = X.shape
+    multiplier = (np.arange(number_of_columns)**2 + 1)[::-1]
+    X = np.array(X*multiplier, dtype=np.float32)
+
     numberOfSampled = len(Y);
     perm = np.random.permutation(numberOfSampled)
     X = X[perm]

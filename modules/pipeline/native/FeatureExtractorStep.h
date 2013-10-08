@@ -7,13 +7,7 @@
 #include "PipelineStepI.h"
 #include "UniqueBufferId.h"
 #include "FeatureInfoLoggerI.h"
-
-enum FeatureValueOrdering
-{
-    FEATURES_BY_DATAPOINTS,
-    DATAPOINTS_BY_FEATURES
-};
-
+#include "FeatureOrdering.h"
 
 // ----------------------------------------------------------------------------
 //

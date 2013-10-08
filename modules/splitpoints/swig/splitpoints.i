@@ -11,6 +11,7 @@
     #include "SplitBuffersIndices.h"
     #include "SplitBuffersFeatureRange.h"
     #include "SplitBuffersList.h"
+    #include "RandomUniformSplitpointsInRangeStep.h"
 
     #if PY_VERSION_HEX >= 0x03020000
     # define SWIGPY_SLICE_ARG(obj) ((PyObject*) (obj))
@@ -41,6 +42,7 @@ namespace std {
 %include "SplitBuffersIndices.h"
 %include "SplitBuffersFeatureRange.h"
 %include "SplitBuffersList.h"
+%include "RandomUniformSplitpointsInRangeStep.h"
 
 %template(SplitSelectorI_f32i32) SplitSelectorI<DefaultBufferTypes>;
 %template(SplitSelector_f32i32) SplitSelector<DefaultBufferTypes>;
@@ -52,3 +54,4 @@ namespace std {
 
 %template(SplitIndices_f32i32) SplitBuffersIndices<DefaultBufferTypes>;
 %template(SplitBuffersFeatureRange_f32i32) SplitBuffersFeatureRange<DefaultBufferTypes>;
+%template(RandomUniformSplitpointsInRangeStep_Default) RandomUniformSplitpointsInRangeStep< DefaultBufferTypes >;

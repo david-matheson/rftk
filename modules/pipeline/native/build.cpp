@@ -7,3 +7,4 @@
 #include "FeatureExtractorStep.h"
 #include "FeatureEqualI.h"
 #include "FeatureEqualQuantized.h"
+#include "FeatureRangeStep.h"

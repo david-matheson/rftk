@@ -316,6 +316,34 @@ class TestNew(unittest.TestCase):
                         number_of_trees_list=[200], bootstrap=True)
         self.assertLess(error, 0.25)
 
+        #######################################################
+
+        error = run_classifier(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                extractor_type='axis_aligned',
+                                                                prediction_type='classification',
+                                                                split_type='constant_splitpoints',
+                                                                constant_splitpoints_type='uniform_random_across_node',
+                                                                number_of_splitpoints=10,
+                                                                tree_type='depth_first'),
+                description="ecoli create_uber_learner axis_aligned constant_splitpoints uniform_random_across_node",
+                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                number_of_trees_list=[200], bootstrap=False)
+        self.assertLess(error, 0.25)
+
+        ########################################################
+
+        error = run_classifier(learner=rftk.learn.create_uber_learner(  data_type='matrix', 
+                                                                extractor_type='axis_aligned',
+                                                                prediction_type='classification',
+                                                                split_type='constant_splitpoints',
+                                                                constant_splitpoints_type='uniform_random_across_dataset',
+                                                                number_of_splitpoints=10,
+                                                                tree_type='depth_first'),
+                description="ecoli create_uber_learner axis_aligned constant_splitpoints uniform_random_across_dataset",
+                x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                number_of_trees_list=[200], bootstrap=False)
+        self.assertLess(error, 0.25)
+
         ########################################################
 
         error = run_classifier(learner=rftk.learn.create_uber_learner(  data_type='matrix', 

@@ -13,3 +13,4 @@
 #include "RangeMidpointStep.h"
 #include "SplitBuffersFeatureRange.h"
 #include "LogSplitInfo.h"
+#include "RandomUniformSplitpointsInRangeStep.h"

@@ -15,6 +15,7 @@
     #include "FeatureExtractorStep.h"
     #include "FeatureEqualI.h"
     #include "FeatureEqualQuantized.h"
+    #include "FeatureRangeStep.h"
 
     #if PY_VERSION_HEX >= 0x03020000
     # define SWIGPY_SLICE_ARG(obj) ((PyObject*) (obj))
@@ -47,6 +48,7 @@ namespace std {
 %include "FeatureExtractorStep.h"
 %include "FeatureEqualI.h"
 %include "FeatureEqualQuantized.h"
+%include "FeatureRangeStep.h"
 
 %template(AllSamplesStep_f32f32i32) AllSamplesStep< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
 %template(AllSamplesStep_i32f32i32) AllSamplesStep< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceInteger> >;
@@ -79,3 +81,5 @@ namespace std {
 
 %template(FeatureEqualI_f32i32) FeatureEqualI< DefaultBufferTypes >;
 %template(FeatureEqualQuantized_f32i32) FeatureEqualQuantized< DefaultBufferTypes >;
+
+%template(FeatureRangeStep_Default) FeatureRangeStep< DefaultBufferTypes >;
