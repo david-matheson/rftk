@@ -267,7 +267,14 @@ def uber_create_learner(**kwargs):
 
 
     # Setup finding splitpoint steps
-    if split_type == 'all_midpoints':
+    if split_type == 'all_midpoints' or split_type == 'all_datapoints' or split_type == 'all_uniform_at_gap':
+
+        if split_type == 'all_midpoints':
+            splitpoint_location = splitpoints.AT_MIDPOINT
+        elif split_type == 'all_datapoints':
+            splitpoint_location = splitpoints.AT_DATAPOINT
+        elif split_type == 'all_uniform_at_gap':
+            splitpoint_location = splitpoints.UNIFORM_AT_GAP
 
         if prediction_type == 'classification':
             if streams_type == 'one_stream':
@@ -276,7 +283,8 @@ def uber_create_learner(**kwargs):
                                                                                   number_of_classes)
                 best_splitpoint_step = classification.ClassInfoGainBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,
                                                                                     feature_extractor_step.FeatureValuesBufferId,
-                                                                                    feature_ordering)
+                                                                                    feature_ordering,
+                                                                                    splitpoint_location)
             else:
                 raise Exception("unknown streams_type %s" % streams_type)
 
@@ -294,6 +302,7 @@ def uber_create_learner(**kwargs):
                     best_splitpoint_step = regression.SumOfVarianceBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,
                                                                                         feature_extractor_step.FeatureValuesBufferId,
                                                                                         feature_ordering,
+                                                                                        splitpoint_location,
                                                                                         in_bounds_number_of_points)
 
                 else:
@@ -314,6 +323,7 @@ def uber_create_learner(**kwargs):
                                                                     slice_stream_step.SlicedBufferId,
                                                                     feature_extractor_step.FeatureValuesBufferId,
                                                                     feature_ordering,
+                                                                    splitpoint_location,
                                                                     in_bounds_number_of_points)
             else:
                 raise Exception("unknown streams_type %s" % streams_type)

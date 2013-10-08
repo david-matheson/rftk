@@ -13,6 +13,7 @@
 #include "UniqueBufferId.h"
 #include "FeatureSorter.h"
 #include "AssignStreamStep.h"
+#include "BestSplitpointsWalkingSortedStep.h"
 
 // ----------------------------------------------------------------------------
 //
@@ -31,6 +32,7 @@ public:
                               const BufferId& streamTypeBufferId,
                               const BufferId& featureValues,
                               FeatureValueOrdering featureValueOrdering,
+                              WalkingSortedSplitpointLocation splitpointLocation,
                               const int numberOfInBoundsDatapoints );
     virtual ~TwoStreamBestSplitpointsWalkingSortedStep();
 
@@ -54,6 +56,7 @@ private:
     const BufferId mStreamTypeBufferId;
     const BufferId mFeatureValuesBufferId;
     const FeatureValueOrdering mFeatureValueOrdering;
+    const WalkingSortedSplitpointLocation mSplitpointLocation;
     const int mNumberOfInBoundsDatapoints;
 };
 
@@ -63,6 +66,7 @@ TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::TwoStreamBestSplitpoi
                                                                                                   const BufferId& streamTypeBufferId,
                                                                                                   const BufferId& featureValues,
                                                                                                   FeatureValueOrdering featureValueOrdering,
+                                                                                                  WalkingSortedSplitpointLocation splitpointLocation,
                                                                                                   const int numberOfInBoundsDatapoints )
 : PipelineStepI("TwoStreamBestSplitpointsWalkingSortedStep")
 , ImpurityBufferId( GetBufferId("Impurity") )
@@ -75,6 +79,7 @@ TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::TwoStreamBestSplitpoi
 , mStreamTypeBufferId(streamTypeBufferId)
 , mFeatureValuesBufferId(featureValues)
 , mFeatureValueOrdering(featureValueOrdering)
+, mSplitpointLocation(splitpointLocation)
 , mNumberOfInBoundsDatapoints(numberOfInBoundsDatapoints)
 {}
 
@@ -186,11 +191,25 @@ void TwoStreamBestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(cons
             {
                 hasValidSplit = true;
                 bestImpurity = impurityWalker.Impurity();
-                bestSplitpoint = sorter.GetFeatureValue(sortedIndex) + 0.5*consecutiveFeatureDelta;
                 bestLeftChildCounts = impurityWalker.GetLeftEstimationChildCounts();
                 bestRightChildCounts = impurityWalker.GetRightEstimationChildCounts();
                 bestLeftYs = impurityWalker.GetLeftEstimationYs();
                 bestRightYs = impurityWalker.GetRightEstimationYs();
+
+                switch(mSplitpointLocation)
+                {
+                    case AT_MIDPOINT:
+                        bestSplitpoint = sorter.GetFeatureValue(sortedIndex) + 0.5*consecutiveFeatureDelta;
+                        break;
+                    case AT_DATAPOINT:
+                        bestSplitpoint = sorter.GetFeatureValue(sortedIndex);
+                        break;
+                    case UNIFORM_AT_GAP:
+                        boost::uniform_real<> uniform_splitpoint(0.0, 1.0);
+                        boost::variate_generator<boost::mt19937&,boost::uniform_real<> > var_uniform_splitpoint(gen, uniform_splitpoint);
+                        bestSplitpoint = sorter.GetFeatureValue(sortedIndex) + var_uniform_splitpoint()*consecutiveFeatureDelta;
+                        break;
+                }
             }
         }
 

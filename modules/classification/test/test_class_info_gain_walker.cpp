@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(test_ClassInfoGainWalker_Reset)
 BOOST_AUTO_TEST_CASE(test_ClassInfoGainWalker_BestSplitpointsWalkingSortedStep_ProcessStep_FEATURES_BY_DATAPOINTS)
 {
     ClassInfoGainWalker< BufferTypes_t > classInfoGainWalker(weights_key, classes_key, number_of_classes);
-    BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<BufferTypes_t> > bestsplits(classInfoGainWalker, fm_key, FEATURES_BY_DATAPOINTS);
+    BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<BufferTypes_t> > bestsplits(classInfoGainWalker, fm_key, FEATURES_BY_DATAPOINTS, AT_MIDPOINT);
     boost::mt19937 gen(0);
     bestsplits.ProcessStep(stack, collection, gen, collection, 0);
 

@@ -3,6 +3,11 @@
 #include <limits>
 #include <cmath>
 
+#include <boost/random.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int.hpp>
+#include <boost/random/uniform_real.hpp>
+
 #include "bootstrap.h"
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
@@ -19,16 +24,28 @@
 // the split point with the highest impurity.
 //
 // ----------------------------------------------------------------------------
+enum WalkingSortedSplitpointLocation
+{
+    AT_MIDPOINT,
+    AT_DATAPOINT,
+    UNIFORM_AT_GAP
+};
+
 template <class ImpurityWalker>
 class BestSplitpointsWalkingSortedStep : public PipelineStepI
 {
 public:
     BestSplitpointsWalkingSortedStep (const ImpurityWalker& impurityWalker,
                               const BufferId& featureValues,
-                              FeatureValueOrdering featureValueOrdering );
+                              FeatureValueOrdering featureValueOrdering);
     BestSplitpointsWalkingSortedStep (const ImpurityWalker& impurityWalker,
                               const BufferId& featureValues,
                               FeatureValueOrdering featureValueOrdering,
+                              WalkingSortedSplitpointLocation splitpointLocation );
+    BestSplitpointsWalkingSortedStep (const ImpurityWalker& impurityWalker,
+                              const BufferId& featureValues,
+                              FeatureValueOrdering featureValueOrdering,
+                              WalkingSortedSplitpointLocation splitpointLocation,
                               const int numberOfInBoundsDatapoints );
     virtual ~BestSplitpointsWalkingSortedStep();
 
@@ -50,10 +67,30 @@ private:
     const ImpurityWalker mImpurityWalker;
     const BufferId mFeatureValuesBufferId;
     const FeatureValueOrdering mFeatureValueOrdering;
+    const WalkingSortedSplitpointLocation mSplitpointLocation;
     const int mNumberOfInBoundsDatapoints;
 
 };
 
+
+template <class ImpurityWalker>
+BestSplitpointsWalkingSortedStep<ImpurityWalker>::BestSplitpointsWalkingSortedStep(const ImpurityWalker& impurityWalker,
+                                                                      const BufferId& featureValues,
+                                                                      FeatureValueOrdering featureValueOrdering,
+                                                                      WalkingSortedSplitpointLocation splitpointLocation )
+: PipelineStepI("BestSplitpointsWalkingSortedStep")
+, ImpurityBufferId( GetBufferId("Impurity") )
+, SplitpointBufferId( GetBufferId("Splitpoints") )
+, SplitpointCountsBufferId( GetBufferId("SplitpointsCounts") )
+, ChildCountsBufferId( GetBufferId("ChildCounts") )
+, LeftYsBufferId( GetBufferId("LeftYs") )
+, RightYsBufferId( GetBufferId("RightYs") )
+, mImpurityWalker(impurityWalker)
+, mFeatureValuesBufferId(featureValues)
+, mFeatureValueOrdering(featureValueOrdering)
+, mSplitpointLocation(splitpointLocation)
+, mNumberOfInBoundsDatapoints(0)
+{}
 
 template <class ImpurityWalker>
 BestSplitpointsWalkingSortedStep<ImpurityWalker>::BestSplitpointsWalkingSortedStep(const ImpurityWalker& impurityWalker,
@@ -69,14 +106,17 @@ BestSplitpointsWalkingSortedStep<ImpurityWalker>::BestSplitpointsWalkingSortedSt
 , mImpurityWalker(impurityWalker)
 , mFeatureValuesBufferId(featureValues)
 , mFeatureValueOrdering(featureValueOrdering)
+, mSplitpointLocation(AT_MIDPOINT)
 , mNumberOfInBoundsDatapoints(0)
 {}
+
 
 template <class ImpurityWalker>
 BestSplitpointsWalkingSortedStep<ImpurityWalker>::BestSplitpointsWalkingSortedStep(const ImpurityWalker& impurityWalker,
                                                                       const BufferId& featureValues,
                                                                       FeatureValueOrdering featureValueOrdering,
-                                                                      const int numberOfInBoundsDatapoints )
+                                                                      WalkingSortedSplitpointLocation splitpointLocation,
+                                                                      const int numberOfInBoundsDatapoints)
 : PipelineStepI("BestSplitpointsWalkingSortedStep")
 , ImpurityBufferId( GetBufferId("Impurity") )
 , SplitpointBufferId( GetBufferId("Splitpoints") )
@@ -87,6 +127,7 @@ BestSplitpointsWalkingSortedStep<ImpurityWalker>::BestSplitpointsWalkingSortedSt
 , mImpurityWalker(impurityWalker)
 , mFeatureValuesBufferId(featureValues)
 , mFeatureValueOrdering(featureValueOrdering)
+, mSplitpointLocation(splitpointLocation)
 , mNumberOfInBoundsDatapoints(mNumberOfInBoundsDatapoints)
 {}
 
@@ -199,11 +240,25 @@ void BestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(const BufferC
             {
                 hasValidSplit = true;
                 bestImpurity = impurityWalker.Impurity();
-                bestSplitpoint = sorter.GetFeatureValue(sortedIndex) + 0.5*consecutiveFeatureDelta;
                 bestLeftChildCounts = impurityWalker.GetLeftChildCounts();
                 bestRightChildCounts = impurityWalker.GetRightChildCounts();
                 bestLeftYs = impurityWalker.GetLeftYs();
                 bestRightYs = impurityWalker.GetRightYs();
+
+                switch(mSplitpointLocation)
+                {
+                    case AT_MIDPOINT:
+                        bestSplitpoint = sorter.GetFeatureValue(sortedIndex) + 0.5*consecutiveFeatureDelta;
+                        break;
+                    case AT_DATAPOINT:
+                        bestSplitpoint = sorter.GetFeatureValue(sortedIndex);
+                        break;
+                    case UNIFORM_AT_GAP:
+                        boost::uniform_real<> uniform_splitpoint(0.0, 1.0);
+                        boost::variate_generator<boost::mt19937&,boost::uniform_real<> > var_uniform_splitpoint(gen, uniform_splitpoint);
+                        bestSplitpoint = sorter.GetFeatureValue(sortedIndex) + var_uniform_splitpoint()*consecutiveFeatureDelta;
+                        break;
+                }
             }
         }
 

@@ -11,6 +11,7 @@
     #include "SplitBuffersIndices.h"
     #include "SplitBuffersFeatureRange.h"
     #include "SplitBuffersList.h"
+    #include "BestSplitpointsWalkingSortedStep.h"
     #include "RandomUniformSplitpointsInRangeStep.h"
 
     #if PY_VERSION_HEX >= 0x03020000
@@ -43,6 +44,7 @@ namespace std {
 %include "SplitBuffersFeatureRange.h"
 %include "SplitBuffersList.h"
 %include "RandomUniformSplitpointsInRangeStep.h"
+%include "BestSplitpointsWalkingSortedStep.h"
 
 %template(SplitSelectorI_f32i32) SplitSelectorI<DefaultBufferTypes>;
 %template(SplitSelector_f32i32) SplitSelector<DefaultBufferTypes>;

@@ -38,7 +38,8 @@ DepthFirstTreeLearner<CdflBufferTypes_t> CreateDepthFirstLearner( BufferCollecti
     ClassInfoGainWalker<CdflBufferTypes_t> classInfoGainWalker(sliceWeights.SlicedBufferId, sliceClasses.SlicedBufferId, numberOfClasses);
     BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<CdflBufferTypes_t> > bestSplitpointStep(classInfoGainWalker, 
                                                                                             featureExtractor.FeatureValuesBufferId,
-                                                                                            featureOrdering);
+                                                                                            featureOrdering,
+                                                                                            AT_MIDPOINT);
     nodeSteps.push_back(&bestSplitpointStep); 
     Pipeline nodeStepsPipeline(nodeSteps);
 
