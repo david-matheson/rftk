@@ -65,3 +65,6 @@ class PredictorWrapper_32f:
 
     def get_forest(self):
         return self.forest_predictor.GetForest()
+
+    def set_forest(self, forest):
+        return self.forest_predictor.SetForest(forest)

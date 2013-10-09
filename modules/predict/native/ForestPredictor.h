@@ -52,6 +52,7 @@ public:
 
     void PredictLeafYs(const BufferCollection& data, MatrixBufferTemplate<float>& oobWeights, Tensor3BufferTemplate<float>& ysOut) const;
 
+    void SetForest(const Forest& forest);
     Forest GetForest() const;
     void AddTree(const Tree& tree);
 
@@ -291,8 +292,9 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictLeafYs(cons
     }
 
     const int numberOfIndices = featureBindings[0].GetNumberOfDatapoints();
+    const int yDim = mCombiner.GetResultDim();
     oobWeights.Resize(numberOfIndices, numberOfTreesInForest);
-    ysOut.Resize(mCombiner.GetResultDim(), numberOfIndices, numberOfTreesInForest);
+    ysOut.Resize(yDim, numberOfIndices, numberOfTreesInForest);
 
     for(typename BufferTypes::Index i=0; i<numberOfIndices; i++)
     {
@@ -302,7 +304,7 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictLeafYs(cons
             typename BufferTypes::Index leafNodeId = walkTree<typename Feature::FeatureBinding, BufferTypes>(
                                                                 featureBindings[treeId], tree, 0, i);
 
-            for(int c=0; c<tree.GetYs().GetN(); c++)
+            for(int c=0; c<yDim; c++)
             {
                 ysOut.Set(c, i, treeId, tree.GetYs().Get(leafNodeId, c));
             }
@@ -323,6 +325,12 @@ void TemplateForestPredictor<Feature, Combiner, BufferTypes>::PredictLeafYs(cons
             oobWeights.Set(i, treeId, oobWeight);
         }
     }
+}
+
+template <class Feature, class Combiner, class BufferTypes>
+void TemplateForestPredictor<Feature, Combiner, BufferTypes>::SetForest(const Forest& forest) 
+{
+    mForest = forest;
 }
 
 template <class Feature, class Combiner, class BufferTypes>

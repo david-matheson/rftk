@@ -283,6 +283,7 @@ def create_consistent_two_stream_regression_axis_aligned_matrix_learner_32f(**kw
                                                                         slice_stream_step.SlicedBufferId,
                                                                         matrix_feature_extractor_step.FeatureValuesBufferId,
                                                                         feature_ordering,
+                                                                        splitpoints.AT_MIDPOINT,
                                                                         in_bounds_number_of_points)
 
     node_steps_pipeline = pipeline.Pipeline([set_number_features_step, feature_params_step, matrix_feature_extractor_step,
