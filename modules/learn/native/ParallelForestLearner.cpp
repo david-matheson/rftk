@@ -23,8 +23,9 @@ void TrainTrees(    const TreeLearnerI* treeLearner,
     for(int i=treeStartIndex; i<numberOfTrees; i+=treeStride)
     {
         TimeLogger totalTree(forestOut->mTrees[i].GetExtraInfo(), "ParallelForestLearner");
-        setSeed(i + static_cast<unsigned int>(std::time(NULL))); //set bootstrap seed
-        treeLearner->Learn(data, forestOut->mTrees[i], i + static_cast<unsigned int>(std::time(NULL)) );
+        unsigned long seedInt = i + static_cast<unsigned long>(std::time(NULL)) + reinterpret_cast<unsigned long>(treeLearner);
+        setSeed(seedInt); //set bootstrap seed
+        treeLearner->Learn(data, forestOut->mTrees[i], seedInt);
     }
 }
 
