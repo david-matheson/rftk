@@ -8,3 +8,4 @@ from classification_depth_delta_learner import *
 from regression_depth_delta_learner import *
 from uber_learner import *
 from greedy_prune import *
+from sample_prune_learner import *
