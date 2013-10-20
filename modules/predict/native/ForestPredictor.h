@@ -55,6 +55,7 @@ public:
     void SetForest(const Forest& forest);
     Forest GetForest() const;
     void AddTree(const Tree& tree);
+    void AddForest(const Forest& forest);
 
 private:
     void PredictYsInternal(const BufferCollection& data, 
@@ -343,6 +344,12 @@ template <class Feature, class Combiner, class BufferTypes>
 void TemplateForestPredictor<Feature, Combiner, BufferTypes>::AddTree(const Tree& tree)
 {
     return mForest.AddTree(tree);
+}
+
+template <class Feature, class Combiner, class BufferTypes>
+void TemplateForestPredictor<Feature, Combiner, BufferTypes>::AddForest(const Forest& forest)
+{
+    return mForest.AddForest(forest);
 }
 
 
