@@ -20,11 +20,15 @@
 
 %template(ClassInfoGainWalker_f32i32) ClassInfoGainWalker< DefaultBufferTypes >;
 %template(ClassInfoGainBestSplitpointsWalkingSortedStep_f32i32) BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<DefaultBufferTypes> >;
-%template(ClassInfoGainSplitpointsImpurity_f32i32) SplitpointsImpurity< ClassInfoGainImpurity<DefaultBufferTypes> >;
+%template(ClassInfoGainTwoStreamWalker_f32i32) ClassInfoGainTwoStreamWalker<DefaultBufferTypes>;
+%template(ClassInfoGainTwoStreamBestSplitpointsWalkingSortedStep_f32i32) TwoStreamBestSplitpointsWalkingSortedStep< ClassInfoGainTwoStreamWalker<DefaultBufferTypes> >;
+%template(ClassInfoGainRandomGapSplitpointsStep_f32i32) RandomGapSplitpointsStep< ClassInfoGainWalker<DefaultBufferTypes> >;
 
 %template(ClassEstimatorFinalizer_f32) ClassEstimatorFinalizer<DefaultBufferTypes>;
 %template(ClassEstimatorUpdater_f32i32) ClassEstimatorUpdater<DefaultBufferTypes>;
 %template(ClassProbabilityCombiner_f32) ClassProbabilityCombiner<DefaultBufferTypes>;
+
 %template(ClassStatsUpdater_f32i32) ClassStatsUpdater<DefaultBufferTypes>;
 %template(ClassStatsUpdaterOneStreamStep_f32i32) SplitpointStatsStep< ClassStatsUpdater<DefaultBufferTypes> >;
 %template(ClassStatsUpdaterTwoStreamStep_f32i32) TwoStreamSplitpointStatsStep< ClassStatsUpdater<DefaultBufferTypes> >;
+%template(ClassInfoGainSplitpointsImpurity_f32i32) SplitpointsImpurity< ClassInfoGainImpurity<DefaultBufferTypes> >;

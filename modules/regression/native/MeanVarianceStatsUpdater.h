@@ -38,15 +38,14 @@ void BindedMeanVarianceStatsUpdater<BT>::UpdateStats(typename BT::DatapointCount
                                                           int feature, int threshold, int sampleIndex) const
 {
     const typename BT::DatapointCounts weight = mSampleWeights->Get(sampleIndex);
-    const VectorBufferTemplate<typename BT::SourceContinuous> y = mYs->SliceRowAsVector(sampleIndex);
-    const typename BT::Index yDim = y.GetN();
+    const typename BT::Index yDim = mYs->GetN();
 
     ASSERT_ARG_DIM_1D(yDim, stats.GetN()/2);
 
     const typename BT::DatapointCounts newCounts = weight + counts;
-    for(typename BT::Index d=0; d<y.GetN(); d++)
+    for(typename BT::Index d=0; d<yDim; d++)
     {
-        const typename BT::SufficientStatsContinuous y_i = y.Get(d);
+        const typename BT::SufficientStatsContinuous y_i = mYs->Get(sampleIndex, d);
         // old unstable sufficient stats 
         // stats.Incr(feature, threshold, d, weight*y_i);
         // stats.Incr(feature, threshold, d+yDim, weight*y_i*y_i);

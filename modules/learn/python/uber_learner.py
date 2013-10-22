@@ -281,10 +281,42 @@ def uber_create_learner(**kwargs):
                 impurity_walker = classification.ClassInfoGainWalker_f32i32(slice_weights_step.SlicedBufferId,
                                                                                   slice_ys_step.SlicedBufferId,
                                                                                   number_of_classes)
-                best_splitpoint_step = classification.ClassInfoGainBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,
-                                                                                    feature_extractor_step.FeatureValuesBufferId,
-                                                                                    feature_ordering,
-                                                                                    splitpoint_location)
+                if 'in_bounds_number_of_points' in kwargs:
+                    in_bounds_number_of_points = int(pop_kwargs(kwargs, 
+                                                'in_bounds_number_of_points', 
+                                                unused_kwargs_keys, 
+                                                number_of_datapoints / 2))
+                    best_splitpoint_step = classification.ClassInfoGainBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,
+                                                                                        feature_extractor_step.FeatureValuesBufferId,
+                                                                                        feature_ordering,
+                                                                                        splitpoint_location,
+                                                                                        in_bounds_number_of_points)
+
+                else:
+                    best_splitpoint_step = classification.ClassInfoGainBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,
+                                                                                        feature_extractor_step.FeatureValuesBufferId,
+                                                                                        feature_ordering,
+                                                                                        splitpoint_location)
+
+            elif streams_type == 'two_stream_per_tree' or streams_type == 'two_stream_per_forest':
+
+                in_bounds_number_of_points = int(pop_kwargs(kwargs, 
+                                                                'in_bounds_number_of_points', 
+                                                                unused_kwargs_keys, 
+                                                                number_of_datapoints / 2))
+
+                impurity_walker = classification.ClassInfoGainTwoStreamWalker_f32i32(slice_weights_step.SlicedBufferId,
+                                                                    slice_stream_step.SlicedBufferId,
+                                                                    slice_ys_step.SlicedBufferId,
+                                                                    number_of_classes)
+
+                best_splitpoint_step = classification.ClassInfoGainTwoStreamBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,
+                                                                    slice_stream_step.SlicedBufferId,
+                                                                    feature_extractor_step.FeatureValuesBufferId,
+                                                                    feature_ordering,
+                                                                    splitpoint_location,
+                                                                    in_bounds_number_of_points)
+
             else:
                 raise Exception("unknown streams_type %s" % streams_type)
 
@@ -349,7 +381,15 @@ def uber_create_learner(**kwargs):
         node_steps_impurity.append(best_splitpoint_step)
 
     elif split_type == 'random_gap':
-        if prediction_type == 'regression':
+        if prediction_type == 'classification':
+            impurity_walker = classification.ClassInfoGainWalker_f32i32(slice_weights_step.SlicedBufferId,
+                                                                    slice_ys_step.SlicedBufferId,
+                                                                    number_of_classes)
+
+            best_splitpoint_step = classification.ClassInfoGainRandomGapSplitpointsStep_f32i32(impurity_walker,
+                                                                        feature_extractor_step.FeatureValuesBufferId,
+                                                                        feature_ordering)
+        elif prediction_type == 'regression':
             impurity_walker = regression.SumOfVarianceWalker_f32i32(slice_weights_step.SlicedBufferId,
                                                                     slice_ys_step.SlicedBufferId,
                                                                     dimension_of_y)
@@ -560,7 +600,7 @@ def uber_create_learner(**kwargs):
         number_of_leaves, is_default = get_number_of_leaves(kwargs, unused_kwargs_keys, number_of_datapoints)
         number_of_split_retries = int(pop_kwargs(kwargs, 'number_of_split_retries', unused_kwargs_keys))
         tree_learner = learn.Biau2008TreeLearner_f32i32(try_split_criteria, forest_and_tree_steps_pipeline, node_steps_pipeline, split_selector, number_of_leaves, number_of_split_retries)
-        forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, dimension_of_y, number_of_jobs)
+        forest_learner = learn.ParallelForestLearner(tree_learner, number_of_trees, y_estimator_dimension, number_of_jobs)
     elif tree_type == 'online':
         max_frontier_size = int(pop_kwargs(kwargs, 'max_frontier_size', unused_kwargs_keys, 10000000))
         impurity_update_period = int(pop_kwargs(kwargs, 'impurity_update_period', unused_kwargs_keys, 1))
@@ -595,6 +635,34 @@ def uber_create_learner(**kwargs):
                                                         node_steps_impurity_pipeline,
                                                         impurity_update_period, split_selector,
                                                         max_frontier_size, number_of_trees, 5, 5, number_of_classes,
+                                                        sample_data_step.IndicesBufferId, sample_data_step.WeightsBufferId,
+                                                        feature_prediction, estimator_params_updater)
+        elif data_type == 'matrix' and prediction_type == 'regression':
+            feature_prediction = matrix_features.LinearFloat32MatrixFeature_f32i32(sample_data_step.IndicesBufferId, buffers.X_FLOAT_DATA)
+            estimator_params_updater = regression.MeanVarianceEstimatorUpdater_f32(sample_data_step.WeightsBufferId, buffers.YS)
+            forest_learner = learn.OnlineForestMatrixRegressionLearner_f32i32(
+                                                        try_split_criteria,
+                                                        forest_and_tree_steps_pipeline,
+                                                        node_steps_init_pipeline,
+                                                        node_steps_update_pipeline,
+                                                        node_steps_impurity_pipeline,
+                                                        impurity_update_period, split_selector,
+                                                        max_frontier_size, number_of_trees, 2, 2, y_estimator_dimension,
+                                                        sample_data_step.IndicesBufferId, sample_data_step.WeightsBufferId,
+                                                        feature_prediction, estimator_params_updater)
+        elif data_type == 'depth_image' and prediction_type == 'regression':
+            feature_prediction = image_features.ScaledDepthDeltaFeature_f32i32(sample_data_step.IndicesBufferId,
+                                                                              buffers.PIXEL_INDICES,
+                                                                              buffers.DEPTH_IMAGES)
+            estimator_params_updater = regression.MeanVarianceEstimatorUpdater_f32(sample_data_step.WeightsBufferId, buffers.YS)
+            forest_learner = learn.OnlineForestScaledDepthDeltaRegressionLearner_f32i32(
+                                                        try_split_criteria,
+                                                        forest_and_tree_steps_pipeline,
+                                                        node_steps_init_pipeline,
+                                                        node_steps_update_pipeline,
+                                                        node_steps_impurity_pipeline,
+                                                        impurity_update_period, split_selector,
+                                                        max_frontier_size, number_of_trees, 5, 5, y_estimator_dimension,
                                                         sample_data_step.IndicesBufferId, sample_data_step.WeightsBufferId,
                                                         feature_prediction, estimator_params_updater)
         else:            # todo sort this out for regression

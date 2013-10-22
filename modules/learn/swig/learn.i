@@ -13,6 +13,8 @@
     #include "ScaledDepthDeltaFeature.h"
     #include "ClassEstimatorUpdater.h"
     #include "ClassProbabilityOfError.h"
+    #include "MeanVarianceEstimatorUpdater.h"
+    #include "SumOfVarianceExpectedError.h"
 %}
 
 %include <exception.i>
@@ -33,9 +35,11 @@
 %include "OnlineForestLearner.h"
 
 %include "LinearMatrixFeature.h"
-#include "ScaledDepthDeltaFeature.h"
+%include "ScaledDepthDeltaFeature.h"
 %include "ClassEstimatorUpdater.h"
 %include "ClassProbabilityOfError.h"
+%include "MeanVarianceEstimatorUpdater.h"
+%include "SumOfVarianceExpectedError.h"
 
 %template(DepthFirstTreeLearner_f32i32) DepthFirstTreeLearner<DefaultBufferTypes>;
 
@@ -46,3 +50,7 @@
 %template(OnlineForestMatrixClassLearner_f32i32)  OnlineForestLearner< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, ClassEstimatorUpdater< DefaultBufferTypes >, ClassProbabilityOfError<DefaultBufferTypes>, DefaultBufferTypes >;
 
 %template(OnlineForestScaledDepthDeltaClassLearner_f32i32)  OnlineForestLearner< ScaledDepthDeltaFeature< DefaultBufferTypes >, ClassEstimatorUpdater< DefaultBufferTypes >, ClassProbabilityOfError<DefaultBufferTypes>, DefaultBufferTypes >;
+
+%template(OnlineForestMatrixRegressionLearner_f32i32)  OnlineForestLearner< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, MeanVarianceEstimatorUpdater< DefaultBufferTypes >, SumOfVarianceExpectedError<DefaultBufferTypes>, DefaultBufferTypes >;
+
+%template(OnlineForestScaledDepthDeltaRegressionLearner_f32i32)  OnlineForestLearner< ScaledDepthDeltaFeature< DefaultBufferTypes >, MeanVarianceEstimatorUpdater< DefaultBufferTypes >, SumOfVarianceExpectedError<DefaultBufferTypes>, DefaultBufferTypes >;

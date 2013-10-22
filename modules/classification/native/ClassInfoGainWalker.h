@@ -55,6 +55,7 @@ private:
     VectorBufferTemplate<typename BT::SufficientStatsContinuous> mLeftClassHistogram;
     VectorBufferTemplate<typename BT::SufficientStatsContinuous> mRightClassHistogram;
 
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> mAllLogClassHistogram;
     VectorBufferTemplate<typename BT::SufficientStatsContinuous> mLeftLogClassHistogram;
     VectorBufferTemplate<typename BT::SufficientStatsContinuous> mRightLogClassHistogram;
 
@@ -76,6 +77,7 @@ ClassInfoGainWalker<BT>::ClassInfoGainWalker(const BufferId& sampleWeights,
 , mAllClassHistogram(numberOfClasses)
 , mLeftClassHistogram(numberOfClasses)
 , mRightClassHistogram(numberOfClasses)
+, mAllLogClassHistogram(numberOfClasses)
 , mLeftLogClassHistogram(numberOfClasses)
 , mRightLogClassHistogram(numberOfClasses)
 , mStartEntropy(0)
@@ -100,14 +102,22 @@ void ClassInfoGainWalker<BT>::Bind(const BufferCollectionStack& readCollection)
         mAllClassHistogram.Incr(mClasses->Get(i), mSampleWeights->Get(i));
     }
 
+    typename BT::SufficientStatsContinuous zero = typename BT::SufficientStatsContinuous(0.0);
+    for(typename BT::Index c=0; c<mNumberOfClasses; c++)
+    {
+        const typename BT::SufficientStatsContinuous logClass = 
+                mAllClassHistogram.Get(c) > zero ? log2(mAllClassHistogram.Get(c)) : zero;
+        mAllLogClassHistogram.Set(c, logClass);
+    }
+
+    mStartEntropy = calcDiscreteEntropy<BT>(mAllClassHistogram.Sum(), mAllClassHistogram, mAllLogClassHistogram);
+
     Reset();
 }
 
 template <class BT>
 void ClassInfoGainWalker<BT>::Reset()
 {
-    typename BT::SufficientStatsContinuous zero = typename BT::SufficientStatsContinuous(0.0);
-
     mLeftClassHistogram.Zero();
     mRightClassHistogram.Zero();
     mLeftLogClassHistogram.Zero();
@@ -115,14 +125,7 @@ void ClassInfoGainWalker<BT>::Reset()
     mRecomputeClassLog.clear();
 
     mLeftClassHistogram = mAllClassHistogram;
-
-    for(typename BT::Index c=0; c<mNumberOfClasses; c++)
-    {
-        const typename BT::SufficientStatsContinuous logClass = 
-                mAllClassHistogram.Get(c) > zero ? log2(mAllClassHistogram.Get(c)) : zero;
-        mLeftLogClassHistogram.Set(c, logClass);
-    }
-    mStartEntropy = calcDiscreteEntropy<BT>(mLeftClassHistogram.Sum(), mLeftClassHistogram, mLeftLogClassHistogram);
+    mLeftLogClassHistogram = mAllLogClassHistogram;
 }
 
 template <class BT>

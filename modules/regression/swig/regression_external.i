@@ -9,6 +9,7 @@
     #include "RandomGapSplitpointsStep.h"
     #include "FinalizerI.h"
     #include "MeanVarianceEstimatorFinalizer.h"
+    #include "MeanVarianceEstimatorUpdater.h"
     #include "MeanVarianceCombiner.h"
     #include "MeanVarianceStatsUpdater.h"
 %}
@@ -27,5 +28,6 @@
 %include "RandomGapSplitpointsStep.h"
 %include "FinalizerI.h"
 %include "MeanVarianceEstimatorFinalizer.h"
+%include "MeanVarianceEstimatorUpdater.h"
 %include "MeanVarianceCombiner.h"
 %include "MeanVarianceStatsUpdater.h"

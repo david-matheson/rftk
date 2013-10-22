@@ -2,8 +2,11 @@
 %{
     #define SWIG_FILE_WITH_INIT
     #include "ClassInfoGainWalker.h"
+    #include "ClassInfoGainTwoStreamWalker.h"
     #include "ClassInfoGainImpurity.h"
     #include "BestSplitpointsWalkingSortedStep.h"
+    #include "TwoStreamBestSplitpointsWalkingSortedStep.h"
+    #include "RandomGapSplitpointsStep.h"
     #include "FinalizerI.h"
     #include "ClassEstimatorFinalizer.h"
     #include "ClassEstimatorUpdater.h"
@@ -18,8 +21,11 @@
 %import(module="rftk.splitpoints") "splitpoints_external.i"
 
 %include "ClassInfoGainWalker.h"
+%include "ClassInfoGainTwoStreamWalker.h"
 %include "ClassInfoGainImpurity.h"
 %include "BestSplitpointsWalkingSortedStep.h"
+%include "TwoStreamBestSplitpointsWalkingSortedStep.h"
+%include "RandomGapSplitpointsStep.h"
 %include "FinalizerI.h"
 %include "ClassEstimatorFinalizer.h"
 %include "ClassEstimatorUpdater.h"
