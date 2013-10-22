@@ -12,11 +12,18 @@ typename BufferTypes::Index nextChild(  const FeatureBinding& feature,
                     const typename BufferTypes::Index nodeId,
                     const typename BufferTypes::Index index )
 {
+    const typename BufferTypes::Index leftChildNodeId = tree.GetPath().Get(nodeId, 0);
+    const typename BufferTypes::Index rightChildNodeId = tree.GetPath().Get(nodeId, 1);
+    if(leftChildNodeId == NULL_CHILD && rightChildNodeId == NULL_CHILD)
+    {
+        //skip feature extraction if this node has no children
+        return NULL_CHILD;
+    }
+
     const typename BufferTypes::FeatureValue splitpoint = tree.GetFloatFeatureParams().Get(nodeId, SPLIT_POINT_INDEX);
     const typename BufferTypes::FeatureValue featureValue = feature.FeatureValue(nodeId, index);
-    bool goLeft = (featureValue > splitpoint);
-    const typename BufferTypes::Index childDirection = goLeft ? 0 : 1;
-    const typename BufferTypes::Index childNodeId = tree.GetPath().Get(nodeId, childDirection);
+    const bool goLeft = (featureValue > splitpoint);
+    const typename BufferTypes::Index childNodeId = goLeft ? leftChildNodeId : rightChildNodeId;
     return childNodeId;
 }
 
