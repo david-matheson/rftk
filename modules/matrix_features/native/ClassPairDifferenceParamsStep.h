@@ -19,7 +19,7 @@
 // between a pair of datapoints of different classes
 //
 // ----------------------------------------------------------------------------
-template <class BufferTypes>
+template <class BufferTypes, class DataMatrixType>
 class ClassPairDifferenceParamsStep: public PipelineStepI
 {
 public:
@@ -42,7 +42,7 @@ public:
 private:
     enum { DIMENSION_OF_PARAMETERS = PARAM_START_INDEX + 1 };
     void SampleParams(typename BufferTypes::ParamsInteger numberOfFeatures,
-                    const MatrixBufferTemplate<typename BufferTypes::SourceContinuous>& matrixBuffer,
+                    const DataMatrixType& matrixBuffer,
                     const VectorBufferTemplate<typename BufferTypes::SourceInteger>& classesBuffer,
                     const VectorBufferTemplate<typename BufferTypes::Index>& indicesBuffer,
                     MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams,
@@ -56,8 +56,8 @@ private:
 };
 
 
-template <class BufferTypes>
-ClassPairDifferenceParamsStep<BufferTypes>::ClassPairDifferenceParamsStep(  const BufferId& numberOfFeatures,
+template <class BufferTypes, class DataMatrixType>
+ClassPairDifferenceParamsStep<BufferTypes, DataMatrixType>::ClassPairDifferenceParamsStep(  const BufferId& numberOfFeatures,
                                                                             const BufferId& matrixData,
                                                                             const BufferId& classes,
                                                                             const BufferId& indices )
@@ -70,19 +70,19 @@ ClassPairDifferenceParamsStep<BufferTypes>::ClassPairDifferenceParamsStep(  cons
 , mIndicesBufferId(indices)
 {}
 
-template <class BufferTypes>
-ClassPairDifferenceParamsStep<BufferTypes>::~ClassPairDifferenceParamsStep()
+template <class BufferTypes, class DataMatrixType>
+ClassPairDifferenceParamsStep<BufferTypes, DataMatrixType>::~ClassPairDifferenceParamsStep()
 {}
 
-template <class BufferTypes>
-PipelineStepI* ClassPairDifferenceParamsStep<BufferTypes>::Clone() const
+template <class BufferTypes, class DataMatrixType>
+PipelineStepI* ClassPairDifferenceParamsStep<BufferTypes, DataMatrixType>::Clone() const
 {
-    ClassPairDifferenceParamsStep* clone = new ClassPairDifferenceParamsStep<BufferTypes>(*this);
+    ClassPairDifferenceParamsStep* clone = new ClassPairDifferenceParamsStep<BufferTypes, DataMatrixType>(*this);
     return clone;
 }
 
-template <class BufferTypes>
-void ClassPairDifferenceParamsStep<BufferTypes>::ProcessStep(const BufferCollectionStack& readCollection,
+template <class BufferTypes, class DataMatrixType>
+void ClassPairDifferenceParamsStep<BufferTypes, DataMatrixType>::ProcessStep(const BufferCollectionStack& readCollection,
                                                           BufferCollection& writeCollection,
                                                           boost::mt19937& gen,
                                                           BufferCollection& extraInfo, int nodeIndex) const
@@ -95,8 +95,8 @@ void ClassPairDifferenceParamsStep<BufferTypes>::ProcessStep(const BufferCollect
             readCollection.GetBuffer< VectorBufferTemplate<typename BufferTypes::SourceInteger> >(mNumberOfFeaturesBufferId);
     ASSERT_ARG_DIM_1D(numberOfFeaturesBuffer.GetN(), 1)
 
-    const MatrixBufferTemplate<typename BufferTypes::SourceContinuous>& matrixBuffer =
-            readCollection.GetBuffer< MatrixBufferTemplate<typename BufferTypes::SourceContinuous> >(mMatrixDataBufferId);
+    const DataMatrixType& matrixBuffer =
+            readCollection.GetBuffer< DataMatrixType >(mMatrixDataBufferId);
 
     const VectorBufferTemplate<typename BufferTypes::SourceInteger>& classesBuffer =
             readCollection.GetBuffer< VectorBufferTemplate<typename BufferTypes::SourceInteger> >(mClassesBufferId);
@@ -116,9 +116,9 @@ void ClassPairDifferenceParamsStep<BufferTypes>::ProcessStep(const BufferCollect
 
 }
 
-template <class BufferTypes>
-void ClassPairDifferenceParamsStep<BufferTypes>::SampleParams(typename BufferTypes::ParamsInteger numberOfFeatures,
-                                                            const MatrixBufferTemplate<typename BufferTypes::SourceContinuous>& matrixBuffer,
+template <class BufferTypes, class DataMatrixType>
+void ClassPairDifferenceParamsStep<BufferTypes, DataMatrixType>::SampleParams(typename BufferTypes::ParamsInteger numberOfFeatures,
+                                                            const DataMatrixType& matrixBuffer,
                                                             const VectorBufferTemplate<typename BufferTypes::SourceInteger>& classesBuffer,
                                                             const VectorBufferTemplate<typename BufferTypes::Index>& indicesBuffer,
                                                             MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams,

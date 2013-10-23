@@ -57,6 +57,13 @@ namespace std {
 %template(PoissonSamplesStep_f32i32) PoissonSamplesStep< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
 %template(PoissonSamplesStep_i32i32) PoissonSamplesStep< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceInteger> >;
 
+%template(AllSamplesStep_Sparse_f32f32i32) AllSamplesStep< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
+%template(AllSamplesStep_Sparse_i32f32i32) AllSamplesStep< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceInteger> >;
+%template(BootstrapSamplesStep_Sparse_f32f32i32) BootstrapSamplesStep< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
+%template(BootstrapSamplesStep_Sparse_i32f32i32) BootstrapSamplesStep< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceInteger> >;
+%template(PoissonSamplesStep_Sparse_f32i32) PoissonSamplesStep< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
+%template(PoissonSamplesStep_Sparse_i32i32) PoissonSamplesStep< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceInteger> >;
+
 %template(PoissonStep_f32i32) PoissonStep< DefaultBufferTypes >;
 
 

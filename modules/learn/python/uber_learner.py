@@ -21,7 +21,7 @@ def make_uber_data_prepare(learner_kwargs):
 
         # add input data buffers
         data_type = learner_kwargs.get('data_type')
-        if data_type == 'matrix':
+        if data_type == 'matrix' or data_type == 'sparse_matrix':
             bufferCollection.AddBuffer(buffers.X_FLOAT_DATA, kwargs['x'])
         elif data_type == 'depth_image':
             bufferCollection.AddBuffer(buffers.DEPTH_IMAGES, kwargs['depth_images'])
@@ -54,6 +54,9 @@ def make_uber_create_predictor(learner_kwargs):
         if data_type == 'matrix':
             all_samples_step = pipeline.AllSamplesStep_f32f32i32(buffers.X_FLOAT_DATA)
             feature = matrix_features.LinearFloat32MatrixFeature_f32i32(all_samples_step.IndicesBufferId, buffers.X_FLOAT_DATA)
+        elif data_type == 'sparse_matrix':
+            all_samples_step = pipeline.AllSamplesStep_Sparse_f32f32i32(buffers.X_FLOAT_DATA)
+            feature = matrix_features.LinearFloat32MatrixFeature_Sparse_f32i32(all_samples_step.IndicesBufferId, buffers.X_FLOAT_DATA)            
         elif data_type == 'depth_image':
             all_samples_step = pipeline.AllSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
             feature = image_features.ScaledDepthDeltaFeature_f32i32(all_samples_step.IndicesBufferId,
@@ -76,6 +79,10 @@ def make_uber_create_predictor(learner_kwargs):
             forest_predicter = predict.LinearMatrixClassificationPredictin_f32i32(forest, feature, combiner, all_samples_step)
         elif data_type == 'matrix' and prediction_type == 'regression':
             forest_predicter = predict.LinearMatrixRegressionPredictin_f32i32(forest, feature, combiner, all_samples_step)
+        elif data_type == 'sparse_matrix' and prediction_type == 'classification':
+            forest_predicter = predict.LinearMatrixClassificationPrediction_Sparse_f32i32(forest, feature, combiner, all_samples_step)
+        elif data_type == 'sparse_matrix' and prediction_type == 'regression':
+            forest_predicter = predict.LinearMatrixRegressionPrediction_Sparse_f32i32(forest, feature, combiner, all_samples_step)
         elif data_type == 'depth_image' and prediction_type == 'classification':
             forest_predicter = predict.ScaledDepthDeltaClassificationPredictin_f32i32(forest, feature, combiner, all_samples_step)
         elif data_type == 'depth_image' and prediction_type == 'regression':
@@ -131,6 +138,8 @@ def uber_create_learner(**kwargs):
     if pop_kwargs(kwargs, 'bootstrap', unused_kwargs_keys, False):
         if data_type == 'matrix':
             sample_data_step = pipeline.BootstrapSamplesStep_f32f32i32(buffers.X_FLOAT_DATA)
+        elif data_type == 'sparse_matrix':
+            sample_data_step = pipeline.BootstrapSamplesStep_Sparse_f32f32i32(buffers.X_FLOAT_DATA)
         elif data_type == 'depth_image':
             sample_data_step = pipeline.BootstrapSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
         else:
@@ -140,6 +149,8 @@ def uber_create_learner(**kwargs):
         poisson_sample_mean = float(pop_kwargs(kwargs, 'poisson_sample', unused_kwargs_keys))
         if data_type == 'matrix':
             sample_data_step = pipeline.PoissonSamplesStep_f32i32(buffers.X_FLOAT_DATA, poisson_sample_mean)
+        elif data_type == 'sparse_matrix':
+            sample_data_step = pipeline.PoissonSamplesStep_Sparse_f32i32(buffers.X_FLOAT_DATA, poisson_sample_mean)
         elif data_type == 'depth_image':
             sample_data_step = pipeline.PoissonSamplesStep_i32i32(buffers.PIXEL_INDICES, poisson_sample_mean)
         else:
@@ -148,6 +159,8 @@ def uber_create_learner(**kwargs):
     else:
         if data_type == 'matrix':
             sample_data_step = pipeline.AllSamplesStep_f32f32i32(buffers.X_FLOAT_DATA)
+        elif data_type == 'sparse_matrix':
+            sample_data_step = pipeline.AllSamplesStep_Sparse_f32f32i32(buffers.X_FLOAT_DATA)
         elif data_type == 'depth_image':
             sample_data_step = pipeline.AllSamplesStep_i32f32i32(buffers.PIXEL_INDICES)
         else:
@@ -155,10 +168,10 @@ def uber_create_learner(**kwargs):
         forest_steps.append(sample_data_step)
 
     # Default number of features to extract
-    if data_type == 'matrix' and prediction_type == 'classification':
+    if (data_type == 'matrix' or data_type == 'sparse_matrix') and prediction_type == 'classification':
         default_number_of_features = int(np.sqrt(pop_kwargs(kwargs, 'x', unused_kwargs_keys).shape[1]))
         number_of_datapoints = pop_kwargs(kwargs, 'classes', unused_kwargs_keys).shape[0]/2
-    elif data_type == 'matrix' and prediction_type == 'regression':
+    elif (data_type == 'matrix' or data_type == 'sparse_matrix') and prediction_type == 'regression':
         default_number_of_features = int(pop_kwargs(kwargs, 'x', unused_kwargs_keys).shape[1]/3 + 0.5)
         number_of_datapoints = pop_kwargs(kwargs, 'y', unused_kwargs_keys).shape[0]/2
     elif data_type == 'depth_image' and prediction_type == 'classification':
@@ -205,6 +218,24 @@ def uber_create_learner(**kwargs):
                                                                   sample_data_step.IndicesBufferId,
                                                                   buffers.X_FLOAT_DATA)
         feature_extractor_step = matrix_features.LinearFloat32MatrixFeatureExtractorStep_f32i32(feature, feature_ordering)
+    elif data_type == 'sparse_matrix':
+        if extractor_type == 'axis_aligned':
+            feature_params_step = matrix_features.AxisAlignedParamsStep_Sparse_f32i32(set_number_features_step.OutputBufferId, buffers.X_FLOAT_DATA)
+        elif extractor_type == 'dimension_pair_diff':
+            feature_params_step = matrix_features.DimensionPairDifferenceParamsStep_Sparse_f32i32(set_number_features_step.OutputBufferId, buffers.X_FLOAT_DATA ) 
+        elif extractor_type == 'class_pair_diff':
+            feature_params_step = matrix_features.ClassPairDifferenceParamsStep_Sparse_f32i32(set_number_features_step.OutputBufferId,
+                                                                                      buffers.X_FLOAT_DATA,
+                                                                                      buffers.CLASS_LABELS,
+                                                                                      sample_data_step.IndicesBufferId )
+        else:
+            raise Exception("unknown extractor_type %s" % extractor_type)
+
+        feature = matrix_features.LinearFloat32MatrixFeature_Sparse_f32i32(feature_params_step.FloatParamsBufferId,
+                                                                  feature_params_step.IntParamsBufferId,
+                                                                  sample_data_step.IndicesBufferId,
+                                                                  buffers.X_FLOAT_DATA)
+        feature_extractor_step = matrix_features.LinearFloat32MatrixFeatureExtractorStep_Sparse_f32i32(feature, feature_ordering)
     elif data_type == 'depth_image' and extractor_type == 'pixel_pair_diff':
         ux = float( pop_kwargs(kwargs, 'ux', unused_kwargs_keys) )
         uy = float( pop_kwargs(kwargs, 'uy', unused_kwargs_keys) )
@@ -248,7 +279,7 @@ def uber_create_learner(**kwargs):
         slice_ys_step = pipeline.SliceInt32VectorBufferStep_i32(buffers.CLASS_LABELS, sample_data_step.IndicesBufferId)
         finalizer = classification.ClassEstimatorFinalizer_f32()
         # fix this... shouldn't be passing numpy arrays for one and rftk.buffers for the other
-        if data_type == 'matrix':
+        if data_type == 'matrix' or data_type == 'sparse_matrix':
             number_of_classes = int( np.max(pop_kwargs(kwargs, 'classes', unused_kwargs_keys)) + 1 )
         else:
             number_of_classes = int( pop_kwargs(kwargs, 'classes', unused_kwargs_keys).GetMax() + 1 )
@@ -256,7 +287,7 @@ def uber_create_learner(**kwargs):
     elif prediction_type == 'regression':
         slice_ys_step = pipeline.SliceFloat32MatrixBufferStep_i32(buffers.YS, sample_data_step.IndicesBufferId)
         finalizer = regression.MeanVarianceEstimatorFinalizer_f32()
-        if data_type == 'matrix':
+        if data_type == 'matrix' or data_type == 'sparse_matrix':
             dimension_of_y = int( pop_kwargs(kwargs, 'y', unused_kwargs_keys).shape[1] )
         else:
             dimension_of_y = int( pop_kwargs(kwargs, 'y', unused_kwargs_keys).GetN() )
@@ -451,8 +482,14 @@ def uber_create_learner(**kwargs):
             number_of_splitpoints = int(pop_kwargs(kwargs, 'number_of_splitpoints', unused_kwargs_keys))
             splitpoint_selection_step = splitpoints.RandomUniformSplitpointsInRangeStep_Default(feature_range_min_max_step.FeatureRangeMinMaxBufferId, number_of_splitpoints)
         elif constant_splitpoints_type == 'uniform_random_across_dataset':
-            assert(streams_type == 'one_stream' and data_type == 'matrix' and extractor_type == 'axis_aligned')
-            feature_range_min_max_step = pipeline.FeatureRangeStep_Default(buffers.X_FLOAT_DATA, pipeline.DATAPOINTS_BY_FEATURES)
+            assert(streams_type == 'one_stream' and extractor_type == 'axis_aligned')
+            if data_type == 'matrix':
+                feature_range_min_max_step = pipeline.FeatureRangeStep_Default(buffers.X_FLOAT_DATA, pipeline.DATAPOINTS_BY_FEATURES)
+            elif data_type == 'sparse_matrix':
+                feature_range_min_max_step = pipeline.FeatureRangeStep_Sparse_Default(buffers.X_FLOAT_DATA, pipeline.DATAPOINTS_BY_FEATURES)
+            else:
+                raise Exception('unknown data_type=%s' % data_type)
+
             forest_steps.append(feature_range_min_max_step)
             slice_range_min_max_step = matrix_features.SliceFloatMatrixFromAxisAlignedFeaturesStep_Default(feature_range_min_max_step.FeatureRangeMinMaxBufferId, feature_params_step.IntParamsBufferId)
             node_steps_update.append(slice_range_min_max_step)
@@ -622,6 +659,19 @@ def uber_create_learner(**kwargs):
                                                         max_frontier_size, number_of_trees, 2, 2, number_of_classes,
                                                         sample_data_step.IndicesBufferId, sample_data_step.WeightsBufferId,
                                                         feature_prediction, estimator_params_updater)
+        elif data_type == 'sparse_matrix' and prediction_type == 'classification':
+            feature_prediction = matrix_features.LinearFloat32MatrixFeature_Sparse_f32i32(sample_data_step.IndicesBufferId, buffers.X_FLOAT_DATA)
+            estimator_params_updater = classification.ClassEstimatorUpdater_f32i32(sample_data_step.WeightsBufferId, buffers.CLASS_LABELS, number_of_classes)
+            forest_learner = learn.OnlineForestMatrixClassLearner_Sparse_f32i32(
+                                                        try_split_criteria,
+                                                        forest_and_tree_steps_pipeline,
+                                                        node_steps_init_pipeline,
+                                                        node_steps_update_pipeline,
+                                                        node_steps_impurity_pipeline,
+                                                        impurity_update_period, split_selector,
+                                                        max_frontier_size, number_of_trees, 2, 2, number_of_classes,
+                                                        sample_data_step.IndicesBufferId, sample_data_step.WeightsBufferId,
+                                                        feature_prediction, estimator_params_updater)
         elif data_type == 'depth_image' and prediction_type == 'classification':
             feature_prediction = image_features.ScaledDepthDeltaFeature_f32i32(sample_data_step.IndicesBufferId,
                                                                               buffers.PIXEL_INDICES,
@@ -641,6 +691,19 @@ def uber_create_learner(**kwargs):
             feature_prediction = matrix_features.LinearFloat32MatrixFeature_f32i32(sample_data_step.IndicesBufferId, buffers.X_FLOAT_DATA)
             estimator_params_updater = regression.MeanVarianceEstimatorUpdater_f32(sample_data_step.WeightsBufferId, buffers.YS)
             forest_learner = learn.OnlineForestMatrixRegressionLearner_f32i32(
+                                                        try_split_criteria,
+                                                        forest_and_tree_steps_pipeline,
+                                                        node_steps_init_pipeline,
+                                                        node_steps_update_pipeline,
+                                                        node_steps_impurity_pipeline,
+                                                        impurity_update_period, split_selector,
+                                                        max_frontier_size, number_of_trees, 2, 2, y_estimator_dimension,
+                                                        sample_data_step.IndicesBufferId, sample_data_step.WeightsBufferId,
+                                                        feature_prediction, estimator_params_updater)
+        elif data_type == 'sparse_matrix' and prediction_type == 'regression':
+            feature_prediction = matrix_features.LinearFloat32MatrixFeature_Sparse_f32i32(sample_data_step.IndicesBufferId, buffers.X_FLOAT_DATA)
+            estimator_params_updater = regression.MeanVarianceEstimatorUpdater_f32(sample_data_step.WeightsBufferId, buffers.YS)
+            forest_learner = learn.OnlineForestMatrixRegressionLearner_Sparse_f32i32(
                                                         try_split_criteria,
                                                         forest_and_tree_steps_pipeline,
                                                         node_steps_init_pipeline,

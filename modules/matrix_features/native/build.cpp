@@ -9,7 +9,4 @@
 #include "LinearMatrixFeatureBinding.h"
 #include "SliceAxisAlignedFeaturesStep.h"
 
-template class AxisAlignedParamsStep< DefaultBufferTypes >;
-// template class LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<float> >;
-template class FeatureExtractorStep< LinearMatrixFeature<DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous > > >;
 

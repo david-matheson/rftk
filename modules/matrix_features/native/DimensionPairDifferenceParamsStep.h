@@ -17,7 +17,7 @@
 // between two dimensions choosen uniformily at random.
 //
 // ----------------------------------------------------------------------------
-template <class BufferTypes>
+template <class BufferTypes, class DataMatrixType>
 class DimensionPairDifferenceParamsStep: public PipelineStepI
 {
 public:
@@ -47,8 +47,8 @@ private:
 };
 
 
-template <class BufferTypes>
-DimensionPairDifferenceParamsStep<BufferTypes>::DimensionPairDifferenceParamsStep(  const BufferId& numberOfFeaturesBufferId,
+template <class BufferTypes, class DataMatrixType>
+DimensionPairDifferenceParamsStep<BufferTypes, DataMatrixType>::DimensionPairDifferenceParamsStep(  const BufferId& numberOfFeaturesBufferId,
                                                                   const BufferId& matrixDataBufferId )
 : PipelineStepI("DimensionPairDifferenceParamsStep")
 , FloatParamsBufferId(GetBufferId("FloatParams"))
@@ -57,19 +57,19 @@ DimensionPairDifferenceParamsStep<BufferTypes>::DimensionPairDifferenceParamsSte
 , mMatrixDataBufferId(matrixDataBufferId)
 {}
 
-template <class BufferTypes>
-DimensionPairDifferenceParamsStep<BufferTypes>::~DimensionPairDifferenceParamsStep()
+template <class BufferTypes, class DataMatrixType>
+DimensionPairDifferenceParamsStep<BufferTypes, DataMatrixType>::~DimensionPairDifferenceParamsStep()
 {}
 
-template <class BufferTypes>
-PipelineStepI* DimensionPairDifferenceParamsStep<BufferTypes>::Clone() const
+template <class BufferTypes, class DataMatrixType>
+PipelineStepI* DimensionPairDifferenceParamsStep<BufferTypes, DataMatrixType>::Clone() const
 {
-    DimensionPairDifferenceParamsStep* clone = new DimensionPairDifferenceParamsStep<BufferTypes>(*this);
+    DimensionPairDifferenceParamsStep* clone = new DimensionPairDifferenceParamsStep<BufferTypes, DataMatrixType>(*this);
     return clone;
 }
 
-template <class BufferTypes>
-void DimensionPairDifferenceParamsStep<BufferTypes>::ProcessStep(const BufferCollectionStack& readCollection,
+template <class BufferTypes, class DataMatrixType>
+void DimensionPairDifferenceParamsStep<BufferTypes, DataMatrixType>::ProcessStep(const BufferCollectionStack& readCollection,
                                                           BufferCollection& writeCollection,
                                                           boost::mt19937& gen,
                                                           BufferCollection& extraInfo, int nodeIndex) const
@@ -78,8 +78,8 @@ void DimensionPairDifferenceParamsStep<BufferTypes>::ProcessStep(const BufferCol
     UNUSED_PARAM(extraInfo);
     UNUSED_PARAM(nodeIndex);
 
-    const MatrixBufferTemplate<typename BufferTypes::SourceContinuous>& matrixBuffer =
-            readCollection.GetBuffer< MatrixBufferTemplate<typename BufferTypes::SourceContinuous> >(mMatrixDataBufferId);
+    const DataMatrixType& matrixBuffer =
+            readCollection.GetBuffer< DataMatrixType >(mMatrixDataBufferId);
     const typename BufferTypes::ParamsInteger numberOfDimensions = matrixBuffer.GetN();
 
     const VectorBufferTemplate<typename BufferTypes::SourceInteger>& numberOfFeaturesBuffer =
@@ -97,8 +97,8 @@ void DimensionPairDifferenceParamsStep<BufferTypes>::ProcessStep(const BufferCol
 
 }
 
-template <class BufferTypes>
-void DimensionPairDifferenceParamsStep<BufferTypes>::SampleParams(typename BufferTypes::ParamsInteger numberOfFeatures,
+template <class BufferTypes, class DataMatrixType>
+void DimensionPairDifferenceParamsStep<BufferTypes, DataMatrixType>::SampleParams(typename BufferTypes::ParamsInteger numberOfFeatures,
                                                             typename BufferTypes::ParamsInteger numberOfDimensions,
                                                             MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams,
                                                             MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams ) const

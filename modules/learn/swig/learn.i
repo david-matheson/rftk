@@ -49,8 +49,12 @@
 
 %template(OnlineForestMatrixClassLearner_f32i32)  OnlineForestLearner< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, ClassEstimatorUpdater< DefaultBufferTypes >, ClassProbabilityOfError<DefaultBufferTypes>, DefaultBufferTypes >;
 
+%template(OnlineForestMatrixClassLearner_Sparse_f32i32)  OnlineForestLearner< LinearMatrixFeature< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, ClassEstimatorUpdater< DefaultBufferTypes >, ClassProbabilityOfError<DefaultBufferTypes>, DefaultBufferTypes >;
+
 %template(OnlineForestScaledDepthDeltaClassLearner_f32i32)  OnlineForestLearner< ScaledDepthDeltaFeature< DefaultBufferTypes >, ClassEstimatorUpdater< DefaultBufferTypes >, ClassProbabilityOfError<DefaultBufferTypes>, DefaultBufferTypes >;
 
 %template(OnlineForestMatrixRegressionLearner_f32i32)  OnlineForestLearner< LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, MeanVarianceEstimatorUpdater< DefaultBufferTypes >, SumOfVarianceExpectedError<DefaultBufferTypes>, DefaultBufferTypes >;
+
+%template(OnlineForestMatrixRegressionLearner_Sparse_f32i32)  OnlineForestLearner< LinearMatrixFeature< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >, MeanVarianceEstimatorUpdater< DefaultBufferTypes >, SumOfVarianceExpectedError<DefaultBufferTypes>, DefaultBufferTypes >;
 
 %template(OnlineForestScaledDepthDeltaRegressionLearner_f32i32)  OnlineForestLearner< ScaledDepthDeltaFeature< DefaultBufferTypes >, MeanVarianceEstimatorUpdater< DefaultBufferTypes >, SumOfVarianceExpectedError<DefaultBufferTypes>, DefaultBufferTypes >;

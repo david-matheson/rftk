@@ -15,11 +15,18 @@
 %include "FeatureExtractorStep.h"
 %include "SliceAxisAlignedFeaturesStep.h"
 
-%template(AxisAlignedParamsStep_f32i32) AxisAlignedParamsStep< DefaultBufferTypes >;
-%template(DimensionPairDifferenceParamsStep_f32i32) DimensionPairDifferenceParamsStep< DefaultBufferTypes >;
-%template(ClassPairDifferenceParamsStep_f32i32) ClassPairDifferenceParamsStep< DefaultBufferTypes >;
+%template(AxisAlignedParamsStep_f32i32) AxisAlignedParamsStep< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
+%template(DimensionPairDifferenceParamsStep_f32i32) DimensionPairDifferenceParamsStep< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
+%template(ClassPairDifferenceParamsStep_f32i32) ClassPairDifferenceParamsStep< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
+
+%template(AxisAlignedParamsStep_Sparse_f32i32) AxisAlignedParamsStep< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
+%template(DimensionPairDifferenceParamsStep_Sparse_f32i32) DimensionPairDifferenceParamsStep< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
+%template(ClassPairDifferenceParamsStep_Sparse_f32i32) ClassPairDifferenceParamsStep< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
 
 %template(LinearFloat32MatrixFeature_f32i32) LinearMatrixFeature< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
 %template(LinearFloat32MatrixFeatureExtractorStep_f32i32) FeatureExtractorStep< LinearMatrixFeature<DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> > >;
 %template(SliceFloatMatrixFromAxisAlignedFeaturesStep_Default) SliceAxisAlignedFeaturesStep< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
 
+%template(LinearFloat32MatrixFeature_Sparse_f32i32) LinearMatrixFeature< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
+%template(LinearFloat32MatrixFeatureExtractorStep_Sparse_f32i32) FeatureExtractorStep< LinearMatrixFeature<DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> > >;
+%template(SliceFloatMatrixFromAxisAlignedFeaturesStep_Sparse_Default) SliceAxisAlignedFeaturesStep< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;

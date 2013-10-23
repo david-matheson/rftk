@@ -17,7 +17,7 @@
 // the input matrix and is choosen uniformily from all dimensions.
 //
 // ----------------------------------------------------------------------------
-template <class BufferTypes>
+template <class BufferTypes, class DataMatrixType>
 class AxisAlignedParamsStep: public PipelineStepI
 {
 public:
@@ -47,8 +47,8 @@ private:
 };
 
 
-template <class BufferTypes>
-AxisAlignedParamsStep<BufferTypes>::AxisAlignedParamsStep(  const BufferId& numberOfFeaturesBufferId,
+template <class BufferTypes, class DataMatrixType>
+AxisAlignedParamsStep<BufferTypes, DataMatrixType>::AxisAlignedParamsStep(  const BufferId& numberOfFeaturesBufferId,
                                                             const BufferId& matrixDataBufferId )
 : PipelineStepI("AxisAlignedParamsStep")
 , FloatParamsBufferId(GetBufferId("FloatParams"))
@@ -57,19 +57,19 @@ AxisAlignedParamsStep<BufferTypes>::AxisAlignedParamsStep(  const BufferId& numb
 , mMatrixDataBufferId(matrixDataBufferId)
 {}
 
-template <class BufferTypes>
-AxisAlignedParamsStep<BufferTypes>::~AxisAlignedParamsStep()
+template <class BufferTypes, class DataMatrixType>
+AxisAlignedParamsStep<BufferTypes, DataMatrixType>::~AxisAlignedParamsStep()
 {}
 
-template <class BufferTypes>
-PipelineStepI* AxisAlignedParamsStep<BufferTypes>::Clone() const
+template <class BufferTypes, class DataMatrixType>
+PipelineStepI* AxisAlignedParamsStep<BufferTypes, DataMatrixType>::Clone() const
 {
-    AxisAlignedParamsStep* clone = new AxisAlignedParamsStep<BufferTypes>(*this);
+    AxisAlignedParamsStep* clone = new AxisAlignedParamsStep<BufferTypes, DataMatrixType>(*this);
     return clone;
 }
 
-template <class BufferTypes>
-void AxisAlignedParamsStep<BufferTypes>::ProcessStep(const BufferCollectionStack& readCollection,
+template <class BufferTypes, class DataMatrixType>
+void AxisAlignedParamsStep<BufferTypes, DataMatrixType>::ProcessStep(const BufferCollectionStack& readCollection,
                                                           BufferCollection& writeCollection,
                                                           boost::mt19937& gen,
                                                           BufferCollection& extraInfo, int nodeIndex) const
@@ -81,8 +81,8 @@ void AxisAlignedParamsStep<BufferTypes>::ProcessStep(const BufferCollectionStack
     if(!writeCollection.HasBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(FloatParamsBufferId)
         || !writeCollection.HasBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(IntParamsBufferId))
     {
-        const MatrixBufferTemplate<typename BufferTypes::SourceContinuous>& matrixBuffer =
-                readCollection.GetBuffer< MatrixBufferTemplate<typename BufferTypes::SourceContinuous> >(mMatrixDataBufferId);
+        const DataMatrixType& matrixBuffer =
+                readCollection.GetBuffer< DataMatrixType >(mMatrixDataBufferId);
         const typename BufferTypes::Index numberOfDimensions = matrixBuffer.GetN();
 
         const VectorBufferTemplate<typename BufferTypes::SourceInteger>& numberOfFeaturesBuffer =
@@ -100,8 +100,8 @@ void AxisAlignedParamsStep<BufferTypes>::ProcessStep(const BufferCollectionStack
     }
 }
 
-template <class BufferTypes>
-void AxisAlignedParamsStep<BufferTypes>::SampleParams(typename BufferTypes::Index numberOfFeatures,
+template <class BufferTypes, class DataMatrixType>
+void AxisAlignedParamsStep<BufferTypes, DataMatrixType>::SampleParams(typename BufferTypes::Index numberOfFeatures,
                                                         typename BufferTypes::Index numberOfDimensions,
                                                         MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams,
                                                         MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams ) const
