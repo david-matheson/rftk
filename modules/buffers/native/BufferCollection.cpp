@@ -20,6 +20,33 @@ BufferCollection::BufferCollection(const BufferCollection& bc)
     }
 }
 
+BufferCollection::~BufferCollection()
+{
+    // printf("~BufferCollection() %p\n", this);
+    // for(std::map<BufferCollectionKey_t, boost::any>::const_iterator it=mBuffers.begin(); 
+    //     it!=mBuffers.end(); 
+    //     ++it )
+    // {
+    //     printf(" %s\n", it->first.c_str());
+    // }
+    mBuffers.clear();
+}
+
+BufferCollection& BufferCollection::operator=(const BufferCollection& bc)
+{
+    if(this != &bc) // protect against invalid self-assignment
+    {
+        mBuffers.clear();
+        for(std::map<BufferCollectionKey_t, boost::any>::const_iterator it=bc.mBuffers.begin(); 
+            it!=bc.mBuffers.end(); 
+            ++it )
+        {
+            mBuffers[it->first] = boost::any(it->second);
+        }
+    }
+    return *this;
+}
+
 #define DEFINE_BUFFER_SWIG_INTERFACE_FOR_TYPE(BUFFER_TYPE) \
 bool BufferCollection::Has ## BUFFER_TYPE(std::string name) const \
 { \

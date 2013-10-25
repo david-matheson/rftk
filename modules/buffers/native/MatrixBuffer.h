@@ -247,30 +247,38 @@ T MatrixBufferTemplate<T>::Get(int m, int n) const
 template <class T>
 void MatrixBufferTemplate<T>::SetUnsafe(int m, int n, T value)
 {
+    ASSERT_VALID_RANGE(m, 0, mM)
+    ASSERT_VALID_RANGE(n, 0, mN)
     mData[m*mN + n] = value;
 }
 
 template <class T>
 T MatrixBufferTemplate<T>::GetUnsafe(int m, int n) const
 {
+    ASSERT_VALID_RANGE(m, 0, mM)
+    ASSERT_VALID_RANGE(n, 0, mN)
     return mData[ m*mN + n];
 }
 
 template <class T>
 void MatrixBufferTemplate<T>::Incr(int m, int n, T value)
 {
+    ASSERT_VALID_RANGE(m, 0, mM)
+    ASSERT_VALID_RANGE(n, 0, mN)
     mData[ m*mN + n] += value;
 }
 
 template <class T>
 const T* MatrixBufferTemplate<T>::GetRowPtrUnsafe(int m) const
 {
+    ASSERT_VALID_RANGE(m, 0, mM)
     return &mData[m*mN];
 }
 
 template <class T>
 void MatrixBufferTemplate<T>::SetRow(int m, const VectorBufferTemplate<T>& row)
 {
+    ASSERT_VALID_RANGE(m, 0, mM)
     ASSERT(row.GetN() <= mN);
     const int maxColumn = std::min(mN, row.GetN());
     for(int i=0; i<maxColumn; i++)
@@ -304,6 +312,7 @@ T MatrixBufferTemplate<T>::GetMin() const
 template <class T>
 T MatrixBufferTemplate<T>::SumRow(int m) const
 {
+    ASSERT_VALID_RANGE(m, 0, mM)
     T sum = Get(m,0);
     for(int c=1; c<mN; c++)
     {
@@ -315,6 +324,7 @@ T MatrixBufferTemplate<T>::SumRow(int m) const
 template <class T>
 void MatrixBufferTemplate<T>::NormalizeRow(int m)
 {
+    ASSERT_VALID_RANGE(m, 0, mM)
     T sum = SumRow(m);
     for(int c=0; c<mN && sum > T(0); c++)
     {
@@ -370,6 +380,7 @@ MatrixBufferTemplate<T> MatrixBufferTemplate<T>::Slice(const VectorBufferTemplat
     for(int i=0; i<indices.GetN(); i++)
     {
         int r = indices.Get(i);
+        ASSERT_VALID_RANGE(r, 0, mM)
         for(int c=0; c<mN; c++)
         {
             sliced.Set(i, c, Get(r, c));
@@ -385,6 +396,7 @@ MatrixBufferTemplate<T> MatrixBufferTemplate<T>::SliceColumns(const VectorBuffer
     for(int i=0; i<indices.GetN(); i++)
     {
         int c = indices.Get(i);
+        ASSERT_VALID_RANGE(c, 0, mN)
         for(int r=0; r<mM; r++)
         {
             sliced.Set(r, i, Get(r, c));
@@ -398,6 +410,7 @@ MatrixBufferTemplate<T> MatrixBufferTemplate<T>::SliceColumns(const VectorBuffer
 template <class T>
 MatrixBufferTemplate<T> MatrixBufferTemplate<T>::SliceRow(const int row) const
 {
+    ASSERT_VALID_RANGE(row, 0, mM)
     MatrixBufferTemplate<T> sliced(1, mN);
     for(int c=0; c<mN; c++)
     {
@@ -410,6 +423,7 @@ MatrixBufferTemplate<T> MatrixBufferTemplate<T>::SliceRow(const int row) const
 template <class T>
 VectorBufferTemplate<T> MatrixBufferTemplate<T>::SliceRowAsVector(const int row) const
 {
+    ASSERT_VALID_RANGE(row, 0, mM)
     VectorBufferTemplate<T> sliced(mN);
     for(int c=0; c<mN; c++)
     {
@@ -422,6 +436,7 @@ VectorBufferTemplate<T> MatrixBufferTemplate<T>::SliceRowAsVector(const int row)
 template <class T>
 VectorBufferTemplate<T> MatrixBufferTemplate<T>::SliceColumnAsVector(const int column) const
 {
+    ASSERT_VALID_RANGE(column, 0, mN)
     VectorBufferTemplate<T> sliced(mM);
     for(int r=0; r<mM; r++)
     {

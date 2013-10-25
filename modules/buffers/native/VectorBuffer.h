@@ -186,18 +186,21 @@ T VectorBufferTemplate<T>::Get(int n) const
 template <class T>
 void VectorBufferTemplate<T>::SetUnsafe(int n, T value)
 {
+    ASSERT_VALID_RANGE(n, 0, mN)
     mData[n] = value;
 }
 
 template <class T>
 T VectorBufferTemplate<T>::GetUnsafe(int n) const
 {
+    ASSERT_VALID_RANGE(n, 0, mN)
     return mData[n];
 }
 
 template <class T>
 void VectorBufferTemplate<T>::Incr(int n, T value)
 {
+    ASSERT_VALID_RANGE(n, 0, mN)
     mData[n] += value;
 }
 

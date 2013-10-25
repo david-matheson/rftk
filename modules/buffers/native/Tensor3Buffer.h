@@ -180,18 +180,27 @@ T Tensor3BufferTemplate<T>::Get(int l, int m, int n) const
 template <class T>
 void Tensor3BufferTemplate<T>::SetUnsafe(int l, int m, int n, T value)
 {
+    ASSERT_VALID_RANGE(l, 0, mL)
+    ASSERT_VALID_RANGE(m, 0, mM)
+    ASSERT_VALID_RANGE(n, 0, mN)
     mData[l*mM*mN + m*mN + n] = value;
 }
 
 template <class T>
 T Tensor3BufferTemplate<T>::GetUnsafe(int l, int m, int n) const
 {
+    ASSERT_VALID_RANGE(l, 0, mL)
+    ASSERT_VALID_RANGE(m, 0, mM)
+    ASSERT_VALID_RANGE(n, 0, mN)
     return mData[l*mM*mN + m*mN + n];
 }
 
 template <class T>
 void Tensor3BufferTemplate<T>::Incr(int l, int m, int n, T value)
 {
+    ASSERT_VALID_RANGE(l, 0, mL)
+    ASSERT_VALID_RANGE(m, 0, mM)
+    ASSERT_VALID_RANGE(n, 0, mN)
     mData[l*mM*mN + m*mN + n] += value;
 }
 
@@ -224,6 +233,9 @@ void Tensor3BufferTemplate<T>::Append(const Tensor3BufferTemplate<T>& buffer)
 template <class T>
 void Tensor3BufferTemplate<T>::SetRow(int l, int m, const VectorBufferTemplate<T>& row)
 {
+    ASSERT_VALID_RANGE(l, 0, mL)
+    ASSERT_VALID_RANGE(m, 0, mM)
+
     ASSERT_ARG_DIM_1D(mN, row.GetN());
     const int maxColumn = std::min(mN, row.GetN());
     for(int i=0; i<maxColumn; i++)
@@ -235,6 +247,9 @@ void Tensor3BufferTemplate<T>::SetRow(int l, int m, const VectorBufferTemplate<T
 template <class T>
 T Tensor3BufferTemplate<T>::SumRow(int l, int m) const
 {
+    ASSERT_VALID_RANGE(l, 0, mL)
+    ASSERT_VALID_RANGE(m, 0, mM)
+
     T sum = Get(l,m,0);
     for(int c=1; c<mN; c++)
     {
@@ -246,6 +261,9 @@ T Tensor3BufferTemplate<T>::SumRow(int l, int m) const
 template <class T>
 void Tensor3BufferTemplate<T>::NormalizeRow(int l, int m)
 {
+    ASSERT_VALID_RANGE(l, 0, mL)
+    ASSERT_VALID_RANGE(m, 0, mM)
+
     T sum = SumRow(l, m);
     for(int c=0; c<mN && sum > T(0); c++)
     {
@@ -256,6 +274,9 @@ void Tensor3BufferTemplate<T>::NormalizeRow(int l, int m)
 template <class T>
 VectorBufferTemplate<T> Tensor3BufferTemplate<T>::SliceRow(int l, int m) const
 {
+    ASSERT_VALID_RANGE(l, 0, mL)
+    ASSERT_VALID_RANGE(m, 0, mM)
+    
     VectorBufferTemplate<T> sliced(mN);
     for(int c=0; c<mN; c++)
     {

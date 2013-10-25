@@ -17,8 +17,9 @@ class BufferCollection
 {
 public:
     BufferCollection();
-
     BufferCollection(const BufferCollection& bc);
+    ~BufferCollection();
+    BufferCollection& operator=(const BufferCollection& bc);
 
 #define DECLARE_BUFFER_SWIG_INTERFACE_FOR_TYPE(BUFFER_TYPE) \
 bool Has ## BUFFER_TYPE(BufferCollectionKey_t name) const; \

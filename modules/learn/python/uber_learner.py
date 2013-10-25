@@ -36,6 +36,10 @@ def make_uber_data_prepare(learner_kwargs):
         if prediction_type == 'classification':
             if 'classes' in kwargs:
                 bufferCollection.AddBuffer(buffers.CLASS_LABELS, kwargs['classes'])
+                if data_type == 'matrix' or data_type == 'sparse_matrix':
+                    assert(np.min(kwargs['classes']) >= 0)
+                elif data_type == 'depth_image':
+                    assert(kwargs['classes'].GetMin() >= 0)
         elif prediction_type == 'regression':
             if 'y' in kwargs:
                 bufferCollection.AddBuffer(buffers.YS, kwargs['y'])
