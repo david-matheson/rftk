@@ -50,6 +50,7 @@ public:
     void AppendRow(const VectorBufferTemplate<T>& buffer);
     MatrixBufferTemplate<T> Transpose() const;
     MatrixBufferTemplate<T> Slice(const VectorBufferTemplate<int>& indices) const;
+    MatrixBufferTemplate<T> SliceColumns(const VectorBufferTemplate<int>& indices) const;
     MatrixBufferTemplate<T> SliceRow(const int row) const;
     VectorBufferTemplate<T> SliceRowAsVector(const int row) const;
     VectorBufferTemplate<T> SliceColumnAsVector(const int column) const;
@@ -376,6 +377,23 @@ MatrixBufferTemplate<T> MatrixBufferTemplate<T>::Slice(const VectorBufferTemplat
     }
     return sliced;
 }
+
+template <class T>
+MatrixBufferTemplate<T> MatrixBufferTemplate<T>::SliceColumns(const VectorBufferTemplate<int>& indices) const
+{
+    MatrixBufferTemplate<T> sliced(mM, indices.GetN());
+    for(int i=0; i<indices.GetN(); i++)
+    {
+        int c = indices.Get(i);
+        for(int r=0; r<mM; r++)
+        {
+            sliced.Set(r, i, Get(r, c));
+        }
+    }
+    return sliced;
+}
+
+
 
 template <class T>
 MatrixBufferTemplate<T> MatrixBufferTemplate<T>::SliceRow(const int row) const
