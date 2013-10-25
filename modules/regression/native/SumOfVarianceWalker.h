@@ -27,6 +27,7 @@ public:
     virtual ~SumOfVarianceWalker();
 
     void Bind(const BufferCollectionStack& readCollection);
+    void Bind(const BufferCollectionStack& readCollection, const VectorBufferTemplate<typename BT::Index>& includedSamples);
     void Reset();
 
     void MoveLeftToRight(typename BT::Index sampleIndex);
@@ -93,6 +94,49 @@ void SumOfVarianceWalker<BT>::Bind(const BufferCollectionStack& readCollection)
 
     for(int i=0; i<mSampleWeights->GetN(); i++)
     {
+        const typename BT::SufficientStatsContinuous weight = mSampleWeights->Get(i);
+        typename BT::SufficientStatsContinuous newCounts = mStartCounts + weight;
+        for(int d=0; d<mYdim; d++)
+        {
+            const typename BT::SufficientStatsContinuous epsilon = typename BT::SufficientStatsContinuous(0.1);
+            const typename BT::SufficientStatsContinuous zero = typename BT::SufficientStatsContinuous(0);
+            const typename BT::SufficientStatsContinuous y_i = mYs->Get(i,d);
+            // old unstable sufficient stats 
+            // mStartMeanVariance.Incr(d, weight*y_d);
+            // mStartMeanVariance.Incr(d+mYdim, weight*y_d*y_d);
+            const typename BT::SufficientStatsContinuous mean = mStartMeanVariance.Get(d);
+            const typename BT::SufficientStatsContinuous delta = y_i - mean;
+            const typename BT::SufficientStatsContinuous r = newCounts > epsilon ? delta * weight / newCounts : zero;
+            mStartMeanVariance.Incr(d,r);
+            mStartMeanVariance.Incr(d+mYdim, mStartCounts*delta*r);
+        }
+        mStartCounts = newCounts;
+    }
+
+    mStartVariance = typename BT::SufficientStatsContinuous(0);
+    for(int d=0; d<mYdim; d++)
+    {
+        // old unstable sufficient stats 
+        // const typename BT::SufficientStatsContinuous y = mStartMeanVariance.Get(d);
+        // const typename BT::SufficientStatsContinuous ySquared = mStartMeanVariance.Get(d+mYdim);
+        // mStartVariance += ySquared / mStartCounts - pow(y/mStartCounts, 2);
+        mStartVariance += mStartMeanVariance.Get(d+mYdim) / mStartCounts;
+    }
+
+    Reset();
+}
+
+template <class BT>
+void SumOfVarianceWalker<BT>::Bind(const BufferCollectionStack& readCollection, const VectorBufferTemplate<typename BT::Index>& includedSamples)
+{
+    mSampleWeights = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::DatapointCounts> >(mSampleWeightsBufferId);
+
+    mYs = readCollection.GetBufferPtr< MatrixBufferTemplate<typename BT::SourceContinuous> >(mYsBufferId);
+    ASSERT_ARG_DIM_1D(mSampleWeights->GetN(), mYs->GetM())
+
+    for(typename BT::Index s=0; s<includedSamples.GetN(); s++)
+    {
+        typename BT::Index i = includedSamples.Get(s);
         const typename BT::SufficientStatsContinuous weight = mSampleWeights->Get(i);
         typename BT::SufficientStatsContinuous newCounts = mStartCounts + weight;
         for(int d=0; d<mYdim; d++)

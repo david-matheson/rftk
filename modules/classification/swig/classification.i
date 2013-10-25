@@ -20,6 +20,7 @@
 
 %template(ClassInfoGainWalker_f32i32) ClassInfoGainWalker< DefaultBufferTypes >;
 %template(ClassInfoGainBestSplitpointsWalkingSortedStep_f32i32) BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<DefaultBufferTypes> >;
+%template(ClassInfoGainDownSampleBestSplitpointsWalkingSortedStep_f32i32) DownSampleBestSplitpointsWalkingSortedStep< ClassInfoGainWalker<DefaultBufferTypes> >;
 %template(ClassInfoGainTwoStreamWalker_f32i32) ClassInfoGainTwoStreamWalker<DefaultBufferTypes>;
 %template(ClassInfoGainTwoStreamBestSplitpointsWalkingSortedStep_f32i32) TwoStreamBestSplitpointsWalkingSortedStep< ClassInfoGainTwoStreamWalker<DefaultBufferTypes> >;
 %template(ClassInfoGainRandomGapSplitpointsStep_f32i32) RandomGapSplitpointsStep< ClassInfoGainWalker<DefaultBufferTypes> >;

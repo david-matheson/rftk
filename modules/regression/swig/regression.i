@@ -22,6 +22,7 @@
 
 %template(SumOfVarianceWalker_f32i32) SumOfVarianceWalker<DefaultBufferTypes>;
 %template(SumOfVarianceBestSplitpointsWalkingSortedStep_f32i32) BestSplitpointsWalkingSortedStep< SumOfVarianceWalker<DefaultBufferTypes> >;
+%template(SumOfVarianceDownSampleBestSplitpointsWalkingSortedStep_f32i32) DownSampleBestSplitpointsWalkingSortedStep< SumOfVarianceWalker<DefaultBufferTypes> >;
 %template(SumOfVarianceTwoStreamWalker_f32i32) SumOfVarianceTwoStreamWalker<DefaultBufferTypes>;
 %template(SumOfVarianceTwoStreamBestSplitpointsWalkingSortedStep_f32i32) TwoStreamBestSplitpointsWalkingSortedStep< SumOfVarianceTwoStreamWalker<DefaultBufferTypes> >;
 %template(SumOfVarianceRandomGapSplitpointsStep_f32i32) RandomGapSplitpointsStep< SumOfVarianceWalker<DefaultBufferTypes> >;

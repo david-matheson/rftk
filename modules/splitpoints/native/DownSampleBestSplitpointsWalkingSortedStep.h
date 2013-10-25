@@ -24,30 +24,18 @@
 // the split point with the highest impurity.
 //
 // ----------------------------------------------------------------------------
-enum WalkingSortedSplitpointLocation
-{
-    AT_MIDPOINT,
-    AT_DATAPOINT,
-    UNIFORM_AT_GAP
-};
+
 
 template <class ImpurityWalker>
-class BestSplitpointsWalkingSortedStep : public PipelineStepI
+class DownSampleBestSplitpointsWalkingSortedStep : public PipelineStepI
 {
 public:
-    BestSplitpointsWalkingSortedStep (const ImpurityWalker& impurityWalker,
-                              const BufferId& featureValues,
-                              FeatureValueOrdering featureValueOrdering);
-    BestSplitpointsWalkingSortedStep (const ImpurityWalker& impurityWalker,
-                              const BufferId& featureValues,
-                              FeatureValueOrdering featureValueOrdering,
-                              WalkingSortedSplitpointLocation splitpointLocation );
-    BestSplitpointsWalkingSortedStep (const ImpurityWalker& impurityWalker,
+    DownSampleBestSplitpointsWalkingSortedStep (const ImpurityWalker& impurityWalker,
                               const BufferId& featureValues,
                               FeatureValueOrdering featureValueOrdering,
                               WalkingSortedSplitpointLocation splitpointLocation,
-                              const int numberOfInBoundsDatapoints );
-    virtual ~BestSplitpointsWalkingSortedStep();
+                              const int numberOfSamples );
+    virtual ~DownSampleBestSplitpointsWalkingSortedStep();
 
     virtual PipelineStepI* Clone() const;
 
@@ -68,56 +56,17 @@ private:
     const BufferId mFeatureValuesBufferId;
     const FeatureValueOrdering mFeatureValueOrdering;
     const WalkingSortedSplitpointLocation mSplitpointLocation;
-    const int mNumberOfInBoundsDatapoints;
+    const int mNumberOfSamples;
 
 };
 
-
 template <class ImpurityWalker>
-BestSplitpointsWalkingSortedStep<ImpurityWalker>::BestSplitpointsWalkingSortedStep(const ImpurityWalker& impurityWalker,
-                                                                      const BufferId& featureValues,
-                                                                      FeatureValueOrdering featureValueOrdering,
-                                                                      WalkingSortedSplitpointLocation splitpointLocation )
-: PipelineStepI("BestSplitpointsWalkingSortedStep")
-, ImpurityBufferId( GetBufferId("Impurity") )
-, SplitpointBufferId( GetBufferId("Splitpoints") )
-, SplitpointCountsBufferId( GetBufferId("SplitpointsCounts") )
-, ChildCountsBufferId( GetBufferId("ChildCounts") )
-, LeftYsBufferId( GetBufferId("LeftYs") )
-, RightYsBufferId( GetBufferId("RightYs") )
-, mImpurityWalker(impurityWalker)
-, mFeatureValuesBufferId(featureValues)
-, mFeatureValueOrdering(featureValueOrdering)
-, mSplitpointLocation(splitpointLocation)
-, mNumberOfInBoundsDatapoints(0)
-{}
-
-template <class ImpurityWalker>
-BestSplitpointsWalkingSortedStep<ImpurityWalker>::BestSplitpointsWalkingSortedStep(const ImpurityWalker& impurityWalker,
-                                                                      const BufferId& featureValues,
-                                                                      FeatureValueOrdering featureValueOrdering )
-: PipelineStepI("BestSplitpointsWalkingSortedStep")
-, ImpurityBufferId( GetBufferId("Impurity") )
-, SplitpointBufferId( GetBufferId("Splitpoints") )
-, SplitpointCountsBufferId( GetBufferId("SplitpointsCounts") )
-, ChildCountsBufferId( GetBufferId("ChildCounts") )
-, LeftYsBufferId( GetBufferId("LeftYs") )
-, RightYsBufferId( GetBufferId("RightYs") )
-, mImpurityWalker(impurityWalker)
-, mFeatureValuesBufferId(featureValues)
-, mFeatureValueOrdering(featureValueOrdering)
-, mSplitpointLocation(AT_MIDPOINT)
-, mNumberOfInBoundsDatapoints(0)
-{}
-
-
-template <class ImpurityWalker>
-BestSplitpointsWalkingSortedStep<ImpurityWalker>::BestSplitpointsWalkingSortedStep(const ImpurityWalker& impurityWalker,
+DownSampleBestSplitpointsWalkingSortedStep<ImpurityWalker>::DownSampleBestSplitpointsWalkingSortedStep(const ImpurityWalker& impurityWalker,
                                                                       const BufferId& featureValues,
                                                                       FeatureValueOrdering featureValueOrdering,
                                                                       WalkingSortedSplitpointLocation splitpointLocation,
-                                                                      const int numberOfInBoundsDatapoints)
-: PipelineStepI("BestSplitpointsWalkingSortedStep")
+                                                                      const int numberOfSamples)
+: PipelineStepI("DownSampleBestSplitpointsWalkingSortedStep")
 , ImpurityBufferId( GetBufferId("Impurity") )
 , SplitpointBufferId( GetBufferId("Splitpoints") )
 , SplitpointCountsBufferId( GetBufferId("SplitpointsCounts") )
@@ -128,22 +77,22 @@ BestSplitpointsWalkingSortedStep<ImpurityWalker>::BestSplitpointsWalkingSortedSt
 , mFeatureValuesBufferId(featureValues)
 , mFeatureValueOrdering(featureValueOrdering)
 , mSplitpointLocation(splitpointLocation)
-, mNumberOfInBoundsDatapoints(numberOfInBoundsDatapoints)
+, mNumberOfSamples(numberOfSamples)
 {}
 
 template <class ImpurityWalker>
-BestSplitpointsWalkingSortedStep<ImpurityWalker>::~BestSplitpointsWalkingSortedStep()
+DownSampleBestSplitpointsWalkingSortedStep<ImpurityWalker>::~DownSampleBestSplitpointsWalkingSortedStep()
 {}
 
 template <class ImpurityWalker>
-PipelineStepI* BestSplitpointsWalkingSortedStep<ImpurityWalker>::Clone() const
+PipelineStepI* DownSampleBestSplitpointsWalkingSortedStep<ImpurityWalker>::Clone() const
 {
-    BestSplitpointsWalkingSortedStep* clone = new BestSplitpointsWalkingSortedStep<ImpurityWalker>(*this);
+    DownSampleBestSplitpointsWalkingSortedStep* clone = new DownSampleBestSplitpointsWalkingSortedStep<ImpurityWalker>(*this);
     return clone;
 }
 
 template <class ImpurityWalker>
-void BestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(const BufferCollectionStack& readCollection,
+void DownSampleBestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(const BufferCollectionStack& readCollection,
                                                               BufferCollection& writeCollection,
                                                               boost::mt19937& gen,
                                                               BufferCollection& extraInfo, int nodeIndex) const
@@ -154,13 +103,39 @@ void BestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(const BufferC
 
     // Bind input buffers
     ASSERT(readCollection.HasBuffer< MatrixBufferTemplate<typename ImpurityWalker::BufferTypes::FeatureValue> >(mFeatureValuesBufferId));
-    MatrixBufferTemplate<typename ImpurityWalker::BufferTypes::FeatureValue> const& featureValues
+    MatrixBufferTemplate<typename ImpurityWalker::BufferTypes::FeatureValue> const& allFeatureValues
            = readCollection.GetBuffer< MatrixBufferTemplate<typename ImpurityWalker::BufferTypes::FeatureValue> >(mFeatureValuesBufferId);
 
-    // Make a local non-const walker and bind it
+    const typename ImpurityWalker::BufferTypes::Index numberOfFeatures =  mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? allFeatureValues.GetM() : allFeatureValues.GetN(); 
+    const typename ImpurityWalker::BufferTypes::Index numberOfDatapoints =  mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? allFeatureValues.GetN() : allFeatureValues.GetM();   
     ImpurityWalker impurityWalker = mImpurityWalker;
-    impurityWalker.Bind(readCollection);
-    const typename ImpurityWalker::BufferTypes::Index numberOfFeatures =  mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? featureValues.GetM() : featureValues.GetN();
+
+    MatrixBufferTemplate<typename ImpurityWalker::BufferTypes::FeatureValue> const* featureValues = NULL;
+    MatrixBufferTemplate<typename ImpurityWalker::BufferTypes::FeatureValue> sliceFeatureValues;
+    VectorBufferTemplate<typename ImpurityWalker::BufferTypes::Index> includedSamples;
+
+    if(numberOfDatapoints <= mNumberOfSamples)       
+    {
+        includedSamples = VectorBufferTemplate<typename ImpurityWalker::BufferTypes::Index>(numberOfDatapoints);
+        for(int i=0; i<numberOfDatapoints; i++)
+        {
+            includedSamples.Set(i,i);
+        }
+        featureValues = &allFeatureValues;
+    }
+    else
+    {
+        // Sample without replacement so a dimension is not choosen multiple times
+        std::vector<typename ImpurityWalker::BufferTypes::Index> samples(mNumberOfSamples);
+        sampleIndicesWithOutReplacement(&samples[0], mNumberOfSamples, numberOfDatapoints);
+        includedSamples = VectorBufferTemplate<typename ImpurityWalker::BufferTypes::Index>(&samples[0], mNumberOfSamples);
+        sliceFeatureValues = mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ?
+                                 allFeatureValues.SliceColumns( includedSamples )
+                                 : allFeatureValues.Slice( includedSamples );
+        featureValues = &sliceFeatureValues;
+    }
+    // Make a local non-const walker and bind i
+    impurityWalker.Bind(readCollection, includedSamples);
 
     // Bind output buffers
     MatrixBufferTemplate<typename ImpurityWalker::BufferTypes::ImpurityValue>& impurities
@@ -199,43 +174,17 @@ void BestSplitpointsWalkingSortedStep<ImpurityWalker>::ProcessStep(const BufferC
         VectorBufferTemplate<typename ImpurityWalker::BufferTypes::SufficientStatsContinuous> bestLeftYs(impurityWalker.GetYDim());
         VectorBufferTemplate<typename ImpurityWalker::BufferTypes::SufficientStatsContinuous> bestRightYs(impurityWalker.GetYDim());
 
-        FeatureSorter<typename ImpurityWalker::BufferTypes::FeatureValue> sorter(featureValues, mFeatureValueOrdering, f);
+        FeatureSorter<typename ImpurityWalker::BufferTypes::FeatureValue> sorter(*featureValues, mFeatureValueOrdering, f);
         sorter.Sort();
-
-        typename ImpurityWalker::BufferTypes::FeatureValue boundsMin = std::numeric_limits<typename ImpurityWalker::BufferTypes::FeatureValue>::max();
-        typename ImpurityWalker::BufferTypes::FeatureValue boundsMax = -std::numeric_limits<typename ImpurityWalker::BufferTypes::FeatureValue>::max();
-        if( mNumberOfInBoundsDatapoints > 0)
-        {
-            const int numberOfSamples = sorter.GetNumberOfSamples();
-            std::vector<int> inboundSamples(numberOfSamples);
-            const int numberOfInBoundsSamples = std::min(numberOfSamples, mNumberOfInBoundsDatapoints);
-            sampleWithOutReplacement(&inboundSamples[0], numberOfSamples, numberOfInBoundsSamples);
-
-            for(int sortedIndex=0; sortedIndex<numberOfSamples; sortedIndex++)
-            {
-                if(inboundSamples[sortedIndex] )
-                {
-                    boundsMin = std::min(boundsMin, sorter.GetFeatureValue(sortedIndex));
-                    boundsMax = std::max(boundsMax, sorter.GetFeatureValue(sortedIndex));
-                }
-            }
-        }
-        else
-        {
-            boundsMin = -std::numeric_limits<typename ImpurityWalker::BufferTypes::FeatureValue>::max();
-            boundsMax = std::numeric_limits<typename ImpurityWalker::BufferTypes::FeatureValue>::max();
-        }
 
         for(typename ImpurityWalker::BufferTypes::Index sortedIndex=0; sortedIndex<sorter.GetNumberOfSamples()-1; sortedIndex++)
         {
-            const typename ImpurityWalker::BufferTypes::Index i = sorter.GetUnSortedIndex(sortedIndex);
+            const typename ImpurityWalker::BufferTypes::Index i = includedSamples.Get(sorter.GetUnSortedIndex(sortedIndex));
 
             impurityWalker.MoveLeftToRight(i);
 
             const typename ImpurityWalker::BufferTypes::FeatureValue consecutiveFeatureDelta = sorter.GetFeatureValue(sortedIndex+1) - sorter.GetFeatureValue(sortedIndex);
             if((std::abs(consecutiveFeatureDelta) > std::numeric_limits<typename ImpurityWalker::BufferTypes::FeatureValue>::epsilon())
-              && (sorter.GetFeatureValue(sortedIndex) >= boundsMin)
-              && (sorter.GetFeatureValue(sortedIndex) <= boundsMax)
               && impurityWalker.Impurity() > bestImpurity)
             {
                 hasValidSplit = true;

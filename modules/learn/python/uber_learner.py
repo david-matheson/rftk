@@ -313,6 +313,7 @@ def uber_create_learner(**kwargs):
                                                                                   slice_ys_step.SlicedBufferId,
                                                                                   number_of_classes)
                 if 'in_bounds_number_of_points' in kwargs:
+                    assert('number_of_splitpoint_samples' not in kwargs)
                     in_bounds_number_of_points = int(pop_kwargs(kwargs, 
                                                 'in_bounds_number_of_points', 
                                                 unused_kwargs_keys, 
@@ -322,6 +323,13 @@ def uber_create_learner(**kwargs):
                                                                                         feature_ordering,
                                                                                         splitpoint_location,
                                                                                         in_bounds_number_of_points)
+                elif 'number_of_splitpoint_samples' in kwargs:
+                    number_of_splitpoint_samples = int(pop_kwargs(kwargs, 'number_of_splitpoint_samples', unused_kwargs_keys))
+                    best_splitpoint_step = classification.ClassInfoGainDownSampleBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,
+                                                                    feature_extractor_step.FeatureValuesBufferId,
+                                                                    feature_ordering,
+                                                                    splitpoint_location,
+                                                                    number_of_splitpoint_samples)
 
                 else:
                     best_splitpoint_step = classification.ClassInfoGainBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,
@@ -358,6 +366,7 @@ def uber_create_learner(**kwargs):
                                                                         slice_ys_step.SlicedBufferId,
                                                                         dimension_of_y)
                 if 'in_bounds_number_of_points' in kwargs:
+                    assert('number_of_splitpoint_samples' not in kwargs)
                     in_bounds_number_of_points = int(pop_kwargs(kwargs, 
                                                 'in_bounds_number_of_points', 
                                                 unused_kwargs_keys, 
@@ -367,6 +376,14 @@ def uber_create_learner(**kwargs):
                                                                                         feature_ordering,
                                                                                         splitpoint_location,
                                                                                         in_bounds_number_of_points)
+
+                elif 'number_of_splitpoint_samples' in kwargs:
+                    number_of_splitpoint_samples = int(pop_kwargs(kwargs, 'number_of_splitpoint_samples', unused_kwargs_keys))
+                    best_splitpoint_step = regression.SumOfVarianceDownSampleBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,
+                                                                    feature_extractor_step.FeatureValuesBufferId,
+                                                                    feature_ordering,
+                                                                    splitpoint_location,
+                                                                    number_of_splitpoint_samples)
 
                 else:
                     best_splitpoint_step = regression.SumOfVarianceBestSplitpointsWalkingSortedStep_f32i32(impurity_walker,

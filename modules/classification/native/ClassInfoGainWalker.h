@@ -28,6 +28,7 @@ public:
     virtual ~ClassInfoGainWalker();
 
     void Bind(const BufferCollectionStack& readCollection);
+    void Bind(const BufferCollectionStack& readCollection, const VectorBufferTemplate<typename BT::Index>& includedSamples );
     void Reset();
 
     void MoveLeftToRight(typename BT::Index sampleIndex);
@@ -114,6 +115,35 @@ void ClassInfoGainWalker<BT>::Bind(const BufferCollectionStack& readCollection)
 
     Reset();
 }
+
+template <class BT>
+void ClassInfoGainWalker<BT>::Bind(const BufferCollectionStack& readCollection, const VectorBufferTemplate<typename BT::Index>& includedSamples )
+{
+    ASSERT(readCollection.HasBuffer< VectorBufferTemplate<typename BT::ParamsContinuous> >(mSampleWeightsBufferId));
+    ASSERT(readCollection.HasBuffer< VectorBufferTemplate<typename BT::SourceInteger> >(mClassesBufferId));
+    mSampleWeights = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::ParamsContinuous> >(mSampleWeightsBufferId);
+    mClasses = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::SourceInteger> >(mClassesBufferId);
+    ASSERT_ARG_DIM_1D(mSampleWeights->GetN(), mClasses->GetN())
+
+    for(typename BT::Index s=0; s<includedSamples.GetN(); s++)
+    {
+        typename BT::Index i = includedSamples.Get(s);
+        mAllClassHistogram.Incr(mClasses->Get(i), mSampleWeights->Get(i));
+    }
+
+    typename BT::SufficientStatsContinuous zero = typename BT::SufficientStatsContinuous(0.0);
+    for(typename BT::Index c=0; c<mNumberOfClasses; c++)
+    {
+        const typename BT::SufficientStatsContinuous logClass = 
+                mAllClassHistogram.Get(c) > zero ? log2(mAllClassHistogram.Get(c)) : zero;
+        mAllLogClassHistogram.Set(c, logClass);
+    }
+
+    mStartEntropy = calcDiscreteEntropy<BT>(mAllClassHistogram.Sum(), mAllClassHistogram, mAllLogClassHistogram);
+
+    Reset();
+}
+
 
 template <class BT>
 void ClassInfoGainWalker<BT>::Reset()
