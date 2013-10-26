@@ -49,12 +49,12 @@ def create_should_split_criteria(unused_kwargs_keys=[], **kwargs):
     elif split_criteria_type == 'online_consistent':
         min_impurity = float( pop_kwargs(kwargs, 'min_impurity', unused_kwargs_keys, 0.0))
         number_of_data_to_split_root = float( pop_kwargs(kwargs, 'number_of_data_to_split_root', unused_kwargs_keys) )
-        number_of_data_to_force_split_root = float( pop_kwargs(kwargs, 'number_of_data_to_force_split_root', unused_kwargs_keys))
+        number_of_data_to_force_split_root_ratio = float( pop_kwargs(kwargs, 'number_of_data_to_force_split_root_ratio', unused_kwargs_keys))
         split_rate_growth = float( pop_kwargs(kwargs, 'split_rate_growth', unused_kwargs_keys)  )
 
         online_consistent_criteria = should_split.OnlineConsistentCriteria( min_impurity,
                                                                             number_of_data_to_split_root,
-                                                                            number_of_data_to_force_split_root,
+                                                                            number_of_data_to_split_root*number_of_data_to_force_split_root_ratio,
                                                                             split_rate_growth)
         should_split_criteria_list.append(online_consistent_criteria)
     else:
