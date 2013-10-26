@@ -506,13 +506,19 @@ def uber_create_learner(**kwargs):
             assert(streams_type == 'one_stream' and extractor_type == 'axis_aligned')
             if data_type == 'matrix':
                 feature_range_min_max_step = pipeline.FeatureRangeStep_Default(buffers.X_FLOAT_DATA, pipeline.DATAPOINTS_BY_FEATURES)
+                forest_steps.append(feature_range_min_max_step)
+                slice_range_min_max_step = matrix_features.SliceFloatMatrixFromAxisAlignedFeaturesStep_Default(feature_range_min_max_step.FeatureRangeMinMaxBufferId, feature_params_step.IntParamsBufferId)
             elif data_type == 'sparse_matrix':
                 feature_range_min_max_step = pipeline.FeatureRangeStep_Sparse_Default(buffers.X_FLOAT_DATA, pipeline.DATAPOINTS_BY_FEATURES)
+                forest_steps.append(feature_range_min_max_step)
+                slice_range_min_max_step = matrix_features.SliceFloatMatrixFromAxisAlignedFeaturesStep_Default(feature_range_min_max_step.FeatureRangeMinMaxBufferId, feature_params_step.IntParamsBufferId)
             else:
-                raise Exception('unknown data_type=%s' % data_type)
+                feature_range = int(pop_kwargs(kwargs, 'feature_range', unused_kwargs_keys, 1))
+                feature_ranges_buffer = np.array((number_of_features, 2), dtype=np.float32)
+                set_feature_ranges_buffer_step = pipeline.SetFloat32MatrixBufferStep(feature_ranges_buffer, pipeline.WHEN_NEW)
+                forest_steps.append(set_feature_ranges_buffer_step)
+                slice_range_min_max_step = matrix_features.SliceFloatMatrixFromAxisAlignedFeaturesStep_Default(set_feature_ranges_buffer_step.OutputBufferId, feature_params_step.IntParamsBufferId)
 
-            forest_steps.append(feature_range_min_max_step)
-            slice_range_min_max_step = matrix_features.SliceFloatMatrixFromAxisAlignedFeaturesStep_Default(feature_range_min_max_step.FeatureRangeMinMaxBufferId, feature_params_step.IntParamsBufferId)
             node_steps_update.append(slice_range_min_max_step)
             number_of_splitpoints = int(pop_kwargs(kwargs, 'number_of_splitpoints', unused_kwargs_keys))
             splitpoint_selection_step = splitpoints.RandomUniformSplitpointsInRangeStep_Default(slice_range_min_max_step.SlicedBufferId, number_of_splitpoints)
