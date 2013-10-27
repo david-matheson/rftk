@@ -40,7 +40,8 @@ private:
     void SampleParams(  typename BufferTypes::ParamsInteger numberOfFeatures,
                         typename BufferTypes::ParamsInteger numberOfDimensions,
                         MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams,
-                        MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams) const;
+                        MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams,
+                        boost::mt19937& gen) const;
 
     const BufferId mNumberOfFeaturesBufferId;
     const BufferId mMatrixDataBufferId;
@@ -93,7 +94,7 @@ void DimensionPairDifferenceParamsStep<BufferTypes, DataMatrixType>::ProcessStep
     MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams =
             writeCollection.GetOrAddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(IntParamsBufferId);
 
-    SampleParams(numberOfFeatures, numberOfDimensions, floatParams, intParams);
+    SampleParams(numberOfFeatures, numberOfDimensions, floatParams, intParams, gen);
 
 }
 
@@ -101,21 +102,21 @@ template <class BufferTypes, class DataMatrixType>
 void DimensionPairDifferenceParamsStep<BufferTypes, DataMatrixType>::SampleParams(typename BufferTypes::ParamsInteger numberOfFeatures,
                                                             typename BufferTypes::ParamsInteger numberOfDimensions,
                                                             MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams,
-                                                            MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams ) const
+                                                            MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams,
+                                                            boost::mt19937& gen ) const
 {
     floatParams.Resize(numberOfFeatures, DIMENSION_OF_PARAMETERS);
     intParams.Resize(numberOfFeatures, DIMENSION_OF_PARAMETERS);
 
-    // Sample without replacement so a dimension is not choosen multiple times
-    std::vector<typename BufferTypes::Index> candidateDimensions(numberOfFeatures*2);
-    sampleIndicesWithOutReplacement(&candidateDimensions[0], numberOfFeatures*2, numberOfDimensions);
+    boost::uniform_int<> uniform_dimensions(0,numberOfDimensions-1);
+    boost::variate_generator<boost::mt19937&,boost::uniform_int<> > var_uniform_dimensions(gen, uniform_dimensions);
 
     for(typename BufferTypes::ParamsInteger i=0; i<numberOfFeatures; i++)
     {
         intParams.Set(i, FEATURE_TYPE_INDEX, MATRIX_FEATURES); // feature type
         intParams.Set(i, NUMBER_OF_DIMENSIONS_INDEX, 2); // how many dimensions in projection
-        intParams.Set(i, PARAM_START_INDEX, candidateDimensions[i*2]); // dimension index
-        intParams.Set(i, PARAM_START_INDEX+1, candidateDimensions[i*2+1]); // dimension index
+        intParams.Set(i, PARAM_START_INDEX, var_uniform_dimensions()); // dimension index
+        intParams.Set(i, PARAM_START_INDEX+1, var_uniform_dimensions()); // dimension index
         floatParams.Set(i, PARAM_START_INDEX, static_cast<typename BufferTypes::ParamsContinuous>(1.0)); // use a weight of 1.0
         floatParams.Set(i, PARAM_START_INDEX+1, static_cast<typename BufferTypes::ParamsContinuous>(-1.0)); // use a weight of -1.0
     }

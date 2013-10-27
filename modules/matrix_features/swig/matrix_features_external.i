@@ -3,6 +3,7 @@
     #define SWIG_FILE_WITH_INIT
     #include "AxisAlignedParamsStep.h"
     #include "DimensionPairDifferenceParamsStep.h"
+    #include "RandomProjectionParamsStep.h"
     #include "ClassPairDifferenceParamsStep.h"
     #include "LinearMatrixFeature.h"
 %}
@@ -14,6 +15,7 @@
 
 %include "AxisAlignedParamsStep.h"
 %include "DimensionPairDifferenceParamsStep.h"
+%include "RandomProjectionParamsStep.h"
 %include "ClassPairDifferenceParamsStep.h"
 %include "LinearMatrixFeature.h"
 

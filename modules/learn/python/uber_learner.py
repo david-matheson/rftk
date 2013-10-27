@@ -175,16 +175,18 @@ def uber_create_learner(**kwargs):
     # Default number of features to extract
     if (data_type == 'matrix' or data_type == 'sparse_matrix') and prediction_type == 'classification':
         default_number_of_features = int(np.sqrt(pop_kwargs(kwargs, 'x', unused_kwargs_keys).shape[1]))
-        number_of_datapoints = pop_kwargs(kwargs, 'classes', unused_kwargs_keys).shape[0]/2
+        number_of_dimensions_in_subspace_default = int(pop_kwargs(kwargs, 'x', unused_kwargs_keys).shape[1])
+        number_of_datapoints = pop_kwargs(kwargs, 'classes', unused_kwargs_keys).shape[0]
     elif (data_type == 'matrix' or data_type == 'sparse_matrix') and prediction_type == 'regression':
         default_number_of_features = int(pop_kwargs(kwargs, 'x', unused_kwargs_keys).shape[1]/3 + 0.5)
-        number_of_datapoints = pop_kwargs(kwargs, 'y', unused_kwargs_keys).shape[0]/2
+        number_of_dimensions_in_subspace_default = int(pop_kwargs(kwargs, 'x', unused_kwargs_keys).shape[1])
+        number_of_datapoints = pop_kwargs(kwargs, 'y', unused_kwargs_keys).shape[0]
     elif data_type == 'depth_image' and prediction_type == 'classification':
         default_number_of_features = 1
-        number_of_datapoints = pop_kwargs(kwargs, 'classes', unused_kwargs_keys).GetN()/2
+        number_of_datapoints = pop_kwargs(kwargs, 'classes', unused_kwargs_keys).GetN()
     elif data_type == 'depth_image' and prediction_type == 'regression':
         default_number_of_features = 1
-        number_of_datapoints = pop_kwargs(kwargs, 'y', unused_kwargs_keys).GetM()/2
+        number_of_datapoints = pop_kwargs(kwargs, 'y', unused_kwargs_keys).GetM()
     else:
         raise Exception("unknown data_type")
 
@@ -209,12 +211,20 @@ def uber_create_learner(**kwargs):
         if extractor_type == 'axis_aligned':
             feature_params_step = matrix_features.AxisAlignedParamsStep_f32i32(set_number_features_step.OutputBufferId, buffers.X_FLOAT_DATA)
         elif extractor_type == 'dimension_pair_diff':
+            _ = pop_kwargs(kwargs, 'number_of_dimensions_in_subspace', unused_kwargs_keys) #pop so configs don't get errors
             feature_params_step = matrix_features.DimensionPairDifferenceParamsStep_f32i32(set_number_features_step.OutputBufferId, buffers.X_FLOAT_DATA ) 
+        elif extractor_type == 'random_projection':
+            number_of_dimensions_in_subspace = int( pop_kwargs(kwargs, 'number_of_dimensions_in_subspace', unused_kwargs_keys, number_of_dimensions_in_subspace_default) )         
+            feature_params_step = matrix_features.RandomProjectionParamsStep_f32i32(set_number_features_step.OutputBufferId,
+                                                                                      buffers.X_FLOAT_DATA,
+                                                                                      number_of_dimensions_in_subspace)
         elif extractor_type == 'class_pair_diff':
+            number_of_dimensions_in_subspace = int( pop_kwargs(kwargs, 'number_of_dimensions_in_subspace', unused_kwargs_keys, number_of_dimensions_in_subspace_default) )
             feature_params_step = matrix_features.ClassPairDifferenceParamsStep_f32i32(set_number_features_step.OutputBufferId,
                                                                                       buffers.X_FLOAT_DATA,
                                                                                       buffers.CLASS_LABELS,
-                                                                                      sample_data_step.IndicesBufferId )
+                                                                                      sample_data_step.IndicesBufferId,
+                                                                                      number_of_dimensions_in_subspace )
         else:
             raise Exception("unknown extractor_type %s" % extractor_type)
 
@@ -227,12 +237,20 @@ def uber_create_learner(**kwargs):
         if extractor_type == 'axis_aligned':
             feature_params_step = matrix_features.AxisAlignedParamsStep_Sparse_f32i32(set_number_features_step.OutputBufferId, buffers.X_FLOAT_DATA)
         elif extractor_type == 'dimension_pair_diff':
+            _ = pop_kwargs(kwargs, 'number_of_dimensions_in_subspace', unused_kwargs_keys) #pop so configs don't get errors
             feature_params_step = matrix_features.DimensionPairDifferenceParamsStep_Sparse_f32i32(set_number_features_step.OutputBufferId, buffers.X_FLOAT_DATA ) 
+        elif extractor_type == 'random_projection':
+            number_of_dimensions_in_subspace = int( pop_kwargs(kwargs, 'number_of_dimensions_in_subspace', unused_kwargs_keys, number_of_dimensions_in_subspace_default) )         
+            feature_params_step = matrix_features.RandomProjectionParamsStep_Sparse_f32i32(set_number_features_step.OutputBufferId,
+                                                                                      buffers.X_FLOAT_DATA,
+                                                                                      number_of_dimensions_in_subspace)
         elif extractor_type == 'class_pair_diff':
+            number_of_dimensions_in_subspace = int( pop_kwargs(kwargs, 'number_of_dimensions_in_subspace', unused_kwargs_keys, number_of_dimensions_in_subspace_default) )
             feature_params_step = matrix_features.ClassPairDifferenceParamsStep_Sparse_f32i32(set_number_features_step.OutputBufferId,
                                                                                       buffers.X_FLOAT_DATA,
                                                                                       buffers.CLASS_LABELS,
-                                                                                      sample_data_step.IndicesBufferId )
+                                                                                      sample_data_step.IndicesBufferId,
+                                                                                      number_of_dimensions_in_subspace )
         else:
             raise Exception("unknown extractor_type %s" % extractor_type)
 

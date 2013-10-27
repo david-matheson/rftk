@@ -16,10 +16,12 @@
 %include "SliceAxisAlignedFeaturesStep.h"
 
 %template(AxisAlignedParamsStep_f32i32) AxisAlignedParamsStep< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
+%template(RandomProjectionParamsStep_f32i32) RandomProjectionParamsStep< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
 %template(DimensionPairDifferenceParamsStep_f32i32) DimensionPairDifferenceParamsStep< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
 %template(ClassPairDifferenceParamsStep_f32i32) ClassPairDifferenceParamsStep< DefaultBufferTypes, MatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
 
 %template(AxisAlignedParamsStep_Sparse_f32i32) AxisAlignedParamsStep< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
+%template(RandomProjectionParamsStep_Sparse_f32i32) RandomProjectionParamsStep< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
 %template(DimensionPairDifferenceParamsStep_Sparse_f32i32) DimensionPairDifferenceParamsStep< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
 %template(ClassPairDifferenceParamsStep_Sparse_f32i32) ClassPairDifferenceParamsStep< DefaultBufferTypes, SparseMatrixBufferTemplate<DefaultBufferTypes::SourceContinuous> >;
 
