@@ -132,6 +132,7 @@ def uber_create_learner(**kwargs):
     tree_type = pop_kwargs(kwargs, 'tree_type', unused_kwargs_keys)
     feature_ordering = int( pop_kwargs(kwargs, 'feature_ordering', unused_kwargs_keys, pipeline.FEATURES_BY_DATAPOINTS) )
     streams_type = pop_kwargs(kwargs, 'streams_type', unused_kwargs_keys, 'one_stream')
+    feature_range = int(pop_kwargs(kwargs, 'feature_range', unused_kwargs_keys, 1)) #popping so feature range can be given to all configs
 
     selector_type_default = 'best_valid'
     if tree_type == 'online':
@@ -481,7 +482,6 @@ def uber_create_learner(**kwargs):
 
         # Select splitpoints at midpoint of the range
         elif constant_splitpoints_type == 'at_range_midpoints':
-            feature_range = int(pop_kwargs(kwargs, 'feature_range', unused_kwargs_keys, 1))
             feature_range_buffer = buffers.as_vector_buffer(np.array([-feature_range, feature_range], dtype=np.float32))
             set_feature_range_buffer_step = pipeline.SetFloat32VectorBufferStep(feature_range_buffer, pipeline.WHEN_NEW)
             quantized_feature_equal = pipeline.FeatureEqualQuantized_f32i32(1.0)
@@ -503,19 +503,20 @@ def uber_create_learner(**kwargs):
             number_of_splitpoints = int(pop_kwargs(kwargs, 'number_of_splitpoints', unused_kwargs_keys))
             splitpoint_selection_step = splitpoints.RandomUniformSplitpointsInRangeStep_Default(feature_range_min_max_step.FeatureRangeMinMaxBufferId, number_of_splitpoints)
         elif constant_splitpoints_type == 'uniform_random_across_dataset':
-            assert(streams_type == 'one_stream' and extractor_type == 'axis_aligned')
-            if data_type == 'matrix':
+            assert(streams_type == 'one_stream')
+            if data_type == 'matrix' and extractor_type == 'axis_aligned':
                 feature_range_min_max_step = pipeline.FeatureRangeStep_Default(buffers.X_FLOAT_DATA, pipeline.DATAPOINTS_BY_FEATURES)
                 forest_steps.append(feature_range_min_max_step)
                 slice_range_min_max_step = matrix_features.SliceFloatMatrixFromAxisAlignedFeaturesStep_Default(feature_range_min_max_step.FeatureRangeMinMaxBufferId, feature_params_step.IntParamsBufferId)
-            elif data_type == 'sparse_matrix':
+            elif data_type == 'sparse_matrix' and extractor_type == 'axis_aligned':
                 feature_range_min_max_step = pipeline.FeatureRangeStep_Sparse_Default(buffers.X_FLOAT_DATA, pipeline.DATAPOINTS_BY_FEATURES)
                 forest_steps.append(feature_range_min_max_step)
                 slice_range_min_max_step = matrix_features.SliceFloatMatrixFromAxisAlignedFeaturesStep_Default(feature_range_min_max_step.FeatureRangeMinMaxBufferId, feature_params_step.IntParamsBufferId)
             else:
-                feature_range = int(pop_kwargs(kwargs, 'feature_range', unused_kwargs_keys, 1))
-                feature_ranges_buffer = np.array((number_of_features, 2), dtype=np.float32)
-                set_feature_ranges_buffer_step = pipeline.SetFloat32MatrixBufferStep(feature_ranges_buffer, pipeline.WHEN_NEW)
+                feature_ranges = np.zeros((number_of_features, 2), dtype=np.float32)
+                feature_ranges[:,0] = -feature_range
+                feature_ranges[:,1] = feature_range
+                set_feature_ranges_buffer_step = pipeline.SetFloat32MatrixBufferStep(buffers.as_matrix_buffer(feature_ranges), pipeline.WHEN_NEW)
                 forest_steps.append(set_feature_ranges_buffer_step)
                 slice_range_min_max_step = matrix_features.SliceFloatMatrixFromAxisAlignedFeaturesStep_Default(set_feature_ranges_buffer_step.OutputBufferId, feature_params_step.IntParamsBufferId)
 
