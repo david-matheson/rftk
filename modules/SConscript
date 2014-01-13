@@ -22,7 +22,7 @@ except AttributeError:
 env = Environment(
                   CC='clang',
                   CXX='clang',
-                  SWIGFLAGS=['-python', '-c++', '-Werror', '-w490', '-w362'],
+                  SWIGFLAGS=['-python', '-c++', '-w490', '-w362'],
                   CPPPATH=[distutils.sysconfig.get_python_inc(), numpy_include],
                   CCFLAGS=ccflags,
                   CPPDEFINES=cppdefines,
@@ -30,7 +30,7 @@ env = Environment(
                   RPATH=['%s/lib' % Dir(install_path).abspath]
                   )
 
-non_swig_warnings = ['-Wall', '-Wextra', '-Weffc++', '-Werror']
+non_swig_warnings = ['-Wall', '-Wextra', '-Weffc++']
 
 ###############################################################################
 def build_rftk_module(env, non_swig_warnings, variant_name, module_name, depends, external_libs):
