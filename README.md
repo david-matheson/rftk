@@ -15,9 +15,13 @@ Key Features
 
 Setup
 --------------
+Tested on ubuntu-12.04.03 and ubuntu-13.10
+
 Install dependencies
 
-    > sudo apt-get install scons
+    > sudo apt-get install git
+    > sudo apt-get install scons swig clang
+    > sudo apt-get install python-numpy python-scipy python-matplotlib
     > sudo apt-get install libboost-all-dev
 
 Clone the project

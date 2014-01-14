@@ -21,7 +21,7 @@ except AttributeError:
 ###############################################################################
 env = Environment(
                   CC='clang',
-                  CXX='clang',
+                  CXX='clang++',
                   SWIGFLAGS=['-python', '-c++', '-w490', '-w362'],
                   CPPPATH=[distutils.sysconfig.get_python_inc(), numpy_include],
                   CCFLAGS=ccflags,
