@@ -22,7 +22,7 @@ DepthFirstTreeLearner<CdflBufferTypes_t> CreateDepthFirstLearner( BufferCollecti
 
     // Node steps
     std::vector<PipelineStepI*> nodeSteps;
-    AxisAlignedParamsStep<CdflBufferTypes_t> featureParams(numberOfFeatures.OutputBufferId, xs_key);
+    AxisAlignedParamsStep<CdflBufferTypes_t, MatrixBufferTemplate<CdflBufferTypes_t::SourceContinuous > > featureParams(numberOfFeatures.OutputBufferId, xs_key);
     nodeSteps.push_back(&featureParams);
     LinearMatrixFeature<CdflBufferTypes_t, MatrixBufferTemplate<CdflBufferTypes_t::SourceContinuous > > feature(featureParams.FloatParamsBufferId,
                                                                           featureParams.IntParamsBufferId,
