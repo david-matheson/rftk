@@ -53,6 +53,10 @@ public:
     Forest GetForest() const;
 
 private:
+    OnlineForestLearner(const OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError,FloatType, IntType>& rhs);
+    OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError,FloatType, IntType> & operator= 
+                      (const OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError,FloatType, IntType> & other);
+
     void UpdateActiveFrontier();
 
     const TrySplitCriteriaI* mTrySplitCriteria;

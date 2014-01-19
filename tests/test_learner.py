@@ -2,17 +2,7 @@ import unittest as unittest
 import numpy as np
 
 import rftk
-import rftk.buffers as buffers
-import rftk.bootstrap as bootstrap
-import rftk.pipeline as pipeline
-import rftk.matrix_features as matrix_features
-import rftk.classification as classification
-import rftk.try_split as try_split
-import rftk.splitpoints as splitpoints
-import rftk.should_split as should_split
-import rftk.forest_data as forest_data
-import rftk.learn as learn
-import rftk.predict as predict
+
 
 class TestNew(unittest.TestCase):
 
