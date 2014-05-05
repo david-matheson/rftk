@@ -14,7 +14,7 @@ class MatrixForestPredictor:
         buffer_collection = buffers.BufferCollection()
         buffer_collection.AddFloat32MatrixBuffer(buffers.X_FLOAT_DATA, buffers.as_matrix_buffer(x))
 
-        number_of_classes = self.forest_data.GetTree(0).mYs.GetN()
+        number_of_classes = self.forest_data.GetTree(0).GetYs().GetN()
         all_samples_step = pipeline.AllSamplesStep_f32f32i32(buffers.X_FLOAT_DATA)
         combiner = classification.ClassProbabilityCombiner_f32(number_of_classes)
         matrix_feature = matrix_features.LinearFloat32MatrixFeature_f32i32(all_samples_step.IndicesBufferId,

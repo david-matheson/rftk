@@ -3,6 +3,7 @@
 #include "ClassEstimatorUpdater.h"
 #include "ClassInfoGainImpurity.h"
 #include "ClassInfoGainWalker.h"
+#include "ClassInfoGainTwoStreamWalker.h"
 #include "ClassStatsUpdater.h"
 #include "ClassProbabilityCombiner.h"
 #include "ClassProbabilityOfError.h"

@@ -4,6 +4,7 @@
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
 #include "ClassStatsUpdater.h"
+#include "BufferTypes.h"
 
 BOOST_AUTO_TEST_SUITE( ClassStatsUpdaterTests )
 
@@ -24,8 +25,8 @@ BOOST_AUTO_TEST_CASE(test_UpdateStats)
     bc.AddBuffer(classes_key, classes);
 
     const int numberOfClasses = 3;
-    ClassStatsUpdater<float, int> classStatsUpdater(weights_key, classes_key, numberOfClasses);
-    BindedClassStatsUpdater<float, int> bindedClassStatsUpdater = classStatsUpdater.Bind(stack);
+    ClassStatsUpdater<SinglePrecisionBufferTypes> classStatsUpdater(weights_key, classes_key, numberOfClasses);
+    BindedClassStatsUpdater<SinglePrecisionBufferTypes> bindedClassStatsUpdater = classStatsUpdater.Bind(stack);
 
     float counts;
     Tensor3BufferTemplate<float> stats(4,5,numberOfClasses);

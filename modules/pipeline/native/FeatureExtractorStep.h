@@ -6,12 +6,8 @@
 #include "BufferCollectionStack.h"
 #include "PipelineStepI.h"
 #include "UniqueBufferId.h"
-
-enum FeatureValueOrdering
-{
-    FEATURES_BY_DATAPOINTS,
-    DATAPOINTS_BY_FEATURES
-};
+#include "FeatureInfoLoggerI.h"
+#include "FeatureOrdering.h"
 
 // ----------------------------------------------------------------------------
 //
@@ -20,7 +16,7 @@ enum FeatureValueOrdering
 //
 // ----------------------------------------------------------------------------
 template <class FeatureType>
-class FeatureExtractorStep: public PipelineStepI
+class FeatureExtractorStep: public PipelineStepI, public FeatureInfoLoggerI
 {
 public:
     FeatureExtractorStep(const FeatureType& feature, FeatureValueOrdering ordering);
@@ -30,7 +26,14 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
+
+    virtual void LogFeatureInfo( const BufferCollectionStack& readCollection, int depth,
+                                const int featureOffset, const double featureImpurity, const bool isSelectedFeature, 
+                                BufferCollection& extraInfo) const;
+
+    virtual FeatureInfoLoggerI* CloneFeatureInfoLoggerI() const;
 
     // Read only output buffer
     const BufferId FeatureValuesBufferId;
@@ -41,7 +44,8 @@ private:
 
 template <class FeatureType>
 FeatureExtractorStep<FeatureType>::FeatureExtractorStep(const FeatureType& feature, FeatureValueOrdering ordering)
-: FeatureValuesBufferId(GetBufferId("FeatureValues"))
+: PipelineStepI("FeatureExtractorStep")
+, FeatureValuesBufferId(GetBufferId("FeatureValues"))
 , mFeature(feature)
 , mOrdering(ordering)
 {}
@@ -53,16 +57,19 @@ FeatureExtractorStep<FeatureType>::~FeatureExtractorStep()
 template <class FeatureType>
 PipelineStepI* FeatureExtractorStep<FeatureType>::Clone() const
 {
-    FeatureExtractorStep* clone = new FeatureExtractorStep<FeatureType>(*this);
+    PipelineStepI* clone = new FeatureExtractorStep<FeatureType>(*this);
     return clone;
 }
 
 template <class FeatureType>
 void FeatureExtractorStep<FeatureType>::ProcessStep(const BufferCollectionStack& readCollection,
                                                 BufferCollection& writeCollection,
-                                                boost::mt19937& gen) const
+                                                boost::mt19937& gen,
+                                                BufferCollection& extraInfo, int nodeIndex) const
 {
     UNUSED_PARAM(gen);
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
     typename FeatureType::FeatureBinding featureBinding = mFeature.Bind(readCollection);
 
     typename FeatureType::Int numberOfFeatures = featureBinding.GetNumberOfFeatures();
@@ -85,4 +92,19 @@ void FeatureExtractorStep<FeatureType>::ProcessStep(const BufferCollectionStack&
             featureValues.Set(r,c, value);
         }
     }
+}
+
+template <class FeatureType>
+void FeatureExtractorStep<FeatureType>::LogFeatureInfo( const BufferCollectionStack& readCollection, int depth,
+                                                        const int featureOffset, const double featureImpurity, const bool isSelectedFeature, 
+                                                        BufferCollection& extraInfo ) const
+{
+    return mFeature.LogFeatureInfo(readCollection, depth, featureOffset, featureImpurity, isSelectedFeature, extraInfo);
+}
+
+template <class FeatureType>
+FeatureInfoLoggerI* FeatureExtractorStep<FeatureType>::CloneFeatureInfoLoggerI() const
+{
+    FeatureInfoLoggerI* clone = new FeatureExtractorStep<FeatureType>(*this);
+    return clone;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "VectorBuffer.h"
+#include "BufferTypes.h"
 
 // ----------------------------------------------------------------------------
 //
@@ -8,11 +9,13 @@
 // to the tree
 //
 // ----------------------------------------------------------------------------
-template <class FloatType>
+template <class BufferTypes>
 class FinalizerI
 {
 public:
-    virtual void Finalize(FloatType count, VectorBufferTemplate<FloatType>& estimator) const=0;
-    virtual FinalizerI<FloatType>* Clone() const=0;
+    virtual VectorBufferTemplate<typename BufferTypes::TreeEstimator> Finalize(
+    						const typename BufferTypes::DatapointCounts count, 
+    						const VectorBufferTemplate<typename BufferTypes::SufficientStatsContinuous>& estimator) const=0;
+    virtual FinalizerI<BufferTypes>* Clone() const=0;
     virtual ~FinalizerI() {}
 };

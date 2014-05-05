@@ -2,6 +2,9 @@
 
 #include <boost/random/uniform_int.hpp>
 
+#include <vector>
+#include <algorithm>
+
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
@@ -19,105 +22,114 @@
 // between a pair of datapoints of different classes
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType>
+template <class BufferTypes, class DataMatrixType>
 class ClassPairDifferenceParamsStep: public PipelineStepI
 {
 public:
     ClassPairDifferenceParamsStep( const BufferId& numberOfFeatures,
                                     const BufferId& matrixData,
                                     const BufferId& classes,
-                                    const BufferId& indices );
+                                    const BufferId& indices,
+                                    const int subspaceDimension );
     virtual ~ClassPairDifferenceParamsStep();
 
     virtual PipelineStepI* Clone() const;
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     // Read only output buffers
     const BufferId FloatParamsBufferId;
     const BufferId IntParamsBufferId;
 private:
     enum { DIMENSION_OF_PARAMETERS = PARAM_START_INDEX + 1 };
-    void SampleParams(IntType numberOfFeatures,
-                    const MatrixBufferTemplate<FloatType>& matrixBuffer,
-                    const VectorBufferTemplate<IntType>& classesBuffer,
-                    const VectorBufferTemplate<IntType>& indicesBuffer,
-                    MatrixBufferTemplate<FloatType>& floatParams,
-                    MatrixBufferTemplate<IntType>& intParams,
+    void SampleParams(typename BufferTypes::ParamsInteger numberOfFeatures,
+                    const DataMatrixType& matrixBuffer,
+                    const VectorBufferTemplate<typename BufferTypes::SourceInteger>& classesBuffer,
+                    const VectorBufferTemplate<typename BufferTypes::Index>& indicesBuffer,
+                    MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams,
+                    MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams,
                     boost::mt19937& gen ) const;
 
     const BufferId mNumberOfFeaturesBufferId;
     const BufferId mMatrixDataBufferId;
     const BufferId mClassesBufferId;
     const BufferId mIndicesBufferId;
+    const int mSubspaceDimension;
 };
 
 
-template <class FloatType, class IntType>
-ClassPairDifferenceParamsStep<FloatType,IntType>::ClassPairDifferenceParamsStep(  const BufferId& numberOfFeatures,
-                                                                                    const BufferId& matrixData,
-                                                                                    const BufferId& classes,
-                                                                                    const BufferId& indices )
-: FloatParamsBufferId(GetBufferId("FloatParams"))
+template <class BufferTypes, class DataMatrixType>
+ClassPairDifferenceParamsStep<BufferTypes, DataMatrixType>::ClassPairDifferenceParamsStep(  const BufferId& numberOfFeatures,
+                                                                            const BufferId& matrixData,
+                                                                            const BufferId& classes,
+                                                                            const BufferId& indices,
+                                                                            const int subspaceDimension )
+: PipelineStepI("ClassPairDifferenceParamsStep")
+, FloatParamsBufferId(GetBufferId("FloatParams"))
 , IntParamsBufferId(GetBufferId("IntParams"))
 , mNumberOfFeaturesBufferId(numberOfFeatures)
 , mMatrixDataBufferId(matrixData)
 , mClassesBufferId(classes)
 , mIndicesBufferId(indices)
+, mSubspaceDimension(subspaceDimension)
 {}
 
-template <class FloatType, class IntType>
-ClassPairDifferenceParamsStep<FloatType,IntType>::~ClassPairDifferenceParamsStep()
+template <class BufferTypes, class DataMatrixType>
+ClassPairDifferenceParamsStep<BufferTypes, DataMatrixType>::~ClassPairDifferenceParamsStep()
 {}
 
-template <class FloatType, class IntType>
-PipelineStepI* ClassPairDifferenceParamsStep<FloatType,IntType>::Clone() const
+template <class BufferTypes, class DataMatrixType>
+PipelineStepI* ClassPairDifferenceParamsStep<BufferTypes, DataMatrixType>::Clone() const
 {
-    ClassPairDifferenceParamsStep* clone = new ClassPairDifferenceParamsStep<FloatType,IntType>(*this);
+    ClassPairDifferenceParamsStep* clone = new ClassPairDifferenceParamsStep<BufferTypes, DataMatrixType>(*this);
     return clone;
 }
 
-template <class FloatType, class IntType>
-void ClassPairDifferenceParamsStep<FloatType,IntType>::ProcessStep(const BufferCollectionStack& readCollection,
+template <class BufferTypes, class DataMatrixType>
+void ClassPairDifferenceParamsStep<BufferTypes, DataMatrixType>::ProcessStep(const BufferCollectionStack& readCollection,
                                                           BufferCollection& writeCollection,
-                                                          boost::mt19937& gen) const
+                                                          boost::mt19937& gen,
+                                                          BufferCollection& extraInfo, int nodeIndex) const
 {
-    UNUSED_PARAM(gen)
+    UNUSED_PARAM(gen);
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
 
-    const VectorBufferTemplate<IntType>& numberOfFeaturesBuffer =
-            readCollection.GetBuffer< VectorBufferTemplate<IntType> >(mNumberOfFeaturesBufferId);
+    const VectorBufferTemplate<typename BufferTypes::SourceInteger>& numberOfFeaturesBuffer =
+            readCollection.GetBuffer< VectorBufferTemplate<typename BufferTypes::SourceInteger> >(mNumberOfFeaturesBufferId);
     ASSERT_ARG_DIM_1D(numberOfFeaturesBuffer.GetN(), 1)
 
-    const MatrixBufferTemplate<FloatType>& matrixBuffer =
-            readCollection.GetBuffer< MatrixBufferTemplate<FloatType> >(mMatrixDataBufferId);
+    const DataMatrixType& matrixBuffer =
+            readCollection.GetBuffer< DataMatrixType >(mMatrixDataBufferId);
 
-    const VectorBufferTemplate<IntType>& classesBuffer =
-            readCollection.GetBuffer< VectorBufferTemplate<IntType> >(mClassesBufferId);
+    const VectorBufferTemplate<typename BufferTypes::SourceInteger>& classesBuffer =
+            readCollection.GetBuffer< VectorBufferTemplate<typename BufferTypes::SourceInteger> >(mClassesBufferId);
 
-    const VectorBufferTemplate<IntType>& indicesBuffer =
-            readCollection.GetBuffer< VectorBufferTemplate<IntType> >(mIndicesBufferId);
+    const VectorBufferTemplate<typename BufferTypes::Index>& indicesBuffer =
+            readCollection.GetBuffer< VectorBufferTemplate<typename BufferTypes::Index> >(mIndicesBufferId);
 
-    const IntType numberOfFeatures = std::min(numberOfFeaturesBuffer.Get(0), indicesBuffer.GetN());
+    const typename BufferTypes::SourceInteger numberOfFeatures = std::min(numberOfFeaturesBuffer.Get(0), indicesBuffer.GetN());
 
-    MatrixBufferTemplate<FloatType>& floatParams =
-            writeCollection.GetOrAddBuffer< MatrixBufferTemplate<FloatType> >(FloatParamsBufferId);
+    MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams =
+            writeCollection.GetOrAddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(FloatParamsBufferId);
 
-    MatrixBufferTemplate<IntType>& intParams =
-            writeCollection.GetOrAddBuffer< MatrixBufferTemplate<IntType> >(IntParamsBufferId);
+    MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams =
+            writeCollection.GetOrAddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(IntParamsBufferId);
 
     SampleParams(numberOfFeatures, matrixBuffer, classesBuffer, indicesBuffer, floatParams, intParams, gen);
 
 }
 
-template <class FloatType, class IntType>
-void ClassPairDifferenceParamsStep<FloatType,IntType>::SampleParams(IntType numberOfFeatures,
-                                                            const MatrixBufferTemplate<FloatType>& matrixBuffer,
-                                                            const VectorBufferTemplate<IntType>& classesBuffer,
-                                                            const VectorBufferTemplate<IntType>& indicesBuffer,
-                                                            MatrixBufferTemplate<FloatType>& floatParams,
-                                                            MatrixBufferTemplate<IntType>& intParams,
+template <class BufferTypes, class DataMatrixType>
+void ClassPairDifferenceParamsStep<BufferTypes, DataMatrixType>::SampleParams(typename BufferTypes::ParamsInteger numberOfFeatures,
+                                                            const DataMatrixType& matrixBuffer,
+                                                            const VectorBufferTemplate<typename BufferTypes::SourceInteger>& classesBuffer,
+                                                            const VectorBufferTemplate<typename BufferTypes::Index>& indicesBuffer,
+                                                            MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams,
+                                                            MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams,
                                                             boost::mt19937& gen ) const
 {
     UNUSED_PARAM(classesBuffer)
@@ -131,6 +143,18 @@ void ClassPairDifferenceParamsStep<FloatType,IntType>::SampleParams(IntType numb
     boost::uniform_int<> uniform_samples(0,numberOfSamples-1);
     boost::variate_generator<boost::mt19937&,boost::uniform_int<> > var_uniform_samples(gen, uniform_samples);
 
+    std::vector< int > dimensionsSubspace(numberOfDimensions);
+    for(int i=0; i<numberOfDimensions; i++)
+    {
+        dimensionsSubspace[i] = i;
+    }
+    // Don't let the subspace be larger than actual dimension
+    int subspaceDimension = mSubspaceDimension;
+    if( numberOfDimensions < subspaceDimension)
+    {
+        subspaceDimension = numberOfDimensions;
+    }
+
     for(int f=0; f<numberOfFeatures; f++)
     {
         const int relativeIndex1 = var_uniform_samples();
@@ -138,7 +162,7 @@ void ClassPairDifferenceParamsStep<FloatType,IntType>::SampleParams(IntType numb
 
         // Continue to sample the second sample until it's of a different class
         int relativeIndex2 = var_uniform_samples();
-        int maxTries = 1000;
+        int maxTries = 100;
         while(classesBuffer.Get(index1) == classesBuffer.Get(indicesBuffer.Get(relativeIndex2))
               && maxTries > 0)
         {
@@ -148,13 +172,17 @@ void ClassPairDifferenceParamsStep<FloatType,IntType>::SampleParams(IntType numb
         const int index2 = indicesBuffer.Get(relativeIndex2);
 
         intParams.Set(f, FEATURE_TYPE_INDEX, MATRIX_FEATURES); // feature type
-        intParams.Set(f, NUMBER_OF_DIMENSIONS_INDEX, numberOfDimensions); // how many dimensions in projection
+        intParams.Set(f, NUMBER_OF_DIMENSIONS_INDEX, subspaceDimension); // how many dimensions in projection
 
-        for(int d=0; d<numberOfDimensions; d++)
+        std::random_shuffle ( dimensionsSubspace.begin(), dimensionsSubspace.end() );
+        std::sort( dimensionsSubspace.begin(), dimensionsSubspace.begin() + subspaceDimension );
+
+        for(int i=0; i<subspaceDimension; i++)
         {
-            intParams.Set(f, PARAM_START_INDEX+d, d); // dimension index
-            const FloatType componentDiff = matrixBuffer.Get(index1, d) - matrixBuffer.Get(index2, d);
-            floatParams.Set(f, PARAM_START_INDEX+d, componentDiff);
+            const int d = dimensionsSubspace[i];
+            intParams.Set(f, PARAM_START_INDEX+i, d); // dimension index
+            const typename BufferTypes::ParamsContinuous componentDiff = matrixBuffer.Get(index1, d) - matrixBuffer.Get(index2, d);
+            floatParams.Set(f, PARAM_START_INDEX+i, componentDiff);
         }
     }
 }

@@ -1,56 +1,84 @@
 #pragma once
 
+#include <boost/shared_ptr.hpp>
+
 #include <VectorBuffer.h>
 #include <MatrixBuffer.h>
+#include <BufferCollection.h>
 
 const int NULL_CHILD = -1;
 
 class ForestStats;
 
-class Tree
+class TreeData
 {
 public:
-    Tree();     //default for stl vector
-    Tree(   const Int32MatrixBuffer& path,
-            const Int32MatrixBuffer& intFeatureParams,
-            const Float32MatrixBuffer& floatFeatureParams,
-            const Int32VectorBuffer& depths,
-            const Float32VectorBuffer& counts,
-            const Float32MatrixBuffer& ys );
-    Tree( int initalNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim );
-    void GatherStats(ForestStats& stats) const;
+    TreeData();     //default for stl vector
+
+    TreeData(   const MatrixBufferTemplate<int>& path,
+            const MatrixBufferTemplate<int>& intFeatureParams,
+            const MatrixBufferTemplate<float>& floatFeatureParams,
+            const VectorBufferTemplate<int> & depths,
+            const VectorBufferTemplate<float>& counts,
+            const MatrixBufferTemplate<float>& ys );
+
+    TreeData( int initalNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim );
+    TreeData(const TreeData& tree);
+    ~TreeData();
+
     int NextNodeIndex();
     void Compact();
 
-    Int32MatrixBuffer mPath;
-    Int32MatrixBuffer mIntFeatureParams;
-    Float32MatrixBuffer mFloatFeatureParams;
-    Float32VectorBuffer mCounts;
-    Int32VectorBuffer mDepths;
-    Float32MatrixBuffer mYs;
-private:
+    MatrixBufferTemplate<int> mPath;
+    MatrixBufferTemplate<int> mIntFeatureParams;
+    MatrixBufferTemplate<float> mFloatFeatureParams;
+    VectorBufferTemplate<float> mCounts;
+    VectorBufferTemplate<int> mDepths;
+    MatrixBufferTemplate<float> mYs;
+
+    BufferCollection mExtraInfo; 
+
     int mLastNodeIndex;
     bool mValid;
 };
 
-class ForestStats
+class Tree
 {
 public:
-    ForestStats();
-    void ProcessLeaf(const Tree& tree, int nodeId);
-    float GetAverageDepth() const;
-    float GetAverageEstimatorPoints() const;
-    float GetAverageError() const;
-    void Print() const;
+    Tree();     //default for stl vector
 
-    int mNumberOfLeafNodes;
-    int mMinDepth;
-    int mMaxDepth;
-    int mTotalDepth;
-    int mMinEstimatorPoints;
-    int mMaxEstimatorPoints;
-    int mTotalEstimatorPoints;
-    float mMinError;
-    float mMaxError;
-    float mTotalError;
+    Tree(   const MatrixBufferTemplate<int>& path,
+            const MatrixBufferTemplate<int>& intFeatureParams,
+            const MatrixBufferTemplate<float>& floatFeatureParams,
+            const VectorBufferTemplate<int> & depths,
+            const VectorBufferTemplate<float>& counts,
+            const MatrixBufferTemplate<float>& ys );
+
+    Tree( int initalNumberNodes, int maxIntParamsDim, int maxFloatParamsDim, int maxYsDim );
+
+    ~Tree();
+
+    void GatherStats(ForestStats& stats) const;
+    int NextNodeIndex();
+    void Compact();
+
+    MatrixBufferTemplate<int>& GetPath();
+    MatrixBufferTemplate<int>& GetIntFeatureParams();
+    MatrixBufferTemplate<float>& GetFloatFeatureParams();
+    VectorBufferTemplate<float>& GetCounts();
+    VectorBufferTemplate<int>& GetDepths();
+    MatrixBufferTemplate<float>& GetYs();
+    BufferCollection& GetExtraInfo(); 
+
+    const MatrixBufferTemplate<int>& GetPath() const;
+    const MatrixBufferTemplate<int>& GetIntFeatureParams() const;
+    const MatrixBufferTemplate<float>& GetFloatFeatureParams() const;
+    const VectorBufferTemplate<float>& GetCounts() const;
+    const VectorBufferTemplate<int>& GetDepths() const;
+    const MatrixBufferTemplate<float>& GetYs() const;
+    const BufferCollection& GetExtraInfo() const; 
+
+private:
+    boost::shared_ptr<TreeData> mTreeData;
 };
+

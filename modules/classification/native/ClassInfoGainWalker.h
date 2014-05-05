@@ -18,7 +18,7 @@
 // MoveLeftToRight is called for the sorted feature values
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType>
+template <class BT>
 class ClassInfoGainWalker
 {
 public:
@@ -28,44 +28,46 @@ public:
     virtual ~ClassInfoGainWalker();
 
     void Bind(const BufferCollectionStack& readCollection);
+    void Bind(const BufferCollectionStack& readCollection, const VectorBufferTemplate<typename BT::Index>& includedSamples );
     void Reset();
 
-    void MoveLeftToRight(IntType sampleIndex);
+    void MoveLeftToRight(typename BT::Index sampleIndex);
 
-    FloatType Impurity();
+    typename BT::ImpurityValue Impurity();
 
-    IntType GetYDim() const;
-    VectorBufferTemplate<FloatType> GetLeftYs() const;
-    VectorBufferTemplate<FloatType> GetRightYs() const;
-    FloatType GetLeftChildCounts() const;
-    FloatType GetRightChildCounts() const;
+    typename BT::Index GetYDim() const;
 
-    typedef FloatType Float;
-    typedef IntType Int;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> GetLeftYs() const;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> GetRightYs() const;
+    typename BT::SufficientStatsContinuous GetLeftChildCounts() const;
+    typename BT::SufficientStatsContinuous GetRightChildCounts() const;
+
+    typedef BT BufferTypes;
 
 private:
     const BufferId mSampleWeightsBufferId;
     const BufferId mClassesBufferId;
     const int mNumberOfClasses;
 
-    VectorBufferTemplate<FloatType> const* mSampleWeights;
-    VectorBufferTemplate<IntType> const* mClasses;
+    VectorBufferTemplate<typename BT::ParamsContinuous> const* mSampleWeights;
+    VectorBufferTemplate<typename BT::SourceInteger> const* mClasses;
 
-    VectorBufferTemplate<FloatType> mAllClassHistogram;
-    VectorBufferTemplate<FloatType> mLeftClassHistogram;
-    VectorBufferTemplate<FloatType> mRightClassHistogram;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> mAllClassHistogram;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> mLeftClassHistogram;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> mRightClassHistogram;
 
-    VectorBufferTemplate<FloatType> mLeftLogClassHistogram;
-    VectorBufferTemplate<FloatType> mRightLogClassHistogram;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> mAllLogClassHistogram;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> mLeftLogClassHistogram;
+    VectorBufferTemplate<typename BT::SufficientStatsContinuous> mRightLogClassHistogram;
 
-    FloatType mStartEntropy;
+    typename BT::SufficientStatsContinuous mStartEntropy;
 
     std::vector<bool> mRecomputeClassLog;
 };
 
 
-template <class FloatType, class IntType>
-ClassInfoGainWalker<FloatType, IntType>::ClassInfoGainWalker(const BufferId& sampleWeights,
+template <class BT>
+ClassInfoGainWalker<BT>::ClassInfoGainWalker(const BufferId& sampleWeights,
                                                                       const BufferId& classes,
                                                                       const int numberOfClasses )
 : mSampleWeightsBufferId(sampleWeights)
@@ -76,35 +78,75 @@ ClassInfoGainWalker<FloatType, IntType>::ClassInfoGainWalker(const BufferId& sam
 , mAllClassHistogram(numberOfClasses)
 , mLeftClassHistogram(numberOfClasses)
 , mRightClassHistogram(numberOfClasses)
+, mAllLogClassHistogram(numberOfClasses)
 , mLeftLogClassHistogram(numberOfClasses)
 , mRightLogClassHistogram(numberOfClasses)
 , mStartEntropy(0)
 , mRecomputeClassLog(numberOfClasses)
 {}
 
-template <class FloatType, class IntType>
-ClassInfoGainWalker<FloatType, IntType>::~ClassInfoGainWalker()
+template <class BT>
+ClassInfoGainWalker<BT>::~ClassInfoGainWalker()
 {}
 
-template <class FloatType, class IntType>
-void ClassInfoGainWalker<FloatType, IntType>::Bind(const BufferCollectionStack& readCollection)
+template <class BT>
+void ClassInfoGainWalker<BT>::Bind(const BufferCollectionStack& readCollection)
 {
-    ASSERT(readCollection.HasBuffer< VectorBufferTemplate<FloatType> >(mSampleWeightsBufferId));
-    ASSERT(readCollection.HasBuffer< VectorBufferTemplate<IntType> >(mClassesBufferId));
-    mSampleWeights = readCollection.GetBufferPtr< VectorBufferTemplate<FloatType> >(mSampleWeightsBufferId);
-    mClasses = readCollection.GetBufferPtr< VectorBufferTemplate<IntType> >(mClassesBufferId);
+    ASSERT(readCollection.HasBuffer< VectorBufferTemplate<typename BT::ParamsContinuous> >(mSampleWeightsBufferId));
+    ASSERT(readCollection.HasBuffer< VectorBufferTemplate<typename BT::SourceInteger> >(mClassesBufferId));
+    mSampleWeights = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::ParamsContinuous> >(mSampleWeightsBufferId);
+    mClasses = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::SourceInteger> >(mClassesBufferId);
     ASSERT_ARG_DIM_1D(mSampleWeights->GetN(), mClasses->GetN())
 
-    for(int i=0; i<mSampleWeights->GetN(); i++)
+    for(typename BT::Index i=0; i<mSampleWeights->GetN(); i++)
     {
         mAllClassHistogram.Incr(mClasses->Get(i), mSampleWeights->Get(i));
     }
 
+    typename BT::SufficientStatsContinuous zero = typename BT::SufficientStatsContinuous(0.0);
+    for(typename BT::Index c=0; c<mNumberOfClasses; c++)
+    {
+        const typename BT::SufficientStatsContinuous logClass = 
+                mAllClassHistogram.Get(c) > zero ? log2(mAllClassHistogram.Get(c)) : zero;
+        mAllLogClassHistogram.Set(c, logClass);
+    }
+
+    mStartEntropy = calcDiscreteEntropy<BT>(mAllClassHistogram.Sum(), mAllClassHistogram, mAllLogClassHistogram);
+
     Reset();
 }
 
-template <class FloatType, class IntType>
-void ClassInfoGainWalker<FloatType, IntType>::Reset()
+template <class BT>
+void ClassInfoGainWalker<BT>::Bind(const BufferCollectionStack& readCollection, const VectorBufferTemplate<typename BT::Index>& includedSamples )
+{
+    ASSERT(readCollection.HasBuffer< VectorBufferTemplate<typename BT::ParamsContinuous> >(mSampleWeightsBufferId));
+    ASSERT(readCollection.HasBuffer< VectorBufferTemplate<typename BT::SourceInteger> >(mClassesBufferId));
+    mSampleWeights = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::ParamsContinuous> >(mSampleWeightsBufferId);
+    mClasses = readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::SourceInteger> >(mClassesBufferId);
+    ASSERT_ARG_DIM_1D(mSampleWeights->GetN(), mClasses->GetN())
+
+    for(typename BT::Index s=0; s<includedSamples.GetN(); s++)
+    {
+        typename BT::Index i = includedSamples.Get(s);
+        mAllClassHistogram.Incr(mClasses->Get(i), mSampleWeights->Get(i));
+    }
+
+    typename BT::SufficientStatsContinuous zero = typename BT::SufficientStatsContinuous(0.0);
+    for(typename BT::Index c=0; c<mNumberOfClasses; c++)
+    {
+        const typename BT::SufficientStatsContinuous logClass = 
+                mAllClassHistogram.Get(c) > zero ? log2(mAllClassHistogram.Get(c)) : zero;
+        mAllLogClassHistogram.Set(c, logClass);
+    }
+
+    mStartEntropy = calcDiscreteEntropy<BT>(mAllClassHistogram.Sum(), mAllClassHistogram, mAllLogClassHistogram);
+
+    Reset();
+}
+
+
+template <class BT>
+void ClassInfoGainWalker<BT>::Reset()
 {
     mLeftClassHistogram.Zero();
     mRightClassHistogram.Zero();
@@ -113,78 +155,74 @@ void ClassInfoGainWalker<FloatType, IntType>::Reset()
     mRecomputeClassLog.clear();
 
     mLeftClassHistogram = mAllClassHistogram;
-
-    for(int c=0; c<mNumberOfClasses; c++)
-    {
-        const FloatType logClass = mAllClassHistogram.Get(c) > 0.0f ? log2(mAllClassHistogram.Get(c)) : 0.0f;
-        mLeftLogClassHistogram.Set(c, logClass);
-        mStartEntropy = calcDiscreteEntropy<FloatType>(mLeftClassHistogram.Sum(), mLeftClassHistogram, mLeftLogClassHistogram);
-    }
+    mLeftLogClassHistogram = mAllLogClassHistogram;
 }
 
-template <class FloatType, class IntType>
-void ClassInfoGainWalker<FloatType, IntType>::MoveLeftToRight(IntType sampleIndex)
+template <class BT>
+void ClassInfoGainWalker<BT>::MoveLeftToRight(typename BT::Index sampleIndex)
 {
-    const FloatType weight = mSampleWeights->Get(sampleIndex);
-    const IntType classIndex = mClasses->Get(sampleIndex);
+    const typename BT::ParamsContinuous weight = mSampleWeights->Get(sampleIndex);
+    const typename BT::Index classIndex = mClasses->Get(sampleIndex);
     mLeftClassHistogram.Incr(classIndex, -weight);
     mRightClassHistogram.Incr(classIndex, weight);
     mRecomputeClassLog[classIndex] = true;
 }
 
-template <class FloatType, class IntType>
-FloatType ClassInfoGainWalker<FloatType, IntType>::Impurity()
+template <class BT>
+typename BT::ImpurityValue ClassInfoGainWalker<BT>::Impurity()
 {
-    for(int c=0; c<mNumberOfClasses; c++)
+    typename BT::SufficientStatsContinuous zero = typename BT::SufficientStatsContinuous(0.0);
+
+    for(typename BT::Index c=0; c<mNumberOfClasses; c++)
     {
         if(mRecomputeClassLog[c])
         {
-            const FloatType leftLogClass = mLeftClassHistogram.Get(c) > 0.0f ? log2(mLeftClassHistogram.Get(c)) : 0.0f;
+            const typename BT::SufficientStatsContinuous leftLogClass = mLeftClassHistogram.Get(c) > zero? log2(mLeftClassHistogram.Get(c)) : zero;
             mLeftLogClassHistogram.Set(c, leftLogClass);
-            const FloatType rightLogClass = mRightClassHistogram.Get(c) > 0.0f ? log2(mRightClassHistogram.Get(c)) : 0.0f;
+            const typename BT::SufficientStatsContinuous rightLogClass = mRightClassHistogram.Get(c) > zero ? log2(mRightClassHistogram.Get(c)) : zero;
             mRightLogClassHistogram.Set(c, rightLogClass);
         }
     }
 
-    const FloatType leftWeight = mLeftClassHistogram.Sum();
-    const FloatType rightWeight = mRightClassHistogram.Sum();
-    const FloatType totalWeight = leftWeight + rightWeight;
+    const typename BT::SufficientStatsContinuous leftWeight = mLeftClassHistogram.Sum();
+    const typename BT::SufficientStatsContinuous rightWeight = mRightClassHistogram.Sum();
+    const typename BT::SufficientStatsContinuous totalWeight = leftWeight + rightWeight;
 
-    const FloatType leftEntropy = calcDiscreteEntropy<FloatType>(leftWeight, mLeftClassHistogram, mLeftLogClassHistogram);
-    const FloatType rightEntropy = calcDiscreteEntropy<FloatType>(rightWeight, mRightClassHistogram, mRightLogClassHistogram);
+    const typename BT::SufficientStatsContinuous leftEntropy = calcDiscreteEntropy<BT>(leftWeight, mLeftClassHistogram, mLeftLogClassHistogram);
+    const typename BT::SufficientStatsContinuous rightEntropy = calcDiscreteEntropy<BT>(rightWeight, mRightClassHistogram, mRightLogClassHistogram);
 
-    const FloatType infoGain = mStartEntropy
-                                  - ((leftWeight / totalWeight) * leftEntropy)
-                                  - ((rightWeight / totalWeight) * rightEntropy);
+    const typename BT::ImpurityValue infoGain = mStartEntropy
+                                                      - ((leftWeight / totalWeight) * leftEntropy)
+                                                      - ((rightWeight / totalWeight) * rightEntropy);
     return infoGain;
 }
 
-template <class FloatType, class IntType>
-IntType ClassInfoGainWalker<FloatType, IntType>::GetYDim() const
+template <class BT>
+typename BT::Index ClassInfoGainWalker<BT>::GetYDim() const
 {
     return mNumberOfClasses;
 }
 
-template <class FloatType, class IntType>
-VectorBufferTemplate<FloatType> ClassInfoGainWalker<FloatType, IntType>::GetLeftYs() const
+template <class BT>
+VectorBufferTemplate<typename BT::SufficientStatsContinuous> ClassInfoGainWalker<BT>::GetLeftYs() const
 {
     return mLeftClassHistogram.Normalized();
 }
 
-template <class FloatType, class IntType>
-VectorBufferTemplate<FloatType> ClassInfoGainWalker<FloatType, IntType>::GetRightYs() const
+template <class BT>
+VectorBufferTemplate<typename BT::SufficientStatsContinuous> ClassInfoGainWalker<BT>::GetRightYs() const
 {
     return mRightClassHistogram.Normalized();
 }
 
-template <class FloatType, class IntType>
-FloatType ClassInfoGainWalker<FloatType, IntType>::GetLeftChildCounts() const
+template <class BT>
+typename BT::SufficientStatsContinuous ClassInfoGainWalker<BT>::GetLeftChildCounts() const
 {
     return mLeftClassHistogram.Sum();
 }
 
-template <class FloatType, class IntType>
-FloatType ClassInfoGainWalker<FloatType, IntType>::GetRightChildCounts() const
+template <class BT>
+typename BT::SufficientStatsContinuous ClassInfoGainWalker<BT>::GetRightChildCounts() const
 {
     return mRightClassHistogram.Sum();
 }

@@ -33,11 +33,11 @@ def as_matrix_buffer( np_array ):
         raise Exception('as_matrix_buffer failed because %s does not exist' % function_name)
 
 def as_sparse_matrix( sparse_matrix ):
-    type_string = np.sparse_matrix.dtype.name.title()
-    function_name = '%s%s%d' % (type_string, 'SparseMatrix', sparse_matrix.ndim)
+    type_string = sparse_matrix.dtype.name.title()
+    function_name = '%s%s' % (type_string, 'SparseMatrix')
     if hasattr(buffers, function_name):
         function = getattr(buffers, function_name)
-        return function(np_array)
+        return function(sparse_matrix)
     else:
         raise Exception('as_sparse_matrix failed because %s does not exist' % function_name)
 

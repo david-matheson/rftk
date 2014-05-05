@@ -16,48 +16,48 @@
 #include "TreeLearnerI.h"
 
 
-template <class FloatType, class IntType>
+template <class BufferTypes>
 class DepthFirstTreeLearner: public TreeLearnerI
 {
 public:
     DepthFirstTreeLearner( const TrySplitCriteriaI* trySplitCriteria,
                             const PipelineStepI* treeSteps,
                             const PipelineStepI* nodeSteps,
-                            const SplitSelectorI<FloatType, IntType>* splitSelector);
-    DepthFirstTreeLearner(const DepthFirstTreeLearner<FloatType, IntType> & other);
+                            const SplitSelectorI<BufferTypes>* splitSelector);
+    DepthFirstTreeLearner(const DepthFirstTreeLearner<BufferTypes> & other);
 
     virtual ~DepthFirstTreeLearner();
 
     virtual TreeLearnerI* Clone() const;
-    virtual void Learn( const BufferCollection& data, Tree& tree, unsigned int seed ) const;
+    virtual void Learn( BufferCollectionStack stack, Tree& tree, unsigned int seed ) const;
 
 private:
     void ProcessNode( boost::mt19937& gen,
                       Tree& tree,
                       BufferCollectionStack& stack,
-                      IntType nodeIndex,
-                      IntType depth,
-                      FloatType nodeSize ) const;
+                      typename BufferTypes::Index nodeIndex,
+                      typename BufferTypes::Index depth,
+                      typename BufferTypes::DatapointCounts nodeSize ) const;
 
     const TrySplitCriteriaI* mTrySplitCriteria;
     const PipelineStepI* mTreeSteps;
     const PipelineStepI* mNodeSteps;
-    const SplitSelectorI<FloatType, IntType>* mSplitSelector;
+    const SplitSelectorI<BufferTypes>* mSplitSelector;
 };
 
-template <class FloatType, class IntType>
-DepthFirstTreeLearner<FloatType, IntType>::DepthFirstTreeLearner( const TrySplitCriteriaI* trySplitCriteria,
+template <class BufferTypes>
+DepthFirstTreeLearner<BufferTypes>::DepthFirstTreeLearner( const TrySplitCriteriaI* trySplitCriteria,
                                                                   const PipelineStepI* treeSteps,
                                                                   const PipelineStepI* nodeSteps,
-                                                                  const SplitSelectorI<FloatType, IntType>* splitSelector)
+                                                                  const SplitSelectorI<BufferTypes>* splitSelector)
 : mTrySplitCriteria( trySplitCriteria->Clone() )
 , mTreeSteps( treeSteps->Clone() )
 , mNodeSteps( nodeSteps->Clone() )
 , mSplitSelector( splitSelector->Clone() )
 {}
 
-template <class FloatType, class IntType>
-DepthFirstTreeLearner<FloatType, IntType>::DepthFirstTreeLearner(const DepthFirstTreeLearner<FloatType, IntType> & other)
+template <class BufferTypes>
+DepthFirstTreeLearner<BufferTypes>::DepthFirstTreeLearner(const DepthFirstTreeLearner<BufferTypes> & other)
 : mTrySplitCriteria( other.mTrySplitCriteria->Clone() )
 , mTreeSteps( other.mTreeSteps->Clone() )
 , mNodeSteps( other.mNodeSteps->Clone() )
@@ -65,8 +65,8 @@ DepthFirstTreeLearner<FloatType, IntType>::DepthFirstTreeLearner(const DepthFirs
 {
 }
 
-template <class FloatType, class IntType>
-DepthFirstTreeLearner<FloatType, IntType>::~DepthFirstTreeLearner()
+template <class BufferTypes>
+DepthFirstTreeLearner<BufferTypes>::~DepthFirstTreeLearner()
 {
     delete mTrySplitCriteria;
     delete mTreeSteps;
@@ -74,56 +74,55 @@ DepthFirstTreeLearner<FloatType, IntType>::~DepthFirstTreeLearner()
     delete mSplitSelector;
 }
 
-template <class FloatType, class IntType>
-TreeLearnerI* DepthFirstTreeLearner<FloatType, IntType>::Clone() const
+template <class BufferTypes>
+TreeLearnerI* DepthFirstTreeLearner<BufferTypes>::Clone() const
 {
     TreeLearnerI* clone = new DepthFirstTreeLearner(*this);
     return clone;
 }
 
 
-template <class FloatType, class IntType>
-void DepthFirstTreeLearner<FloatType, IntType>::Learn( const BufferCollection& data, Tree& tree, unsigned int seed ) const
+template <class BufferTypes>
+void DepthFirstTreeLearner<BufferTypes>::Learn( BufferCollectionStack stack, Tree& tree, unsigned int seed ) const
 {
     boost::mt19937 gen;
     gen.seed(seed);
 
-    BufferCollectionStack stack;
-    stack.Push(&data);
     BufferCollection treeData;
     stack.Push(&treeData);
-    mTreeSteps->ProcessStep(stack, treeData, gen);
+    mTreeSteps->ProcessStep(stack, treeData, gen, tree.GetExtraInfo(), 0);
 
     //emptyIndicesCollection is pushed so subsequent leftIndicesBufCol and rightIndicesBufCol
     //can be popped before adding the next layer down
     BufferCollection emptyIndicesCollection;
     stack.Push(&emptyIndicesCollection);
-    ProcessNode(gen, tree, stack, 0, 0, std::numeric_limits<FloatType>::max());
+    ProcessNode(gen, tree, stack, 0, 0, std::numeric_limits<typename BufferTypes::DatapointCounts>::max());
 }
 
-template <class FloatType, class IntType>
-void DepthFirstTreeLearner<FloatType, IntType>::ProcessNode( boost::mt19937& gen,
+template <class BufferTypes>
+void DepthFirstTreeLearner<BufferTypes>::ProcessNode( boost::mt19937& gen,
                                                               Tree& tree, BufferCollectionStack& stack,
-                                                              IntType nodeIndex,
-                                                              IntType depth,
-                                                              FloatType nodeSize ) const
+                                                              typename BufferTypes::Index nodeIndex,
+                                                              typename BufferTypes::Index depth,
+                                                              typename BufferTypes::DatapointCounts nodeSize ) const
 {
-    if(mTrySplitCriteria->TrySplit(depth, nodeSize))
+    if(mTrySplitCriteria->TrySplit(depth, nodeSize, tree.GetExtraInfo(), nodeIndex, true))
     {
+
         bool doSplit = false;
         BufferCollection leftIndicesBufCol;
         BufferCollection rightIndicesBufCol;
-        FloatType leftSize = std::numeric_limits<FloatType>::min();
-        FloatType rightSize = std::numeric_limits<FloatType>::min();
-        IntType leftNodeIndex = -1;
-        IntType rightNodeIndex = -1;
+        typename BufferTypes::DatapointCounts leftSize = std::numeric_limits<typename BufferTypes::DatapointCounts>::min();
+        typename BufferTypes::DatapointCounts rightSize = std::numeric_limits<typename BufferTypes::DatapointCounts>::min();
+        typename BufferTypes::Index leftNodeIndex = -1;
+        typename BufferTypes::Index rightNodeIndex = -1;
 
         // Using a nested block so memory is freed before recursing
         {
             BufferCollection nodeData;
             stack.Push(&nodeData);
-            mNodeSteps->ProcessStep(stack, nodeData, gen);
-            SplitSelectorInfo<FloatType, IntType> selectorInfo = mSplitSelector->ProcessSplits(stack, depth);
+            mNodeSteps->ProcessStep(stack, nodeData, gen, tree.GetExtraInfo(), nodeIndex);
+            SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, depth, tree.GetExtraInfo(), nodeIndex);
             doSplit = selectorInfo.ValidSplit();
             if(doSplit)
             {
@@ -131,12 +130,12 @@ void DepthFirstTreeLearner<FloatType, IntType>::ProcessNode( boost::mt19937& gen
                 rightNodeIndex = tree.NextNodeIndex();
 
                 selectorInfo.WriteToTree( nodeIndex, leftNodeIndex, rightNodeIndex,
-                                          tree.mCounts, tree.mDepths, tree.mFloatFeatureParams, tree.mIntFeatureParams, tree.mYs);
+                                          tree.GetCounts(), tree.GetDepths(), tree.GetFloatFeatureParams(), tree.GetIntFeatureParams(), tree.GetYs());
 
-                tree.mPath.Set(nodeIndex, 0, leftNodeIndex);
-                tree.mPath.Set(nodeIndex, 1, rightNodeIndex);
+                tree.GetPath().Set(nodeIndex, 0, leftNodeIndex);
+                tree.GetPath().Set(nodeIndex, 1, rightNodeIndex);
 
-                selectorInfo.SplitIndices(leftIndicesBufCol, rightIndicesBufCol, leftSize, rightSize);
+                selectorInfo.SplitBuffers(leftIndicesBufCol, rightIndicesBufCol, leftSize, rightSize);
             }
             stack.Pop(); //stack.Push(nodeData);
         }

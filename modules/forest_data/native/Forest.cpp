@@ -2,6 +2,7 @@
 
 #include <asserts.h>
 #include "Forest.h"
+#include "ForestStats.h"
 
 Forest::Forest()
 : mTrees(0)
@@ -31,11 +32,33 @@ Forest::Forest( int numberOfTrees,
     }
 }
 
+Forest::Forest(const Forest& rhs)
+: mTrees(rhs.mTrees)
+{
+}
+
+void Forest::AddForest(const Forest& forest)
+{
+    for(unsigned int i=0; i<forest.mTrees.size(); i++)
+    {
+        mTrees.push_back( forest.mTrees[i] );
+    }
+}
+
+void Forest::AddTree(const Tree& tree)
+{
+    mTrees.push_back(tree);
+}
+
+void Forest::RemoveTree(const int index)
+{
+    mTrees.erase(mTrees.begin()+index);
+}
+
 int Forest::GetNumberOfTrees() const
 {
     return mTrees.size();
 }
-
 
 Tree Forest::GetTree(const int index) const
 {

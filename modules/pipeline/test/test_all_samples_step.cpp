@@ -1,5 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
+#include "BufferTypes.h"
 #include "UniqueBufferId.h"
 #include "MatrixBuffer.h"
 #include "BufferCollection.h"
@@ -18,9 +19,9 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep)
     BufferCollectionStack stack;
     stack.Push(&collection);
 
-    AllSamplesStep<MatrixBufferTemplate<float>,float,int> all_samples_step(xs_key);
+    AllSamplesStep<SinglePrecisionBufferTypes, MatrixBufferTemplate<float> > all_samples_step(xs_key);
     boost::mt19937 gen(0);
-    all_samples_step.ProcessStep(stack, collection, gen);
+    all_samples_step.ProcessStep(stack, collection, gen, collection, 0);
 
     BOOST_CHECK(collection.HasBuffer< VectorBufferTemplate<float> >(all_samples_step.WeightsBufferId));
     BOOST_CHECK(collection.HasBuffer< VectorBufferTemplate<int> >(all_samples_step.IndicesBufferId));

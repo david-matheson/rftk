@@ -13,43 +13,43 @@
 // offsets
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType>
+template <class BufferTypes>
 class ScaledDepthDeltaFeatureBinding
 {
 public:
-    ScaledDepthDeltaFeatureBinding( MatrixBufferTemplate<FloatType> const* floatParams,
-                                 MatrixBufferTemplate<IntType> const* intParams,
-                                 VectorBufferTemplate<IntType> const* indices,
-                                 MatrixBufferTemplate<IntType> const* pixelIndices,
-                                 Tensor3BufferTemplate<FloatType> const* depthImgs,
-                                 MatrixBufferTemplate<FloatType> const* scales);
+    ScaledDepthDeltaFeatureBinding( MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> const* floatParams,
+                                 MatrixBufferTemplate<typename BufferTypes::ParamsInteger> const* intParams,
+                                 VectorBufferTemplate<typename BufferTypes::Index> const* indices,
+                                 MatrixBufferTemplate<typename BufferTypes::Index> const* pixelIndices,
+                                 Tensor3BufferTemplate<typename BufferTypes::SourceContinuous> const* depthImgs,
+                                 MatrixBufferTemplate<typename BufferTypes::SourceContinuous> const* scales);
     ScaledDepthDeltaFeatureBinding();
     ~ScaledDepthDeltaFeatureBinding();
 
     ScaledDepthDeltaFeatureBinding(const ScaledDepthDeltaFeatureBinding& other);
     ScaledDepthDeltaFeatureBinding & operator=(const ScaledDepthDeltaFeatureBinding & other);
 
-    FloatType FeatureValue( const int featureIndex, const int relativeSampleIndex) const;
+    typename BufferTypes::FeatureValue FeatureValue( const int featureIndex, const int relativeSampleIndex) const;
 
-    IntType GetNumberOfFeatures() const;
-    IntType GetNumberOfDatapoints() const;
+    typename BufferTypes::Index GetNumberOfFeatures() const;
+    typename BufferTypes::Index GetNumberOfDatapoints() const;
 
 private:
-    MatrixBufferTemplate<FloatType> const* mFloatParams;
-    MatrixBufferTemplate<IntType> const* mIntParams;
-    VectorBufferTemplate<IntType> const* mIndices;
-    MatrixBufferTemplate<IntType> const* mPixelIndices;
-    Tensor3BufferTemplate<FloatType> const* mDepthImgs;
-    MatrixBufferTemplate<FloatType> const* mScales;
+    MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> const* mFloatParams;
+    MatrixBufferTemplate<typename BufferTypes::ParamsInteger> const* mIntParams;
+    VectorBufferTemplate<typename BufferTypes::Index> const* mIndices;
+    MatrixBufferTemplate<typename BufferTypes::Index> const* mPixelIndices;
+    Tensor3BufferTemplate<typename BufferTypes::SourceContinuous> const* mDepthImgs;
+    MatrixBufferTemplate<typename BufferTypes::SourceContinuous> const* mScales;
 };
 
-template <class FloatType, class IntType>
-ScaledDepthDeltaFeatureBinding<FloatType, IntType>::ScaledDepthDeltaFeatureBinding( MatrixBufferTemplate<FloatType> const* floatParams,
-                                                                                   MatrixBufferTemplate<IntType> const* intParams,
-                                                                                   VectorBufferTemplate<IntType> const* indices,
-                                                                                   MatrixBufferTemplate<IntType> const* pixelIndices,
-                                                                                   Tensor3BufferTemplate<FloatType> const* depthImgs,
-                                                                                   MatrixBufferTemplate<FloatType> const* scales )
+template <class BufferTypes>
+ScaledDepthDeltaFeatureBinding<BufferTypes>::ScaledDepthDeltaFeatureBinding( MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> const* floatParams,
+                                                                                   MatrixBufferTemplate<typename BufferTypes::ParamsInteger> const* intParams,
+                                                                                   VectorBufferTemplate<typename BufferTypes::Index> const* indices,
+                                                                                   MatrixBufferTemplate<typename BufferTypes::Index> const* pixelIndices,
+                                                                                   Tensor3BufferTemplate<typename BufferTypes::SourceContinuous> const* depthImgs,
+                                                                                   MatrixBufferTemplate<typename BufferTypes::SourceContinuous> const* scales )
 : mFloatParams(floatParams)
 , mIntParams(intParams)
 , mIndices(indices)
@@ -58,8 +58,8 @@ ScaledDepthDeltaFeatureBinding<FloatType, IntType>::ScaledDepthDeltaFeatureBindi
 , mScales(scales)
 {}
 
-template <class FloatType, class IntType>
-ScaledDepthDeltaFeatureBinding<FloatType, IntType>::ScaledDepthDeltaFeatureBinding()
+template <class BufferTypes>
+ScaledDepthDeltaFeatureBinding<BufferTypes>::ScaledDepthDeltaFeatureBinding()
 : mFloatParams(NULL)
 , mIntParams(NULL)
 , mIndices(NULL)
@@ -68,8 +68,8 @@ ScaledDepthDeltaFeatureBinding<FloatType, IntType>::ScaledDepthDeltaFeatureBindi
 , mScales(NULL)
 {}
 
-template <class FloatType, class IntType>
-ScaledDepthDeltaFeatureBinding<FloatType, IntType>::ScaledDepthDeltaFeatureBinding( const ScaledDepthDeltaFeatureBinding& other )
+template <class BufferTypes>
+ScaledDepthDeltaFeatureBinding<BufferTypes>::ScaledDepthDeltaFeatureBinding( const ScaledDepthDeltaFeatureBinding& other )
 : mFloatParams(other.mFloatParams)
 , mIntParams(other.mIntParams)
 , mIndices(other.mIndices)
@@ -78,8 +78,8 @@ ScaledDepthDeltaFeatureBinding<FloatType, IntType>::ScaledDepthDeltaFeatureBindi
 , mScales(other.mScales)
 {}
 
-template <class FloatType, class IntType>
-ScaledDepthDeltaFeatureBinding<FloatType, IntType>& ScaledDepthDeltaFeatureBinding<FloatType, IntType>::operator=(const ScaledDepthDeltaFeatureBinding & other)
+template <class BufferTypes>
+ScaledDepthDeltaFeatureBinding<BufferTypes>& ScaledDepthDeltaFeatureBinding<BufferTypes>::operator=(const ScaledDepthDeltaFeatureBinding & other)
 {
     mFloatParams = other.mFloatParams;
     mIntParams = other.mIntParams;
@@ -90,40 +90,42 @@ ScaledDepthDeltaFeatureBinding<FloatType, IntType>& ScaledDepthDeltaFeatureBindi
     return *this;
 }
 
-template <class FloatType, class IntType>
-ScaledDepthDeltaFeatureBinding<FloatType, IntType>::~ScaledDepthDeltaFeatureBinding()
+template <class BufferTypes>
+ScaledDepthDeltaFeatureBinding<BufferTypes>::~ScaledDepthDeltaFeatureBinding()
 {}
 
 
-template <class FloatType, class IntType>
-FloatType ScaledDepthDeltaFeatureBinding<FloatType, IntType>::FeatureValue( const int featureIndex, const int relativeSampleIndex) const
+template <class BufferTypes>
+typename BufferTypes::FeatureValue ScaledDepthDeltaFeatureBinding<BufferTypes>::FeatureValue( const int featureIndex, const int relativeSampleIndex) const
 {
-    const IntType index = mIndices->Get(relativeSampleIndex);
+    const typename BufferTypes::Index index = mIndices->Get(relativeSampleIndex);
 
-    const IntType imgIndex = mPixelIndices->Get(index, 0);
-    const IntType pixelM = mPixelIndices->Get(index, 1);
-    const IntType pixelN = mPixelIndices->Get(index, 2);
+    const typename BufferTypes::Index imgIndex = mPixelIndices->Get(index, 0);
+    const typename BufferTypes::Index pixelM = mPixelIndices->Get(index, 1);
+    const typename BufferTypes::Index pixelN = mPixelIndices->Get(index, 2);
 
-    const FloatType scaleM = (mScales != NULL) ? mScales->Get(index, 0) : FloatType(1.0);
-    const FloatType scaleN = (mScales != NULL) ? mScales->Get(index, 1) : FloatType(1.0);
+    const typename BufferTypes::SourceContinuous scaleM = 
+        (mScales != NULL) ? mScales->Get(index, 0) : typename BufferTypes::SourceContinuous(1.0);
+    const typename BufferTypes::SourceContinuous scaleN = 
+        (mScales != NULL) ? mScales->Get(index, 1) : typename BufferTypes::SourceContinuous(1.0);
 
-    const FloatType um = mFloatParams->Get(featureIndex,FEATURE_SPECIFIC_PARAMS_START);
-    const FloatType un = mFloatParams->Get(featureIndex,FEATURE_SPECIFIC_PARAMS_START+1);
-    const FloatType vm = mFloatParams->Get(featureIndex,FEATURE_SPECIFIC_PARAMS_START+2);
-    const FloatType vn = mFloatParams->Get(featureIndex,FEATURE_SPECIFIC_PARAMS_START+3);
+    const typename BufferTypes::ParamsContinuous um = mFloatParams->Get(featureIndex,FEATURE_SPECIFIC_PARAMS_START);
+    const typename BufferTypes::ParamsContinuous un = mFloatParams->Get(featureIndex,FEATURE_SPECIFIC_PARAMS_START+1);
+    const typename BufferTypes::ParamsContinuous vm = mFloatParams->Get(featureIndex,FEATURE_SPECIFIC_PARAMS_START+2);
+    const typename BufferTypes::ParamsContinuous vn = mFloatParams->Get(featureIndex,FEATURE_SPECIFIC_PARAMS_START+3);
 
-    const FloatType featureValue = PixelDepthDelta<FloatType, IntType>(*mDepthImgs, imgIndex, pixelM, pixelN, um*scaleM, un*scaleN, vm*scaleM, vn*scaleN);
+    const typename BufferTypes::FeatureValue featureValue = PixelDepthDelta<BufferTypes>(*mDepthImgs, imgIndex, pixelM, pixelN, um*scaleM, un*scaleN, vm*scaleM, vn*scaleN);
     return featureValue;
 }
 
-template <class FloatType, class IntType>
-IntType ScaledDepthDeltaFeatureBinding<FloatType, IntType>::GetNumberOfFeatures() const
+template <class BufferTypes>
+typename BufferTypes::Index ScaledDepthDeltaFeatureBinding<BufferTypes>::GetNumberOfFeatures() const
 {
     return mIntParams->GetM();
 }
 
-template <class FloatType, class IntType>
-IntType ScaledDepthDeltaFeatureBinding<FloatType, IntType>::GetNumberOfDatapoints() const
+template <class BufferTypes>
+typename BufferTypes::Index ScaledDepthDeltaFeatureBinding<BufferTypes>::GetNumberOfDatapoints() const
 {
     return mIndices->GetN();
 }

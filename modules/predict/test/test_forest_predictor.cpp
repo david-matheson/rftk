@@ -86,7 +86,7 @@ struct ForestPredictorFixture {
         forest.mTrees[0] = Tree(path_1, int_params_1, float_params_1, depth, counts, estimator_params_1);
         forest.mTrees[1] = Tree(path_2, int_params_2, float_params_2, depth, counts, estimator_params_2);
 
-        forestPredictor = new TemplateForestPredictor< LinearMatrixFeature_t, ClassProbabilityCombiner<float>, float, int>(
+        forestPredictor = new TemplateForestPredictor< LinearMatrixFeature_t, ClassProbabilityCombiner<BufferTypes_t>, BufferTypes_t>(
                                 forest, feature, combiner, &indicesStep);
 
     }
@@ -115,12 +115,14 @@ struct ForestPredictorFixture {
     MatrixBufferTemplate<float> xs;
     BufferCollection collection;
 
-    typedef LinearMatrixFeature< MatrixBufferTemplate<float>, float, int> LinearMatrixFeature_t;
+    typedef SinglePrecisionBufferTypes BufferTypes_t;
+    typedef LinearMatrixFeature<BufferTypes_t, MatrixBufferTemplate<BufferTypes_t::SourceContinuous > > LinearMatrixFeature_t;
+
     int numberOfClasses;
-    AllSamplesStep<MatrixBufferTemplate<float>, float, int> indicesStep;
+    AllSamplesStep<BufferTypes_t, MatrixBufferTemplate<BufferTypes_t::SourceContinuous > > indicesStep;
     LinearMatrixFeature_t feature;
-    ClassProbabilityCombiner<float> combiner;
-    TemplateForestPredictor< LinearMatrixFeature_t, ClassProbabilityCombiner<float>, float, int>* forestPredictor;
+    ClassProbabilityCombiner<BufferTypes_t> combiner;
+    TemplateForestPredictor< LinearMatrixFeature_t, ClassProbabilityCombiner<BufferTypes_t>, BufferTypes_t>* forestPredictor;
 };
 
 BOOST_FIXTURE_TEST_SUITE( ForestPredictorTests,  ForestPredictorFixture)

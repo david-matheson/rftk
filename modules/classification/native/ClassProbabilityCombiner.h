@@ -7,60 +7,66 @@
 // Average the probabilities of each class across trees
 //
 // ----------------------------------------------------------------------------
-template <class FloatType>
+template <class BufferTypes>
 class ClassProbabilityCombiner
 {
 public:
     ClassProbabilityCombiner(int numberOfClasses);
     void Reset();
-    void Combine(int nodeId, const MatrixBufferTemplate<FloatType>& estimatorParameters);
-    void WriteResult(int row, MatrixBufferTemplate<FloatType>& results);
+    void Combine(int nodeId, typename BufferTypes::DatapointCounts count, 
+                    const MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& estimatorParameters,
+                    double weight);
+    void WriteResult(int row, MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& results);
     int GetResultDim() const;
 
 private:
-    VectorBufferTemplate<FloatType> mCombinedResults;
-    FloatType mNumberOfTrees;
+    VectorBufferTemplate<typename BufferTypes::TreeEstimator> mCombinedResults;
+    typename BufferTypes::DatapointCounts mNumberOfTrees;
 
 };
 
-template <class FloatType>
-ClassProbabilityCombiner<FloatType>::ClassProbabilityCombiner(int numberOfClasses)
+template <class BufferTypes>
+ClassProbabilityCombiner<BufferTypes>::ClassProbabilityCombiner(int numberOfClasses)
 : mCombinedResults(numberOfClasses)
-, mNumberOfTrees(FloatType(0))
+, mNumberOfTrees(typename BufferTypes::DatapointCounts(0))
 {
 }
 
-template <class FloatType>
-void ClassProbabilityCombiner<FloatType>::Reset()
+template <class BufferTypes>
+void ClassProbabilityCombiner<BufferTypes>::Reset()
 {
     mCombinedResults.Zero();
-    mNumberOfTrees = FloatType(0);
+    mNumberOfTrees = typename BufferTypes::DatapointCounts(0);
 }
 
-template <class FloatType>
-void ClassProbabilityCombiner<FloatType>::Combine(int nodeId, const MatrixBufferTemplate<FloatType>& estimatorParameters)
+template <class BufferTypes>
+void ClassProbabilityCombiner<BufferTypes>::Combine(int nodeId, typename BufferTypes::DatapointCounts count, 
+                                                    const MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& estimatorParameters,
+                                                    double weight)
 {
+    UNUSED_PARAM(count)
     ASSERT_ARG_DIM_1D(mCombinedResults.GetN(), estimatorParameters.GetN())
     for(int i=0; i<mCombinedResults.GetN(); i++)
     {
-        mCombinedResults.Incr(i, estimatorParameters.Get(nodeId, i));
+        mCombinedResults.Incr(i, estimatorParameters.Get(nodeId, i)*weight);
     }
-    mNumberOfTrees += FloatType(1);
+    mNumberOfTrees += typename BufferTypes::DatapointCounts(weight);
 }
 
-template <class FloatType>
-void ClassProbabilityCombiner<FloatType>::WriteResult(int row, MatrixBufferTemplate<FloatType>& results)
+template <class BufferTypes>
+void ClassProbabilityCombiner<BufferTypes>::WriteResult(int row, MatrixBufferTemplate<typename BufferTypes::TreeEstimator>& results)
 {
     ASSERT_ARG_DIM_1D(mCombinedResults.GetN(), results.GetN())
-    FloatType numberOfTreeInv = mNumberOfTrees > FloatType(0) ? FloatType(1) / mNumberOfTrees : FloatType(0);
+    typename BufferTypes::DatapointCounts numberOfTreeInv = mNumberOfTrees > typename BufferTypes::DatapointCounts(0) ? 
+                            typename BufferTypes::DatapointCounts(1) / mNumberOfTrees : typename BufferTypes::DatapointCounts(0);
     for(int i=0; i<mCombinedResults.GetN(); i++)
     {
         results.Set(row, i, numberOfTreeInv * mCombinedResults.Get(i));
     }
 }
 
-template <class FloatType>
-int ClassProbabilityCombiner<FloatType>::GetResultDim() const
+template <class BufferTypes>
+int ClassProbabilityCombiner<BufferTypes>::GetResultDim() const
 {
     return mCombinedResults.GetN();
 }

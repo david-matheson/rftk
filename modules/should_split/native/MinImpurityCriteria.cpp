@@ -1,4 +1,7 @@
-#include "asserts.h" // for UNUSED_PARAM
+#include <limits>
+
+#include "unused.h" 
+#include "BufferCollectionUtils.h"
 #include "MinImpurityCriteria.h"
 
 
@@ -16,11 +19,19 @@ ShouldSplitCriteriaI* MinImpurityCriteria::Clone() const
 }
 
 bool MinImpurityCriteria::ShouldSplit(int depth, float impurity,
-                                      int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints) const
+                                      int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints,
+                                      BufferCollection& extraInfo, int nodeIndex, bool recordInfo) const
 {
+
     UNUSED_PARAM(depth)
     UNUSED_PARAM(numberOfDatapoints)
     UNUSED_PARAM(leftNumberOfDataponts)
     UNUSED_PARAM(rightNumberOfDatapoints)
-    return (impurity >= mMinImpurity);
+    bool result = impurity > (mMinImpurity +  std::numeric_limits<float>::epsilon());
+    
+    if(recordInfo)
+    {
+        WriteValue<int>(extraInfo, "ShouldSplit-MinImpurityCriteria", nodeIndex, result ? SHOULD_SPLIT_TRUE : SHOULD_SPLIT_FALSE);
+    }
+    return result;
 }

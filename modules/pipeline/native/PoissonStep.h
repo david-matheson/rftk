@@ -11,63 +11,68 @@
 // Sample a poisson
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType>
+template <class BufferTypes>
 class PoissonStep: public PipelineStepI
 {
 public:
-    PoissonStep( const FloatType mean, const IntType dimension );
+    PoissonStep( const double mean, const int dimension );
     virtual ~PoissonStep();
 
     virtual PipelineStepI* Clone() const;
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     // Read only output buffer
     const BufferId OutputBufferId;
 private:
-    const FloatType mMean;
-    const IntType mDimension;
+    const typename BufferTypes::SourceContinuous mMean;
+    const typename BufferTypes::Index mDimension;
 
 };
 
 
-template <class FloatType, class IntType>
-PoissonStep<FloatType, IntType>::PoissonStep(const FloatType mean, const IntType dimension)
-: OutputBufferId(GetBufferId("PoissonStep"))
+template <class BufferTypes>
+PoissonStep<BufferTypes>::PoissonStep(const double mean, const int dimension)
+: PipelineStepI("PoissonStep")
+, OutputBufferId(GetBufferId("PoissonStep"))
 , mMean(mean)
 , mDimension(dimension)
 {}
 
-template <class FloatType, class IntType>
-PoissonStep<FloatType, IntType>::~PoissonStep()
+template <class BufferTypes>
+PoissonStep<BufferTypes>::~PoissonStep()
 {}
 
-template <class FloatType, class IntType>
-PipelineStepI* PoissonStep<FloatType, IntType>::Clone() const
+template <class BufferTypes>
+PipelineStepI* PoissonStep<BufferTypes>::Clone() const
 {
-    PoissonStep<FloatType, IntType>* clone = new PoissonStep<FloatType, IntType>(*this);
+    PoissonStep<BufferTypes>* clone = new PoissonStep<BufferTypes>(*this);
     return clone;
 }
 
-template <class FloatType, class IntType>
-void PoissonStep<FloatType, IntType>::ProcessStep(const BufferCollectionStack& readCollection,
+template <class BufferTypes>
+void PoissonStep<BufferTypes>::ProcessStep(const BufferCollectionStack& readCollection,
                                                                 BufferCollection& writeCollection,
-                                                                boost::mt19937& gen) const
+                                                                boost::mt19937& gen,
+                                                                BufferCollection& extraInfo, int nodeIndex) const
 {
-    UNUSED_PARAM(readCollection)
+    UNUSED_PARAM(readCollection);
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
 
-    VectorBufferTemplate<IntType>& output
-          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<IntType> >(OutputBufferId);
+    VectorBufferTemplate<typename BufferTypes::SourceInteger>& output
+          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<typename BufferTypes::SourceInteger> >(OutputBufferId);
     output.Resize(mDimension);
 
     boost::poisson_distribution<> poisson(mMean);
     boost::variate_generator<boost::mt19937&,boost::poisson_distribution<> > var_poisson(gen, poisson);
 
-    for(IntType d=0; d<mDimension; d++)
+    for(typename BufferTypes::Index d=0; d<mDimension; d++)
     {
-        const IntType weight = var_poisson();
+        const typename BufferTypes::SourceInteger weight = var_poisson();
         output.Set(d, weight);
     }
 }

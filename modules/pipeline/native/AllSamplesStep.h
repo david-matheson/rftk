@@ -11,7 +11,7 @@
 // Produces index and weight buffers for all datapoints (all weights are one)
 //
 // ----------------------------------------------------------------------------
-template <class MatrixType, class FloatType, class IntType>
+template <class BufferTypes, class DataMatrixType>
 class AllSamplesStep: public PipelineStepI
 {
 public:
@@ -22,7 +22,8 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     // Read only output buffer
     const BufferId IndicesBufferId;
@@ -33,41 +34,45 @@ private:
 };
 
 
-template <class MatrixType, class FloatType, class IntType>
-AllSamplesStep<MatrixType, FloatType, IntType>::AllSamplesStep(const BufferId& dataBuffer)
-: IndicesBufferId(GetBufferId("IndicesBuffer"))
+template <class BufferTypes, class DataMatrixType>
+AllSamplesStep<BufferTypes, DataMatrixType>::AllSamplesStep(const BufferId& dataBuffer)
+: PipelineStepI("AllSamplesStep")
+, IndicesBufferId(GetBufferId("IndicesBuffer"))
 , WeightsBufferId(GetBufferId("WeightsBuffer"))
 , mDataBufferId(dataBuffer)
 {}
 
-template <class MatrixType, class FloatType, class IntType>
-AllSamplesStep<MatrixType, FloatType, IntType>::~AllSamplesStep()
+template <class BufferTypes, class DataMatrixType>
+AllSamplesStep<BufferTypes, DataMatrixType>::~AllSamplesStep()
 {}
 
-template <class MatrixType, class FloatType, class IntType>
-PipelineStepI* AllSamplesStep<MatrixType, FloatType, IntType>::Clone() const
+template <class BufferTypes, class DataMatrixType>
+PipelineStepI* AllSamplesStep<BufferTypes, DataMatrixType>::Clone() const
 {
-    AllSamplesStep<MatrixType, FloatType, IntType>* clone = new AllSamplesStep<MatrixType, FloatType, IntType>(*this);
+    AllSamplesStep<BufferTypes, DataMatrixType>* clone = new AllSamplesStep<BufferTypes, DataMatrixType>(*this);
     return clone;
 }
 
-template <class MatrixType, class FloatType, class IntType>
-void AllSamplesStep<MatrixType, FloatType, IntType>::ProcessStep(const BufferCollectionStack& readCollection,
+template <class BufferTypes, class DataMatrixType>
+void AllSamplesStep<BufferTypes, DataMatrixType>::ProcessStep(const BufferCollectionStack& readCollection,
                                                                 BufferCollection& writeCollection,
-                                                                boost::mt19937& gen) const
+                                                                boost::mt19937& gen,
+                                                                BufferCollection& extraInfo, int nodeIndex) const
 {
     UNUSED_PARAM(gen);
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
 
-    const MatrixType & buffer
-          = readCollection.GetBuffer <MatrixType >(mDataBufferId);
-    VectorBufferTemplate<IntType>& indices
-          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<IntType> >(IndicesBufferId);
-    VectorBufferTemplate<FloatType>& weights
-          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<FloatType> >(WeightsBufferId);
+    const DataMatrixType & buffer
+          = readCollection.GetBuffer <DataMatrixType >(mDataBufferId);
+    VectorBufferTemplate<typename BufferTypes::Index>& indices
+          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<typename BufferTypes::Index> >(IndicesBufferId);
+    VectorBufferTemplate<typename BufferTypes::ParamsContinuous>& weights
+          = writeCollection.GetOrAddBuffer< VectorBufferTemplate<typename BufferTypes::ParamsContinuous> >(WeightsBufferId);
 
-    const IntType numberOfSamples = buffer.GetM();
+    const typename BufferTypes::Index numberOfSamples = buffer.GetM();
     weights.Resize(numberOfSamples);
-    weights.SetAll(FloatType(1));
+    weights.SetAll(typename BufferTypes::ParamsContinuous(1));
     indices.Resize(numberOfSamples);
     for(int i=0; i<numberOfSamples; i++)
     {

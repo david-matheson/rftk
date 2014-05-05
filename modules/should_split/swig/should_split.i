@@ -8,10 +8,16 @@
     #include "OnlineConsistentCriteria.h"
     #include "ShouldSplitCombinedCriteria.h"
     #include "ShouldSplitNoCriteria.h"
+
+    #if PY_VERSION_HEX >= 0x03020000
+    # define SWIGPY_SLICE_ARG(obj) ((PyObject*) (obj))
+    #else
+    # define SWIGPY_SLICE_ARG(obj) ((PySliceObject*) (obj))
+    #endif
 %}
 
 %include <exception.i>
-%import(module="rftk.asserts") "asserts.i"
+%import(module="rftk.utils") "utils.i"
 %import(module="rftk.buffers") "buffers.i"
 
 

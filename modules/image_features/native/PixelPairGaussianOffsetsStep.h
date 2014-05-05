@@ -18,49 +18,51 @@
 // space.
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType>
+template <class BufferTypes>
 class PixelPairGaussianOffsetsStep: public PipelineStepI
 {
 public:
     PixelPairGaussianOffsetsStep( const BufferId numberOfFeaturesBufferId,
-                            const FloatType ux,
-                            const FloatType uy, 
-                            const FloatType vx, 
-                            const FloatType vy  );
+                            const double ux,
+                            const double uy,
+                            const double vx,
+                            const double vy  );
     virtual ~PixelPairGaussianOffsetsStep();
 
     virtual PipelineStepI* Clone() const;
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     // Read only output buffers
     const BufferId FloatParamsBufferId;
     const BufferId IntParamsBufferId;
 private:
     enum { DIMENSION_OF_PARAMETERS = FEATURE_SPECIFIC_PARAMS_START + 4 };
-    void SampleParams(IntType numberOfFeatures,
-                      MatrixBufferTemplate<FloatType>& floatParams,
-                      MatrixBufferTemplate<IntType>& intParams,
+    void SampleParams(typename BufferTypes::ParamsInteger numberOfFeatures,
+                      MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams,
+                      MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams,
                       boost::mt19937& gen ) const;
 
     const BufferId mNumberOfFeaturesBufferId;
-    const FloatType mUx;
-    const FloatType mUy;
-    const FloatType mVx;
-    const FloatType mVy;
+    const typename BufferTypes::ParamsContinuous mUx;
+    const typename BufferTypes::ParamsContinuous mUy;
+    const typename BufferTypes::ParamsContinuous mVx;
+    const typename BufferTypes::ParamsContinuous mVy;
     mutable boost::mt19937 mGen;
 };
 
 
-template <class FloatType, class IntType>
-PixelPairGaussianOffsetsStep<FloatType,IntType>::PixelPairGaussianOffsetsStep(  const BufferId numberOfFeaturesBufferId,
-                                                                const FloatType ux,
-                                                                const FloatType uy, 
-                                                                const FloatType vx, 
-                                                                const FloatType vy )
-: FloatParamsBufferId(GetBufferId("FloatParams"))
+template <class BufferTypes>
+PixelPairGaussianOffsetsStep<BufferTypes>::PixelPairGaussianOffsetsStep(  const BufferId numberOfFeaturesBufferId,
+                                                                const double ux,
+                                                                const double uy,
+                                                                const double vx,
+                                                                const double vy )
+: PipelineStepI("PixelPairGaussianOffsetsStep")
+, FloatParamsBufferId(GetBufferId("FloatParams"))
 , IntParamsBufferId(GetBufferId("IntParams"))
 , mNumberOfFeaturesBufferId(numberOfFeaturesBufferId)
 , mUx(ux)
@@ -69,46 +71,49 @@ PixelPairGaussianOffsetsStep<FloatType,IntType>::PixelPairGaussianOffsetsStep(  
 , mVy(vy)
 {}
 
-template <class FloatType, class IntType>
-PixelPairGaussianOffsetsStep<FloatType,IntType>::~PixelPairGaussianOffsetsStep()
+template <class BufferTypes>
+PixelPairGaussianOffsetsStep<BufferTypes>::~PixelPairGaussianOffsetsStep()
 {}
 
-template <class FloatType, class IntType>
-PipelineStepI* PixelPairGaussianOffsetsStep<FloatType,IntType>::Clone() const
+template <class BufferTypes>
+PipelineStepI* PixelPairGaussianOffsetsStep<BufferTypes>::Clone() const
 {
-    PixelPairGaussianOffsetsStep* clone = new PixelPairGaussianOffsetsStep<FloatType,IntType>(*this);
+    PixelPairGaussianOffsetsStep* clone = new PixelPairGaussianOffsetsStep<BufferTypes>(*this);
     return clone;
 }
 
 
-template <class FloatType, class IntType>
-void PixelPairGaussianOffsetsStep<FloatType,IntType>::ProcessStep(const BufferCollectionStack& readCollection,
+template <class BufferTypes>
+void PixelPairGaussianOffsetsStep<BufferTypes>::ProcessStep(const BufferCollectionStack& readCollection,
                                                           BufferCollection& writeCollection,
-                                                          boost::mt19937& gen) const
+                                                          boost::mt19937& gen,
+                                                          BufferCollection& extraInfo, int nodeIndex) const
 {
-    if(!writeCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(FloatParamsBufferId)
-        || !writeCollection.HasBuffer< MatrixBufferTemplate<FloatType> >(IntParamsBufferId))
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
+    if(!writeCollection.HasBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(FloatParamsBufferId)
+        || !writeCollection.HasBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(IntParamsBufferId))
     {
-        const VectorBufferTemplate<IntType>& numberOfFeaturesBuffer =
-                readCollection.GetBuffer< VectorBufferTemplate<IntType> >(mNumberOfFeaturesBufferId);
+        const VectorBufferTemplate<typename BufferTypes::ParamsInteger>& numberOfFeaturesBuffer =
+                readCollection.GetBuffer< VectorBufferTemplate<typename BufferTypes::ParamsInteger> >(mNumberOfFeaturesBufferId);
         ASSERT_ARG_DIM_1D(numberOfFeaturesBuffer.GetN(), 1)
-        const IntType numberOfFeatures = numberOfFeaturesBuffer.Get(0);
+        const typename BufferTypes::ParamsInteger numberOfFeatures = std::max(1, numberOfFeaturesBuffer.Get(0));
 
-        MatrixBufferTemplate<FloatType>& floatParams =
-                writeCollection.GetOrAddBuffer< MatrixBufferTemplate<FloatType> >(FloatParamsBufferId);
+        MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams =
+                writeCollection.GetOrAddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(FloatParamsBufferId);
 
-        MatrixBufferTemplate<IntType>& intParams =
-                writeCollection.GetOrAddBuffer< MatrixBufferTemplate<IntType> >(IntParamsBufferId);
+        MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams =
+                writeCollection.GetOrAddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(IntParamsBufferId);
 
         SampleParams(numberOfFeatures, floatParams, intParams, gen);
     }
 }
 
 
-template <class FloatType, class IntType>
-void PixelPairGaussianOffsetsStep<FloatType,IntType>::SampleParams(IntType numberOfFeatures,
-                                                            MatrixBufferTemplate<FloatType>& floatParams,
-                                                            MatrixBufferTemplate<IntType>& intParams,
+template <class BufferTypes>
+void PixelPairGaussianOffsetsStep<BufferTypes>::SampleParams(typename BufferTypes::ParamsInteger numberOfFeatures,
+                                                            MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>& floatParams,
+                                                            MatrixBufferTemplate<typename BufferTypes::ParamsInteger>& intParams,
                                                             boost::mt19937& gen ) const
 {
     floatParams.Resize(numberOfFeatures, DIMENSION_OF_PARAMETERS);
