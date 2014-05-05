@@ -13,7 +13,7 @@
 // Calculates the impurity for a set of stats
 //
 // ----------------------------------------------------------------------------
-template <class Impurity, class IntType>
+template <class Impurity>
 class SplitpointsImpurity : public PipelineStepI
 {
 public:
@@ -26,7 +26,8 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     const BufferId ImpurityBufferId;
 private:
@@ -37,58 +38,62 @@ private:
 };
 
 
-template <class Impurity, class IntType>
-SplitpointsImpurity<Impurity, IntType>::SplitpointsImpurity(const BufferId& splitpointCountsBufferId,
+template <class Impurity>
+SplitpointsImpurity<Impurity>::SplitpointsImpurity(const BufferId& splitpointCountsBufferId,
                                                     const BufferId& childCountsBufferId,
                                                     const BufferId& leftStatsBufferId,
                                                     const BufferId& rightStatsBufferId)
-: mSplitpointCountsBufferId(splitpointCountsBufferId)
+: PipelineStepI("SplitpointsImpurity")
+, mSplitpointCountsBufferId(splitpointCountsBufferId)
 , mChildCountsBufferId(childCountsBufferId)
 , mLeftStatsBufferId(leftStatsBufferId)
 , mRightStatsBufferId(rightStatsBufferId)
 {}
 
-template <class Impurity, class IntType>
-PipelineStepI* SplitpointsImpurity<Impurity, IntType>::Clone() const
+template <class Impurity>
+PipelineStepI* SplitpointsImpurity<Impurity>::Clone() const
 {
-    SplitpointsImpurity<Impurity, IntType>* clone = new SplitpointsImpurity<Impurity, IntType>(*this);
+    SplitpointsImpurity<Impurity>* clone = new SplitpointsImpurity<Impurity>(*this);
     return clone;
 }
 
-template <class Impurity, class IntType>
-void SplitpointsImpurity<Impurity, IntType>::ProcessStep(const BufferCollectionStack& readCollection,
+template <class Impurity>
+void SplitpointsImpurity<Impurity>::ProcessStep(const BufferCollectionStack& readCollection,
                                                         BufferCollection& writeCollection,
-                                                        boost::mt19937& gen) const
+                                                        boost::mt19937& gen,
+                                                        BufferCollection& extraInfo, int nodeIndex) const
 {
     UNUSED_PARAM(gen);
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
 
-    const VectorBufferTemplate<IntType>& splitpointsCounts =
-          readCollection.GetBuffer< VectorBufferTemplate<IntType> >(mSplitpointCountsBufferId);
+    const VectorBufferTemplate<typename Impurity::BufferTypes::Index>& splitpointsCounts =
+          readCollection.GetBuffer< VectorBufferTemplate<typename Impurity::BufferTypes::Index> >(mSplitpointCountsBufferId);
 
-    const Tensor3BufferTemplate<typename Impurity::Float>& childCounts =
-          readCollection.GetBuffer< Tensor3BufferTemplate<typename Impurity::Float> >(mChildCountsBufferId);
+    const Tensor3BufferTemplate<typename Impurity::BufferTypes::DatapointCounts>& childCounts =
+          readCollection.GetBuffer< Tensor3BufferTemplate<typename Impurity::BufferTypes::DatapointCounts> >(mChildCountsBufferId);
 
-    const Tensor3BufferTemplate<typename Impurity::Float>& leftStats =
-          readCollection.GetBuffer< Tensor3BufferTemplate<typename Impurity::Float> >(mLeftStatsBufferId);
+    const Tensor3BufferTemplate<typename Impurity::BufferTypes::SufficientStatsContinuous>& leftStats =
+          readCollection.GetBuffer< Tensor3BufferTemplate<typename Impurity::BufferTypes::SufficientStatsContinuous> >(mLeftStatsBufferId);
 
-    const Tensor3BufferTemplate<typename Impurity::Float>& rightStats =
-          readCollection.GetBuffer< Tensor3BufferTemplate<typename Impurity::Float> >(mRightStatsBufferId);
+    const Tensor3BufferTemplate<typename Impurity::BufferTypes::SufficientStatsContinuous>& rightStats =
+          readCollection.GetBuffer< Tensor3BufferTemplate<typename Impurity::BufferTypes::SufficientStatsContinuous> >(mRightStatsBufferId);
 
-    const int numberOfFeatures = childCounts.GetL();
-    const int maxNumberOfSplitpoints = childCounts.GetM();
+    const typename Impurity::BufferTypes::Index numberOfFeatures = childCounts.GetL();
+    const typename Impurity::BufferTypes::Index maxNumberOfSplitpoints = childCounts.GetM();
 
-    MatrixBufferTemplate<typename Impurity::Float>& impurities =
-          writeCollection.GetOrAddBuffer< MatrixBufferTemplate<typename Impurity::Float> >(ImpurityBufferId);
+    MatrixBufferTemplate<typename Impurity::BufferTypes::ImpurityValue>& impurities =
+          writeCollection.GetOrAddBuffer< MatrixBufferTemplate<typename Impurity::BufferTypes::ImpurityValue> >(ImpurityBufferId);
     impurities.Resize(numberOfFeatures, maxNumberOfSplitpoints);
 
     Impurity ic;
 
-    for(int f=0; f<numberOfFeatures; f++)
+    for(typename Impurity::BufferTypes::Index f=0; f<numberOfFeatures; f++)
     {
-        const int numberOfSplitpoints = splitpointsCounts.Get(f);
-        for(int s=0; s<numberOfSplitpoints; s++)
+        const typename Impurity::BufferTypes::Index numberOfSplitpoints = splitpointsCounts.Get(f);
+        for(typename Impurity::BufferTypes::Index s=0; s<numberOfSplitpoints; s++)
         {
-            const typename Impurity::Float impurity = ic.Impurity(f, s, childCounts, leftStats, rightStats);
+            const typename Impurity::BufferTypes::ImpurityValue impurity = ic.Impurity(f, s, childCounts, leftStats, rightStats);
             impurities.Set(f, s, impurity);
         }
     }

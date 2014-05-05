@@ -9,7 +9,7 @@
 // Slice a buffer by a collection of row indices
 //
 // ----------------------------------------------------------------------------
-template <class BufType, class IntType>
+template <class BufferTypes, class DataBufferType>
 class SliceBufferStep: public PipelineStepI
 {
 public:
@@ -21,7 +21,8 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     // Read only output buffer
     const BufferId SlicedBufferId;
@@ -31,34 +32,38 @@ private:
 };
 
 
-template <class BufType, class IntType>
-SliceBufferStep<BufType, IntType>::SliceBufferStep(const BufferId& buffer,
-                                          const BufferId& indices)
-: SlicedBufferId(GetBufferId("SlicedBuffer"))
+template <class BufferTypes, class DataBufferType>
+SliceBufferStep<BufferTypes, DataBufferType>::SliceBufferStep(const BufferId& buffer,
+                                                                const BufferId& indices)
+: PipelineStepI("SliceBufferStep")
+, SlicedBufferId(buffer+GetBufferId("-Sliced"))
 , mBufferBufferId(buffer)
 , mIndicesBufferId(indices)
 {}
 
-template <class BufType, class IntType>
-SliceBufferStep<BufType, IntType>::~SliceBufferStep()
+template <class BufferTypes, class DataBufferType>
+SliceBufferStep<BufferTypes, DataBufferType>::~SliceBufferStep()
 {}
 
-template <class BufType, class IntType>
-PipelineStepI* SliceBufferStep<BufType, IntType>::Clone() const
+template <class BufferTypes, class DataBufferType>
+PipelineStepI* SliceBufferStep<BufferTypes, DataBufferType>::Clone() const
 {
-    SliceBufferStep<BufType, IntType>* clone = new SliceBufferStep<BufType, IntType>(*this);
+    SliceBufferStep<BufferTypes, DataBufferType>* clone = new SliceBufferStep<BufferTypes, DataBufferType>(*this);
     return clone;
 }
 
-template <class BufType, class IntType>
-void SliceBufferStep<BufType, IntType>::ProcessStep(const BufferCollectionStack& readCollection,
-                                        BufferCollection& writeCollection,
-                                        boost::mt19937& gen) const
+template <class BufferTypes, class DataBufferType>
+void SliceBufferStep<BufferTypes, DataBufferType>::ProcessStep(const BufferCollectionStack& readCollection,
+                                                                BufferCollection& writeCollection,
+                                                                boost::mt19937& gen,
+                                                                BufferCollection& extraInfo, int nodeIndex) const
 {
     UNUSED_PARAM(gen);
-    const BufType& buffer = readCollection.GetBuffer<BufType>(mBufferBufferId);
-    const VectorBufferTemplate<IntType>& indices =
-          readCollection.GetBuffer< VectorBufferTemplate<IntType> >(mIndicesBufferId);
-    const BufType& slicedBuffer = buffer.Slice(indices);
-    writeCollection.AddBuffer<BufType>(SlicedBufferId, slicedBuffer);
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
+    const DataBufferType& buffer = readCollection.GetBuffer<DataBufferType>(mBufferBufferId);
+    const VectorBufferTemplate<typename BufferTypes::Index>& indices =
+          readCollection.GetBuffer< VectorBufferTemplate<typename BufferTypes::Index> >(mIndicesBufferId);
+    const DataBufferType& slicedBuffer = buffer.Slice(indices);
+    writeCollection.AddBuffer<DataBufferType>(SlicedBufferId, slicedBuffer);
 }

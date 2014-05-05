@@ -5,8 +5,46 @@
 
 
 BufferCollection::BufferCollection()
-    : mBuffers()
+: mBuffers()
 {
+}
+
+BufferCollection::BufferCollection(const BufferCollection& bc)
+: mBuffers()
+{
+    for(std::map<BufferCollectionKey_t, boost::any>::const_iterator it=bc.mBuffers.begin(); 
+        it!=bc.mBuffers.end(); 
+        ++it )
+    {
+        mBuffers[it->first] = boost::any(it->second);
+    }
+}
+
+BufferCollection::~BufferCollection()
+{
+    // printf("~BufferCollection() %p\n", this);
+    // for(std::map<BufferCollectionKey_t, boost::any>::const_iterator it=mBuffers.begin(); 
+    //     it!=mBuffers.end(); 
+    //     ++it )
+    // {
+    //     printf(" %s\n", it->first.c_str());
+    // }
+    mBuffers.clear();
+}
+
+BufferCollection& BufferCollection::operator=(const BufferCollection& bc)
+{
+    if(this != &bc) // protect against invalid self-assignment
+    {
+        mBuffers.clear();
+        for(std::map<BufferCollectionKey_t, boost::any>::const_iterator it=bc.mBuffers.begin(); 
+            it!=bc.mBuffers.end(); 
+            ++it )
+        {
+            mBuffers[it->first] = boost::any(it->second);
+        }
+    }
+    return *this;
 }
 
 #define DEFINE_BUFFER_SWIG_INTERFACE_FOR_TYPE(BUFFER_TYPE) \
@@ -61,4 +99,16 @@ void BufferCollection::Print() const
     {
         printf("%s\n", iter->first.c_str());
     }
+}
+
+std::list<std::string> BufferCollection::GetKeys() const
+{
+    std::list<std::string> keys;
+    for(std::map<BufferCollectionKey_t, boost::any>::const_iterator it=mBuffers.begin(); 
+        it!=mBuffers.end(); 
+        ++it )
+    {
+        keys.push_back(it->first);
+    }
+    return keys;
 }

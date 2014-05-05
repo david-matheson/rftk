@@ -21,12 +21,14 @@
 #include "BestSplitpointsWalkingSortedStep.h"
 #include "Pipeline.h"
 
-#include "ShouldSplitNoCriteria.h"
+#include "MinImpurityCriteria.h"
 #include "ClassEstimatorFinalizer.h"
 #include "SplitSelector.h"
 
 #include "DepthFirstTreeLearner.h"
 #include "Tree.h"
+
+typedef SinglePrecisionBufferTypes CdflBufferTypes_t;
 
 template<typename T>
 VectorBufferTemplate<T> CreateVector1(T value)
@@ -69,20 +71,24 @@ struct DepthFirstTreeLearnerFixture {
     {
         collection.AddBuffer(xs_key, xs);
         collection.AddBuffer(classes_key, classes);
+        stack.Push(&collection);
     }
 
     ~DepthFirstTreeLearnerFixture()
     {
     }
 
+
     const BufferCollectionKey_t xs_key;
     const MatrixBufferTemplate<float> xs;
     const BufferCollectionKey_t classes_key;
     const VectorBufferTemplate<int> classes;    
     BufferCollection collection;
+    BufferCollectionStack stack;
 };
 
-DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t xs_key, 
+
+DepthFirstTreeLearner<CdflBufferTypes_t> CreateDepthFirstLearner( BufferCollectionKey_t xs_key, 
                                                           BufferCollectionKey_t classes_key, 
                                                           int numberOfClasses, 
                                                           FeatureValueOrdering featureOrdering, 

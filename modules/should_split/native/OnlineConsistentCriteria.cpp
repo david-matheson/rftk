@@ -1,5 +1,6 @@
 #include <math.h>
-#include <asserts.h> // for UNUSED_PARAM
+#include "unused.h" 
+#include "BufferCollectionUtils.h"
 #include "OnlineConsistentCriteria.h"
 
 
@@ -23,9 +24,9 @@ ShouldSplitCriteriaI* OnlineConsistentCriteria::Clone() const
 }
 
 bool OnlineConsistentCriteria::ShouldSplit(int depth, float impurity,
-                                      int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints) const
+                                      int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints,
+                                      BufferCollection& extraInfo, int nodeIndex, bool recordInfo) const
 {
-
     const float minNumberOfSamples = mMinNumberOfSamplesFirstSplit * pow(mGrowthRate, depth);
     const float maxNumberOfSamples = mMaxNumberOfSamplesFirstSplit * pow(mGrowthRate, depth);
 
@@ -33,6 +34,12 @@ bool OnlineConsistentCriteria::ShouldSplit(int depth, float impurity,
                           && rightNumberOfDatapoints > minNumberOfSamples;
     const bool shouldSplit = canSplit && impurity > mMinImpurity;
     const bool mustSplit = canSplit && numberOfDatapoints > maxNumberOfSamples; 
-
-    return shouldSplit || mustSplit;
+    const bool result = shouldSplit || mustSplit;
+    if(recordInfo)
+    {
+        WriteValue<int>(extraInfo, "ShouldSplit-OnlineConsistentCriteria", nodeIndex, result ? SHOULD_SPLIT_TRUE : SHOULD_SPLIT_FALSE);
+        WriteValue<int>(extraInfo, "ShouldSplit-OnlineConsistentCriteria-ShouldSplit", nodeIndex, shouldSplit ? SHOULD_SPLIT_TRUE : SHOULD_SPLIT_FALSE);
+        WriteValue<int>(extraInfo, "ShouldSplit-OnlineConsistentCriteria-MustSplit", nodeIndex, mustSplit ? SHOULD_SPLIT_TRUE : SHOULD_SPLIT_FALSE);
+    }
+    return result;
 }

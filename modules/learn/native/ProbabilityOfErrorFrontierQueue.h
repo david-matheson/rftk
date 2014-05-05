@@ -81,7 +81,7 @@ std::pair<int, int> ProbabilityOfErrorFrontierQueue<ProbabilityOfError>::PopBest
         const int treeIndex = iter->first;
         const int nodeIndex = iter->second;
         const Tree& tree = forest.mTrees[treeIndex];
-        const float pointsToReachNode = tree.mCounts.Get(nodeIndex);
+        const float pointsToReachNode = tree.GetCounts().Get(nodeIndex);
         const float pointsDuringNodeLifetime =
             static_cast<float>(mNumberDatapointsPerTree[treeIndex] - mNumberDatapointsOnNodeCreation[*iter]);
         const float probOfNode = pointsToReachNode / pointsDuringNodeLifetime;
@@ -135,17 +135,17 @@ void ProbabilityOfErrorFrontierQueue<ProbabilityOfError>::ProcessSplit(const For
 
     const Tree& tree = forest.mTrees[treeIndex];
     std::pair<int,int> treeNodeKey = std::make_pair(treeIndex, nodeIndex);
-    const float probabilityOfNode = tree.mCounts.Get(nodeIndex) / static_cast<float>(mNumberDatapointsPerTree[treeIndex] - mNumberDatapointsOnNodeCreation[treeNodeKey]);
+    const float probabilityOfNode = tree.GetCounts().Get(nodeIndex) / static_cast<float>(mNumberDatapointsPerTree[treeIndex] - mNumberDatapointsOnNodeCreation[treeNodeKey]);
 
-    const float probabilityOfLeftGivenNode = tree.mCounts.Get(leftIndex) / (tree.mCounts.Get(leftIndex) + tree.mCounts.Get(rightIndex));
+    const float probabilityOfLeftGivenNode = tree.GetCounts().Get(leftIndex) / (tree.GetCounts().Get(leftIndex) + tree.GetCounts().Get(rightIndex));
     const float probabilityOfLeft = probabilityOfNode * probabilityOfLeftGivenNode;
-    const float leftTotalDatapointsToMaintainProbEst = tree.mCounts.Get(leftIndex) / probabilityOfLeft;
+    const float leftTotalDatapointsToMaintainProbEst = tree.GetCounts().Get(leftIndex) / probabilityOfLeft;
     mNumberDatapointsOnNodeCreation[std::make_pair(treeIndex, leftIndex) ] = mNumberDatapointsPerTree[treeIndex] - leftTotalDatapointsToMaintainProbEst;
     mQueuedFrontierLeaves.insert( std::make_pair(treeIndex, leftIndex) );
 
-    const float probabilityOfRightGivenNode = tree.mCounts.Get(rightIndex) / (tree.mCounts.Get(leftIndex) + tree.mCounts.Get(rightIndex));
+    const float probabilityOfRightGivenNode = tree.GetCounts().Get(rightIndex) / (tree.GetCounts().Get(leftIndex) + tree.GetCounts().Get(rightIndex));
     const float probabilityOfRight = probabilityOfNode * probabilityOfRightGivenNode;
-    const float rightTotalDatapointsToMaintainProbEst = tree.mCounts.Get(rightIndex) / probabilityOfRight;
+    const float rightTotalDatapointsToMaintainProbEst = tree.GetCounts().Get(rightIndex) / probabilityOfRight;
     mNumberDatapointsOnNodeCreation[std::make_pair(treeIndex, rightIndex) ] = mNumberDatapointsPerTree[treeIndex] - rightTotalDatapointsToMaintainProbEst;
     mQueuedFrontierLeaves.insert( std::make_pair(treeIndex, rightIndex) );
 }

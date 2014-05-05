@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <list>
 #include <map>
 #include <typeinfo>
 #include <boost/any.hpp>
@@ -16,6 +17,9 @@ class BufferCollection
 {
 public:
     BufferCollection();
+    BufferCollection(const BufferCollection& bc);
+    ~BufferCollection();
+    BufferCollection& operator=(const BufferCollection& bc);
 
 #define DECLARE_BUFFER_SWIG_INTERFACE_FOR_TYPE(BUFFER_TYPE) \
 bool Has ## BUFFER_TYPE(BufferCollectionKey_t name) const; \
@@ -46,6 +50,7 @@ BUFFER_TYPE& Get ## BUFFER_TYPE(const BufferCollectionKey_t& name);
 
     bool HasBuffer(BufferCollectionKey_t name) const;
     void Print() const;
+    std::list<std::string> GetKeys() const;
 
     template<typename BufferType>
     void AddBuffer(BufferCollectionKey_t name, BufferType const& data);
@@ -148,6 +153,7 @@ BufferType* BufferCollection::GetBufferPtr(BufferCollectionKey_t name)
 #define X_FLOAT_DATA    "x_float"
 #define SAMPLE_WEIGHTS  "SampleWeights"
 #define CLASS_LABELS    "y_class"
+#define YS              "ys"
 #define FEATURE_VALUES  "Feature_Values"
 #define HISTOGRAM_LEFT            "Histogram_Left"
 #define HISTOGRAM_RIGHT           "Histogram_Right"
@@ -161,3 +167,5 @@ BufferType* BufferCollection::GetBufferPtr(BufferCollectionKey_t name)
 #define PIXEL_INDICES   "PixelIndices"
 #define DEPTH_IMAGES    "DepthImages"
 #define OFFSET_SCALES   "OffsetScales"
+
+#define OOB_INDICES "OOB_Indices"

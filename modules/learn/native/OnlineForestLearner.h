@@ -26,7 +26,7 @@
 // OnlineForestLearner learns a forest online by storing stats of active leafs
 //
 // ----------------------------------------------------------------------------
-template <class Feature, class EstimatorUpdater, class ProbabilityOfError,  class FloatType, class IntType>
+template <class Feature, class EstimatorUpdater, class ProbabilityOfError, class BufferTypes>
 class OnlineForestLearner
 {
 public:
@@ -37,7 +37,7 @@ public:
                         const PipelineStepI* statsUpdateNodeSteps,
                         const PipelineStepI* impurityUpdateNodeSteps,
                         const int impurityUpdatePeriod,
-                        const SplitSelectorI<FloatType, IntType>* splitSelector,
+                        const SplitSelectorI<BufferTypes>* splitSelector,
                         int maxFrontierSize,
                         int numberOfTrees,
                         int maxIntParamsDim,
@@ -53,9 +53,9 @@ public:
     Forest GetForest() const;
 
 private:
-    OnlineForestLearner(const OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError,FloatType, IntType>& rhs);
-    OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError,FloatType, IntType> & operator= 
-                      (const OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError,FloatType, IntType> & other);
+    OnlineForestLearner(const OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError,BufferTypes>& rhs);
+    OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError,BufferTypes> & operator= 
+                      (const OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError,BufferTypes> & other);
 
     void UpdateActiveFrontier();
 
@@ -65,13 +65,13 @@ private:
     const PipelineStepI* mStatsUpdateNodeSteps;
     const PipelineStepI* mImpurityUpdateNodeSteps;
     const int mImpurityUpdatePeriod;
-    const SplitSelectorI<FloatType, IntType>* mSplitSelector;
+    const SplitSelectorI<BufferTypes>* mSplitSelector;
 
     const int mMaxFrontierSize;
 
     Forest mForest;
     ProbabilityOfErrorFrontierQueue<ProbabilityOfError> mFrontierQueue;
-    std::map< std::pair<int, int>, ActiveLeaf > mActiveFrontierLeaves;
+    std::map< std::pair<int, int>, ActiveOnlineLeaf > mActiveFrontierLeaves;
 
     const BufferId mIndicesBufferId;
     const BufferId mWeightsBufferId;
@@ -80,15 +80,15 @@ private:
     const EstimatorUpdater mEstimatorUpdater;
 };
 
-template <class Feature, class EstimatorUpdater, class ProbabilityOfError,  class FloatType, class IntType>
-OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatType, IntType>
+template <class Feature, class EstimatorUpdater, class ProbabilityOfError, class BufferTypes>
+OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, BufferTypes>
 ::OnlineForestLearner( const TrySplitCriteriaI* trySplitCriteria,
                       const PipelineStepI* treeSteps,
                       const PipelineStepI* initNodeSteps,
                       const PipelineStepI* statsUpdateNodeSteps,
                       const PipelineStepI* impurityUpdateNodeSteps,
                       const int impurityUpdatePeriod,
-                      const SplitSelectorI<FloatType, IntType>* splitSelector,
+                      const SplitSelectorI<BufferTypes>* splitSelector,
                       int maxFrontierSize,
                       int numberOfTrees,
                       int maxIntParamsDim,
@@ -117,11 +117,11 @@ OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatType, In
     UpdateActiveFrontier();
 }
 
-template <class Feature, class EstimatorUpdater, class ProbabilityOfError,  class FloatType, class IntType>
-OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatType, IntType>
+template <class Feature, class EstimatorUpdater, class ProbabilityOfError, class BufferTypes>
+OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, BufferTypes>
 ::~OnlineForestLearner()
 {
-    typedef std::map< std::pair<int, int>, ActiveLeaf >::iterator it_type;
+    typedef std::map< std::pair<int, int>, ActiveOnlineLeaf >::iterator it_type;
     for(it_type iterator = mActiveFrontierLeaves.begin(); iterator != mActiveFrontierLeaves.end(); ++iterator)
     {
         delete iterator->second.mNodeData;
@@ -129,8 +129,8 @@ OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatType, In
     }
 }
 
-template <class Feature, class EstimatorUpdater, class ProbabilityOfError,  class FloatType, class IntType>
-Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatType, IntType>
+template <class Feature, class EstimatorUpdater, class ProbabilityOfError, class BufferTypes>
+Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, BufferTypes>
 ::Learn( const BufferCollection& data )
 {
     boost::mt19937 gen;
@@ -140,8 +140,8 @@ Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatT
 
     std::vector<BufferCollectionStack> forestStacks(numberOfTrees);
     std::vector<BufferCollection> forestBcs(numberOfTrees);
-    std::vector< VectorBufferTemplate<IntType>* > forestIndices(numberOfTrees);
-    std::vector< VectorBufferTemplate<FloatType> const* > forestWeights(numberOfTrees);
+    std::vector< VectorBufferTemplate<typename BufferTypes::Index>* > forestIndices(numberOfTrees);
+    std::vector< VectorBufferTemplate<typename BufferTypes::SourceContinuous> const* > forestWeights(numberOfTrees);
     std::vector<typename Feature::FeatureBinding> featureBindings(numberOfTrees);
     std::vector<typename EstimatorUpdater::BindedEstimatorUpdater> estimatorUpdaterBindings(numberOfTrees);
     for(int treeIndex=0; treeIndex<numberOfTrees; treeIndex++)
@@ -151,11 +151,11 @@ Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatT
         treeStack.Push(&data);
         BufferCollection& treeBc = forestBcs[treeIndex];
         treeStack.Push(&treeBc);
-        mTreeSteps->ProcessStep(treeStack, treeBc, gen);
-        forestIndices[treeIndex] = treeBc.GetBufferPtr< VectorBufferTemplate<IntType> >(mIndicesBufferId);
-        forestWeights[treeIndex] = treeStack.GetBufferPtr< VectorBufferTemplate<FloatType> >(mWeightsBufferId);
-        treeBc.AddBuffer< MatrixBufferTemplate<FloatType> >(mPredictFeature.mFloatParamsBufferId, tree.mFloatFeatureParams);
-        treeBc.AddBuffer< MatrixBufferTemplate<IntType> >(mPredictFeature.mIntParamsBufferId, tree.mIntFeatureParams);
+        mTreeSteps->ProcessStep(treeStack, treeBc, gen, tree.GetExtraInfo(), 0);
+        forestIndices[treeIndex] = treeBc.GetBufferPtr< VectorBufferTemplate<typename BufferTypes::Index> >(mIndicesBufferId);
+        forestWeights[treeIndex] = treeStack.GetBufferPtr< VectorBufferTemplate<typename BufferTypes::SourceContinuous> >(mWeightsBufferId);
+        treeBc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mPredictFeature.mFloatParamsBufferId, tree.GetFloatFeatureParams());
+        treeBc.AddBuffer< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mPredictFeature.mIntParamsBufferId, tree.GetIntFeatureParams());
         featureBindings[treeIndex] = mPredictFeature.Bind(treeStack);
         estimatorUpdaterBindings[treeIndex] = mEstimatorUpdater.Bind(treeStack);
     }
@@ -169,63 +169,63 @@ Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatT
             Tree& tree = mForest.mTrees[treeIndex];
             BufferCollectionStack& stack = forestStacks[treeIndex];
 
-            VectorBufferTemplate<IntType>* indices = forestIndices[treeIndex];
+            VectorBufferTemplate<typename BufferTypes::Index>* indices = forestIndices[treeIndex];
             indices->Resize(1);
             indices->Set(0, sampleIndex);
 
-            const VectorBufferTemplate<FloatType>* weights = forestWeights[treeIndex];
-            const FloatType sampleWeight = weights->Get(sampleIndex);
+            const VectorBufferTemplate<typename BufferTypes::SourceContinuous>* weights = forestWeights[treeIndex];
+            const typename BufferTypes::SourceContinuous sampleWeight = weights->Get(sampleIndex);
 
-            if(sampleWeight <= FloatType(0)) continue;
+            if(sampleWeight <= typename BufferTypes::SourceContinuous(0)) continue;
 
             mFrontierQueue.IncrDatapoints(treeIndex, static_cast<long long>(sampleWeight));
 
-            const int nodeIndex = walkTree<typename Feature::FeatureBinding, FloatType, IntType>(
+            const int nodeIndex = walkTree<typename Feature::FeatureBinding, BufferTypes>(
                                              featureBindings[treeIndex], tree, 0, 0 );
-            const int depth = tree.mDepths.Get(nodeIndex);
+            const int depth = tree.GetDepths().Get(nodeIndex);
 
             estimatorUpdaterBindings[treeIndex].UpdateEstimator(tree, nodeIndex, sampleIndex);
-            tree.mCounts.Incr(nodeIndex, sampleWeight);
+            tree.GetCounts().Incr(nodeIndex, sampleWeight);
 
             // Update active node stats
             std::pair<int,int> treeNodeKey = std::make_pair(treeIndex, nodeIndex);
             if( mActiveFrontierLeaves.find(treeNodeKey) != mActiveFrontierLeaves.end() )
             {
-                ActiveLeaf& leaf = mActiveFrontierLeaves[treeNodeKey];
+                ActiveOnlineLeaf& leaf = mActiveFrontierLeaves[treeNodeKey];
                 stack.Push(leaf.mNodeData);
                 if( !leaf.mIsInitialized )
                 {
-                    mInitNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen);
+                    mInitNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen, tree.GetExtraInfo(), nodeIndex);
                     leaf.mIsInitialized = true;
                 }
 
-                mStatsUpdateNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen);
+                mStatsUpdateNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen, tree.GetExtraInfo(), nodeIndex);
                 leaf.mDatapointsSinceLastImpurityUpdate++;
 
                 if( leaf.mDatapointsSinceLastImpurityUpdate >= mImpurityUpdatePeriod )
                 {
-                    mImpurityUpdateNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen);
+                    mImpurityUpdateNodeSteps->ProcessStep(stack, *leaf.mNodeData, gen, tree.GetExtraInfo(), nodeIndex);
                     leaf.mDatapointsSinceLastImpurityUpdate = 0;
 
                     // Split the node
-                    SplitSelectorInfo<FloatType, IntType> selectorInfo = mSplitSelector->ProcessSplits(stack, depth);
+                    SplitSelectorInfo<BufferTypes> selectorInfo = mSplitSelector->ProcessSplits(stack, depth, tree.GetExtraInfo(), nodeIndex);
                     if( selectorInfo.ValidSplit() )
                     {
                         const int leftNodeIndex = tree.NextNodeIndex();
                         const int rightNodeIndex = tree.NextNodeIndex();
 
                         selectorInfo.WriteToTree( nodeIndex, leftNodeIndex, rightNodeIndex,
-                                                  tree.mCounts, tree.mDepths, tree.mFloatFeatureParams, tree.mIntFeatureParams, tree.mYs);
+                                                  tree.GetCounts(), tree.GetDepths(), tree.GetFloatFeatureParams(), tree.GetIntFeatureParams(), tree.GetYs());
 
-                        tree.mPath.Set(nodeIndex, LEFT_CHILD, leftNodeIndex);
-                        tree.mPath.Set(nodeIndex, RIGHT_CHILD, rightNodeIndex);
+                        tree.GetPath().Set(nodeIndex, LEFT_CHILD, leftNodeIndex);
+                        tree.GetPath().Set(nodeIndex, RIGHT_CHILD, rightNodeIndex);
 
                         // Remove split node
                         mActiveFrontierLeaves.erase(treeNodeKey);
                         delete leaf.mNodeData;
 
                         // Add children to the queue
-                        if( mTrySplitCriteria->TrySplit(depth, std::numeric_limits<int>::max()) )
+                        if( mTrySplitCriteria->TrySplit(depth, std::numeric_limits<int>::max(), tree.GetExtraInfo(), nodeIndex, true) )
                         {
                             mFrontierQueue.ProcessSplit(mForest, treeIndex, nodeIndex, leftNodeIndex, rightNodeIndex);
                         }
@@ -236,13 +236,13 @@ Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatT
                         // Update the forest params used for prediction since it has changed
                         BufferCollection& bc = forestBcs[treeIndex];
 
-                        MatrixBufferTemplate<FloatType>* featureFloatParams =
-                                bc.GetBufferPtr< MatrixBufferTemplate<FloatType> >(mPredictFeature.mFloatParamsBufferId);
-                        *featureFloatParams = tree.mFloatFeatureParams;
+                        MatrixBufferTemplate<typename BufferTypes::ParamsContinuous>* featureFloatParams =
+                                bc.GetBufferPtr< MatrixBufferTemplate<typename BufferTypes::ParamsContinuous> >(mPredictFeature.mFloatParamsBufferId);
+                        *featureFloatParams = tree.GetFloatFeatureParams();
 
-                        MatrixBufferTemplate<IntType>* featureIntParams =
-                                bc.GetBufferPtr< MatrixBufferTemplate<IntType> >(mPredictFeature.mIntParamsBufferId);
-                        *featureIntParams = tree.mIntFeatureParams;
+                        MatrixBufferTemplate<typename BufferTypes::ParamsInteger>* featureIntParams =
+                                bc.GetBufferPtr< MatrixBufferTemplate<typename BufferTypes::ParamsInteger> >(mPredictFeature.mIntParamsBufferId);
+                        *featureIntParams = tree.GetIntFeatureParams();
                     }
                 }
                 stack.Pop(); //stack.Push(leaf.mNodeData);
@@ -252,21 +252,21 @@ Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatT
     return mForest;
 }
 
-template <class Feature, class EstimatorUpdater, class ProbabilityOfError,  class FloatType, class IntType>
-Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatType, IntType>
+template <class Feature, class EstimatorUpdater, class ProbabilityOfError, class BufferTypes>
+Forest OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, BufferTypes>
 ::GetForest() const
 {
     return mForest;
 }
 
-template <class Feature, class EstimatorUpdater, class ProbabilityOfError,  class FloatType, class IntType>
-void OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, FloatType, IntType>
+template <class Feature, class EstimatorUpdater, class ProbabilityOfError, class BufferTypes>
+void OnlineForestLearner<Feature, EstimatorUpdater, ProbabilityOfError, BufferTypes>
 ::UpdateActiveFrontier()
 {
     // Add a new active split to the frontier when there is space and there is a candidate in the queue
     while( mActiveFrontierLeaves.size() < static_cast<size_t>(mMaxFrontierSize) && !mFrontierQueue.IsEmpty() )
     {
         std::pair<int,int> treeNodeKey = mFrontierQueue.PopBest(mForest);
-        mActiveFrontierLeaves[treeNodeKey] = ActiveLeaf(new BufferCollection());
+        mActiveFrontierLeaves[treeNodeKey] = ActiveOnlineLeaf(new BufferCollection());
     }
 }

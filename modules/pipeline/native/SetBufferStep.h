@@ -13,54 +13,59 @@
 // only when OutputBufferId has not already been set.
 //
 // ----------------------------------------------------------------------------
-template <class BufType>
+template <class DataBufferType>
 class SetBufferStep: public PipelineStepI
 {
 public:
-    SetBufferStep(const BufType& buffer, SetRule setRule );
+    SetBufferStep(const DataBufferType& buffer, SetRule setRule );
     virtual ~SetBufferStep();
 
     virtual PipelineStepI* Clone() const;
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     // Read only output buffer
     const BufferId OutputBufferId;
 private:
-    BufType mBuffer;
+    DataBufferType mBuffer;
     SetRule mSetRule;
 };
 
 
-template <class BufType>
-SetBufferStep<BufType>::SetBufferStep(const BufType& buffer, SetRule setRule)
-: OutputBufferId(GetBufferId("SetBufferStep"))
+template <class DataBufferType>
+SetBufferStep<DataBufferType>::SetBufferStep(const DataBufferType& buffer, SetRule setRule)
+: PipelineStepI("SetBufferStep")
+, OutputBufferId(GetBufferId("SetBufferStep"))
 , mBuffer(buffer)
 , mSetRule(setRule)
 {}
 
-template <class BufType>
-SetBufferStep<BufType>::~SetBufferStep()
+template <class DataBufferType>
+SetBufferStep<DataBufferType>::~SetBufferStep()
 {}
 
-template <class BufType>
-PipelineStepI* SetBufferStep<BufType>::Clone() const
+template <class DataBufferType>
+PipelineStepI* SetBufferStep<DataBufferType>::Clone() const
 {
-    SetBufferStep* clone = new SetBufferStep<BufType>(*this);
+    SetBufferStep* clone = new SetBufferStep<DataBufferType>(*this);
     return clone;
 }
 
-template <class BufType>
-void SetBufferStep<BufType>::ProcessStep(const BufferCollectionStack& readCollection,
+template <class DataBufferType>
+void SetBufferStep<DataBufferType>::ProcessStep(const BufferCollectionStack& readCollection,
                                         BufferCollection& writeCollection,
-                                        boost::mt19937& gen) const
+                                        boost::mt19937& gen,
+                                        BufferCollection& extraInfo, int nodeIndex) const
 {
     UNUSED_PARAM(readCollection);
     UNUSED_PARAM(gen);
+    UNUSED_PARAM(extraInfo);
+    UNUSED_PARAM(nodeIndex);
 
-    if(!writeCollection.HasBuffer<BufType>(OutputBufferId) || mSetRule == EVERY_PROCESS)
+    if(!writeCollection.HasBuffer<DataBufferType>(OutputBufferId) || mSetRule == EVERY_PROCESS)
     {
         writeCollection.AddBuffer(OutputBufferId, mBuffer);
     }

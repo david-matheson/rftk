@@ -11,35 +11,34 @@
 // Update class histograms from sample weights and classes
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType>
+template <class BT>
 class BindedClassStatsUpdater
 {
 public:
-    BindedClassStatsUpdater(VectorBufferTemplate<FloatType> const* sampleWeights,
-                            VectorBufferTemplate<IntType> const* mClasses);
+    BindedClassStatsUpdater(VectorBufferTemplate<typename BT::DatapointCounts> const* sampleWeights,
+                            VectorBufferTemplate<typename BT::SourceInteger> const* mClasses);
 
-    void UpdateStats(FloatType& counts, Tensor3BufferTemplate<FloatType>& stats, 
+    void UpdateStats(typename BT::DatapointCounts& counts, Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& stats,
                 int feature, int threshold, int sampleIndex) const;
 
-
 private:
-    VectorBufferTemplate<FloatType> const* mSampleWeights;
-    VectorBufferTemplate<IntType> const* mClasses;
+    VectorBufferTemplate<typename BT::DatapointCounts> const* mSampleWeights;
+    VectorBufferTemplate<typename BT::SourceInteger> const* mClasses;
 };
 
-template <class FloatType, class IntType>
-BindedClassStatsUpdater<FloatType, IntType>::BindedClassStatsUpdater(VectorBufferTemplate<FloatType> const* sampleWeights,
-                                                                      VectorBufferTemplate<IntType> const* classes)
+template <class BT>
+BindedClassStatsUpdater<BT>::BindedClassStatsUpdater(VectorBufferTemplate<typename BT::DatapointCounts> const* sampleWeights,
+                                                                      VectorBufferTemplate<typename BT::SourceInteger> const* classes)
 : mSampleWeights(sampleWeights)
 , mClasses(classes)
 {}
 
-template <class FloatType, class IntType>
-void BindedClassStatsUpdater<FloatType, IntType>::UpdateStats(FloatType& counts, Tensor3BufferTemplate<FloatType>& stats, 
+template <class BT>
+void BindedClassStatsUpdater<BT>::UpdateStats(typename BT::DatapointCounts& counts, Tensor3BufferTemplate<typename BT::SufficientStatsContinuous>& stats,
                                                           int feature, int threshold, int sampleIndex) const
 {
-    const FloatType weight = mSampleWeights->Get(sampleIndex);
-    const IntType classId = mClasses->Get(sampleIndex);
+    const typename BT::DatapointCounts weight = mSampleWeights->Get(sampleIndex);
+    const typename BT::SourceInteger classId = mClasses->Get(sampleIndex);
 
     counts += weight;
     stats.Incr(feature, threshold, classId, weight);
@@ -51,7 +50,7 @@ void BindedClassStatsUpdater<FloatType, IntType>::UpdateStats(FloatType& counts,
 // Update class histograms from sample weights and classes
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType>
+template <class BT>
 class ClassStatsUpdater
 {
 public:
@@ -59,12 +58,11 @@ public:
                        const BufferId& classesBufferId,
                        const int numberOfClasses);
 
-    BindedClassStatsUpdater<FloatType, IntType> Bind(const BufferCollectionStack& readCollection) const;
-    int GetNumberOfClasses() const;
+    BindedClassStatsUpdater<BT> Bind(const BufferCollectionStack& readCollection) const;
+    int GetDimension() const;
 
-    typedef FloatType Float;
-    typedef IntType Int;
-    typedef BindedClassStatsUpdater<FloatType, IntType> BindedStatUpdater;
+    typedef BindedClassStatsUpdater<BT> BindedStatUpdater;
+    typedef BT BufferTypes;
 
 private:
     const BufferId mSampleWeightsBufferId;
@@ -72,8 +70,8 @@ private:
     const int mNumberOfClasses;
 };
 
-template <class FloatType, class IntType>
-ClassStatsUpdater<FloatType, IntType>::ClassStatsUpdater(const BufferId& sampleWeightsBufferId,
+template <class BT>
+ClassStatsUpdater<BT>::ClassStatsUpdater(const BufferId& sampleWeightsBufferId,
                                                           const BufferId& classesBufferId,
                                                           const int numberOfClasses)
 : mSampleWeightsBufferId(sampleWeightsBufferId)
@@ -81,21 +79,21 @@ ClassStatsUpdater<FloatType, IntType>::ClassStatsUpdater(const BufferId& sampleW
 , mNumberOfClasses(numberOfClasses)
 {}
 
-template <class FloatType, class IntType>
-BindedClassStatsUpdater<FloatType, IntType> 
-ClassStatsUpdater<FloatType, IntType>::Bind(const BufferCollectionStack& readCollection) const
+template <class BT>
+BindedClassStatsUpdater<BT>
+ClassStatsUpdater<BT>::Bind(const BufferCollectionStack& readCollection) const
 {
-    VectorBufferTemplate<FloatType> const* sampleWeights = 
-          readCollection.GetBufferPtr< VectorBufferTemplate<FloatType> >(mSampleWeightsBufferId);
+    VectorBufferTemplate<typename BT::DatapointCounts> const* sampleWeights =
+          readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::DatapointCounts> >(mSampleWeightsBufferId);
 
-    VectorBufferTemplate<IntType> const* classes = 
-          readCollection.GetBufferPtr< VectorBufferTemplate<IntType> >(mClassesBufferId);
+    VectorBufferTemplate<typename BT::SourceInteger> const* classes =
+          readCollection.GetBufferPtr< VectorBufferTemplate<typename BT::SourceInteger> >(mClassesBufferId);
 
-    return BindedClassStatsUpdater<FloatType, IntType>(sampleWeights, classes);
+    return BindedClassStatsUpdater<BT>(sampleWeights, classes);
 }
 
-template <class FloatType, class IntType>
-int ClassStatsUpdater<FloatType, IntType>::GetNumberOfClasses() const
+template <class BT>
+int ClassStatsUpdater<BT>::GetDimension() const
 {
     return mNumberOfClasses;
 }

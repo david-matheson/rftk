@@ -47,6 +47,18 @@ public:
         return result;
     }
 
+    void LogFeatureInfo( const BufferCollectionStack& readCollection, int depth,
+                                                              const int featureOffset, const double featureImpurity, const bool isSelectedFeature, 
+                                                              BufferCollection& extraInfo) const
+    {
+        UNUSED_PARAM(readCollection);
+        UNUSED_PARAM(depth);
+        UNUSED_PARAM(featureOffset);
+        UNUSED_PARAM(featureImpurity);
+        UNUSED_PARAM(isSelectedFeature);
+        UNUSED_PARAM(extraInfo);
+    }
+
     typedef FloatType Float;
     typedef IntType Int;
     typedef TestFeatureBinding<FloatType,IntType> FeatureBinding;
@@ -64,7 +76,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_features_by_datapoints)
 
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<double> >(feature_extractor.FeatureValuesBufferId));
     boost::mt19937 gen(0);
-    feature_extractor.ProcessStep(stack, collection, gen);
+    feature_extractor.ProcessStep(stack, collection, gen, collection, 0);
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<double> >(feature_extractor.FeatureValuesBufferId));
 
     MatrixBufferTemplate<double>& feature_values =
@@ -89,7 +101,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_datapoints_by_features)
 
     BOOST_CHECK(!collection.HasBuffer< MatrixBufferTemplate<double> >(feature_extractor.FeatureValuesBufferId));
     boost::mt19937 gen(0);
-    feature_extractor.ProcessStep(stack, collection, gen);
+    feature_extractor.ProcessStep(stack, collection, gen, collection, 0);
     BOOST_CHECK(collection.HasBuffer< MatrixBufferTemplate<double> >(feature_extractor.FeatureValuesBufferId));
 
     MatrixBufferTemplate<double>& feature_values =

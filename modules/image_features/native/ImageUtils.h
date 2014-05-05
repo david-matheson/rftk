@@ -2,8 +2,11 @@
 
 #include "Tensor3Buffer.h"
 
-template <class IntType>
-void ClampPixel(const IntType maxM, const IntType maxN, IntType* m, IntType *n)
+template <class BufferTypes>
+void ClampPixel(const typename BufferTypes::Index maxM, 
+                const typename BufferTypes::Index maxN, 
+                typename BufferTypes::Index* m, 
+                typename BufferTypes::Index* n)
 {
     if(*m < 0)
     {
@@ -23,20 +26,27 @@ void ClampPixel(const IntType maxM, const IntType maxN, IntType* m, IntType *n)
     }
 }
 
-template <class FloatType, class IntType>
-FloatType PixelDepthDelta(const Tensor3BufferTemplate<FloatType>& depths, const IntType imgId, const IntType pixelM, const IntType pixelN,
-                          const FloatType ux, const FloatType uy, const FloatType vx, const FloatType vy)
+template <class BufferTypes>
+typename BufferTypes::FeatureValue
+PixelDepthDelta(const Tensor3BufferTemplate<typename BufferTypes::SourceContinuous>& depths, 
+                const typename BufferTypes::Index imgId, 
+                const typename BufferTypes::Index pixelM, 
+                const typename BufferTypes::Index pixelN,
+                const typename BufferTypes::ParamsContinuous ux, 
+                const typename BufferTypes::ParamsContinuous uy, 
+                const typename BufferTypes::ParamsContinuous vx, 
+                const typename BufferTypes::ParamsContinuous vy)
 {
-    const FloatType scaleByDepth = FloatType(2.0) / depths.Get(imgId, pixelM, pixelN);
+    const typename BufferTypes::ParamsContinuous scaleByDepth = typename BufferTypes::ParamsContinuous(2.0) / depths.Get(imgId, pixelM, pixelN);
 
-    IntType mU = pixelM + IntType(scaleByDepth * ux);
-    IntType nU = pixelN + IntType(scaleByDepth * uy);
-    IntType mV = pixelM + IntType(scaleByDepth * vx);
-    IntType nV = pixelN + IntType(scaleByDepth * vy);
+    typename BufferTypes::Index  mU = pixelM + typename BufferTypes::Index(scaleByDepth * ux);
+    typename BufferTypes::Index  nU = pixelN + typename BufferTypes::Index(scaleByDepth * uy);
+    typename BufferTypes::Index  mV = pixelM + typename BufferTypes::Index(scaleByDepth * vx);
+    typename BufferTypes::Index  nV = pixelN + typename BufferTypes::Index(scaleByDepth * vy);
 
-    ClampPixel<IntType>(depths.GetM(), depths.GetN(), &mU, &nU);
-    ClampPixel<IntType>(depths.GetM(), depths.GetN(), &mV, &nV);
+    ClampPixel<BufferTypes>(depths.GetM(), depths.GetN(), &mU, &nU);
+    ClampPixel<BufferTypes>(depths.GetM(), depths.GetN(), &mV, &nV);
 
-    FloatType delta = depths.Get(imgId, mU, nU) - depths.Get(imgId, mV, nV);
+    typename BufferTypes::FeatureValue delta = depths.Get(imgId, mU, nU) - depths.Get(imgId, mV, nV);
     return delta;
 }

@@ -3,6 +3,7 @@
 #include "VectorBuffer.h"
 #include "MatrixBuffer.h"
 #include "Tensor3Buffer.h"
+#include "BufferTypes.h"
 #include "BufferCollection.h"
 #include "BufferCollectionStack.h"
 #include "UniqueBufferId.h"
@@ -30,7 +31,7 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_FEATURES_BY_DATAPOINTS)
     bc.AddBuffer(classes_key, classes);
 
     const int numberOfClasses = 3;
-    ClassStatsUpdater<float, int> classStatsUpdater(weights_key, classes_key, numberOfClasses);
+    ClassStatsUpdater<SinglePrecisionBufferTypes> classStatsUpdater(weights_key, classes_key, numberOfClasses);
 
     BufferId split_points_key = "split_points";
     float split_points_data[] = {2.0, 5.5, 7.0,
@@ -58,14 +59,14 @@ BOOST_AUTO_TEST_CASE(test_ProcessStep_FEATURES_BY_DATAPOINTS)
     MatrixBufferTemplate<float> feature_values(&feature_values_data[0], 3, 10);
     bc.AddBuffer(feature_values_key, feature_values);
 
-    TwoStreamSplitpointStatsStep< ClassStatsUpdater<float, int> > splitpointStatsStep(split_points_key, 
+    TwoStreamSplitpointStatsStep< ClassStatsUpdater<SinglePrecisionBufferTypes> > splitpointStatsStep(split_points_key, 
                                                                               split_points_counts_key,
                                                                               stream_type_key,
                                                                               feature_values_key, 
                                                                               FEATURES_BY_DATAPOINTS,
                                                                               classStatsUpdater);
     boost::mt19937 gen;
-    splitpointStatsStep.ProcessStep(stack, bc, gen);
+    splitpointStatsStep.ProcessStep(stack, bc, gen, bc, 0);
 
     Tensor3BufferTemplate<float>& childImpurityCounts = 
             bc.GetBuffer< Tensor3BufferTemplate<float> >(splitpointStatsStep.ChildCountsImpurityBufferId);

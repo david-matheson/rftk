@@ -1,6 +1,8 @@
+#include "BufferTypes.h"
 #include "CreateDepthFirstLearner.h"
+#include "SplitBuffersIndices.h"
 
-DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t xs_key, 
+DepthFirstTreeLearner<CdflBufferTypes_t> CreateDepthFirstLearner( BufferCollectionKey_t xs_key, 
                                                           BufferCollectionKey_t classes_key, 
                                                           int numberOfClasses, 
                                                           FeatureValueOrdering featureOrdering, 
@@ -11,7 +13,7 @@ DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t
 
     // Tree steps
     std::vector<PipelineStepI*> treeSteps;
-    AllSamplesStep<MatrixBufferTemplate<float>, float, int> allSamplesStep(xs_key);
+    AllSamplesStep<CdflBufferTypes_t, MatrixBufferTemplate<CdflBufferTypes_t::SourceContinuous > > allSamplesStep(xs_key);
     treeSteps.push_back(&allSamplesStep);
     VectorBufferTemplate<int> numberOfFeaturesBuffer = CreateVector1<int>(2);
     SetBufferStep< VectorBufferTemplate<int> > numberOfFeatures( numberOfFeaturesBuffer, WHEN_NEW );
@@ -20,23 +22,24 @@ DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t
 
     // Node steps
     std::vector<PipelineStepI*> nodeSteps;
-    AxisAlignedParamsStep<float, int> featureParams(numberOfFeatures.OutputBufferId, xs_key);
+    AxisAlignedParamsStep<CdflBufferTypes_t, MatrixBufferTemplate<CdflBufferTypes_t::SourceContinuous > > featureParams(numberOfFeatures.OutputBufferId, xs_key);
     nodeSteps.push_back(&featureParams);
-    LinearMatrixFeature<MatrixBufferTemplate<float>, float, int> feature(featureParams.FloatParamsBufferId,
+    LinearMatrixFeature<CdflBufferTypes_t, MatrixBufferTemplate<CdflBufferTypes_t::SourceContinuous > > feature(featureParams.FloatParamsBufferId,
                                                                           featureParams.IntParamsBufferId,
                                                                           allSamplesStep.IndicesBufferId,
                                                                           xs_key); 
-    FeatureExtractorStep< LinearMatrixFeature<MatrixBufferTemplate<float>, float, int> > featureExtractor(feature, 
-                                                                                                            featureOrdering);
+    FeatureExtractorStep< LinearMatrixFeature<CdflBufferTypes_t, MatrixBufferTemplate<CdflBufferTypes_t::SourceContinuous > > > featureExtractor(feature, 
+                                                                                                                                featureOrdering);
     nodeSteps.push_back(&featureExtractor);
-    SliceBufferStep< VectorBufferTemplate<int>, int> sliceClasses(classes_key, allSamplesStep.IndicesBufferId);
+    SliceBufferStep< CdflBufferTypes_t, VectorBufferTemplate<int> > sliceClasses(classes_key, allSamplesStep.IndicesBufferId);
     nodeSteps.push_back(&sliceClasses);
-    SliceBufferStep< VectorBufferTemplate<float>, int> sliceWeights(allSamplesStep.WeightsBufferId, allSamplesStep.IndicesBufferId);  
+    SliceBufferStep< CdflBufferTypes_t, VectorBufferTemplate<float> > sliceWeights(allSamplesStep.WeightsBufferId, allSamplesStep.IndicesBufferId);  
     nodeSteps.push_back(&sliceWeights); 
-    ClassInfoGainWalker<float, int> classInfoGainWalker(sliceWeights.SlicedBufferId, sliceClasses.SlicedBufferId, numberOfClasses);
-    BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<float, int> > bestSplitpointStep(classInfoGainWalker, 
+    ClassInfoGainWalker<CdflBufferTypes_t> classInfoGainWalker(sliceWeights.SlicedBufferId, sliceClasses.SlicedBufferId, numberOfClasses);
+    BestSplitpointsWalkingSortedStep< ClassInfoGainWalker<CdflBufferTypes_t> > bestSplitpointStep(classInfoGainWalker, 
                                                                                             featureExtractor.FeatureValuesBufferId,
-                                                                                            featureOrdering);
+                                                                                            featureOrdering,
+                                                                                            AT_MIDPOINT);
     nodeSteps.push_back(&bestSplitpointStep); 
     Pipeline nodeStepsPipeline(nodeSteps);
 
@@ -52,10 +55,11 @@ DepthFirstTreeLearner<float, int> CreateDepthFirstLearner( BufferCollectionKey_t
                                                 featureParams.IntParamsBufferId,
                                                 featureExtractor.FeatureValuesBufferId,
                                                 featureOrdering,
-                                                allSamplesStep.IndicesBufferId));
-    ShouldSplitNoCriteria noCriteria;
-    ClassEstimatorFinalizer<float> classFinalizer;
-    SplitSelector<float, int> splitSelector(splitBuffers, &noCriteria, &classFinalizer);
+                                                &featureExtractor));
+    const MinImpurityCriteria minImpurityCriteria(0.0);
+    ClassEstimatorFinalizer<CdflBufferTypes_t> classFinalizer;
+    SplitBuffersIndices<CdflBufferTypes_t> splitIndices(allSamplesStep.IndicesBufferId);
+    SplitSelector<CdflBufferTypes_t> splitSelector(splitBuffers, &minImpurityCriteria, &classFinalizer, &splitIndices);
     
-    return DepthFirstTreeLearner<float, int>(&trySplitCriteria, &treeStepsPipeline, &nodeStepsPipeline, &splitSelector);
+    return DepthFirstTreeLearner<CdflBufferTypes_t>(&trySplitCriteria, &treeStepsPipeline, &nodeStepsPipeline, &splitSelector);
 }

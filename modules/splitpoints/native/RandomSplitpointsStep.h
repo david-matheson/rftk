@@ -16,7 +16,7 @@
 // Select random split points from feature values
 //
 // ----------------------------------------------------------------------------
-template <class FloatType, class IntType>
+template <class BufferTypes>
 class RandomSplitpointsStep : public PipelineStepI
 {
 public:
@@ -33,17 +33,18 @@ public:
 
     virtual void ProcessStep(   const BufferCollectionStack& readCollection,
                                 BufferCollection& writeCollection,
-                                boost::mt19937& gen) const;
+                                boost::mt19937& gen,
+                                BufferCollection& extraInfo, int nodeIndex) const;
 
     const BufferId SplitpointsBufferId;
     const BufferId SplitpointsCountsBufferId;
 private:
-    bool IsFull(const VectorBufferTemplate<IntType>& splitPointsCounts) const;
+    bool IsFull(const VectorBufferTemplate<typename BufferTypes::Index>& splitPointsCounts) const;
 
-    void AddSplitpoint(MatrixBufferTemplate<FloatType>& splitPoints,
-                        VectorBufferTemplate<IntType>& splitPointsCounts,
+    void AddSplitpoint(MatrixBufferTemplate<typename BufferTypes::FeatureValue>& splitPoints,
+                        VectorBufferTemplate<typename BufferTypes::Index>& splitPointsCounts,
                         const int featureIndex,
-                        const FloatType featureValue) const;
+                        const typename BufferTypes::FeatureValue featureValue) const;
 
     const BufferId mFeatureValuesBufferId;
     const int mMaxSplitpointPerFeature;
@@ -51,11 +52,12 @@ private:
     const BufferId mStreamTypeBufferId;
 };
 
-template <class FloatType, class IntType>
-RandomSplitpointsStep<FloatType, IntType>::RandomSplitpointsStep(const BufferId& featureValuesBufferId, 
+template <class BufferTypes>
+RandomSplitpointsStep<BufferTypes>::RandomSplitpointsStep(const BufferId& featureValuesBufferId, 
                                                             int maxSplitpointsPerFeature, 
                                                             FeatureValueOrdering featureValueOrdering )
-: SplitpointsBufferId(GetBufferId("Splitpoints"))
+: PipelineStepI("RandomSplitpointsStep")
+, SplitpointsBufferId(GetBufferId("Splitpoints"))
 , SplitpointsCountsBufferId(GetBufferId("SplitpointsCounts"))
 , mFeatureValuesBufferId(featureValuesBufferId)
 , mMaxSplitpointPerFeature(maxSplitpointsPerFeature)
@@ -63,8 +65,8 @@ RandomSplitpointsStep<FloatType, IntType>::RandomSplitpointsStep(const BufferId&
 , mStreamTypeBufferId("NoStreamType")
 {}
 
-template <class FloatType, class IntType>
-RandomSplitpointsStep<FloatType, IntType>::RandomSplitpointsStep(const BufferId& featureValuesBufferId, 
+template <class BufferTypes>
+RandomSplitpointsStep<BufferTypes>::RandomSplitpointsStep(const BufferId& featureValuesBufferId, 
                                                             int maxSplitpointsPerFeature, 
                                                             FeatureValueOrdering featureValueOrdering,
                                                             const BufferId& streamTypeBufferId )
@@ -77,39 +79,42 @@ RandomSplitpointsStep<FloatType, IntType>::RandomSplitpointsStep(const BufferId&
 {}
 
 
-template <class FloatType, class IntType>
-PipelineStepI* RandomSplitpointsStep<FloatType, IntType>::Clone() const
+template <class BufferTypes>
+PipelineStepI* RandomSplitpointsStep<BufferTypes>::Clone() const
 {
-    RandomSplitpointsStep<FloatType, IntType>* clone = new RandomSplitpointsStep<FloatType, IntType>(*this);
+    RandomSplitpointsStep<BufferTypes>* clone = new RandomSplitpointsStep<BufferTypes>(*this);
     return clone;
 }
 
 
-template <class FloatType, class IntType>
-void RandomSplitpointsStep<FloatType, IntType>::ProcessStep(const BufferCollectionStack& readCollection,
+template <class BufferTypes>
+void RandomSplitpointsStep<BufferTypes>::ProcessStep(const BufferCollectionStack& readCollection,
                                         BufferCollection& writeCollection,
-                                        boost::mt19937& gen) const
+                                        boost::mt19937& gen,
+                                        BufferCollection& extraInfo, int nodeIndex) const
 {
-    UNUSED_PARAM(gen); //sampleIndicesWithOutReplacement does NOT currently use boost::mt19937
+    UNUSED_PARAM(gen);
+    UNUSED_PARAM(extraInfo); //sampleIndicesWithOutReplacement does NOT currently use boost::mt19937
+    UNUSED_PARAM(nodeIndex);
 
-    const MatrixBufferTemplate<FloatType>& featureValues =
-          readCollection.GetBuffer< MatrixBufferTemplate<FloatType> >(mFeatureValuesBufferId);
+    const MatrixBufferTemplate<typename BufferTypes::FeatureValue>& featureValues =
+          readCollection.GetBuffer< MatrixBufferTemplate<typename BufferTypes::FeatureValue> >(mFeatureValuesBufferId);
 
-    MatrixBufferTemplate<FloatType>& splitPoints =
-            writeCollection.GetOrAddBuffer< MatrixBufferTemplate<FloatType> >(SplitpointsBufferId);
+    MatrixBufferTemplate<typename BufferTypes::FeatureValue>& splitPoints =
+            writeCollection.GetOrAddBuffer< MatrixBufferTemplate<typename BufferTypes::FeatureValue> >(SplitpointsBufferId);
 
-    VectorBufferTemplate<IntType>& splitPointsCounts =
-            writeCollection.GetOrAddBuffer< VectorBufferTemplate<IntType> >(SplitpointsCountsBufferId);
+    VectorBufferTemplate<typename BufferTypes::Index>& splitPointsCounts =
+            writeCollection.GetOrAddBuffer< VectorBufferTemplate<typename BufferTypes::Index> >(SplitpointsCountsBufferId);
 
-    VectorBufferTemplate<IntType> const* streamType = NULL;
-    if(readCollection.HasBuffer< VectorBufferTemplate<IntType> >(mStreamTypeBufferId))
+    VectorBufferTemplate<typename BufferTypes::ParamsInteger> const* streamType = NULL;
+    if(readCollection.HasBuffer< VectorBufferTemplate<typename BufferTypes::ParamsInteger> >(mStreamTypeBufferId))
     {
-        streamType = readCollection.GetBufferPtr< VectorBufferTemplate<IntType> >(mStreamTypeBufferId);
+        streamType = readCollection.GetBufferPtr< VectorBufferTemplate<typename BufferTypes::ParamsInteger> >(mStreamTypeBufferId);
     }
 
     const int numberOfFeatures =  mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? featureValues.GetM() : featureValues.GetN();
     const int numberOfSamples =  mFeatureValueOrdering == FEATURES_BY_DATAPOINTS ? featureValues.GetN() : featureValues.GetM();
-   
+      
     splitPoints.Resize(numberOfFeatures, mMaxSplitpointPerFeature);
     splitPointsCounts.Resize(numberOfFeatures);
 
@@ -134,8 +139,8 @@ void RandomSplitpointsStep<FloatType, IntType>::ProcessStep(const BufferCollecti
     }
 }
 
-template <class FloatType, class IntType>
-bool RandomSplitpointsStep<FloatType, IntType>::IsFull(const VectorBufferTemplate<IntType>& splitPointsCounts) const
+template <class BufferTypes>
+bool RandomSplitpointsStep<BufferTypes>::IsFull(const VectorBufferTemplate<typename BufferTypes::Index>& splitPointsCounts) const
 {
     bool isFull = true;
     for(int f=0; f<splitPointsCounts.GetN() && isFull; f++)
@@ -145,11 +150,11 @@ bool RandomSplitpointsStep<FloatType, IntType>::IsFull(const VectorBufferTemplat
     return isFull;
 }
 
-template <class FloatType, class IntType>
-void RandomSplitpointsStep<FloatType, IntType>::AddSplitpoint(MatrixBufferTemplate<FloatType>& splitPoints,
-                                                              VectorBufferTemplate<IntType>& splitPointsCounts,
+template <class BufferTypes>
+void RandomSplitpointsStep<BufferTypes>::AddSplitpoint(MatrixBufferTemplate<typename BufferTypes::FeatureValue>& splitPoints,
+                                                              VectorBufferTemplate<typename BufferTypes::Index>& splitPointsCounts,
                                                               const int featureIndex,
-                                                              const FloatType featureValue) const
+                                                              const typename BufferTypes::FeatureValue featureValue) const
 {
     const int splitPointCount = splitPointsCounts.Get(featureIndex);
     if( splitPointCount < mMaxSplitpointPerFeature )

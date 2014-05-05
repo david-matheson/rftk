@@ -9,16 +9,18 @@
 #include "PipelineStepI.h"
 #include "UniqueBufferId.h"
 
-template <class FloatType>
-FloatType calcDiscreteEntropy(FloatType totalCounts, VectorBufferTemplate<FloatType> classHistogram, VectorBufferTemplate<FloatType> logClassHistogram)
+template <class BufferTypes>
+typename BufferTypes::SufficientStatsContinuous calcDiscreteEntropy(typename BufferTypes::SufficientStatsContinuous totalCounts, 
+																	VectorBufferTemplate<typename BufferTypes::SufficientStatsContinuous> classHistogram, 
+																	VectorBufferTemplate<typename BufferTypes::SufficientStatsContinuous> logClassHistogram)
 {;
-    const FloatType inverseTotalCounts = 1.0f / totalCounts;
-    const FloatType logTotalCounts = log2(totalCounts);
+    const typename BufferTypes::SufficientStatsContinuous inverseTotalCounts = 1.0f / totalCounts;
+    const typename BufferTypes::SufficientStatsContinuous logTotalCounts = log2(totalCounts);
 
-    FloatType entropy = FloatType(0);
+    typename BufferTypes::SufficientStatsContinuous entropy = typename BufferTypes::SufficientStatsContinuous(0);
     for(int i=0; i<classHistogram.GetN() && totalCounts > 0.0f; i++)
     {
-        const FloatType prob = inverseTotalCounts * classHistogram.Get(i);
+        const typename BufferTypes::SufficientStatsContinuous prob = inverseTotalCounts * classHistogram.Get(i);
         entropy -= prob * (logClassHistogram.Get(i) - logTotalCounts);
     }
 

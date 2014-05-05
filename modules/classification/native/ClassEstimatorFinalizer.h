@@ -9,25 +9,33 @@
 // Normalize the class histograms to probabilities
 //
 // ----------------------------------------------------------------------------
-template <class FloatType>
-class ClassEstimatorFinalizer: public FinalizerI<FloatType>
+template <class BufferTypes>
+class ClassEstimatorFinalizer: public FinalizerI<BufferTypes>
 {
 public:
-    virtual void Finalize(FloatType count, VectorBufferTemplate<FloatType>& estimator) const;
-    virtual FinalizerI<FloatType>* Clone() const;
+    virtual VectorBufferTemplate<typename BufferTypes::TreeEstimator> Finalize(
+    						const typename BufferTypes::DatapointCounts count, 
+    						const VectorBufferTemplate<typename BufferTypes::SufficientStatsContinuous>& estimator) const;
+    virtual FinalizerI<BufferTypes>* Clone() const;
     virtual ~ClassEstimatorFinalizer() {}
 };
 
-template <class FloatType>
-void ClassEstimatorFinalizer<FloatType>::Finalize(FloatType count, VectorBufferTemplate<FloatType>& estimator) const
+template <class BufferTypes>
+VectorBufferTemplate<typename BufferTypes::TreeEstimator> ClassEstimatorFinalizer<BufferTypes>::Finalize(
+    						const typename BufferTypes::DatapointCounts count, 
+    						const VectorBufferTemplate<typename BufferTypes::SufficientStatsContinuous>& estimator) const
 {
     UNUSED_PARAM(count);
-    estimator.Normalize();
+    VectorBufferTemplate<typename BufferTypes::TreeEstimator> result = 
+    		ConvertVectorBufferTemplate<typename BufferTypes::SufficientStatsContinuous, typename BufferTypes::TreeEstimator>(estimator);
+    result.Normalize();
+    return result;
+
 }
 
-template <class FloatType>
-FinalizerI<FloatType>* ClassEstimatorFinalizer<FloatType>::Clone() const
+template <class BufferTypes>
+FinalizerI<BufferTypes>* ClassEstimatorFinalizer<BufferTypes>::Clone() const
 {
-    ClassEstimatorFinalizer<FloatType>* clone = new ClassEstimatorFinalizer<FloatType>(*this);
+    ClassEstimatorFinalizer<BufferTypes>* clone = new ClassEstimatorFinalizer<BufferTypes>(*this);
     return clone; 
 }

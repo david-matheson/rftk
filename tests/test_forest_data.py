@@ -35,15 +35,35 @@ class TestForestData(unittest.TestCase):
         depth_2 = buffers.as_vector_buffer(np.array([0, 1, 1, 2, 2], dtype=np.int32))
         counts_2 = buffers.as_vector_buffer(np.array([5, 5, 5, 5, 5], dtype=np.float32))
         tree_2 = forest_data.Tree(path_2, int_params_2, float_params_2, depth_2, counts_2, ys_2)
+        tree_2.GetExtraInfo().AddBuffer("first", np.array([3,21,1,22,1,5], dtype=np.float32))
 
         forest = forest_data.Forest([tree_1, tree_2])
+
         return forest
+
+    def test_tree_pickle(self):
+        forest = self.construct_axis_aligned_forest()
+        tree = forest.GetTree(1)
+        pickle.dump(tree, open('tmp.pkl', 'wb'))
+        tree2 = pickle.load(open('tmp.pkl', 'rb'))
+
+        self.assertAlmostEqual(tree2.GetYs().Get(2,0), 0.8, places=7)
+        self.assertEqual(tree2.GetCounts().Get(3), 5)
+
+        b1 = buffers.as_numpy_array(tree.GetExtraInfo().GetBuffer("first"))
+        b2 = buffers.as_numpy_array(tree2.GetExtraInfo().GetBuffer("first"))
+        self.assertTrue((b1 == b2).all())
 
     def test_forest_pickle(self):
         forest = self.construct_axis_aligned_forest()
         pickle.dump(forest, open('tmp.pkl', 'wb'))
         forest2 = pickle.load(open('tmp.pkl', 'rb'))
 
+        tree = forest.GetTree(1)
         tree2 = forest2.GetTree(1)
-        self.assertAlmostEqual(tree2.mYs.Get(2,0), 0.8, places=7)
-        self.assertEqual(tree2.mCounts.Get(3), 5)
+        self.assertAlmostEqual(tree2.GetYs().Get(2,0), 0.8, places=7)
+        self.assertEqual(tree2.GetCounts().Get(3), 5)
+
+        b1 = buffers.as_numpy_array(tree.GetExtraInfo().GetBuffer("first"))
+        b2 = buffers.as_numpy_array(tree2.GetExtraInfo().GetBuffer("first"))
+        self.assertTrue((b1 == b2).all())

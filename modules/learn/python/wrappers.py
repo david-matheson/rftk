@@ -26,8 +26,48 @@ class PredictorWrapper_32f:
     def predict(self, **kwargs):
         result = buffers.Float32MatrixBuffer()
         bufferCollection = self.prepare_data(**kwargs)
-        self.forest_predictor.PredictYs(bufferCollection, result)
+        if 'tree_weights' in kwargs:
+            tree_weights = kwargs.get('tree_weights')
+            self.forest_predictor.PredictYs(bufferCollection, tree_weights, result)
+        else:
+            self.forest_predictor.PredictYs(bufferCollection, result)
         return buffers.as_numpy_array(result)
+
+    def predict_oob(self, **kwargs):
+        result = buffers.Float32MatrixBuffer()
+        bufferCollection = self.prepare_data(**kwargs)
+        if 'leafs' in kwargs:
+            leafs = kwargs.get('leafs')
+            tree_weights = kwargs.get('tree_weights')
+            self.forest_predictor.PredictOobYs(bufferCollection, tree_weights, leafs, result)
+        elif 'tree_weights' in kwargs:
+            tree_weights = kwargs.get('tree_weights')
+            self.forest_predictor.PredictOobYs(bufferCollection, tree_weights, result)
+        else:
+            self.forest_predictor.PredictOobYs(bufferCollection, result)
+        return buffers.as_numpy_array(result)
+
+    def predict_leafs(self, **kwargs):
+        leafs = buffers.Int32MatrixBuffer()
+        bufferCollection = self.prepare_data(**kwargs)
+        self.forest_predictor.PredictLeafs(bufferCollection, leafs)
+        return leafs
+
+    def predict_leafs_ys(self, **kwargs):
+        oob_weights = buffers.Float32MatrixBuffer()
+        leaf_ys = buffers.Float32Tensor3Buffer()
+        bufferCollection = self.prepare_data(**kwargs)
+        self.forest_predictor.PredictLeafYs(bufferCollection, oob_weights, leaf_ys)
+        return buffers.as_numpy_array(leaf_ys), buffers.as_numpy_array(oob_weights)
+
+    def add_tree(self, tree):
+        self.forest_predictor.AddTree(tree)
+
+    def add_forest(self, forest):
+        self.forest_predictor.AddForest(forest)
 
     def get_forest(self):
         return self.forest_predictor.GetForest()
+
+    def set_forest(self, forest):
+        return self.forest_predictor.SetForest(forest)

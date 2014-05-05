@@ -52,8 +52,9 @@ struct LinearMatrixFeatureFixture {
     BufferCollection collection;
     BufferCollectionStack stack;
 
-    typedef LinearMatrixFeature<MatrixBufferTemplate<double>, double, int> LinearMatrixFeature_t;
-    typedef LinearMatrixFeatureBinding<MatrixBufferTemplate<double>, double, int> LinearMatrixFeatureBinding_t;
+    typedef BufferTypes<double, int, int, double, int, float, float, int, float> TestBufferTypes_t;
+    typedef LinearMatrixFeature<TestBufferTypes_t, MatrixBufferTemplate<TestBufferTypes_t::SourceContinuous > > LinearMatrixFeature_t;
+    typedef LinearMatrixFeatureBinding<TestBufferTypes_t, MatrixBufferTemplate<TestBufferTypes_t::SourceContinuous > > LinearMatrixFeatureBinding_t;
 };
 
 BOOST_FIXTURE_TEST_SUITE( LinearMatrixFeatureTests,  LinearMatrixFeatureFixture)
@@ -117,13 +118,13 @@ BOOST_AUTO_TEST_CASE(test_FeatureExtractor_linear_combination)
     LinearMatrixFeature_t matrix_feature(  float_params_key, int_params_key,
                                            indices_key, xs_key);
 
-    FeatureExtractorStep< LinearMatrixFeature<MatrixBufferTemplate<double>, double, int> > fe(matrix_feature, FEATURES_BY_DATAPOINTS);
+    FeatureExtractorStep< LinearMatrixFeature_t > fe(matrix_feature, FEATURES_BY_DATAPOINTS);
 
     boost::mt19937 gen(0);
-    fe.ProcessStep(stack, collection, gen);
+    fe.ProcessStep(stack, collection, gen, collection, 0);
 
-    MatrixBufferTemplate<double> feature_values =
-          collection.GetBuffer< MatrixBufferTemplate<double> >(fe.FeatureValuesBufferId);
+    MatrixBufferTemplate<float> feature_values =
+          collection.GetBuffer< MatrixBufferTemplate<float> >(fe.FeatureValuesBufferId);
 
     BOOST_CHECK_EQUAL(feature_values.Get(0, 0), -4);
     BOOST_CHECK_EQUAL(feature_values.Get(0, 1), -9);

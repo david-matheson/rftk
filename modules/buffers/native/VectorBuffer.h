@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <limits>
+#include <algorithm>    // std::sort
 #include <iostream>
 
 #include <asserts.h>
@@ -18,6 +19,9 @@ public:
     ~VectorBufferTemplate();
 
     void Resize(int n);
+    void Resize(int n, T value);
+    void Extend(int n);
+    void Extend(int n, T value);
     void Zero();
     void SetAll(const T value);
 
@@ -36,6 +40,9 @@ public:
     T Sum() const;
     void Normalize();
     VectorBufferTemplate<T> Normalized() const;
+
+    void Sort();
+    bool IsSorted() const;
 
     void Append(const VectorBufferTemplate<T>& buffer);
     VectorBufferTemplate<T> Slice(const VectorBufferTemplate<int>& indices) const;
@@ -80,7 +87,7 @@ VectorBufferTemplate<T>::VectorBufferTemplate(float* data, int n)
 }
 
 template <class T>
-VectorBufferTemplate<T>::VectorBufferTemplate(double* data, int n)
+VectorBufferTemplate<T>::VectorBufferTemplate(int* data, int n)
 : mData( n )
 , mN(n)
 {
@@ -91,7 +98,7 @@ VectorBufferTemplate<T>::VectorBufferTemplate(double* data, int n)
 }
 
 template <class T>
-VectorBufferTemplate<T>::VectorBufferTemplate(int* data, int n)
+VectorBufferTemplate<T>::VectorBufferTemplate(double* data, int n)
 : mData( n )
 , mN(n)
 {
@@ -120,12 +127,35 @@ VectorBufferTemplate<T>::~VectorBufferTemplate()
 template <class T>
 void VectorBufferTemplate<T>::Resize( int n)
 {
+    Resize(n, T());
+}
+
+template <class T>
+void VectorBufferTemplate<T>::Resize(int n, T value)
+{
     if(static_cast<size_t>(n) > mData.size())
     {
-        mData.resize(n);
+        mData.resize(n, value);
     }
-    mN = n;
+    mN = n; 
 }
+
+template <class T>
+void VectorBufferTemplate<T>::Extend( int n)
+{
+    Extend(n, T());
+}
+
+template <class T>
+void VectorBufferTemplate<T>::Extend(int n, T value)
+{
+    if(static_cast<size_t>(n) > mData.size())
+    {
+        mData.resize(n, value);
+    }
+    mN = std::max<int>(n, mN);  
+}
+
 
 template <class T>
 void VectorBufferTemplate<T>::Zero()
@@ -156,18 +186,21 @@ T VectorBufferTemplate<T>::Get(int n) const
 template <class T>
 void VectorBufferTemplate<T>::SetUnsafe(int n, T value)
 {
+    ASSERT_VALID_RANGE(n, 0, mN)
     mData[n] = value;
 }
 
 template <class T>
 T VectorBufferTemplate<T>::GetUnsafe(int n) const
 {
+    ASSERT_VALID_RANGE(n, 0, mN)
     return mData[n];
 }
 
 template <class T>
 void VectorBufferTemplate<T>::Incr(int n, T value)
 {
+    ASSERT_VALID_RANGE(n, 0, mN)
     mData[n] += value;
 }
 
@@ -220,6 +253,23 @@ VectorBufferTemplate<T> VectorBufferTemplate<T>::Normalized() const
     VectorBufferTemplate<T> result = *this;
     result.Normalize();
     return result;
+}
+
+template <class T>
+void VectorBufferTemplate<T>::Sort()
+{
+    std::sort (mData.begin(), mData.begin()+mN);
+}
+
+template <class T>
+bool VectorBufferTemplate<T>::IsSorted() const
+{
+    bool isSorted = true;
+    for(int i=1; i<mN && isSorted; i++)
+    {
+        isSorted = isSorted && mData[i-1] < mData[i];
+    }
+    return isSorted;
 }
 
 template <class T>
@@ -305,6 +355,17 @@ void VectorBufferTemplate<T>::Print() const
         std::cout << Get(n) << " ";
     }
     std::cout << "]" << std::endl;
+}
+
+template <class From, class To>
+VectorBufferTemplate<To> ConvertVectorBufferTemplate(const VectorBufferTemplate<From>& from)
+{
+    VectorBufferTemplate<To> to(from.GetN());
+    for(int i=0; i<from.GetN(); i++)
+    {
+        to.Set(i, static_cast<To>(from.Get(i)));
+    }
+    return to;
 }
 
 typedef VectorBufferTemplate<float> Float32VectorBuffer;

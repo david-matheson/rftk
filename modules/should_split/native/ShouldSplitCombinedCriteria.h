@@ -17,7 +17,8 @@ public:
     virtual ShouldSplitCriteriaI* Clone() const;
 
     virtual bool ShouldSplit(int depth, float impurity,
-                            int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints) const;
+                            int numberOfDatapoints, int leftNumberOfDataponts, int rightNumberOfDatapoints,
+                            BufferCollection& extraInfo, int nodeIndex, bool recordInfo) const;
 private:
     std::vector<ShouldSplitCriteriaI*> mCriterias;
 };

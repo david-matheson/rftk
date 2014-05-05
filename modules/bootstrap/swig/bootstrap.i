@@ -7,7 +7,7 @@
 
 %include <exception.i>
 %include "numpy.i"
-%import(module="rftk.asserts") "asserts.i"
+%import(module="rftk.utils") "utils.i"
 
 %init %{
     import_array();
